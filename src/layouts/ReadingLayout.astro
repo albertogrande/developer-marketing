@@ -1,0 +1,31 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  deskLabel: string; // kicker desk, e.g. "Radar" or "Guide"
+  stamp?: string; // right side of the kicker, e.g. a date or "Section 01"
+}
+const { title, description, deskLabel, stamp } = Astro.props;
+---
+<BaseLayout title={title} description={description}>
+  <article class="article" data-pagefind-body>
+    <header class="article-head">
+      <div class="kicker">
+        <span class="desk">{deskLabel}</span>
+        {stamp && (
+          <Fragment><span class="kdot" aria-hidden="true">░</span>{stamp}</Fragment>
+        )}
+      </div>
+      <h1 class="article-title">{title}</h1>
+      <slot name="lead" />
+    </header>
+
+    <div class="article-body">
+      <slot />
+    </div>
+
+    <slot name="foot" />
+  </article>
+</BaseLayout>

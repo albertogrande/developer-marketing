@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { withBase, fmtMed, isoDate } from '../lib/site';
+
+const radar = (await getCollection('radar')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const lead = radar[0];
+const recent = radar.slice(1, 6);
+
+const guide = (await getCollection('guide')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const dives = (await getCollection('deep-dives')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+<BaseLayout title="Developer Marketing" home>
+  <div class="fm">
+    {lead && (
+      <a href={withBase(`/radar/${lead.id}`)} class="fm-box">
+        <span class="fm-legend">RADAR</span>
+        <div class="fm-kick">
+          <span class="amber"># </span><span class="kind-inline">{lead.data.kind}</span> · {fmtMed(lead.data.date)}
+          {lead.data.tags.length > 0 && <Fragment> · {lead.data.tags.slice(0, 3).join(' · ')}</Fragment>}
+        </div>
+        <h1 class="fm-h">{lead.data.title}</h1>
+        <p class="fm-dek">{lead.data.summary}</p>
+        <span class="fm-read"><span class="amber">→</span> read the update</span>
+      </a>
+    )}
+
+    {recent.length > 0 && (
+      <Fragment>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">latest</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(radar.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="fm-list">
+          {recent.map((d) => (
+            <li class="fm-row" data-date={isoDate(d.data.date)}>
+              <span class="fm-ln">{isoDate(d.data.date).slice(5)}</span>
+              <div class="fm-rowmain">
+                <a href={withBase(`/radar/${d.id}`)} class="fm-row-t">{d.data.title}</a>
+                <p class="fm-row-dek">{d.data.summary}</p>
+                <div class="fm-row-m">
+                  <span class="kind-inline">{d.data.kind}</span>
+                  {d.data.tags.slice(0, 3).map((t) => (
+                    <Fragment><span class="dim">·</span><span>{t}</span></Fragment>
+                  ))}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a href={withBase('/radar')} class="more">all updates →</a>
+      </Fragment>
+    )}
+
+    {dives.length > 0 && (
+      <Fragment>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">deep dives</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(dives.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="fm-list">
+          {dives.slice(0, 4).map((d) => (
+            <li class="fm-row">
+              <span class="fm-ln">{isoDate(d.data.date).slice(5)}</span>
+              <div class="fm-rowmain">
+                <a href={withBase(`/deep-dives/${d.id}`)} class="fm-row-t">{d.data.title}</a>
+                <p class="fm-row-dek">{d.data.summary}</p>
+                {d.data.tags.length > 0 && (
+                  <div class="fm-row-m">
+                    {d.data.tags.slice(0, 3).map((t, i) => (
+                      <Fragment>{i > 0 && <span class="dim">·</span>}<span>{t}</span></Fragment>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a href={withBase('/deep-dives')} class="more">all deep dives →</a>
+      </Fragment>
+    )}
+
+    <div class="fm-sec">
+      <span class="amber">##</span><span class="fm-sec-l">the guide</span>
+      <span class="fm-rule" aria-hidden="true"></span>
+      <span class="dim">{String(guide.length).padStart(2, '0')}</span>
+    </div>
+    <ul class="fm-list">
+      {guide.map((g) => (
+        <li class="fm-row">
+          <span class="fm-ln">{String(g.data.order).padStart(2, '0')}</span>
+          <div class="fm-rowmain">
+            <div class="fm-row-head">
+              <a href={withBase(`/guide/${g.id}`)} class="fm-row-t">{g.data.title}</a>
+            </div>
+            <p class="fm-row-dek">{g.data.summary}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <footer class="fm-keys">
+      <a href={withBase('/guide')}><b>g</b> guide</a>
+      <a href={withBase('/radar')}><b>r</b> radar</a>
+      <a href={withBase('/deep-dives')}><b>d</b> deep dives</a>
+      <a href={withBase('/about')}><b>?</b> about</a>
+      <a href={withBase('/feed.xml')}><b>≋</b> feed</a>
+    </footer>
+  </div>
+
+  <script is:inline>
+    (function () {
+      try {
+        var KEY = 'sota-seen';
+        var rows = [].slice.call(document.querySelectorAll('.fm-row[data-date]'));
+        if (!rows.length) return;
+        var prev = localStorage.getItem(KEY);
+        var max = prev || '';
+        rows.forEach(function (el) {
+          var d = el.getAttribute('data-date');
+          if (d > max) max = d;
+          if (prev && d > prev) el.classList.add('is-new');
+        });
+        localStorage.setItem(KEY, max);
+      } catch (e) {}
+    })();
+  </script>
+</BaseLayout>

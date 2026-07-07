@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from 'astro:content';
+import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import { withBase, fmtLong } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const dives = await getCollection('deep-dives');
+  return dives.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<ReadingLayout title={d.title} description={d.summary} deskLabel="Deep dive" stamp={fmtLong(d.date)}>
+  <div class="entry-lead" slot="lead">
+    {d.dek && <p class="dek" style="margin-top:14px">{d.dek}</p>}
+    {d.tags.length > 0 && (
+      <ul class="tags" style="margin-top:14px">
+        {d.tags.map((t) => (
+          <li><span class="tag">{t}</span></li>
+        ))}
+      </ul>
+    )}
+  </div>
+
+  <Content />
+
+  <Fragment slot="foot">
+    {d.updated && (
+      <p class="related">
+        <span class="related-k">Updated</span>
+        {fmtLong(d.updated)}
+      </p>
+    )}
+    {d.related.length > 0 && (
+      <p class="related">
+        <span class="related-k">Related</span>
+        {d.related.map((r, i) => (
+          <Fragment>
+            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
+            <a href={r.href.startsWith('http') ? r.href : withBase(r.href)}>{r.label}</a>
+          </Fragment>
+        ))}
+      </p>
+    )}
+    {d.sources.length > 0 && (
+      <div class="sources">
+        <p class="sources-h">Source{d.sources.length > 1 ? 's' : ''} — check it yourself</p>
+        <ol>
+          {d.sources.map((s) => (
+            <li>
+              <span class="amber" aria-hidden="true">→</span>
+              <a href={s.url} rel="noopener">{s.label}</a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )}
+    <nav class="section-nav">
+      <a href={withBase('/deep-dives')}>← all deep dives</a>
+      <span class="spacer"></span>
+      <a href={withBase('/guide')}>the guide →</a>
+    </nav>
+  </Fragment>
+</ReadingLayout>

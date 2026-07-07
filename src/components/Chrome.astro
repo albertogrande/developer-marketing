@@ -1,0 +1,38 @@
+---
+// Terminal chrome (inherited from The Wire's mono-grid skin). A `$ dev marketing`
+// mark with a blinking cursor and `--flag` nav. Width follows the page: 760 for
+// the front, --wrap for reading.
+import { withBase } from '../lib/site';
+
+interface Props {
+  wide?: boolean;
+}
+const { wide = false } = Astro.props;
+const max = wide ? '760px' : 'var(--wrap)';
+
+const nav = [
+  { label: 'guide', url: '/guide' },
+  { label: 'radar', url: '/radar' },
+  { label: 'deep-dives', url: '/deep-dives' },
+  { label: 'about', url: '/about' },
+];
+const here = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (url: string) => {
+  const target = withBase(url).replace(/\/$/, '') || '/';
+  return here === target || here.startsWith(target + '/');
+};
+---
+<div class="chrome" style={`max-width:${max}`}>
+  <header class="chrome-head">
+    <a href={withBase('/')} class="chrome-mark">
+      <span class="amber">$</span> dev&nbsp;marketing<span class="cur" aria-hidden="true">▌</span>
+    </a>
+    <nav class="chrome-nav" aria-label="Primary">
+      {nav.map((n) => (
+        <a href={withBase(n.url)} class={isCurrent(n.url) ? 'is-here' : ''} aria-current={isCurrent(n.url) ? 'page' : undefined}>--{n.label}</a>
+      ))}
+      <button id="open-search" class="chrome-toggle chrome-search" type="button" aria-label="Open command palette (Ctrl or Cmd + K)" title="Commands & search — ⌘K">⌕</button>
+      <button id="theme-toggle" class="chrome-toggle" type="button" aria-label="Toggle light or dark theme" aria-pressed="false">◐</button>
+    </nav>
+  </header>
+</div>

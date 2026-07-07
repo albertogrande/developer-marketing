@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { withBase, isoDate } from '../../lib/site';
+
+const radar = (await getCollection('radar')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+<BaseLayout
+  title="Radar"
+  description="Dated signals on what's moving in developer marketing — launches, plays, DevRel shifts, tooling, and the takes worth knowing."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> radar</div>
+    <h1 class="page-title">The radar</h1>
+    <p class="dek">
+      Signals from developer marketing, DevRel, and developer experience — newest
+      first. Each post links the source so you can read it yourself, and adds a
+      point of view.
+    </p>
+  </div>
+
+  <ul class="ar-list">
+    {radar.map((d) => (
+      <li class="ar-row">
+        <span class="ar-date">{isoDate(d.data.date)}</span>
+        <div class="ar-main">
+          <div class="ar-head">
+            <span class="kind">{d.data.kind}</span>
+            <a href={withBase(`/radar/${d.id}`)} class="ar-title">{d.data.title}</a>
+          </div>
+          <span class="ar-meta">{d.data.summary}</span>
+          {d.data.tags.length > 0 && (
+            <ul class="tags" style="margin-top:8px">
+              {d.data.tags.map((t) => (
+                <li><span class="tag">{t}</span></li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

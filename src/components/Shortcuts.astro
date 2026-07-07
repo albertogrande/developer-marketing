@@ -1,0 +1,231 @@
+---
+// Global keyboard layer (inherited from The Wire). A ⌘K / Ctrl+K command
+// palette blending navigation, quick actions (theme, copy link, scroll) and
+// client-side search (Pagefind) with arrow-key selection. Key hints: `/` open,
+// `j/k` move, `↵` open, `g` then h/g/r/a to jump, `?` help, `esc` close.
+import { withBase } from '../lib/site';
+const base = withBase('/'); // e.g. "/claude-code-sota/"
+---
+<div id="kbd-search" class="kbd-modal" data-base={base} hidden>
+  <div class="kbd-backdrop" data-close></div>
+  <div class="kbd-panel" role="dialog" aria-label="Command palette">
+    <div class="kbd-bar">
+      <span class="amber" aria-hidden="true">$</span>
+      <input id="kbd-input" type="search" placeholder="type a command or search…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="kbd-results" aria-label="Command palette" />
+      <kbd>esc</kbd>
+    </div>
+    <div id="kbd-results" class="kbd-results" role="listbox" aria-label="Results"></div>
+    <div class="kbd-foot" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> select</span>
+      <span><kbd>?</kbd> help</span>
+      <span class="kbd-foot-sp"></span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<div id="kbd-help" class="kbd-modal" hidden>
+  <div class="kbd-backdrop" data-close></div>
+  <div class="kbd-panel kbd-help" role="dialog" aria-label="Keyboard shortcuts">
+    <div class="kbd-help-h"><span class="amber">$</span> keyboard shortcuts</div>
+    <ul class="kbd-help-list">
+      <li><span><kbd>⌘</kbd><kbd>K</kbd></span> command palette</li>
+      <li><span><kbd>/</kbd></span> search</li>
+      <li><span><kbd>j</kbd> <kbd>k</kbd></span> move · <kbd>↵</kbd> open</li>
+      <li><span><kbd>g</kbd> <kbd>h</kbd></span> home</li>
+      <li><span><kbd>g</kbd> <kbd>g</kbd></span> guide</li>
+      <li><span><kbd>g</kbd> <kbd>r</kbd></span> radar</li>
+      <li><span><kbd>g</kbd> <kbd>a</kbd></span> about</li>
+      <li><span><kbd>?</kbd></span> this help · <kbd>esc</kbd> close</li>
+    </ul>
+  </div>
+</div>
+
+<div id="kbd-toast" class="kbd-toast" role="status" aria-live="polite"></div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('kbd-search');
+    if (!root) return;
+    var base = root.dataset.base || '/';
+    var search = root, help = document.getElementById('kbd-help');
+    var input = document.getElementById('kbd-input'), list = document.getElementById('kbd-results');
+    var pf = null, gPending = false, gTimer = null, navLinks = [], navIdx = -1;
+    var debounce, rows = [], sel = -1, searchToken = 0;
+
+    function go(path) { location.href = base.replace(/\/$/, '') + path; }
+    function toggleTheme() { var b = document.getElementById('theme-toggle'); if (b) b.click(); }
+    function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function copyLink() {
+      try { navigator.clipboard.writeText(location.href); toast('link copied'); }
+      catch (e) { toast('copy failed'); }
+    }
+    function toast(msg) {
+      var t = document.getElementById('kbd-toast');
+      if (!t) return;
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 1600);
+    }
+
+    var commands = [
+      { id: 'home', ic: '⌂', label: 'Go to home', hint: 'g h', keywords: 'front index latest state', run: function () { go('/'); } },
+      { id: 'guide', ic: '▦', label: 'Go to the guide', hint: 'g g', keywords: 'reference manual models effort modes', run: function () { go('/guide'); } },
+      { id: 'radar', ic: '≋', label: 'Go to the radar', hint: 'g r', keywords: 'updates changelog news whats new', run: function () { go('/radar'); } },
+      { id: 'about', ic: 'ⓘ', label: 'Go to about', hint: 'g a', keywords: 'colophon who how it updates', run: function () { go('/about'); } },
+      { id: 'theme', ic: '◐', label: 'Toggle dark / light theme', hint: '', keywords: 'dark light mode appearance color', run: function () { toggleTheme(); } },
+      { id: 'copy', ic: '⧉', label: 'Copy link to this page', hint: '', keywords: 'share url clipboard', run: function () { copyLink(); } },
+      { id: 'top', ic: '↑', label: 'Scroll to top', hint: '', keywords: 'home jump up', run: function () { scrollTop(); } },
+      { id: 'help', ic: '?', label: 'Keyboard shortcuts', hint: '?', keywords: 'keys help cheatsheet', run: function () { open(help); } },
+    ];
+    var cmdById = {};
+    commands.forEach(function (c) { cmdById[c.id] = c; });
+
+    function closeAll() { search.hidden = true; help.hidden = true; document.body.style.overflow = ''; }
+    function open(m) { closeAll(); m.hidden = false; document.body.style.overflow = 'hidden'; }
+    function openPalette() { open(search); input.value = ''; render(''); input.focus(); }
+    function typing(e) { var t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
+
+    async function ensurePF() {
+      if (pf) return pf;
+      try { pf = await import(base + 'pagefind/pagefind.js'); } catch (e) { pf = 'ERR'; }
+      return pf;
+    }
+    function fixUrl(u) {
+      if (!u) return base;
+      if (u.indexOf(base) === 0) return u;
+      return base.replace(/\/$/, '') + (u.charAt(0) === '/' ? u : '/' + u);
+    }
+    function esc(s) { return (s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function fuzzy(q, s) {
+      q = q.toLowerCase(); s = s.toLowerCase();
+      var qi = 0, score = 0, prev = -2;
+      for (var i = 0; i < s.length && qi < q.length; i++) {
+        if (s[i] === q[qi]) {
+          score += (i === prev + 1 ? 3 : 1) + (i === 0 ? 4 : 0);
+          prev = i; qi++;
+        }
+      }
+      return qi === q.length ? score : -1;
+    }
+    function matchCommands(q) {
+      if (!q.trim()) return commands.slice();
+      var out = [];
+      commands.forEach(function (c) {
+        var sc = fuzzy(q, c.label + ' ' + (c.keywords || ''));
+        if (sc >= 0) out.push({ c: c, sc: sc });
+      });
+      out.sort(function (a, b) { return b.sc - a.sc; });
+      return out.map(function (o) { return o.c; });
+    }
+
+    function sec(t) { return '<div class="kbd-sec">' + t + '</div>'; }
+    function cmdRow(c) {
+      var keys = c.hint ? '<span class="kbd-cmd-k">' + c.hint.split(' ').map(function (k) { return '<kbd>' + esc(k) + '</kbd>'; }).join('') + '</span>' : '';
+      return '<div class="kbd-result kbd-cmd" role="option" data-cmd="' + c.id + '">'
+        + '<span class="kbd-cmd-ic" aria-hidden="true">' + (c.ic || '›') + '</span>'
+        + '<span class="kbd-cmd-l">' + esc(c.label) + '</span>' + keys + '</div>';
+    }
+    function resultRow(it) {
+      var url = fixUrl(it.url);
+      var title = esc((it.meta && it.meta.title) || 'untitled');
+      return '<a class="kbd-result" role="option" href="' + url + '" data-url="' + url + '">'
+        + '<span class="kbd-r-top"><span class="kbd-r-title">' + title + '</span></span>'
+        + '<span class="kbd-r-ex">' + it.excerpt + '</span></a>';
+    }
+    function collect() { rows = Array.prototype.slice.call(list.querySelectorAll('.kbd-result')); }
+    function highlight(i) {
+      if (!rows.length) { sel = -1; return; }
+      i = Math.max(0, Math.min(i, rows.length - 1));
+      for (var n = 0; n < rows.length; n++) rows[n].classList.remove('is-sel');
+      rows[i].classList.add('is-sel');
+      rows[i].setAttribute('aria-selected', 'true');
+      rows[i].scrollIntoView({ block: 'nearest' });
+      sel = i;
+    }
+
+    async function render(q) {
+      var cmds = matchCommands(q);
+      var html = '';
+      if (cmds.length) { html += sec('commands'); cmds.forEach(function (c) { html += cmdRow(c); }); }
+      if (!q.trim()) {
+        list.innerHTML = html || '<div class="kbd-empty">— no commands —</div>';
+        collect(); highlight(0); return;
+      }
+      list.innerHTML = html + sec('search') + '<div class="kbd-empty">— searching… —</div>';
+      collect(); highlight(0);
+      var token = ++searchToken;
+      var p = await ensurePF();
+      if (token !== searchToken) return;
+      var resHtml;
+      if (p === 'ERR') { resHtml = '<div class="kbd-empty">— search index unavailable (run build) —</div>'; }
+      else {
+        var r = await p.search(q);
+        if (token !== searchToken) return;
+        var items = await Promise.all(r.results.slice(0, 6).map(function (x) { return x.data(); }));
+        if (token !== searchToken) return;
+        resHtml = items.length ? items.map(resultRow).join('') : '<div class="kbd-empty">— no matches —</div>';
+      }
+      list.innerHTML = html + sec('search') + resHtml;
+      collect(); highlight(sel < 0 ? 0 : sel);
+    }
+
+    function activate(row) {
+      if (!row) return;
+      var cmd = row.getAttribute('data-cmd');
+      if (cmd) { var c = cmdById[cmd]; closeAll(); if (c && c.run) c.run(); return; }
+      var url = row.getAttribute('data-url');
+      if (url) { location.href = url; }
+    }
+
+    input.addEventListener('input', function () {
+      clearTimeout(debounce); debounce = setTimeout(function () { render(input.value); }, 110);
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) { e.preventDefault(); highlight(sel + 1); }
+      else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) { e.preventDefault(); highlight(sel - 1); }
+      else if (e.key === 'Enter') { e.preventDefault(); activate(rows[sel]); }
+      else if (e.key === 'Tab') { e.preventDefault(); highlight(e.shiftKey ? sel - 1 : sel + 1); }
+    });
+    list.addEventListener('click', function (e) {
+      var row = e.target.closest('.kbd-result');
+      if (row && row.hasAttribute('data-cmd')) { e.preventDefault(); activate(row); }
+    });
+    list.addEventListener('mousemove', function (e) {
+      var row = e.target.closest('.kbd-result');
+      if (row) { var i = rows.indexOf(row); if (i >= 0 && i !== sel) highlight(i); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openPalette(); return; }
+      if (e.key === 'Escape') { closeAll(); return; }
+      if (typing(e)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (gPending) {
+        gPending = false; clearTimeout(gTimer);
+        var map = { h: '/', g: '/guide', r: '/radar', a: '/about' };
+        if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
+        return;
+      }
+      if (e.key === '/') { e.preventDefault(); openPalette(); return; }
+      if (e.key === '?') { e.preventDefault(); help.hidden ? open(help) : closeAll(); return; }
+      if (e.key === 'g') { gPending = true; gTimer = setTimeout(function () { gPending = false; }, 1200); return; }
+      if (e.key === 'j' || e.key === 'k') {
+        e.preventDefault();
+        if (!navLinks.length) {
+          var main = document.getElementById('main') || document.body;
+          navLinks = Array.prototype.slice.call(main.querySelectorAll('a[href]')).filter(function (a) { return a.offsetParent !== null; });
+        }
+        if (!navLinks.length) return;
+        navIdx = e.key === 'j' ? Math.min(navIdx + 1, navLinks.length - 1) : Math.max(navIdx - 1, 0);
+        navLinks[navIdx].focus();
+      }
+    });
+
+    var btn = document.getElementById('open-search');
+    if (btn) btn.addEventListener('click', openPalette);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (el) { el.addEventListener('click', closeAll); });
+    window.__sotaSearch = openPalette;
+  })();
+</script>

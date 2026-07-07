@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { withBase, isoDate } from '../../lib/site';
+
+const guide = (await getCollection('guide')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+<BaseLayout
+  title="Guide"
+  description="A field guide to developer marketing: positioning, docs-led growth, DevRel, developer experience, distribution, launches, and the metrics that matter."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> guide</div>
+    <h1 class="page-title">The field guide</h1>
+    <p class="dek">
+      A practitioner's reference to marketing to developers — how to earn trust,
+      turn docs into a growth engine, run DevRel that compounds, and measure any
+      of it. Each section carries the date it was last reviewed.
+    </p>
+  </div>
+
+  <ul class="fm-list">
+    {guide.map((g) => (
+      <li class="fm-row">
+        <span class="fm-ln">{String(g.data.order).padStart(2, '0')}</span>
+        <div class="fm-rowmain">
+          <div class="fm-row-head">
+            <a href={withBase(`/guide/${g.id}`)} class="fm-row-t">{g.data.title}</a>
+            <span class="stamp-updated">upd {isoDate(g.data.updated)}</span>
+          </div>
+          <p class="fm-row-dek">{g.data.summary}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

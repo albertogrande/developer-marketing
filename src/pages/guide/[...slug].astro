@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from 'astro:content';
+import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import { withBase, fmtLong } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const guide = (await getCollection('guide')).sort(
+    (a, b) => a.data.order - b.data.order
+  );
+  return guide.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: i > 0 ? guide[i - 1] : null,
+      next: i < guide.length - 1 ? guide[i + 1] : null,
+    },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const stamp = `Section ${String(d.order).padStart(2, '0')}`;
+---
+<ReadingLayout title={d.title} description={d.summary} deskLabel="Guide" stamp={stamp}>
+  <div class="entry-lead" slot="lead">
+    <span>last checked <time>{fmtLong(d.updated)}</time></span>
+  </div>
+
+  <Content />
+
+  <nav class="section-nav" slot="foot">
+    {prev ? (
+      <a href={withBase(`/guide/${prev.id}`)}>← {prev.data.title}</a>
+    ) : (
+      <a href={withBase('/guide')}>← contents</a>
+    )}
+    <span class="spacer"></span>
+    {next ? (
+      <a href={withBase(`/guide/${next.id}`)}>{next.data.title} →</a>
+    ) : (
+      <a href={withBase('/radar')}>the radar →</a>
+    )}
+  </nav>
+</ReadingLayout>

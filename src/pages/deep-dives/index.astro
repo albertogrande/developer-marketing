@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { withBase, isoDate } from '../../lib/site';
+
+const dives = (await getCollection('deep-dives')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+---
+<BaseLayout
+  title="Deep dives"
+  description="Long-form, researched deep dives on developer marketing — the plays, funnels, and decisions worth getting right. Each one sourced."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> deep dives</div>
+    <h1 class="page-title">Deep dives</h1>
+    <p class="dek">
+      Longer, researched pieces — one subject taken all the way down. Where the
+      guide is a reference and the radar is a running log, these are the deep
+      cuts, each sourced back to the practitioners and the data.
+    </p>
+  </div>
+
+  {dives.length > 0 ? (
+    <ul class="ar-list">
+      {dives.map((d) => (
+        <li class="ar-row">
+          <span class="ar-date">{isoDate(d.data.date)}</span>
+          <div class="ar-main">
+            <div class="ar-head">
+              <span class="kind">deep dive</span>
+              <a href={withBase(`/deep-dives/${d.id}`)} class="ar-title">{d.data.title}</a>
+            </div>
+            <span class="ar-meta">{d.data.summary}</span>
+            {d.data.tags.length > 0 && (
+              <ul class="tags" style="margin-top:8px">
+                {d.data.tags.map((t) => (
+                  <li><span class="tag">{t}</span></li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="dek">The first dive is in the works. Check back shortly.</p>
+  )}
+</BaseLayout>

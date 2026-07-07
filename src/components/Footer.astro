@@ -1,0 +1,20 @@
+---
+import { withBase } from '../lib/site';
+---
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="foot-item"
+      >A living field guide to the state of the art in developer marketing — kept
+      current by an autonomous <a href="https://claude.com/claude-code">Claude Code</a> agent.</span
+    >
+    <span class="foot-item foot-right">
+      <a href={withBase('/about')}>about</a>
+      <span class="sb-sep" aria-hidden="true">·</span>
+      <a href="https://github.com/albertogrande/developer-marketing">source</a>
+      <span class="sb-sep" aria-hidden="true">·</span>
+      <a href={withBase('/feed.xml')}>feed</a>
+      <span class="sb-sep" aria-hidden="true">·</span>
+      MIT
+    </span>
+  </div>
+</footer>
