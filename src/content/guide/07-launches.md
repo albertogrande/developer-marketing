@@ -2,7 +2,7 @@
 title: Launches developers amplify
 order: 7
 summary: How to ship an announcement developers share instead of scroll past — substance over spectacle, the assets that matter, and orchestrating a launch across the channels that count.
-updated: 2026-07-07
+updated: 2026-07-08
 ---
 
 A developer launch succeeds when developers do the amplifying for you. That only happens when there's real substance and they can try it immediately. Spectacle without substance gets ratioed; substance packaged well gets to the front page of Hacker News and into a dozen team Slacks.
@@ -35,7 +35,10 @@ Before you announce, have ready:
 - **Vaporware.** Announcing what you *will* build. Announce what shipped.
 - **Hiding the limits.** State what's beta, what's rate-limited, what's not there yet. Developers respect honesty and resent discovering the gaps themselves.
 - **Launch-and-abandon.** Going quiet in the threads reads as not caring. Show up.
+- **Manufactured chorus.** A coordinated influencer push — the same talking points from ten accounts on the same day — is legible as inauthentic to exactly this audience. Once someone spots the pattern it flips into *negative* social proof. Enlisting the people who built the thing is not the same as buying a synchronized wall of praise; the first is credible, the second is astroturf.
 
 ## After the launch
 
 The launch is the start of the relationship, not the end of the campaign. Fold what shipped into the docs and guide, watch activation on the new surface, gather the feedback the threads surface, and feed it back to product. A launch that quietly improves your time-to-value is worth more than the spike of attention.
+
+Run two campaign cadences, not one. A launch is a **short-burst** campaign — a spike engineered around a moment (the release, a conference, a big integration). It works only on top of a **long-lived** campaign: the always-on changelog, tutorial stream, and product updates that keep you present between spikes. Most teams build only one. Burst-only means you disappear the day after and have to buy attention back for the next launch; always-on-only means steady presence that never converts a moment of peak attention into adoption. The spike is where the compounding content gets its audience; the steady stream is what makes the next spike land.
