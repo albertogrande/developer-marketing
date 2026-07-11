@@ -1,0 +1,19 @@
+name: Editorial gates
+description: >-
+  Deterministic pre-commit gates shared by every editorial writer, in one
+  place so they can't drift apart per workflow: the site must build with the
+  new content (npm run build includes check-refs) and changed source URLs
+  must resolve.
+
+runs:
+  using: composite
+  steps:
+    - name: Gate — site builds with the new content
+      shell: bash
+      run: |
+        npm ci
+        npm run build
+
+    - name: Gate — changed sources resolve
+      shell: bash
+      run: node scripts/check-sources.mjs --changed

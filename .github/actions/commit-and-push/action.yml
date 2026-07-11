@@ -1,0 +1,49 @@
+name: Commit and push
+description: >-
+  Stage the given paths, commit, and push to the current branch — rebasing onto
+  the remote first and retrying, so a concurrent run never silently discards
+  this run's work with a non-fast-forward reject.
+
+inputs:
+  paths:
+    description: Space-separated pathspecs to stage
+    required: true
+  message:
+    description: Commit message
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PATHS: ${{ inputs.paths }}
+        MESSAGE: ${{ inputs.message }}
+      run: |
+        set -euo pipefail
+        # shellcheck disable=SC2086 — PATHS is intentionally word-split
+        git add $PATHS
+        if git diff --cached --quiet; then
+          echo "Nothing to commit."
+          exit 0
+        fi
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git commit -m "$MESSAGE"
+        # claude-code-action revokes its app token when its step ends, so push
+        # with the workflow token. --autostash: the writer may have dirtied
+        # tracked files outside the staged paths; that must not block the
+        # rebase. The pull sits inside the retry loop so a transient network
+        # error doesn't abort the run either.
+        remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        for delay in 2 4 8 0; do
+          if git pull --rebase --autostash "$remote" "${GITHUB_REF_NAME}" \
+            && git push "$remote" "HEAD:${GITHUB_REF_NAME}"; then
+            exit 0
+          fi
+          echo "Pull/push failed; retrying in ${delay}s…"
+          sleep "$delay"
+        done
+        echo "Push failed after retries." >&2
+        exit 1

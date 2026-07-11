@@ -1,23 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import TagList from '../../components/TagList.astro';
 import { withBase, isoDate } from '../../lib/site';
+import { getDivesSorted } from '../../lib/content';
 
-const dives = (await getCollection('deep-dives')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
+const dives = await getDivesSorted();
 ---
 <BaseLayout
   title="Deep dives"
-  description="Long-form, researched deep dives on developer marketing — the plays, funnels, and decisions worth getting right. Each one sourced."
+  description="Long-form, researched deep dives on developer marketing — the plays, metrics, and decisions worth getting right. Each one sourced."
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> deep dives</div>
     <h1 class="page-title">Deep dives</h1>
     <p class="dek">
       Longer, researched pieces — one subject taken all the way down. Where the
-      guide is a reference and the radar is a running log, these are the deep
-      cuts, each sourced back to the practitioners and the data.
+      guide is a reference and the week is the pulse, these are the deep cuts,
+      each sourced back to the research and the practitioners.
     </p>
   </div>
 
@@ -32,13 +31,7 @@ const dives = (await getCollection('deep-dives')).sort(
               <a href={withBase(`/deep-dives/${d.id}`)} class="ar-title">{d.data.title}</a>
             </div>
             <span class="ar-meta">{d.data.summary}</span>
-            {d.data.tags.length > 0 && (
-              <ul class="tags" style="margin-top:8px">
-                {d.data.tags.map((t) => (
-                  <li><span class="tag">{t}</span></li>
-                ))}
-              </ul>
-            )}
+            <TagList tags={d.data.tags} style="margin-top:8px" />
           </div>
         </li>
       ))}

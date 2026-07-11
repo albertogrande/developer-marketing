@@ -1,0 +1,143 @@
+name: Weekly
+
+# Weekly digest. Claude Code runs the weekly-digest skill: it reads the week's
+# signals and editorial memory, writes one short "The Week" issue to
+# src/content/weekly/, does a full guide-accuracy pass, distills practices,
+# and updates memory. If the editor commissions a deep dive it writes the
+# topic to editorial/COMMISSION.txt and this workflow dispatches the Deep Dive
+# workflow — its own job, its own timeout — instead of cramming the dive into
+# this session. A fresh-context verification pass and deterministic gates
+# (site build + source liveness) run before the commit. Failures open/comment
+# a pipeline-failure issue — never silent.
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
+
+on:
+  schedule:
+    # Monday 07:00 UTC — after the week (Mon–Sun) has closed and after the
+    # Monday scout run, so the digest sees a complete signals file.
+    - cron: "0 7 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+  actions: write # to dispatch the commissioned Deep Dive
+
+concurrency:
+  group: main-writers
+  cancel-in-progress: false
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Write the week
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            Run the weekly-digest skill (.claude/skills/weekly-digest/SKILL.md)
+            for the last completed Monday–Sunday week. Write the issue to
+            src/content/weekly/<WEEK_ID>.md, do the full guide-accuracy pass,
+            distill practices, and update editorial/MEMORY.md. If — and only
+            if — you commission a deep dive, write its topic as the single
+            line of editorial/COMMISSION.txt and record the commission in
+            MEMORY; the workflow dispatches the dive as its own run. Do NOT
+            write the dive in this session. Write files only — do not commit
+            or push.
+          show_full_output: true
+          # Fable: this is a long, unattended writing run.
+          claude_args: >-
+            --model claude-fable-5
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+
+      - name: Read deep-dive commission
+        id: commission
+        run: |
+          topic=""
+          if [ -f editorial/COMMISSION.txt ]; then
+            topic=$(head -1 editorial/COMMISSION.txt | tr -d '\n')
+            rm editorial/COMMISSION.txt
+          fi
+          echo "topic=$topic" >> "$GITHUB_OUTPUT"
+
+      - name: Detect content changes
+        id: changes
+        run: echo "n=$(git status --porcelain -- src signals editorial | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Verify changed claims (fact-integrity pass)
+        id: verify
+        if: steps.changes.outputs.n != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            You are the fact-integrity gate for this repo's autonomous editor.
+            The previous step edited content but nothing is committed yet. Run
+            `git status --porcelain -- src/content signals` to list edited and
+            new files, `git diff -- src/content signals` for the edits, and
+            read new files in full. For every load-bearing factual claim added
+            or changed — figures, survey results, dates, pricing, quotes,
+            company moves — verify it against a credible public source with
+            WebFetch/WebSearch. Fix what is wrong, revert what cannot be
+            verified, and mark anything kept-but-unverified as such in the
+            text ("reportedly", with its single source). Do not add new
+            stories and do not restyle prose. Write files only — do not
+            commit or push.
+          show_full_output: true
+          # A different, fresh-context model checks the writer's claims.
+          claude_args: >-
+            --model claude-sonnet-5
+            --max-turns 25
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+
+      - name: Run editorial gates
+        if: steps.changes.outputs.n != '0'
+        uses: ./.github/actions/editorial-gates
+
+      - name: Append usage ledger
+        id: ledger
+        env:
+          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
+          MODEL: claude-fable-5
+        run: |
+          bash scripts/append-ledger.sh
+          echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changes
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: signals/ editorial/ src/content/ usage/
+          message: "Weekly: digest ${{ steps.ledger.outputs.week }}"
+
+      # continue-on-error: the digest is already pushed by now — a failed
+      # dispatch must not fail the run, or Deploy's success gate would leave
+      # the published content unbuilt. The next step raises the alarm instead.
+      - name: Dispatch commissioned deep dive
+        id: dispatch
+        if: steps.commission.outputs.topic != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TOPIC: ${{ steps.commission.outputs.topic }}
+        run: gh workflow run deep-dive.yml -f topic="$TOPIC"
+
+      - name: Notify on dispatch failure
+        if: steps.dispatch.outcome == 'failure'
+        uses: ./.github/actions/notify-failure
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

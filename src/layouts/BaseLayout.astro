@@ -9,12 +9,15 @@ interface Props {
   title: string;
   description?: string;
   home?: boolean; // Front page: narrow mono chrome + full-bleed body
+  type?: 'website' | 'article';
+  published?: Date;
+  updated?: Date;
 }
-const { title, description, home = false } = Astro.props;
+const { title, description, home = false, type, published, updated } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
-  <Head title={title} description={description} />
+  <Head title={title} description={description} type={type} published={published} updated={updated} />
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
     <Chrome wide={home} />
@@ -43,6 +46,11 @@ const { title, description, home = false } = Astro.props;
           try {
             localStorage.setItem('sota-theme', next);
           } catch (e) {}
+          var c = next === 'dark' ? '#0d1117' : '#fbfaf8';
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            m.setAttribute('content', c);
+            m.removeAttribute('media');
+          });
           sync();
         });
       })();

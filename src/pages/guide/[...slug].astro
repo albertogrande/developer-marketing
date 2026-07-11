@@ -1,45 +1,112 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
-import { withBase, fmtLong } from '../../lib/site';
+import { withBase, fmtLong, isoDate } from '../../lib/site';
+import {
+  getGuideSorted,
+  getWeeklySorted,
+  getDivesSorted,
+  getPracticesSorted,
+  getRadarSorted,
+} from '../../lib/content';
 
 export async function getStaticPaths() {
-  const guide = (await getCollection('guide')).sort(
-    (a, b) => a.data.order - b.data.order
-  );
+  // Backlinks: the schemas already carry the graph — surface it. Computed
+  // once here (not per page): practices that belong to each section, and
+  // weeklies/dives/radar entries whose `related` points at it.
+  const [guide, allPractices, weekly, dives, radar] = await Promise.all([
+    getGuideSorted(),
+    getPracticesSorted(),
+    getWeeklySorted(),
+    getDivesSorted(),
+    getRadarSorted(),
+  ]);
+  const stripHash = (h: string) => h.split('#')[0].replace(/\/$/, '');
+  const practicesBySection = new Map<string, typeof allPractices>();
+  for (const p of allPractices) {
+    if (!practicesBySection.has(p.data.section)) practicesBySection.set(p.data.section, []);
+    practicesBySection.get(p.data.section)!.push(p);
+  }
+  const refsBySection = new Map<string, { label: string; href: string }[]>();
+  const addRef = (sectionId: string, ref: { label: string; href: string }) => {
+    if (!refsBySection.has(sectionId)) refsBySection.set(sectionId, []);
+    refsBySection.get(sectionId)!.push(ref);
+  };
+  for (const w of weekly)
+    for (const r of w.data.related) {
+      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
+      if (m) addRef(m[1], { label: `The Week — ${w.data.title}`, href: `/weekly/${w.id}` });
+    }
+  for (const v of dives)
+    for (const r of v.data.related) {
+      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
+      if (m) addRef(m[1], { label: `Deep dive — ${v.data.title}`, href: `/deep-dives/${v.id}` });
+    }
+  for (const e of radar)
+    for (const r of e.data.related) {
+      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
+      if (m) addRef(m[1], { label: `Radar — ${e.data.title}`, href: `/radar/${e.id}` });
+    }
+
   return guide.map((entry, i) => ({
     params: { slug: entry.id },
     props: {
       entry,
       prev: i > 0 ? guide[i - 1] : null,
       next: i < guide.length - 1 ? guide[i + 1] : null,
+      practices: practicesBySection.get(entry.id) ?? [],
+      referencedIn: refsBySection.get(entry.id) ?? [],
     },
   }));
 }
 
-const { entry, prev, next } = Astro.props;
+const { entry, prev, next, practices, referencedIn } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
 ---
-<ReadingLayout title={d.title} description={d.summary} deskLabel="Guide" stamp={stamp}>
+<ReadingLayout title={d.title} description={d.summary} deskLabel="Guide" stamp={stamp} updated={d.updated}>
   <div class="entry-lead" slot="lead">
-    <span>last checked <time>{fmtLong(d.updated)}</time></span>
+    <span>last checked <time datetime={isoDate(d.updated)}>{fmtLong(d.updated)}</time></span>
   </div>
 
   <Content />
 
-  <nav class="section-nav" slot="foot">
-    {prev ? (
-      <a href={withBase(`/guide/${prev.id}`)}>← {prev.data.title}</a>
-    ) : (
-      <a href={withBase('/guide')}>← contents</a>
+  <Fragment slot="foot">
+    {practices.length > 0 && (
+      <p class="related">
+        <span class="related-k">Practices</span>
+        {practices.map((p, i) => (
+          <Fragment>
+            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
+            <a href={withBase(`/practices#${p.id}`)}>{p.data.title}</a>
+          </Fragment>
+        ))}
+      </p>
     )}
-    <span class="spacer"></span>
-    {next ? (
-      <a href={withBase(`/guide/${next.id}`)}>{next.data.title} →</a>
-    ) : (
-      <a href={withBase('/radar')}>the radar →</a>
+    {referencedIn.length > 0 && (
+      <p class="related">
+        <span class="related-k">Referenced in</span>
+        {referencedIn.map((r, i) => (
+          <Fragment>
+            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
+            <a href={withBase(r.href)}>{r.label}</a>
+          </Fragment>
+        ))}
+      </p>
     )}
-  </nav>
+    <nav class="section-nav">
+      {prev ? (
+        <a href={withBase(`/guide/${prev.id}`)}>← {prev.data.title}</a>
+      ) : (
+        <a href={withBase('/guide')}>← contents</a>
+      )}
+      <span class="spacer"></span>
+      {next ? (
+        <a href={withBase(`/guide/${next.id}`)}>{next.data.title} →</a>
+      ) : (
+        <a href={withBase('/weekly')}>the week →</a>
+      )}
+    </nav>
+  </Fragment>
 </ReadingLayout>

@@ -1,14 +1,17 @@
 name: Deploy
 
 # Builds the Astro site and publishes it to GitHub Pages. Runs on push to main,
-# after the Radar workflow finishes (its bot commit does NOT trigger `push`, so
-# the workflow_run trigger is what publishes scheduled updates), and on demand.
-# Pages must be set to "GitHub Actions" as its source.
+# after an editorial workflow finishes (their bot commits do NOT trigger `push`,
+# so the workflow_run trigger is what publishes scheduled updates), and on
+# demand. Only successful editorial runs trigger a rebuild — a failed writer
+# didn't push anything worth publishing. Pages must be set to "GitHub Actions"
+# as its source. A failed deploy opens a pipeline-failure issue: a silent
+# deploy failure means the live site is silently stale.
 on:
   push:
     branches: [main]
   workflow_run:
-    workflows: ["Radar"]
+    workflows: ["Scout", "Weekly", "Deep Dive"]
     types: [completed]
   workflow_dispatch: {}
 
@@ -16,6 +19,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: pages
@@ -23,6 +27,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +40,9 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
 
   deploy:
     needs: build
@@ -45,3 +53,11 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      # The notifier is a local composite action, so the failure path needs a
+      # checkout first (this job normally runs without one).
+      - name: Checkout for notifier
+        if: failure()
+        uses: actions/checkout@v4
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

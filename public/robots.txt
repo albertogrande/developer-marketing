@@ -1,0 +1,8 @@
+# A GitHub Pages *project* site serves this at /developer-marketing/robots.txt,
+# which crawlers don't read (they only fetch the domain root) — kept here so it
+# works the day this moves to a custom domain, and as the canonical statement
+# of intent: everything public, machine endpoints included.
+User-agent: *
+Allow: /
+
+Sitemap: https://albertogrande.github.io/developer-marketing/sitemap-index.xml

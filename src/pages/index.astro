@@ -1,62 +1,69 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
 import { withBase, fmtMed, isoDate } from '../lib/site';
+import { getGuideSorted, getWeeklySorted, getDivesSorted, getRadarSorted } from '../lib/content';
 
-const radar = (await getCollection('radar')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
-const lead = radar[0];
-const recent = radar.slice(1, 6);
+const weekly = await getWeeklySorted();
+const lead = weekly[0];
+const recent = weekly.slice(1, 6);
 
-const guide = (await getCollection('guide')).sort(
-  (a, b) => a.data.order - b.data.order
-);
-
-const dives = (await getCollection('deep-dives')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
+const guide = await getGuideSorted();
+const dives = await getDivesSorted();
+const radar = await getRadarSorted();
 ---
 <BaseLayout title="Developer Marketing" home>
   <div class="fm">
-    {lead && (
-      <a href={withBase(`/radar/${lead.id}`)} class="fm-box">
-        <span class="fm-legend">RADAR</span>
+    {lead ? (
+      <a href={withBase(`/weekly/${lead.id}`)} class="fm-box" data-date={isoDate(lead.data.date)}>
+        <span class="fm-legend">THE WEEK</span>
         <div class="fm-kick">
-          <span class="amber"># </span><span class="kind-inline">{lead.data.kind}</span> · {fmtMed(lead.data.date)}
+          <span class="amber"># </span><span class="kind-inline">{lead.data.week}</span> · {fmtMed(lead.data.date)}
           {lead.data.tags.length > 0 && <Fragment> · {lead.data.tags.slice(0, 3).join(' · ')}</Fragment>}
         </div>
         <h1 class="fm-h">{lead.data.title}</h1>
         <p class="fm-dek">{lead.data.summary}</p>
-        <span class="fm-read"><span class="amber">→</span> read the update</span>
+        <span class="fm-read"><span class="amber">→</span> read the week</span>
+      </a>
+    ) : (
+      <a href={withBase('/guide')} class="fm-box">
+        <span class="fm-legend">THE GUIDE</span>
+        <div class="fm-kick"><span class="amber"># </span><span class="kind-inline">evergreen</span> · {guide.length} sections</div>
+        <h1 class="fm-h">The state of the art in developer marketing</h1>
+        <p class="fm-dek">
+          The first issue of The Week is in the works — meanwhile the guide is the
+          product: positioning, docs, DevRel, DX, distribution, launches, and
+          measurement, each section stamped with the date it was last checked.
+        </p>
+        <span class="fm-read"><span class="amber">→</span> read the guide</span>
       </a>
     )}
 
     {recent.length > 0 && (
       <Fragment>
         <div class="fm-sec">
-          <span class="amber">##</span><span class="fm-sec-l">latest</span>
+          <span class="amber">##</span><span class="fm-sec-l">recent weeks</span>
           <span class="fm-rule" aria-hidden="true"></span>
-          <span class="dim">{String(radar.length).padStart(2, '0')}</span>
+          <span class="dim">{String(weekly.length).padStart(2, '0')}</span>
         </div>
         <ul class="fm-list">
-          {recent.map((d) => (
-            <li class="fm-row" data-date={isoDate(d.data.date)}>
-              <span class="fm-ln">{isoDate(d.data.date).slice(5)}</span>
+          {recent.map((w) => (
+            <li class="fm-row" data-date={isoDate(w.data.date)}>
+              <span class="fm-ln">{w.data.week.slice(5)}</span>
               <div class="fm-rowmain">
-                <a href={withBase(`/radar/${d.id}`)} class="fm-row-t">{d.data.title}</a>
-                <p class="fm-row-dek">{d.data.summary}</p>
-                <div class="fm-row-m">
-                  <span class="kind-inline">{d.data.kind}</span>
-                  {d.data.tags.slice(0, 3).map((t) => (
-                    <Fragment><span class="dim">·</span><span>{t}</span></Fragment>
-                  ))}
-                </div>
+                <a href={withBase(`/weekly/${w.id}`)} class="fm-row-t">{w.data.title}</a>
+                <p class="fm-row-dek">{w.data.summary}</p>
+                {w.data.tags.length > 0 && (
+                  <div class="fm-row-m">
+                    {w.data.tags.slice(0, 3).map((t, i) => (
+                      <Fragment>{i > 0 && <span class="dim">·</span>}<span>{t}</span></Fragment>
+                    ))}
+                  </div>
+                )}
               </div>
             </li>
           ))}
         </ul>
-        <a href={withBase('/radar')} class="more">all updates →</a>
+        <a href={withBase('/weekly')} class="more">all issues →</a>
       </Fragment>
     )}
 
@@ -69,7 +76,7 @@ const dives = (await getCollection('deep-dives')).sort(
         </div>
         <ul class="fm-list">
           {dives.slice(0, 4).map((d) => (
-            <li class="fm-row">
+            <li class="fm-row" data-date={isoDate(d.data.date)}>
               <span class="fm-ln">{isoDate(d.data.date).slice(5)}</span>
               <div class="fm-rowmain">
                 <a href={withBase(`/deep-dives/${d.id}`)} class="fm-row-t">{d.data.title}</a>
@@ -108,11 +115,34 @@ const dives = (await getCollection('deep-dives')).sort(
       ))}
     </ul>
 
+    {radar.length > 0 && (
+      <Fragment>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">radar (archive)</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(radar.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="fm-list">
+          {radar.slice(0, 3).map((r) => (
+            <li class="fm-row">
+              <span class="fm-ln">{isoDate(r.data.date).slice(5)}</span>
+              <div class="fm-rowmain">
+                <a href={withBase(`/radar/${r.id}`)} class="fm-row-t">{r.data.title}</a>
+                <p class="fm-row-dek">{r.data.summary}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a href={withBase('/radar')} class="more">the radar archive →</a>
+      </Fragment>
+    )}
+
     <footer class="fm-keys">
-      <a href={withBase('/guide')}><b>g</b> guide</a>
-      <a href={withBase('/radar')}><b>r</b> radar</a>
-      <a href={withBase('/deep-dives')}><b>d</b> deep dives</a>
-      <a href={withBase('/about')}><b>?</b> about</a>
+      <a href={withBase('/guide')}><b>g&thinsp;g</b> guide</a>
+      <a href={withBase('/weekly')}><b>g&thinsp;w</b> the week</a>
+      <a href={withBase('/deep-dives')}><b>g&thinsp;d</b> deep dives</a>
+      <a href={withBase('/practices')}><b>g&thinsp;p</b> practices</a>
+      <a href={withBase('/about')}><b>g&thinsp;a</b> about</a>
       <a href={withBase('/feed.xml')}><b>≋</b> feed</a>
     </footer>
   </div>
@@ -121,7 +151,7 @@ const dives = (await getCollection('deep-dives')).sort(
     (function () {
       try {
         var KEY = 'sota-seen';
-        var rows = [].slice.call(document.querySelectorAll('.fm-row[data-date]'));
+        var rows = [].slice.call(document.querySelectorAll('[data-date]'));
         if (!rows.length) return;
         var prev = localStorage.getItem(KEY);
         var max = prev || '';

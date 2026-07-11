@@ -39,7 +39,7 @@
   --measure: 700px;
 }
 
-:root[data-theme="dark"] {
+@mixin dark-vars {
   --bg: #0d1117;
   --surface: #161b22;
   --fg: #e6edf3;
@@ -65,6 +65,18 @@
   --mom-down: #f85149;
   --mom-steady: #8b949e;
   --hl: #2a2310;
+}
+
+:root[data-theme="dark"] {
+  @include dark-vars;
+}
+
+// No-JS fallback: without the boot script no data-theme is ever set, so honor
+// the OS preference. The :not() guard keeps an explicit light choice winning.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-vars;
+  }
 }
 
 * { box-sizing: border-box; }
@@ -740,7 +752,8 @@ kbd { font-family: var(--font-mono); font-size: 11px; background: var(--surface)
 .skip-link:focus { top: 8px; color: #fff; }
 
 /* "new since last visit" badge on the front */
-.fm-row.is-new .fm-row-t::after {
+.fm-row.is-new .fm-row-t::after,
+.fm-box.is-new .fm-h::after {
   content: "new"; margin-left: 8px; vertical-align: middle;
   font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
   letter-spacing: .08em; text-transform: uppercase;
@@ -764,8 +777,26 @@ kbd { font-family: var(--font-mono); font-size: 11px; background: var(--surface)
 
 /* tag chips (mono, bordered — echoes .issue-tag) */
 .tags { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
-.tag { font-family: var(--font-mono); font-size: 11px; color: var(--accent-2); text-decoration: none; border: 1px solid var(--rule-strong); border-radius: 3px; padding: 2px 8px; white-space: nowrap; }
+.tag { font-family: var(--font-mono); font-size: 11px; color: var(--accent-2); text-decoration: none; border: 1px solid var(--rule-strong); border-radius: 3px; padding: 2px 8px; white-space: nowrap; display: inline-block; }
 a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
+.tags-index .tag { font-size: 13px; padding: 5px 12px; }
+.tags-index { gap: 10px; }
+
+/* practices — the agent-facing corpus, rendered for humans */
+.pr-group { margin-top: 34px; }
+.practice { border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); padding: 16px 18px; margin-top: 14px; scroll-margin-top: 24px; }
+.practice-h { font-size: 17px; margin: 0 0 12px; }
+.practice-h a { color: var(--fg); text-decoration: none; }
+.practice-h a:hover { color: var(--accent-2); }
+.practice dl { display: grid; grid-template-columns: 7ch 1fr; gap: 6px 14px; margin: 0; font-size: 14.5px; line-height: 1.55; }
+.practice dt { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.practice dd { margin: 0; }
+.practice-note { color: var(--muted); font-size: 14px; margin-top: 10px; }
+.practice-note p { margin: 0; }
+.practice-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+.practice-src a { color: var(--muted); text-decoration-color: var(--rule-strong); }
+.practice-src a:hover { color: var(--accent-2); }
+@media (max-width: 560px) { .practice dl { grid-template-columns: 1fr; gap: 2px; } .practice dt { padding-top: 8px; } }
 
 /* sources block at the foot of a radar entry */
 .sources { margin-top: 30px; border-top: 1px solid var(--rule); padding-top: 14px; }

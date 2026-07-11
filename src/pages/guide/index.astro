@@ -1,23 +1,20 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
 import { withBase, isoDate } from '../../lib/site';
+import { getGuideSorted } from '../../lib/content';
 
-const guide = (await getCollection('guide')).sort(
-  (a, b) => a.data.order - b.data.order
-);
+const guide = await getGuideSorted();
 ---
 <BaseLayout
   title="Guide"
-  description="A field guide to developer marketing: positioning, docs-led growth, DevRel, developer experience, distribution, launches, and the metrics that matter."
+  description="A practitioner's field guide to developer marketing: positioning, docs, DevRel, developer experience, content, distribution, launches, and measurement."
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> guide</div>
     <h1 class="page-title">The field guide</h1>
     <p class="dek">
-      A practitioner's reference to marketing to developers — how to earn trust,
-      turn docs into a growth engine, run DevRel that compounds, and measure any
-      of it. Each section carries the date it was last reviewed.
+      A practitioner's reference to marketing to developers. Each section
+      carries the date it was last checked against the sources.
     </p>
   </div>
 

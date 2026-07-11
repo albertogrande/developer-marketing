@@ -1,0 +1,29 @@
+name: Notify failure
+description: >-
+  Open (or comment on) a pipeline-failure issue so an autonomous job never
+  fails silently. One open issue per workflow; repeat failures comment on it.
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        title="Pipeline failure: ${GITHUB_WORKFLOW}"
+        url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+        body=$(printf 'The `%s` workflow failed at %s.\n\nRun: %s\n\nOpened automatically by the failure notifier. Close after diagnosing — the next failure of this workflow comments here instead of opening a duplicate.' \
+          "$GITHUB_WORKFLOW" "$(date -u +%Y-%m-%dT%H:%MZ)" "$url")
+        gh label create pipeline-failure --color B60205 \
+          --description "An autonomous pipeline job failed" --force 2>/dev/null || true
+        existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label pipeline-failure \
+          --state open --json number,title \
+          --jq "[.[] | select(.title == \"$title\")][0].number // empty")
+        if [ -n "$existing" ]; then
+          gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" \
+            --body "Failed again: $url"
+        else
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \
+            --label pipeline-failure --body "$body"
+        fi

@@ -16,9 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # check-sources diffs HEAD~1..HEAD to find changed content.
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Source liveness on content changed by this PR/push (no-op when the
+      # diff touches no content).
+      - run: node scripts/check-sources.mjs --changed

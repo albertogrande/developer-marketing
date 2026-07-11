@@ -1,23 +1,23 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import TagList from '../../components/TagList.astro';
 import { withBase, isoDate } from '../../lib/site';
+import { getRadarSorted } from '../../lib/content';
 
-const radar = (await getCollection('radar')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
+const radar = await getRadarSorted();
 ---
 <BaseLayout
-  title="Radar"
-  description="Dated signals on what's moving in developer marketing — launches, plays, DevRel shifts, tooling, and the takes worth knowing."
+  title="Radar (archive)"
+  description="The archived radar — dated posts on developer marketing, DevRel, and developer experience from the site's first phase. The cadence now lives in the weekly."
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> radar</div>
-    <h1 class="page-title">The radar</h1>
+    <h1 class="page-title">The radar archive</h1>
     <p class="dek">
-      Signals from developer marketing, DevRel, and developer experience — newest
-      first. Each post links the source so you can read it yourself, and adds a
-      point of view.
+      The site's first phase published one dated post a day; they're preserved
+      here, newest first, each one sourced. Daily capture now feeds an internal
+      signals file, and the published cadence is
+      <a href={withBase('/weekly')}>the week</a>.
     </p>
   </div>
 
@@ -31,13 +31,7 @@ const radar = (await getCollection('radar')).sort(
             <a href={withBase(`/radar/${d.id}`)} class="ar-title">{d.data.title}</a>
           </div>
           <span class="ar-meta">{d.data.summary}</span>
-          {d.data.tags.length > 0 && (
-            <ul class="tags" style="margin-top:8px">
-              {d.data.tags.map((t) => (
-                <li><span class="tag">{t}</span></li>
-              ))}
-            </ul>
-          )}
+          <TagList tags={d.data.tags} style="margin-top:8px" />
         </div>
       </li>
     ))}

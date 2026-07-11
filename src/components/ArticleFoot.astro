@@ -1,0 +1,53 @@
+---
+// Shared article foot: revision stamp, related links, sources, and the
+// back/forward nav. One component instead of the near-identical blocks the
+// weekly and deep-dive templates used to carry.
+import { withBase, fmtLong, isoDate } from '../lib/site';
+
+interface Props {
+  updated?: Date;
+  related?: { label: string; href: string }[];
+  sources?: { label: string; url: string }[];
+  backHref: string;
+  backLabel: string;
+  forwardHref: string;
+  forwardLabel: string;
+}
+const { updated, related = [], sources = [], backHref, backLabel, forwardHref, forwardLabel } =
+  Astro.props;
+---
+{updated && (
+  <p class="related">
+    <span class="related-k">Updated</span>
+    <time datetime={isoDate(updated)}>{fmtLong(updated)}</time>
+  </p>
+)}
+{related.length > 0 && (
+  <p class="related">
+    <span class="related-k">Related</span>
+    {related.map((r, i) => (
+      <Fragment>
+        {i > 0 && <span class="sep" aria-hidden="true">·</span>}
+        <a href={r.href.startsWith('http') ? r.href : withBase(r.href)}>{r.label}</a>
+      </Fragment>
+    ))}
+  </p>
+)}
+{sources.length > 0 && (
+  <div class="sources">
+    <p class="sources-h">Source{sources.length > 1 ? 's' : ''} — check it yourself</p>
+    <ol>
+      {sources.map((s) => (
+        <li>
+          <span class="amber" aria-hidden="true">→</span>
+          <a href={s.url} rel="noopener">{s.label}</a>
+        </li>
+      ))}
+    </ol>
+  </div>
+)}
+<nav class="section-nav">
+  <a href={withBase(backHref)}>← {backLabel}</a>
+  <span class="spacer"></span>
+  <a href={withBase(forwardHref)}>{forwardLabel} →</a>
+</nav>

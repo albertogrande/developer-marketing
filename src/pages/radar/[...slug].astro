@@ -1,7 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
-import { withBase, fmtLong } from '../../lib/site';
+import ArticleFoot from '../../components/ArticleFoot.astro';
+import TagList from '../../components/TagList.astro';
+import { fmtLong } from '../../lib/site';
 
 export async function getStaticPaths() {
   const radar = await getCollection('radar');
@@ -12,16 +14,16 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 ---
-<ReadingLayout title={d.title} description={d.summary} deskLabel="Radar" stamp={fmtLong(d.date)}>
+<ReadingLayout
+  title={d.title}
+  description={d.summary}
+  deskLabel="Radar · archive"
+  stamp={fmtLong(d.date)}
+  published={d.date}
+>
   <div class="entry-lead" slot="lead">
     <span class="kind">{d.kind}</span>
-    {d.tags.length > 0 && (
-      <ul class="tags">
-        {d.tags.map((t) => (
-          <li><span class="tag">{t}</span></li>
-        ))}
-      </ul>
-    )}
+    <TagList tags={d.tags} />
   </div>
 
   <Content />
@@ -33,35 +35,13 @@ const d = entry.data;
     </div>
   )}
 
-  <Fragment slot="foot">
-    {d.related.length > 0 && (
-      <p class="related">
-        <span class="related-k">Related</span>
-        {d.related.map((r, i) => (
-          <Fragment>
-            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
-            <a href={r.href.startsWith('http') ? r.href : withBase(r.href)}>{r.label}</a>
-          </Fragment>
-        ))}
-      </p>
-    )}
-    {d.sources.length > 0 && (
-      <div class="sources">
-        <p class="sources-h">Source{d.sources.length > 1 ? 's' : ''} — check it yourself</p>
-        <ol>
-          {d.sources.map((s) => (
-            <li>
-              <span class="amber" aria-hidden="true">→</span>
-              <a href={s.url} rel="noopener">{s.label}</a>
-            </li>
-          ))}
-        </ol>
-      </div>
-    )}
-    <nav class="section-nav">
-      <a href={withBase('/radar')}>← all updates</a>
-      <span class="spacer"></span>
-      <a href={withBase('/guide')}>the guide →</a>
-    </nav>
-  </Fragment>
+  <ArticleFoot
+    slot="foot"
+    related={d.related}
+    sources={d.sources}
+    backHref="/radar"
+    backLabel="the radar archive"
+    forwardHref="/guide"
+    forwardLabel="the guide"
+  />
 </ReadingLayout>

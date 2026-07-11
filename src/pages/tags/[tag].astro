@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase, isoDate } from '../../lib/site';
+import { collectByTag } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const map = await collectByTag();
+  return [...map.keys()].sort().map((tag) => ({
+    params: { tag },
+    props: { items: map.get(tag)! },
+  }));
+}
+
+const { tag } = Astro.params;
+const { items } = Astro.props;
+
+const weekly = items.filter((i) => i.kind === 'weekly');
+const dives = items.filter((i) => i.kind === 'deep-dive');
+const practices = items.filter((i) => i.kind === 'practice');
+const radar = items.filter((i) => i.kind === 'radar');
+---
+<BaseLayout
+  title={`Tagged: ${tag}`}
+  description={`Everything on the field guide tagged "${tag}" — weekly issues, deep dives, practices, and radar entries.`}
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags / {tag}</div>
+    <h1 class="page-title">#{tag}</h1>
+    <p class="dek">
+      Everything tagged <code>{tag}</code> — {items.length} item{items.length === 1 ? '' : 's'}.
+      See <a href={withBase('/tags')}>all tags</a>.
+    </p>
+  </div>
+
+  {practices.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">practices</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(practices.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {practices.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">pr</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/practices#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.when}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {weekly.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">the week</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(weekly.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {weekly.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{entry.data.week.slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/weekly/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {dives.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">deep dives</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(dives.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {dives.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/deep-dives/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {radar.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">radar (archive)</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(radar.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {radar.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/radar/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+</BaseLayout>

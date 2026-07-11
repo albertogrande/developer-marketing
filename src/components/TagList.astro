@@ -1,0 +1,18 @@
+---
+// Tag chips as links into /tags/<tag> — every tag is a retrieval surface,
+// not decoration.
+import { withBase } from '../lib/site';
+
+interface Props {
+  tags: string[];
+  style?: string;
+}
+const { tags, style } = Astro.props;
+---
+{tags.length > 0 && (
+  <ul class="tags" style={style}>
+    {tags.map((t) => (
+      <li><a class="tag" href={withBase(`/tags/${t}`)}>{t}</a></li>
+    ))}
+  </ul>
+)}

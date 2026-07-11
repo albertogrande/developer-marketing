@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/site';
+---
+<BaseLayout title="404" description="Page not found.">
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> 404</div>
+    <h1 class="page-title">No such page</h1>
+    <p class="dek">
+      <code>command not found</code> — the path may have moved when a section was
+      renamed. Try the <a href={withBase('/guide')}>guide</a>, the
+      <a href={withBase('/weekly')}>week</a>, or search with <kbd>⌘K</kbd>.
+    </p>
+  </div>
+  <nav class="section-nav">
+    <a href={withBase('/')}>← home</a>
+    <span class="spacer"></span>
+    <a href={withBase('/guide')}>the guide →</a>
+  </nav>
+</BaseLayout>

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/site';
+import { collectByTag } from '../../lib/content';
+
+const map = await collectByTag();
+const tags = [...map.entries()]
+  .map(([tag, items]) => ({ tag, count: items.length }))
+  .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+---
+<BaseLayout
+  title="Tags"
+  description="Browse the field guide by tag — positioning, docs, devrel, metrics, launches, and more."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags</div>
+    <h1 class="page-title">Tags</h1>
+    <p class="dek">Every topic the weeklies, deep dives, practices, and radar archive carry.</p>
+  </div>
+
+  <ul class="tags tags-index">
+    {tags.map(({ tag, count }) => (
+      <li>
+        <a class="tag" href={withBase(`/tags/${tag}`)}>{tag} <span class="dim">×{count}</span></a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

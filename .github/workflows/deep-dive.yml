@@ -1,0 +1,106 @@
+name: Deep Dive
+
+# Deep dive. Claude Code runs the deep-dive skill on a topic you name (or,
+# with no topic, the top deep-dive candidate in editorial memory). Writes a
+# researched essay to src/content/deep-dives/ and updates memory. A
+# fresh-context verification pass and deterministic gates run before the
+# commit; Deploy publishes on completion. Dispatched manually or by the
+# Weekly workflow when the editor commissions a dive.
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Topic for the dive (leave blank to let the editor pick from memory)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: main-writers
+  cancel-in-progress: false
+
+jobs:
+  deep-dive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Write the dive
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            Run the deep-dive skill (.claude/skills/deep-dive/SKILL.md).
+            ${{ github.event.inputs.topic && format('Topic: {0}.', github.event.inputs.topic) || 'No topic given — pick the top deep-dive candidate from editorial/MEMORY.md.' }}
+            Write the essay to src/content/deep-dives/ and update
+            editorial/MEMORY.md. Write files only — do not commit or push.
+          show_full_output: true
+          # Fable: this is a long, unattended writing run.
+          claude_args: >-
+            --model claude-fable-5
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+
+      - name: Detect content changes
+        id: changes
+        run: echo "n=$(git status --porcelain -- src signals editorial | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Verify changed claims (fact-integrity pass)
+        id: verify
+        if: steps.changes.outputs.n != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            You are the fact-integrity gate for this repo's autonomous writer.
+            The previous step wrote a deep-dive essay but nothing is committed
+            yet. Run `git status --porcelain -- src/content` to find the new
+            and edited files and read them in full. For every load-bearing
+            factual claim — figures, survey results, dates, pricing, quotes,
+            company moves — verify it against a credible public source with
+            WebFetch/WebSearch. Fix what is wrong, revert what cannot be
+            verified, and mark anything kept-but-unverified as such in the
+            text. Do not restyle the prose or change the argument. Write
+            files only — do not commit or push.
+          show_full_output: true
+          claude_args: >-
+            --model claude-sonnet-5
+            --max-turns 25
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+
+      - name: Run editorial gates
+        if: steps.changes.outputs.n != '0'
+        uses: ./.github/actions/editorial-gates
+
+      - name: Append usage ledger
+        id: ledger
+        env:
+          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
+          MODEL: claude-fable-5
+        run: |
+          bash scripts/append-ledger.sh
+          echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changes
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: signals/ editorial/ src/content/ usage/
+          message: "Deep dive: ${{ steps.ledger.outputs.today }}"
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

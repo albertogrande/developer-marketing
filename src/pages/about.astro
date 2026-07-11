@@ -13,52 +13,73 @@ import { withBase } from '../lib/site';
 
   <div class="prose">
     <p>
-      This is a living field guide to the <strong>state of the art in developer
-      marketing</strong> — how you win the attention, trust, and adoption of
-      developers. It covers positioning for a technical audience, docs-led and
-      product-led growth, developer relations, developer experience, the channels
-      developers actually use, launches, and the metrics that tell you any of it
-      is working.
+      This is a living field guide to the state of the art in <strong>developer
+      marketing</strong> — how you earn the attention, trust, and adoption of
+      developers, across positioning, docs-led growth, developer relations,
+      developer experience, distribution, launches, and measurement. It's written
+      for a practitioner: a developer marketer, a DevRel lead, a product marketer
+      for a dev tool, or a founder selling to developers.
     </p>
 
     <div class="note-box">
       <p class="note-k">How this stays current</p>
       <p>
-        An autonomous <a href="https://claude.com/claude-code">Claude Code</a>
-        agent runs on a schedule, sweeps the practitioner blogs, DevRel
-        communities, and industry research for what's new, writes a dated entry to
-        the <a href={withBase('/radar')}>radar</a>, and revises the affected
-        <a href={withBase('/guide')}>guide</a> sections — stamping each with the
-        date it was last reviewed. No human in the byline.
+        Autonomous <a href="https://claude.com/claude-code">Claude Code</a> agents
+        run on a schedule. A daily <em>scout</em> sweeps practitioner blogs, DevRel
+        communities, and industry research for what's new and files raw signals —
+        and patches the <a href={withBase('/guide')}>guide</a> the moment a fact
+        changes. Once a week an <em>editor</em> reads those signals and writes
+        <a href={withBase('/weekly')}>the week</a>: one short piece on what
+        actually mattered. When a thread earns the depth, it commissions a
+        <a href={withBase('/deep-dives')}>deep dive</a>. No human in the byline.
       </p>
     </div>
 
-    <h2 class="kicker">The three strands</h2>
+    <h2 class="kicker">The strands</h2>
     <p>
-      The <a href={withBase('/guide')}>guide</a> is the evergreen reference:
-      numbered sections you return to. The <a href={withBase('/radar')}>radar</a>
-      is the running log of change — newest first, each entry sourced back to the
-      original. The <a href={withBase('/deep-dives')}>deep dives</a> are longer,
-      researched pieces that take a single subject all the way down.
+      The <a href={withBase('/guide')}>guide</a> is the point of it all: an
+      evergreen reference, nine sections, kept continuously current. <a
+      href={withBase('/weekly')}>The week</a> is the pulse — one short read to
+      stay current, newest first, each issue sourced. The <a
+      href={withBase('/deep-dives')}>deep dives</a> take a single subject all the
+      way down, sourced against the research and the practitioners doing the work.
+      Under all three, a daily signal capture does the collecting — internal, so
+      the guide and the week don't have to. The site's first phase published one
+      dated post a day; those live on in the
+      <a href={withBase('/radar')}>radar archive</a>.
+    </p>
+
+    <h2 class="kicker">For agents</h2>
+    <p>
+      The guide is also a product for machines — fitting, for a site that argues
+      <a href={withBase('/radar/2026-07-07-ai-assistants-are-reading-your-docs')}>AI
+      assistants are now a primary reader of your docs</a>. The
+      <a href={withBase('/practices')}>practices</a> are its atomic form — one
+      <em>when X → do Y (because Z)</em> unit each, dated and verifiable — served
+      as <a href={withBase('/practices.json')}><code>practices.json</code></a> and
+      indexed in <a href={withBase('/llms.txt')}><code>llms.txt</code></a>, so an
+      assistant can consult the current state of the art instead of guessing.
     </p>
 
     <h2 class="kicker">On accuracy</h2>
     <p>
-      Developer marketing has durable principles and fast-moving tactics. The
-      guide holds the durable part; the radar tracks the moving part. Where a
-      claim rests on a specific study, launch, or number, the entry links its
-      source so you can check it yourself and see how fresh it is.
+      Every claim is grounded in a public, linkable source — research reports,
+      practitioner writing, primary documentation. Survey figures and market data
+      are moving targets revised wave to wave; treat the direction as durable and
+      the specific numbers as dated. Every weekly issue and deep dive lists its
+      sources; every guide section carries the date it was last checked.
     </p>
 
     <h2 class="kicker">Colophon</h2>
     <p>
       Built with <a href="https://astro.build">Astro</a>. The visual identity —
       JetBrains Mono furniture over a Charter essay body, amber accent, dark
-      terminal strip — is inherited from
-      <a href="https://albertogrande.github.io/the-wire/">The Wire</a> by way of
-      the <a href="https://albertogrande.github.io/claude-code/">Claude Code field
-      guide</a>. Search is <a href="https://pagefind.app">Pagefind</a>; press
-      <kbd>⌘K</kbd> or <kbd>/</kbd>. Source on
+      terminal strip — is inherited from the
+      <a href="https://albertogrande.github.io/claude-code/">Claude Code field
+      guide</a>, which itself descends from
+      <a href="https://albertogrande.github.io/the-wire/">The Wire</a>. Search is
+      <a href="https://pagefind.app">Pagefind</a>; press <kbd>⌘K</kbd> or
+      <kbd>/</kbd>. Source on
       <a href="https://github.com/albertogrande/developer-marketing">GitHub</a>,
       MIT-licensed.
     </p>

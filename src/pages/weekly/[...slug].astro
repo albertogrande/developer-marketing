@@ -1,0 +1,42 @@
+---
+import { getCollection, render } from 'astro:content';
+import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import ArticleFoot from '../../components/ArticleFoot.astro';
+import TagList from '../../components/TagList.astro';
+import { fmtLong } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const weekly = await getCollection('weekly');
+  return weekly.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<ReadingLayout
+  title={d.title}
+  description={d.summary}
+  deskLabel="The Week"
+  stamp={`${d.week} · ${fmtLong(d.date)}`}
+  published={d.date}
+  updated={d.updated}
+>
+  <div class="entry-lead" slot="lead">
+    <span class="kind">the week</span>
+    <TagList tags={d.tags} />
+  </div>
+
+  <Content />
+
+  <ArticleFoot
+    slot="foot"
+    updated={d.updated}
+    related={d.related}
+    sources={d.sources}
+    backHref="/weekly"
+    backLabel="all issues"
+    forwardHref="/guide"
+    forwardLabel="the guide"
+  />
+</ReadingLayout>
