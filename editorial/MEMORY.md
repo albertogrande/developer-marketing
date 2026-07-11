@@ -14,6 +14,15 @@ has earned a **deep dive**. It is internal (not rendered).
   sourced facts — not timeless judgment the model already has. Write practices
   for dated survey waves, channel shifts, and measured patterns first.
   Practices that decay to "model already knows this" get retired or refreshed.
+- **2026-07-11, the examples swipe file** (new format, borrowed from
+  markepear's Examples Gallery): `src/content/examples/` catalogs real, sourced
+  dev-marketing artifacts — the *evidence* layer under the practices (rule) and
+  the guide (judgment). Each ties to a guide section via `demonstrates` and
+  carries a mandatory `source` link. **Cadence: promoted by the weekly editor,
+  0–3 a week and often zero — never a quota** (same discipline as the deep
+  dive); fed by the scout's ` · example-candidate` signal flag. No new
+  workflow/cron — it rides the existing scout→weekly pipeline. Seeded with
+  Stripe (§02), Supabase (§01), Tailscale (§05), Cloudflare (§07).
 - **2026-07-11, desk transition**: the site's first phase (2026-07-05 →
   2026-07-08) published one radar post per day. That cadence forced a daily
   pick even on quiet days; the desks moved to signals (internal, daily) + The

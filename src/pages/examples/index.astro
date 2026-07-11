@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { render } from 'astro:content';
+import { withBase, isoDate } from '../../lib/site';
+import { getExamplesSorted, getGuideSorted } from '../../lib/content';
+
+// The swipe file — real, sourced dev-marketing artifacts, newest first. Each
+// card carries the "why it works" note, the guide section it demonstrates, and
+// a link to the real thing. Machines read the same set at /examples.json.
+
+const [examples, guide] = await Promise.all([getExamplesSorted(), getGuideSorted()]);
+const sectionTitle = new Map(guide.map((g) => [g.id, g.data.title]));
+
+const cards = await Promise.all(
+  examples.map(async (e) => ({ e, Content: (await render(e)).Content }))
+);
+---
+<BaseLayout
+  title="Examples"
+  description="A swipe file of real, sourced developer-marketing artifacts — pricing pages, API references, launches — each with what makes it work and a link to the real thing."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> examples</div>
+    <h1 class="page-title">Examples</h1>
+    <p class="dek">
+      A swipe file of real, sourced dev-marketing artifacts — a pricing page, an
+      API reference, a launch. Each one links to the real thing, says what makes
+      it work, and points back to the guide section it demonstrates. Where the
+      practices are the rule, these are the evidence. Machines read the set at
+      <a href={withBase('/examples.json')}><code>/examples.json</code></a>.
+    </p>
+  </div>
+
+  {cards.length > 0 ? (
+    <div class="ex-grid" data-pagefind-body>
+      {cards.map(({ e, Content }) => (
+        <article class="ex" id={e.id} data-date={isoDate(e.data.date)}>
+          <div class="ex-top">
+            <span class="ex-co">{e.data.company}</span>
+            <span class="ex-chip ex-artifact">{e.data.artifact}</span>
+            {e.data.channel.map((c) => <span class="ex-chip dim">{c}</span>)}
+          </div>
+          <h2 class="ex-h"><a href={`#${e.id}`}>{e.data.title}</a></h2>
+          <div class="ex-why"><Content /></div>
+          <div class="ex-meta">
+            {sectionTitle.has(e.data.demonstrates) && (
+              <a class="ex-demo" href={withBase(`/guide/${e.data.demonstrates}`)}>
+                <span class="amber" aria-hidden="true">→</span> {sectionTitle.get(e.data.demonstrates)}
+              </a>
+            )}
+            <TagList tags={e.data.tags} />
+            <span class="ex-src">
+              <a href={e.data.source.url} rel="noopener">{e.data.source.label}</a>
+              {e.data.sources.map((s) => (
+                <Fragment>
+                  <span class="dim"> · </span>
+                  <a href={s.url} rel="noopener">{s.label}</a>
+                </Fragment>
+              ))}
+            </span>
+            <span class="dim ex-date">{isoDate(e.data.date)}</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  ) : (
+    <p class="dek">The first examples are being collected. Check back shortly.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .ex-grid {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .ex {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.1rem 1.2rem 1rem;
+    background: var(--panel, transparent);
+  }
+  .ex-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+  .ex-co {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .ex-chip {
+    font-size: 0.72rem;
+    font-family: var(--mono, monospace);
+    padding: 0.08rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+  .ex-artifact {
+    color: var(--amber, #d08b1e);
+    border-color: currentColor;
+  }
+  .ex-h {
+    font-size: 1.15rem;
+    margin: 0 0 0.4rem;
+    line-height: 1.3;
+  }
+  .ex-h a { text-decoration: none; }
+  .ex-h a:hover { text-decoration: underline; }
+  .ex-why {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .ex-why :global(p) { margin: 0.35rem 0 0; }
+  .ex-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+  }
+  .ex-demo {
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .ex-demo:hover { text-decoration: underline; }
+  .ex-src { margin-left: auto; }
+  .ex-date { font-family: var(--mono, monospace); }
+</style>

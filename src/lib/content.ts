@@ -37,6 +37,11 @@ export const getPracticesSorted = memo(async () =>
   )
 );
 
+// The swipe file — real, sourced dev-marketing artifacts, newest first.
+export const getExamplesSorted = memo(async () =>
+  (await getCollection('examples')).sort(entryByDateDesc)
+);
+
 // The archived radar — dated posts from the site's first phase, still rendered.
 export const getRadarSorted = memo(async () =>
   (await getCollection('radar')).sort(entryByDateDesc)
@@ -46,15 +51,17 @@ export type TaggedEntry =
   | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
   | { kind: 'practice'; entry: CollectionEntry<'practices'> }
+  | { kind: 'example'; entry: CollectionEntry<'examples'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, dives, practices, radar] = await Promise.all([
+  const [weekly, dives, practices, examples, radar] = await Promise.all([
     getWeeklySorted(),
     getDivesSorted(),
     getPracticesSorted(),
+    getExamplesSorted(),
     getRadarSorted(),
   ]);
   const map = new Map<string, TaggedEntry[]>();
@@ -65,6 +72,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of weekly) for (const t of entry.data.tags) add(t, { kind: 'weekly', entry });
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
   for (const entry of practices) for (const t of entry.data.tags) add(t, { kind: 'practice', entry });
+  for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

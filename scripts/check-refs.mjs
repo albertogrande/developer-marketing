@@ -4,7 +4,8 @@
 // broken link. This runs in `npm run build`, so it fails the build instead.
 //
 // Checks:
-//   1. every practice's `section:` names a real guide section
+//   1. every practice's `section:` and every example's `demonstrates:` names a
+//      real guide section
 //   2. every internal `related[].href` resolves to a real route
 //   3. body links: internal markdown links must carry the site base
 //      (/developer-marketing/...) and resolve; relative ./x.md links are
@@ -29,6 +30,7 @@ const guideIds = ids('src/content/guide');
 const weeklyIds = ids('src/content/weekly');
 const diveIds = ids('src/content/deep-dives');
 const practiceIds = ids('src/content/practices');
+const exampleIds = ids('src/content/examples');
 const radarIds = ids('src/content/radar');
 
 function frontmatterOf(file) {
@@ -71,7 +73,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'deep-dives', 'practices', 'radar']) {
+for (const dir of ['guide', 'weekly', 'deep-dives', 'practices', 'examples', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -86,6 +88,7 @@ function resolves(href) {
   const [path, hash] = href.split('#');
   const clean = path.replace(/\/$/, '') || '/';
   if (clean === '/practices' && hash) return practiceIds.has(hash);
+  if (clean === '/examples' && hash) return exampleIds.has(hash);
   if (STATIC_ROUTES.has(clean)) return true;
   let m;
   if ((m = clean.match(/^\/guide\/([^/]+)$/))) return guideIds.has(m[1]);
@@ -104,10 +107,14 @@ for (const { dir, file, fm, body, err } of entries) {
     continue;
   }
 
-  // 1. practice.section must be a real guide section
+  // 1. practice.section / example.demonstrates must be a real guide section
   if (dir === 'practices') {
     if (!fm.section) problems.push(`${file}: missing section`);
     else if (!guideIds.has(fm.section)) problems.push(`${file}: section "${fm.section}" is not a guide section`);
+  }
+  if (dir === 'examples') {
+    if (!fm.demonstrates) problems.push(`${file}: missing demonstrates`);
+    else if (!guideIds.has(fm.demonstrates)) problems.push(`${file}: demonstrates "${fm.demonstrates}" is not a guide section`);
   }
 
   // 2. related hrefs (frontmatter): base-less site paths or external URLs
@@ -142,5 +149,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

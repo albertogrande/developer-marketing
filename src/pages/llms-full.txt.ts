@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { withBase, isoDate } from '../lib/site';
-import { getGuideSorted, getPracticesSorted } from '../lib/content';
+import { getExamplesSorted, getGuideSorted, getPracticesSorted } from '../lib/content';
 
 // llms-full.txt — the entire guide plus the practices, concatenated as plain
 // markdown, so an agent can pull the whole corpus in one fetch.
@@ -11,6 +11,7 @@ export const GET: APIRoute = async (context) => {
 
   const guide = await getGuideSorted();
   const practices = await getPracticesSorted();
+  const examples = await getExamplesSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -46,6 +47,28 @@ export const GET: APIRoute = async (context) => {
     out.push(`- **Section:** ${abs(`/guide/${p.data.section}`)}`);
     if (p.data.sources.length) {
       out.push(`- **Sources:** ${p.data.sources.map((s) => `${s.label} (${s.url})`).join('; ')}`);
+    }
+  }
+
+  if (examples.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Examples');
+    out.push('');
+    out.push('Real, sourced dev-marketing artifacts — the evidence behind the practices.');
+    for (const e of examples) {
+      out.push('');
+      out.push(`## ${e.data.company}: ${e.data.title}`);
+      out.push(`- **Why it works:** ${e.data.summary}`);
+      out.push(`- **Artifact:** ${e.data.artifact}`);
+      out.push(`- **Demonstrates:** ${abs(`/guide/${e.data.demonstrates}`)}`);
+      out.push(`- **See it:** ${e.data.source.label} (${e.data.source.url})`);
+      const note = (e.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
     }
   }
   out.push('');

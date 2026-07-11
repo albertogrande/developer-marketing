@@ -13,6 +13,7 @@ No human in the byline.
 - **The week** — a short weekly digest of what moved, newest first, each sourced.
 - **Deep dives** — long-form pieces, commissioned when a thread earns the depth.
 - **Practices** — atomic "when X → do Y (because Z)" units, human- and machine-readable.
+- **Examples** — a swipe file of real, sourced dev-marketing artifacts; the evidence behind the practices.
 - **Radar (archive)** — the dated daily posts from the site's first phase.
 
 Built with [Astro](https://astro.build). Architecture and visual identity shared
@@ -30,7 +31,8 @@ Signals in, guide out. Three desks, each a [skill](.claude/skills/) an agent run
 - The **weekly editor** (`.claude/skills/weekly-digest/`) runs weekly: it reads
   the week's signals and writes one short issue to `src/content/weekly/`, does a
   fuller guide-accuracy pass, distills `src/content/practices/` from the week's
-  practice-candidates, and — when a thread has earned it — commissions a
+  practice-candidates, promotes 0–3 example-candidates into the swipe file at
+  `src/content/examples/`, and — when a thread has earned it — commissions a
   **deep dive** (`.claude/skills/deep-dive/`) into `src/content/deep-dives/`.
 - `editorial/MEMORY.md` (running threads, deep-dive candidates, the guide
   coverage index) is the brain that decides what's worth depth;
@@ -71,12 +73,13 @@ src/
     weekly/          # weekly digest — YYYY-Www.md, frontmatter: title, week, date, summary, tags, sources
     practices/       # atomic best-practices — {when, do, why, section, since, verify} — feed the agent endpoints
     deep-dives/      # long-form pieces — YYYY-MM-DD-slug.md, dated + sourced
+    examples/        # swipe file — one real artifact per file: {company, artifact, channel, demonstrates, source}
     radar/           # ARCHIVE — dated posts from the first phase; no new entries
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
-  pages/             # index, guide/, weekly/, deep-dives/, practices/, tags/, radar/, about, feed.xml.ts
-                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json
+  pages/             # index, guide/, weekly/, deep-dives/, practices/, examples/, tags/, radar/, about, feed.xml.ts
+                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, examples.json
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)

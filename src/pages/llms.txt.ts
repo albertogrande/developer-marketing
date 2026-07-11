@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { withBase } from '../lib/site';
-import { getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
+import { getExamplesSorted, getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
 // Points at the guide sections, the practices, and the machine endpoints.
@@ -12,6 +12,7 @@ export const GET: APIRoute = async (context) => {
   const guide = await getGuideSorted();
   const practices = await getPracticesSorted();
   const weekly = await getWeeklySorted();
+  const examples = await getExamplesSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -21,7 +22,7 @@ export const GET: APIRoute = async (context) => {
   );
   lines.push('');
   lines.push(
-    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, and /weekly.json.'
+    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, and /examples.json.'
   );
 
   lines.push('');
@@ -34,6 +35,17 @@ export const GET: APIRoute = async (context) => {
   lines.push('## Practices');
   for (const p of practices) {
     lines.push(`- [${p.data.title}](${abs(`/guide/${p.data.section}`)}): when ${p.data.when} → ${p.data.do}`);
+  }
+
+  if (examples.length) {
+    lines.push('');
+    lines.push('## Examples');
+    lines.push('Real, sourced dev-marketing artifacts — the evidence behind the practices.');
+    for (const e of examples) {
+      lines.push(
+        `- [${e.data.company}: ${e.data.title}](${e.data.source.url}): ${e.data.summary} (demonstrates ${abs(`/guide/${e.data.demonstrates}`)})`
+      );
+    }
   }
 
   if (weekly.length) {
@@ -50,6 +62,7 @@ export const GET: APIRoute = async (context) => {
   lines.push(`- [practices.json](${abs('/practices.json')}): structured best-practices`);
   lines.push(`- [guide.json](${abs('/guide.json')}): guide sections with markdown bodies`);
   lines.push(`- [weekly.json](${abs('/weekly.json')}): recent weekly digests`);
+  lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
   lines.push('');
 
   return new Response(lines.join('\n'), {

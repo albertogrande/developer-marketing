@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase, fmtMed, isoDate } from '../lib/site';
-import { getGuideSorted, getWeeklySorted, getDivesSorted, getRadarSorted } from '../lib/content';
+import { getGuideSorted, getWeeklySorted, getDivesSorted, getExamplesSorted, getRadarSorted } from '../lib/content';
 
 const weekly = await getWeeklySorted();
 const lead = weekly[0];
@@ -9,6 +9,7 @@ const recent = weekly.slice(1, 6);
 
 const guide = await getGuideSorted();
 const dives = await getDivesSorted();
+const examples = await getExamplesSorted();
 const radar = await getRadarSorted();
 ---
 <BaseLayout title="Developer Marketing" home>
@@ -96,6 +97,28 @@ const radar = await getRadarSorted();
       </Fragment>
     )}
 
+    {examples.length > 0 && (
+      <Fragment>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">examples</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(examples.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="fm-list">
+          {examples.slice(0, 4).map((e) => (
+            <li class="fm-row" data-date={isoDate(e.data.date)}>
+              <span class="fm-ln">ex</span>
+              <div class="fm-rowmain">
+                <a href={withBase(`/examples#${e.id}`)} class="fm-row-t">{e.data.company}: {e.data.title}</a>
+                <p class="fm-row-dek">{e.data.summary}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a href={withBase('/examples')} class="more">the swipe file →</a>
+      </Fragment>
+    )}
+
     <div class="fm-sec">
       <span class="amber">##</span><span class="fm-sec-l">the guide</span>
       <span class="fm-rule" aria-hidden="true"></span>
@@ -142,6 +165,7 @@ const radar = await getRadarSorted();
       <a href={withBase('/weekly')}><b>g&thinsp;w</b> the week</a>
       <a href={withBase('/deep-dives')}><b>g&thinsp;d</b> deep dives</a>
       <a href={withBase('/practices')}><b>g&thinsp;p</b> practices</a>
+      <a href={withBase('/examples')}><b>g&thinsp;e</b> examples</a>
       <a href={withBase('/about')}><b>g&thinsp;a</b> about</a>
       <a href={withBase('/feed.xml')}><b>≋</b> feed</a>
     </footer>

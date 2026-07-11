@@ -13,6 +13,11 @@ import { glob } from 'astro/loaders';
 //              /practices.json and llms.txt.
 //  deep-dives/ — long-form researched pieces, commissioned when a thread
 //              earns it. One file per piece: YYYY-MM-DD-slug.md.
+//  examples/ — the swipe file. Real, sourced dev-marketing artifacts (a
+//              pricing page, an API reference, a launch), each with a "why it
+//              works" note, the guide section it demonstrates, and a link to
+//              the real thing. Evidence for the guide's judgment; browsed as a
+//              gallery at /examples and served to machines at /examples.json.
 //  radar/    — ARCHIVE. The dated daily posts from the site's first phase
 //              (2026-07-05 → 2026-07-08), kept rendered so URLs don't break.
 //              No new entries: daily capture now goes to signals/ (internal)
@@ -137,6 +142,74 @@ const deepDives = defineCollection({
   }),
 });
 
+// examples/ — the swipe file. Each entry is one real, sourced artifact from a
+// developer-facing company, tagged on two axes (what kind of artifact, which
+// channel) and tied to the guide section it demonstrates. The `source` link is
+// mandatory: an example a reader can't go check is just an assertion. Atomic,
+// so it renders as a gallery (no per-entry page) and feeds /examples.json and
+// llms.txt alongside the practices.
+const examples = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/examples' }),
+  schema: z.object({
+    // Short, descriptive title of the tactic — "Stripe injects your test keys".
+    title: z.string(),
+    // The company behind the artifact.
+    company: z.string(),
+    // When it was captured — drives ordering and the "new" markers.
+    date: z.coerce.date(),
+    // Optional revision stamp when an example is refreshed.
+    updated: z.coerce.date().optional(),
+    // The one-line "why it works" — shown on the card, in JSON, in llms.txt.
+    summary: z.string(),
+    // What kind of artifact this is (markepear's content-type axis). Controlled
+    // so the gallery chips and filters don't drift — extend deliberately.
+    artifact: z.enum([
+      'landing-page',
+      'pricing',
+      'docs',
+      'blog',
+      'launch',
+      'changelog',
+      'social',
+      'free-tool',
+      'product-tour',
+      'readme',
+      'video',
+      'ad',
+    ]),
+    // Where the artifact lives (markepear's channel axis). Controlled vocab.
+    channel: z
+      .array(
+        z.enum([
+          'web',
+          'docs',
+          'blog',
+          'github',
+          'hackernews',
+          'reddit',
+          'twitter',
+          'linkedin',
+          'youtube',
+          'newsletter',
+          'podcast',
+          'conference',
+        ])
+      )
+      .default([]),
+    // The guide section id this example demonstrates, e.g.
+    // "02-docs-as-front-door" — the cross-link back to the reference.
+    demonstrates: z.string(),
+    // Free-form tactic/topic tags — feed the tag pages alongside weekly & dives.
+    tags: z.array(z.string()).default([]),
+    // The proof: a link to the real artifact. Mandatory.
+    source: z.object({ label: z.string(), url: z.string().url() }),
+    // Optional supporting sources (a teardown, the operator's own write-up).
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+  }),
+});
+
 // radar/ — archived. Schema unchanged from the site's first phase so the
 // existing entries render exactly as published.
 const radar = defineCollection({
@@ -161,4 +234,11 @@ const radar = defineCollection({
   }),
 });
 
-export const collections = { guide, weekly, practices, 'deep-dives': deepDives, radar };
+export const collections = {
+  guide,
+  weekly,
+  practices,
+  'deep-dives': deepDives,
+  examples,
+  radar,
+};

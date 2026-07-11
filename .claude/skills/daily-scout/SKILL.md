@@ -112,6 +112,12 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   stopped/started working, a measurable pattern with numbers — not merely an
   interesting read. These become the weekly editor's queue for distilling
   `src/content/practices/` entries. When in doubt, flag it; the editor decides.
+- Append ` · example-candidate` when the signal is a **concrete, still-live
+  artifact a reader could open in a new tab and copy** — a specific pricing
+  page, a launch page, an API reference, a landing-page hero, a changelog, a
+  README. Include the direct link to the artifact itself (not a write-up about
+  it). These feed the weekly editor's swipe file (`src/content/examples/`). A
+  play with no linkable artifact is a practice-candidate, not an example.
 - Discussions are first-class: an HN thread tearing down a devtool launch is a
   signal even if no outlet wrote it up — link the thread.
 - Note trajectory when visible ("second wave of…", "follow-up to Monday's…").

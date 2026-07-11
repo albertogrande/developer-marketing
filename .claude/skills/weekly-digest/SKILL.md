@@ -131,6 +131,38 @@ decision the reader makes):
   models caught up; it's dead weight in every search result.
 - A quiet week adds nothing — 8 sharp practices beat 40 stale ones.
 
+## Step 5.6 — Promote examples (the swipe file)
+
+`src/content/examples/` is the evidence behind the guide's judgment: real,
+sourced dev-marketing artifacts a reader can open and copy. Where a practice is
+the rule ("show a real price with a cap"), an example is the proof ("here is
+Supabase's pricing page doing exactly that"). It renders at `/examples` and
+feeds agents at `/examples.json` and `/llms.txt`.
+
+**Cadence: examples are a weekly promotion, not a quota.** Sweep the week's
+signals for ` · example-candidate` flags (plus any artifact you hit while
+verifying the digest that is worth stealing). Promote the ones that clear the
+bar — typically **0–3 a week, often zero**. A forced example is worse than
+none; this is the same discipline as the deep dive.
+
+For each artifact that earns it, create one file in `src/content/examples/`
+(slug = `company-what-it-does.md`), matching `src/content.config.ts` exactly:
+
+- **The bar**: a *specific, still-live* artifact (open the link and confirm it
+  renders today — a dead or redesigned-away example is worse than none), from a
+  developer-facing company, that a practitioner could copy. Not a generic "X
+  has good docs" — the concrete page, tactic, or move.
+- `demonstrates:` the guide section it illustrates (must be a real section id);
+  `artifact:` and `channel:` from the schema enums; `summary:` the one-line
+  "why it works"; a short body (2–5 sentences) naming the tactic and why devs
+  respond to it; `source:` the mandatory link to the real artifact, plus any
+  supporting teardown in `sources:`. Reuse a `demonstrates` section freely —
+  several examples can illustrate the same guide section.
+- `tags:` free-form, but lean on the same vocabulary the rest of the site uses
+  so the /tags pages cross-link (positioning, docs, pricing, launches, …).
+- **Refresh, don't duplicate**: if an existing example's artifact changed, bump
+  its `updated:` and fix the note rather than adding a near-duplicate.
+
 ## Step 6 — Commission a deep dive (only if earned)
 
 Read MEMORY's **deep-dive candidates**. Commission one **only when a thread has
@@ -163,6 +195,6 @@ Update `editorial/TASTE.md` only if the reader expressed a durable preference.
 
 ## Step 8 — Save
 
-Write the issue, the guide edits, the practices, and the memory update. Do
-**not** commit or push — in CI the workflow publishes; in an interactive
-session, tell the user where the files are.
+Write the issue, the guide edits, the practices, the examples, and the memory
+update. Do **not** commit or push — in CI the workflow publishes; in an
+interactive session, tell the user where the files are.
