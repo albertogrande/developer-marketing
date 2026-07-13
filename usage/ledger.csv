@@ -1,3 +1,4 @@
 date,workflow,run_id,step,model,cost_usd,duration_ms,turns
 2026-07-12,Scout,29184358870,writer,claude-sonnet-5,0,102,1
 2026-07-13,Scout,29235092562,writer,claude-sonnet-5,0,104,1
+2026-07-13,Weekly,29242169294,writer,claude-fable-5,0,101,1
