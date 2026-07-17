@@ -49,7 +49,9 @@ nothing — an expired token must never pass as a quiet day —
 `scripts/check-refs.mjs` referential integrity in the build,
 `scripts/check-sources.mjs` source liveness) before a rebase-safe commit.
 A daily **Health watchdog** (`health.yml`) alarms if the scout or the weekly
-stops committing on schedule, catching failures the in-run guards can't see. The
+stops committing on schedule, catching failures the in-run guards can't see.
+A failed run uploads its uncommitted work as a `rescue-patch` artifact
+(14-day retention) instead of discarding it with the runner. The
 **Deploy workflow** then builds the site and publishes to GitHub Pages;
 failures open a `pipeline-failure` issue instead of dying silently.
 

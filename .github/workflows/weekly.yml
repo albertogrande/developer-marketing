@@ -108,7 +108,7 @@ jobs:
           # A different, fresh-context model checks the writer's claims.
           claude_args: >-
             --model claude-sonnet-5
-            --max-turns 25
+            --max-turns 50
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
 
       # A clean verify may change nothing — only require that it really ran.
@@ -155,6 +155,12 @@ jobs:
       - name: Notify on dispatch failure
         if: steps.dispatch.outcome == 'failure'
         uses: ./.github/actions/notify-failure
+
+      # A failed gate must cost a retry, not the written work — the 07-17
+      # backfill run lost a full written digest when the verify pass died.
+      - name: Rescue uncommitted content on failure
+        if: failure()
+        uses: ./.github/actions/rescue-content
 
       - name: Notify on failure
         if: failure()
