@@ -1,0 +1,62 @@
+name: Writer guard
+description: >-
+  Deterministic sanity check on a claude-code-action step, shared by every
+  desk. The 2026-07-12→16 outage showed a writer can "succeed" while doing
+  nothing — an expired OAuth token left is_error:true and a single turn in the
+  execution log, the action reported success anyway, and two runs committed a
+  bare ledger row with no content and no alarm. This gate fails the job the
+  moment a run errored, never got past its first response, or didn't write
+  what its desk always writes.
+
+inputs:
+  execution_file:
+    description: >-
+      Path to the claude-code-action execution log
+      (steps.<id>.outputs.execution_file)
+    required: true
+  expect_changes:
+    description: >-
+      Pathspec that must hold uncommitted changes after a healthy run
+      (empty skips the check — use for passes that may legitimately
+      change nothing, like the fact-integrity verifier)
+    required: false
+    default: ""
+  min_turns:
+    description: >-
+      Minimum num_turns for a healthy run — 1 means the model never got
+      past its first response (the auth-failure signature)
+    required: false
+    default: "2"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        FILE: ${{ inputs.execution_file }}
+        EXPECT: ${{ inputs.expect_changes }}
+        MIN_TURNS: ${{ inputs.min_turns }}
+      run: |
+        set -euo pipefail
+        fail() { echo "::error::Writer guard: $1"; exit 1; }
+
+        [ -n "$FILE" ] && [ -s "$FILE" ] \
+          || fail "no execution log at '${FILE:-<empty>}' — the step produced nothing"
+
+        is_error=$(jq -r '[.. | objects | select(has("is_error")) | .is_error] | last // false' "$FILE")
+        turns=$(jq -r '[.. | objects | select(has("num_turns")) | .num_turns] | last // 0' "$FILE")
+        result=$(jq -r '[.. | objects | select(has("result")) | .result] | last // ""' "$FILE" | head -c 300)
+
+        [ "$is_error" != "true" ] \
+          || fail "run reported is_error:true — likely an expired CLAUDE_CODE_OAUTH_TOKEN. Result: $result"
+        [ "$turns" -ge "$MIN_TURNS" ] \
+          || fail "run took $turns turn(s) (< $MIN_TURNS) — the model never got past its first response. Result: $result"
+
+        if [ -n "$EXPECT" ]; then
+          # shellcheck disable=SC2086 — EXPECT is intentionally word-split
+          [ -n "$(git status --porcelain -- $EXPECT)" ] \
+            || fail "no changes under '$EXPECT' — this desk always writes there on a healthy run"
+          echo "Writer guard OK: $turns turns, changes present under '$EXPECT'."
+        else
+          echo "Writer guard OK: $turns turns."
+        fi

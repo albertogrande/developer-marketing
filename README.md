@@ -44,8 +44,14 @@ the Weekly when it commissions one) — that runs the skill via
 [claude-code-action](https://github.com/anthropics/claude-code-action). Every
 writer run gets a **fresh-context fact-integrity pass** (a second Claude that
 verifies changed claims against primary sources), then deterministic gates
-(`scripts/check-refs.mjs` referential integrity in the build,
-`scripts/check-sources.mjs` source liveness) before a rebase-safe commit. The
+(a **writer guard** that fails the run if a Claude step errored or wrote
+nothing — an expired token must never pass as a quiet day —
+`scripts/check-refs.mjs` referential integrity in the build,
+`scripts/check-sources.mjs` source liveness) before a rebase-safe commit.
+A daily **Health watchdog** (`health.yml`) alarms if the scout or the weekly
+stops committing on schedule, catching failures the in-run guards can't see.
+A failed run uploads its uncommitted work as a `rescue-patch` artifact
+(14-day retention) instead of discarding it with the runner. The
 **Deploy workflow** then builds the site and publishes to GitHub Pages;
 failures open a `pipeline-failure` issue instead of dying silently.
 
@@ -86,8 +92,8 @@ signals/             # raw daily capture, one file per ISO week (internal, not r
 editorial/           # MEMORY.md (threads, coverage, dive candidates) + TASTE.md (reader) — internal
 scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
 .claude/skills/      # daily-scout, weekly-digest, deep-dive — the autonomous desks
-.github/workflows/   # scout (daily), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check)
-.github/actions/     # commit-and-push, editorial-gates, notify-failure (shared composite steps)
+.github/workflows/   # scout (daily), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
+.github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
 ```
 
 ## Running it yourself

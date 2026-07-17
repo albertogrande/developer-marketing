@@ -1,0 +1,29 @@
+name: Rescue content
+description: >-
+  On failure, preserve the run's uncommitted editorial work as a downloadable
+  patch artifact. The 2026-07-17 Weekly backfill wrote a full digest, guide
+  pass, and practices, then died in the fact-integrity verify (max turns) —
+  and the runner workspace, with all of it, was discarded. A failed gate
+  should cost a retry, not the work. Recover with:
+  `gh run download <run-id> -n rescue-patch && git apply rescue.patch`.
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        git add -A -- signals editorial src/content
+        git diff --cached --binary > rescue.patch
+        if [ -s rescue.patch ]; then
+          echo "Rescued $(git diff --cached --name-only | wc -l | tr -d ' ') file(s) of uncommitted content."
+        else
+          echo "No uncommitted content to rescue."
+          rm rescue.patch
+        fi
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: rescue-patch
+        path: rescue.patch
+        if-no-files-found: ignore
+        retention-days: 14
