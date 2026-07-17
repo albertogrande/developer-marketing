@@ -58,9 +58,12 @@ jobs:
             decision to editorial/NEWSROOM.md. Write files only — do not
             commit or push.
           show_full_output: true
-          # Fable: editorial judgment plus an unattended writing run.
+          # Opus 4.8: strong long-form writing at half Fable's quota weight —
+          # this is the pipeline's highest-frequency writing run (6×/week).
+          # Fable stays on the judgment-heaviest, low-frequency runs (weekly
+          # synthesis, deep dives); the fact-integrity pass nets the rest.
           claude_args: >-
-            --model claude-fable-5
+            --model claude-opus-4-8
             --max-turns 60
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
 
@@ -119,7 +122,7 @@ jobs:
         env:
           EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
           EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
-          MODEL: claude-fable-5
+          MODEL: claude-opus-4-8
         run: |
           bash scripts/append-ledger.sh
           echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
