@@ -41,8 +41,12 @@ keeps recurring in signals and isn't well covered by the guide is a
   practitioners restructure docs for machine retrieval and ship llms.txt
   (07-07 radar). Caveat held so far: no major AI provider has confirmed
   reading llms.txt — the durable win is chunk-retrievable docs. This site now
-  eats the dog food (/llms.txt, /practices.json). Guide: §02 (docs), §06
-  (channels). → [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
+  eats the dog food (/llms.txt, /practices.json). Now compounding on two
+  fronts: GEO-monitoring is getting productized (Show HN "Crawlie Cloud",
+  07-10 signal) and the machine-mediated-discovery thread is extending from
+  docs to API/vendor selection itself (Show HN "OpenBenchmarks", 07-11
+  signal — agents picking SaaS APIs, not just reading about them). Guide: §02
+  (docs), §06 (channels). → [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
 - **DevRel measurement: influence, not attribution** `↑` — the 2026
   practitioner consensus keeps landing on influenced pipeline + activation
   over last-touch sourced leads; new pressure: "does our brand show up in
@@ -59,7 +63,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   public, so ship proof, not adjectives: live verifiable metrics over logo
   walls, real prices with caps, runnable launches over influencer choruses
   (07-08 radar); connects to time-to-value as the real growth engine
-  (07-06 dive). Guide: §01, §05, §07.
+  (07-06 dive). New cautionary case on the trust side: Cerebras quietly
+  pruned its free-tier model catalog with no deprecation notice, breaking
+  hardcoded integrations with silent 404s (07-16 signal) — the inverse
+  lesson: silent breaking changes burn the same trust verifiable proof
+  builds. Guide: §01, §05, §07.
 
 ## Deep-dive candidates
 
