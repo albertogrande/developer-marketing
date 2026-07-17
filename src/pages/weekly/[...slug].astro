@@ -4,13 +4,23 @@ import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { fmtLong } from '../../lib/site';
+import { entryByDateDesc } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const weekly = await getCollection('weekly');
-  return weekly.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  // Sorted newest-first: issue navigation walks the archive — earlier issue
+  // back, later issue forward.
+  const weekly = (await getCollection('weekly')).sort(entryByDateDesc);
+  return weekly.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      later: i > 0 ? weekly[i - 1] : null,
+      earlier: i < weekly.length - 1 ? weekly[i + 1] : null,
+    },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, later, earlier } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 ---
@@ -34,9 +44,9 @@ const d = entry.data;
     updated={d.updated}
     related={d.related}
     sources={d.sources}
-    backHref="/weekly"
-    backLabel="all issues"
-    forwardHref="/guide"
-    forwardLabel="the guide"
+    backHref={earlier ? `/weekly/${earlier.id}` : '/weekly'}
+    backLabel={earlier ? `${earlier.data.week}` : 'all issues'}
+    forwardHref={later ? `/weekly/${later.id}` : '/guide'}
+    forwardLabel={later ? `${later.data.week}` : 'the guide'}
   />
 </ReadingLayout>

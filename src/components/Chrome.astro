@@ -7,13 +7,15 @@ import { withBase } from '../lib/site';
 interface Props {
   wide?: boolean;
 }
-const { wide = false } = Astro.props;
-const max = wide ? '760px' : 'var(--wrap)';
+// The v2 front page shares the reading wrap, so the chrome is one width now;
+// the `wide` prop is accepted for compatibility but no longer changes it.
+const max = 'var(--wrap)';
 
 const nav = [
-  { label: 'guide', url: '/guide' },
+  { label: 'newsroom', url: '/articles' },
   { label: 'weekly', url: '/weekly' },
   { label: 'deep-dives', url: '/deep-dives' },
+  { label: 'guide', url: '/guide' },
   { label: 'practices', url: '/practices' },
   { label: 'examples', url: '/examples' },
   { label: 'about', url: '/about' },

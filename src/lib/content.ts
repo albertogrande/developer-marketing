@@ -61,6 +61,64 @@ export const getRadarSorted = memo(async () =>
   (await getCollection('radar')).sort(entryByDateDesc)
 );
 
+// The guide's knowledge graph, inverted once per build: for each section,
+// the practices that implement it, the examples that evidence it, and the
+// dated coverage (articles, weeklies, dives, radar) whose `related` points
+// at it. The topic-hub pages and the handbook index both read this.
+export type CoverageRef = {
+  kind: 'article' | 'weekly' | 'dive' | 'radar';
+  title: string;
+  href: string;
+  date: Date;
+};
+
+export const getGuideGraph = memo(async () => {
+  const [practices, examples, articles, weekly, dives, radar] = await Promise.all([
+    getPracticesSorted(),
+    getExamplesSorted(),
+    getArticlesSorted(),
+    getWeeklySorted(),
+    getDivesSorted(),
+    getRadarSorted(),
+  ]);
+
+  const practicesBySection = new Map<string, typeof practices>();
+  for (const p of practices) {
+    if (!practicesBySection.has(p.data.section)) practicesBySection.set(p.data.section, []);
+    practicesBySection.get(p.data.section)!.push(p);
+  }
+
+  const examplesBySection = new Map<string, typeof examples>();
+  for (const e of examples) {
+    if (!examplesBySection.has(e.data.demonstrates)) examplesBySection.set(e.data.demonstrates, []);
+    examplesBySection.get(e.data.demonstrates)!.push(e);
+  }
+
+  const coverageBySection = new Map<string, CoverageRef[]>();
+  const stripHash = (h: string) => h.split('#')[0].replace(/\/$/, '');
+  const addRef = (href: string, ref: CoverageRef) => {
+    const m = stripHash(href).match(/^\/guide\/(.+)$/);
+    if (!m) return;
+    if (!coverageBySection.has(m[1])) coverageBySection.set(m[1], []);
+    coverageBySection.get(m[1])!.push(ref);
+  };
+  for (const a of articles)
+    for (const r of a.data.related)
+      addRef(r.href, { kind: 'article', title: a.data.title, href: `/articles/${a.id}`, date: a.data.date });
+  for (const w of weekly)
+    for (const r of w.data.related)
+      addRef(r.href, { kind: 'weekly', title: w.data.title, href: `/weekly/${w.id}`, date: w.data.date });
+  for (const v of dives)
+    for (const r of v.data.related)
+      addRef(r.href, { kind: 'dive', title: v.data.title, href: `/deep-dives/${v.id}`, date: v.data.date });
+  for (const e of radar)
+    for (const r of e.data.related)
+      addRef(r.href, { kind: 'radar', title: e.data.title, href: `/radar/${e.id}`, date: e.data.date });
+  for (const refs of coverageBySection.values()) refs.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  return { practicesBySection, examplesBySection, coverageBySection };
+});
+
 export type TaggedEntry =
   | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
   | { kind: 'article'; entry: CollectionEntry<'articles'> }

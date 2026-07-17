@@ -858,3 +858,63 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 
 /* front + list: kind shown as a small amber token inline in the meta line */
 .kind-inline { color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---- front v2: the edition (newspaper front page) ---- */
+.fm--v2 { max-width: var(--wrap); }
+.fm-date { display: flex; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--fg); padding-bottom: 10px; margin-bottom: 18px; }
+.fm-date b { color: var(--fg); font-weight: 700; }
+.fm-date-sp { flex: 1; }
+.fm-date a { color: var(--muted); text-decoration: none; }
+.fm-date a:hover { color: var(--accent); }
+.fm2-grid { display: grid; grid-template-columns: 1fr; gap: 26px; }
+@media (min-width: 880px) { .fm2-grid { grid-template-columns: minmax(0, 1fr) 288px; } }
+.fm2-main { min-width: 0; }
+.fm-duo { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 640px) { .fm-duo { grid-template-columns: 1fr 1fr; } }
+.fm-box--sec { padding: 18px 14px 14px; margin-bottom: 0; border-color: var(--rule-strong); }
+.fm-h2 { font-family: var(--font-mono); font-weight: 700; font-size: 17px; line-height: 1.28; letter-spacing: -.01em; margin: 0 0 8px; }
+.fm-box--sec .fm-kick { margin-bottom: 8px; }
+.fm-box--sec .fm-dek { font-size: 12.5px; margin: 0; }
+.fm-rail { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.rail-box { position: relative; border: 1px solid var(--rule-strong); padding: 20px 14px 14px; }
+.rail-legend { position: absolute; top: -7px; left: 12px; background: var(--bg); padding: 0 7px; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; color: var(--accent-2); }
+.rail-t { display: block; font-weight: 700; font-size: 14.5px; line-height: 1.3; color: var(--fg); text-decoration: none; margin: 0 0 6px; }
+.rail-t:hover { color: var(--accent); }
+.rail-dek { font-size: 12px; line-height: 1.55; color: var(--muted); margin: 0 0 8px; }
+.rail-meta { font-size: 11px; color: var(--faint); margin: 0 0 10px; }
+.rail-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.rail-list a { color: var(--muted); text-decoration: none; }
+.rail-list a:hover { color: var(--accent); }
+.rail-list .ln { color: var(--faint); margin-right: 7px; font-size: 11px; }
+.rail-more { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--fg); text-decoration: none; }
+.rail-more:hover { color: var(--accent); }
+.rail-counts { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 12px; color: var(--muted); margin: 0; }
+.rail-counts b { color: var(--fg); font-weight: 700; }
+.wire-kind { display: inline-block; width: 1.6ch; color: var(--accent-2); }
+
+/* ---- guide topic hub (section foot) ---- */
+.hub { margin-top: 44px; border-top: 2px solid var(--fg); padding-top: 4px; font-family: var(--font-mono); }
+.hub-sec { margin: 24px 0; }
+.hub-h { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.hub-list { list-style: none; margin: 0; padding: 0; }
+.hub-item { padding: 10px 0; border-bottom: 1px solid var(--rule); font-size: 13.5px; }
+.hub-item:last-child { border-bottom: 0; }
+.hub-item > a { color: var(--fg); text-decoration: none; font-weight: 700; }
+.hub-item > a:hover { color: var(--accent); }
+.hub-m { font-size: 11px; color: var(--faint); margin-left: 8px; white-space: nowrap; }
+.hub-sub { display: block; font-family: var(--font-serif); font-size: 13.5px; line-height: 1.5; color: var(--muted); margin-top: 3px; }
+
+/* ---- article byline card ---- */
+.byline-card { margin: 34px 0 0; border: 1px solid var(--rule-strong); padding: 14px 16px; font-family: var(--font-mono); }
+.byline-name { font-weight: 700; font-size: 13.5px; color: var(--fg); }
+.byline-desk { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-2); margin-left: 9px; }
+.byline-line { font-family: var(--font-serif); font-size: 14px; line-height: 1.5; color: var(--muted); margin: 6px 0 0; }
+
+/* "new since last visit" on the v2 front's wire rows and secondary boxes */
+.fd-row.is-new .fd-t::after,
+.fm-box--sec.is-new .fm-h2::after {
+  content: "new"; margin-left: 8px; vertical-align: middle;
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--bg); background: var(--accent); padding: 1px 5px; border-radius: 3px;
+}
