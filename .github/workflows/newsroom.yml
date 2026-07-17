@@ -1,0 +1,140 @@
+name: Newsroom
+
+# The daily edition. Claude Code runs the newsroom skill: the editor reads
+# the scout's signals and decides whether today earns an article (max one —
+# a ceiling, never a quota); when it does, the specialized desk writes it to
+# src/content/articles/. Every run — publish or skip — appends its decision
+# to editorial/NEWSROOM.md, so silence is auditable. On article days a
+# fresh-context fact-integrity pass verifies the claims and the editorial
+# gates run before the commit; Deploy publishes via its workflow_run
+# trigger. Failures open/comment a pipeline-failure issue — never silent.
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
+
+on:
+  schedule:
+    # Tue–Sun 06:30 UTC — after the scout's 05:00 sweep has committed.
+    # Monday is The Week's day; the newsroom stays quiet (like The Wire's
+    # daily desk, the flagship owns Monday).
+    - cron: "30 6 * * 0,2-6"
+  workflow_dispatch:
+    inputs:
+      override:
+        description: "Optional override (a topic, or 'desk: money')"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: main-writers
+  cancel-in-progress: false
+
+jobs:
+  newsroom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Run the newsroom
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            Run the newsroom skill (.claude/skills/newsroom/SKILL.md).
+            ${{ github.event.inputs.override && format('Override: {0}.', github.event.inputs.override) || '' }}
+            Decide whether today earns an article; if it does, write it as
+            the owning desk to src/content/articles/ and feed the product
+            (guide patches, memory, backlog). Publish or skip, append the
+            decision to editorial/NEWSROOM.md. Write files only — do not
+            commit or push.
+          show_full_output: true
+          # Fable: editorial judgment plus an unattended writing run.
+          claude_args: >-
+            --model claude-fable-5
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+
+      # Publish or skip, the editor always appends its decision line — a run
+      # that wrote nothing under editorial/ is a dead run, not a quiet day.
+      - name: Guard — editor ran and decided
+        uses: ./.github/actions/writer-guard
+        with:
+          execution_file: ${{ steps.claude.outputs.execution_file }}
+          expect_changes: editorial/
+
+      - name: Detect content changes
+        id: changes
+        run: echo "n=$(git status --porcelain -- src signals | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Verify changed claims (fact-integrity pass)
+        id: verify
+        if: steps.changes.outputs.n != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            You are the fact-integrity gate for this repo's autonomous
+            newsroom. The previous step wrote an article (and possibly guide
+            patches) but nothing is committed yet. Run
+            `git status --porcelain -- src/content` to list edited and new
+            files, `git diff -- src/content` for the edits, and read new
+            files in full. For every load-bearing factual claim — figures,
+            funding amounts, pricing, dates, survey results, quotes, company
+            moves — verify it against a credible public source with
+            WebFetch/WebSearch. Fix what is wrong, revert what cannot be
+            verified, and mark anything kept-but-unverified as such in the
+            text ("reportedly", with its single source). Do not add new
+            stories and do not restyle prose. Write files only — do not
+            commit or push.
+          show_full_output: true
+          # A separate, fresh-context model checks the writer's claims.
+          claude_args: >-
+            --model claude-sonnet-5
+            --max-turns 50
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+
+      # A clean verify may change nothing — only require that it really ran.
+      - name: Guard — verifier ran
+        if: steps.changes.outputs.n != '0'
+        uses: ./.github/actions/writer-guard
+        with:
+          execution_file: ${{ steps.verify.outputs.execution_file }}
+
+      - name: Run editorial gates
+        if: steps.changes.outputs.n != '0'
+        uses: ./.github/actions/editorial-gates
+
+      - name: Append usage ledger
+        id: ledger
+        env:
+          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
+          MODEL: claude-fable-5
+        run: |
+          bash scripts/append-ledger.sh
+          echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changes
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: signals/ editorial/ src/content/ usage/
+          message: "Newsroom: ${{ steps.ledger.outputs.today }}"
+
+      # A failed gate must cost a retry, not the written work.
+      - name: Rescue uncommitted content on failure
+        if: failure()
+        uses: ./.github/actions/rescue-content
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

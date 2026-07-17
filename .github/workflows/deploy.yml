@@ -11,7 +11,7 @@ on:
   push:
     branches: [main]
   workflow_run:
-    workflows: ["Scout", "Weekly", "Deep Dive"]
+    workflows: ["Scout", "Weekly", "Deep Dive", "Newsroom"]
     types: [completed]
   workflow_dispatch: {}
 

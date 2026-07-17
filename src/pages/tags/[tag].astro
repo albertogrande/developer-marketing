@@ -15,6 +15,7 @@ const { tag } = Astro.params;
 const { items } = Astro.props;
 
 const weekly = items.filter((i) => i.kind === 'weekly');
+const articles = items.filter((i) => i.kind === 'article');
 const dives = items.filter((i) => i.kind === 'deep-dive');
 const practices = items.filter((i) => i.kind === 'practice');
 const examples = items.filter((i) => i.kind === 'example');
@@ -67,6 +68,27 @@ const radar = items.filter((i) => i.kind === 'radar');
             <span class="fm-ln">ex</span>
             <div class="fm-rowmain">
               <a href={withBase(`/examples#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {articles.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">the newsroom</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(articles.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {articles.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/articles/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
             </div>
           </li>

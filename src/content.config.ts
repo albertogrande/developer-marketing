@@ -122,6 +122,34 @@ const practices = defineCollection({
   }),
 });
 
+// articles/ — the newsroom. Dated pieces written by the specialized desks
+// (see AUTHORS.md): news, money, campaigns, research, technology. At most one
+// a day, editor's call — the ceiling is not a quota. One file per piece:
+// YYYY-MM-DD-slug.md.
+const articles = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/articles' }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    // Optional revision stamp when a piece is corrected after publication.
+    updated: z.coerce.date().optional(),
+    summary: z.string(),
+    // A longer standfirst rendered under the title.
+    dek: z.string().optional(),
+    // The desk that owns the story — drives the kicker and the section chip.
+    desk: z.enum(['news', 'money', 'campaigns', 'research', 'technology']),
+    // The writer's name exactly as in AUTHORS.md.
+    byline: z.string(),
+    tags: z.array(z.string()).default([]),
+    related: z
+      .array(z.object({ label: z.string(), href: z.string() }))
+      .default([]),
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+  }),
+});
+
 const deepDives = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/deep-dives' }),
   schema: z.object({
@@ -237,6 +265,7 @@ const radar = defineCollection({
 export const collections = {
   guide,
   weekly,
+  articles,
   practices,
   'deep-dives': deepDives,
   examples,

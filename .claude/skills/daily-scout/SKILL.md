@@ -67,6 +67,20 @@ paywalls.
   **Stack Overflow Developer Survey**, **GitHub Octoverse**, **DX / DevEx
   research** (Forsgren et al.).
 
+**The newsroom beats — money, campaigns, technology (feed the desks):**
+
+- **Money:** devtools funding rounds, acquisitions, valuations, and pricing
+  changes — TechCrunch/press-release announcements, the company's own post,
+  public filings. Capture the amount, stage, and investors when stated;
+  label vendor-claimed numbers as such.
+- **Campaigns:** a devtool launch, campaign, or piece of marketing making
+  noise *right now* — a Launch Week, a Show HN doing numbers, an ad
+  developers are discussing, a rebrand. Link the artifact itself, not just
+  the commentary.
+- **Technology:** a stack technology visibly gaining traction (protocols,
+  databases, agent tooling, ML infra) — a launch, a big adoption story, a
+  telling jobs/survey datapoint. The bar is adoption evidence, not noise.
+
 **Community & discussion — public endpoints that fetch reliably. Verify every
 claim against a primary source before repeating it:**
 
@@ -118,6 +132,13 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   README. Include the direct link to the artifact itself (not a write-up about
   it). These feed the weekly editor's swipe file (`src/content/examples/`). A
   play with no linkable artifact is a practice-candidate, not an example.
+- Append a **desk flag** when a signal could carry a newsroom article
+  (`.claude/skills/newsroom/`): ` · news-candidate` (industry news that
+  changes a decision), ` · analysis-candidate` (a money move or pattern —
+  funding, M&A, pricing), ` · campaign-candidate` (a campaign/launch worth a
+  teardown), ` · tech-candidate` (a stack technology shift with adoption
+  evidence). One signal can carry a desk flag *and* practice/example flags —
+  they feed different desks. When in doubt, flag it; the editor decides.
 - Discussions are first-class: an HN thread tearing down a devtool launch is a
   signal even if no outlet wrote it up — link the thread.
 - Note trajectory when visible ("second wave of…", "follow-up to Monday's…").

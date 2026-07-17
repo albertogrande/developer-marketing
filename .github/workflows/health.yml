@@ -54,6 +54,10 @@ jobs:
 
           # The scout appends signals every day — even quiet days get a line.
           check "Scout" "signals/" 2
+          # The newsroom logs a publish/skip decision every run day (Tue–Sun)
+          # in editorial/NEWSROOM.md — 3 days covers the Monday gap plus one
+          # missed day. Publishing is not a quota; deciding is.
+          check "Newsroom" "editorial/NEWSROOM.md" 3
           # The weekly commits a digest every Monday; 9 days is one missed
           # Monday plus slack.
           check "Weekly" "src/content/weekly/" 9

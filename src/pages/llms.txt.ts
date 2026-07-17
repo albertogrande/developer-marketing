@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { withBase } from '../lib/site';
-import { getExamplesSorted, getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
+import { getArticlesSorted, getExamplesSorted, getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
 // Points at the guide sections, the practices, and the machine endpoints.
@@ -13,6 +13,7 @@ export const GET: APIRoute = async (context) => {
   const practices = await getPracticesSorted();
   const weekly = await getWeeklySorted();
   const examples = await getExamplesSorted();
+  const articles = await getArticlesSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -56,12 +57,22 @@ export const GET: APIRoute = async (context) => {
     }
   }
 
+  if (articles.length) {
+    lines.push('');
+    lines.push('## Newsroom');
+    lines.push('Dated desk articles — news, money, campaigns, research, technology.');
+    for (const a of articles.slice(0, 10)) {
+      lines.push(`- [${a.data.title}](${abs(`/articles/${a.id}`)}): ${a.data.summary}`);
+    }
+  }
+
   lines.push('');
   lines.push('## Machine endpoints');
   lines.push(`- [llms-full.txt](${abs('/llms-full.txt')}): the whole guide and practices as one markdown file`);
   lines.push(`- [practices.json](${abs('/practices.json')}): structured best-practices`);
   lines.push(`- [guide.json](${abs('/guide.json')}): guide sections with markdown bodies`);
   lines.push(`- [weekly.json](${abs('/weekly.json')}): recent weekly digests`);
+  lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
   lines.push('');
 

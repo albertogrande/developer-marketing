@@ -49,6 +49,10 @@ fluff. Wants the state of the art, kept honest.
 ## Format
 
 - **Signals** (daily, internal) — raw one-liners, capture over synthesis.
+- **Articles** (the newsroom, ≤1/day Tue–Sun) — dated desk pieces on the
+  news, money, campaigns, research, and technology of the devtools industry.
+  The ceiling is not a target: the reader prefers three sharp articles a week
+  over seven thin ones, and a skip logged with its reason over filler.
 - **The guide** (evergreen) — the product; kept continuously current.
 - **The weekly** (one short essay a week) — decides what mattered; areas are
   research lenses, never output sections. Not a per-item news list.
