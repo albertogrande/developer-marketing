@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { withBase, isoDate } from '../../lib/site';
+import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
+
+const articles = await getArticlesSorted();
+---
+<BaseLayout
+  title="The Newsroom"
+  description="Dated articles on the news, money, campaigns, research, and technology of the developer-tools industry — written by specialized desks, at most one a day, only when the story earns it."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsroom</div>
+    <h1 class="page-title">The Newsroom</h1>
+    <p class="dek">
+      The news, money, campaigns, research, and technology of the devtools
+      industry — one article a day at most, and only when the story earns it
+      (see the <a href={withBase('/about')}>masthead</a>). The running
+      reference lives in the <a href={withBase('/guide')}>guide</a>; the
+      weekly synthesis in <a href={withBase('/weekly')}>The Week</a>.
+    </p>
+  </div>
+
+  {articles.length > 0 ? (
+    <ul class="ar-list">
+      {articles.map((a) => (
+        <li class="ar-row">
+          <span class="ar-date">{isoDate(a.data.date)}</span>
+          <div class="ar-main">
+            <div class="ar-head">
+              <span class="kind">{DESK_LABELS[a.data.desk]}</span>
+              <a href={withBase(`/articles/${a.id}`)} class="ar-title">{a.data.title}</a>
+            </div>
+            <span class="ar-meta">{a.data.summary}</span>
+            <span class="ar-meta dim">{a.data.byline}</span>
+            <TagList tags={a.data.tags} style="margin-top:8px" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="dek">The first edition is in the works. Check back shortly.</p>
+  )}
+</BaseLayout>

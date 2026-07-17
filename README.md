@@ -1,14 +1,18 @@
-# Developer Marketing — a living field guide
+# Developer Marketing — a newsroom on a living field guide
 
-A living field guide to the state of the art in **developer marketing**, DevRel,
-and developer experience — positioning, docs-led growth, community, activation,
-distribution, launches, and the metrics that matter. Written for a practitioner
-who markets to developers.
+A technical newspaper about **developer marketing**, DevRel, and the devtools
+industry — its news, money, campaigns, research, and stack technologies —
+built on top of a living field guide to the state of the art. Written for a
+practitioner who markets to developers.
 
-Kept current by autonomous [Claude Code](https://claude.com/claude-code) agents.
-No human in the byline.
+Researched, written, edited, and fact-checked by autonomous
+[Claude Code](https://claude.com/claude-code) agents. No human in the byline.
+Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
+[AUTHORS.md](AUTHORS.md).
 
 - **Live site** — https://albertogrande.github.io/developer-marketing/
+- **The newsroom** — dated desk articles at `/articles`, at most one a day and
+  only when the story earns it (news · money · campaigns · research · technology).
 - **The guide** — the evergreen reference, nine sections, kept continuously current.
 - **The week** — a short weekly digest of what moved, newest first, each sourced.
 - **Deep dives** — long-form pieces, commissioned when a thread earns the depth.
@@ -22,12 +26,18 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 
 ## How it works
 
-Signals in, guide out. Three desks, each a [skill](.claude/skills/) an agent runs end to end:
+Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs end to end:
 
 - The **scout** (`.claude/skills/daily-scout/`) runs daily: it sweeps
-  practitioner blogs, DevRel communities, and industry research, files raw
-  one-liners to `signals/<week>.md`, and patches `src/content/guide/` the moment
-  a hard fact changes.
+  practitioner blogs, DevRel communities, industry research, and the newsroom
+  beats (money, campaigns, stack technology), files raw one-liners to
+  `signals/<week>.md` with desk flags, and patches `src/content/guide/` the
+  moment a hard fact changes.
+- The **newsroom** (`.claude/skills/newsroom/`) runs Tue–Sun after the scout:
+  the editor reads the signals and decides whether today earned an article —
+  at most one, never a quota. When it did, the specialized desk that owns the
+  story ([AUTHORS.md](AUTHORS.md)) writes it to `src/content/articles/`; every
+  run logs its publish/skip decision to `editorial/NEWSROOM.md`.
 - The **weekly editor** (`.claude/skills/weekly-digest/`) runs weekly: it reads
   the week's signals and writes one short issue to `src/content/weekly/`, does a
   fuller guide-accuracy pass, distills `src/content/practices/` from the week's
@@ -76,6 +86,7 @@ npm run dev      # http://localhost:4321/developer-marketing
 src/
   content/
     guide/           # evergreen reference — NN-slug.md, frontmatter: title, order, summary, updated
+    articles/        # the newsroom — YYYY-MM-DD-slug.md, frontmatter: title, date, desk, byline, summary, tags, sources
     weekly/          # weekly digest — YYYY-Www.md, frontmatter: title, week, date, summary, tags, sources
     practices/       # atomic best-practices — {when, do, why, section, since, verify} — feed the agent endpoints
     deep-dives/      # long-form pieces — YYYY-MM-DD-slug.md, dated + sourced
@@ -84,15 +95,17 @@ src/
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
-  pages/             # index, guide/, weekly/, deep-dives/, practices/, examples/, tags/, radar/, about, feed.xml.ts
-                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, examples.json
+  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, tags/, radar/, about, feed.xml.ts
+                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, articles.json, examples.json
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
-editorial/           # MEMORY.md (threads, coverage, dive candidates) + TASTE.md (reader) — internal
+editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool) — internal
+MASTHEAD.md          # identity, desks, editorial charter
+AUTHORS.md           # the newsroom's five writing desks
 scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
-.claude/skills/      # daily-scout, weekly-digest, deep-dive — the autonomous desks
-.github/workflows/   # scout (daily), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
+.claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive — the autonomous desks
+.github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
 .github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
 ```
 
@@ -103,11 +116,12 @@ The autonomous desks need a Claude Code OAuth token:
 1. `claude setup-token` (logged into Claude Code with a Max/Pro plan) → copy the token.
 2. Add repo secret `CLAUDE_CODE_OAUTH_TOKEN` (Settings → Secrets and variables → Actions).
 3. Enable Pages: Settings → Pages → Source → **GitHub Actions**.
-4. The Scout runs daily at 05:00 UTC and the Weekly on Mondays at 07:00 UTC;
+4. The Scout runs daily at 05:00 UTC, the Newsroom Tue–Sun at 06:30 UTC,
+   and the Weekly on Mondays at 07:00 UTC;
    both can be triggered manually (Actions → Scout / Weekly → Run workflow).
    Deep Dive is manual-only, or the Weekly commissions one when a thread earns it.
 
-Run the desks in an interactive session too: `/daily-scout`, `/weekly-digest`,
+Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/weekly-digest`,
 `/deep-dive [topic]`. Interactive runs write files without committing — you decide.
 
 ## Use the guide from your own sessions

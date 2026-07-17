@@ -28,6 +28,7 @@ const ids = (dir) => new Set(mdFiles(dir).map((f) => f.replace(/\.mdx?$/, '')));
 
 const guideIds = ids('src/content/guide');
 const weeklyIds = ids('src/content/weekly');
+const articleIds = ids('src/content/articles');
 const diveIds = ids('src/content/deep-dives');
 const practiceIds = ids('src/content/practices');
 const exampleIds = ids('src/content/examples');
@@ -73,7 +74,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'deep-dives', 'practices', 'examples', 'radar']) {
+for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -93,6 +94,7 @@ function resolves(href) {
   let m;
   if ((m = clean.match(/^\/guide\/([^/]+)$/))) return guideIds.has(m[1]);
   if ((m = clean.match(/^\/weekly\/([^/]+)$/))) return weeklyIds.has(m[1]);
+  if ((m = clean.match(/^\/articles\/([^/]+)$/))) return articleIds.has(m[1]);
   if ((m = clean.match(/^\/deep-dives\/([^/]+)$/))) return diveIds.has(m[1]);
   if ((m = clean.match(/^\/radar\/([^/]+)$/))) return radarIds.has(m[1]);
   if ((m = clean.match(/^\/tags\/([^/]+)$/))) return tags.has(m[1]);
@@ -149,5 +151,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

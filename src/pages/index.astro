@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase, fmtMed, isoDate } from '../lib/site';
-import { getGuideSorted, getWeeklySorted, getDivesSorted, getExamplesSorted, getRadarSorted } from '../lib/content';
+import { getGuideSorted, getWeeklySorted, getDivesSorted, getExamplesSorted, getRadarSorted, getArticlesSorted, DESK_LABELS } from '../lib/content';
 
 const weekly = await getWeeklySorted();
 const lead = weekly[0];
 const recent = weekly.slice(1, 6);
 
 const guide = await getGuideSorted();
+const articles = await getArticlesSorted();
 const dives = await getDivesSorted();
 const examples = await getExamplesSorted();
 const radar = await getRadarSorted();
@@ -37,6 +38,35 @@ const radar = await getRadarSorted();
         </p>
         <span class="fm-read"><span class="amber">→</span> read the guide</span>
       </a>
+    )}
+
+    {articles.length > 0 && (
+      <Fragment>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">the newsroom</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(articles.length).padStart(2, '0')}</span>
+        </div>
+        <ul class="fm-list">
+          {articles.slice(0, 5).map((a) => (
+            <li class="fm-row" data-date={isoDate(a.data.date)}>
+              <span class="fm-ln">{isoDate(a.data.date).slice(5)}</span>
+              <div class="fm-rowmain">
+                <div class="fm-row-head">
+                  <a href={withBase(`/articles/${a.id}`)} class="fm-row-t">{a.data.title}</a>
+                </div>
+                <p class="fm-row-dek">{a.data.summary}</p>
+                <div class="fm-row-m">
+                  <span>{DESK_LABELS[a.data.desk]}</span>
+                  <span class="dim">·</span>
+                  <span>{a.data.byline}</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a href={withBase('/articles')} class="more">all articles →</a>
+      </Fragment>
     )}
 
     {recent.length > 0 && (
@@ -162,6 +192,7 @@ const radar = await getRadarSorted();
 
     <footer class="fm-keys">
       <a href={withBase('/guide')}><b>g&thinsp;g</b> guide</a>
+      <a href={withBase('/articles')}><b>g&thinsp;n</b> newsroom</a>
       <a href={withBase('/weekly')}><b>g&thinsp;w</b> the week</a>
       <a href={withBase('/deep-dives')}><b>g&thinsp;d</b> deep dives</a>
       <a href={withBase('/practices')}><b>g&thinsp;p</b> practices</a>

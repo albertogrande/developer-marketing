@@ -75,6 +75,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
     var commands = [
       { id: 'home', ic: '⌂', label: 'Go to home', hint: 'g h', keywords: 'front index latest state', run: function () { go('/'); } },
       { id: 'guide', ic: '▦', label: 'Go to the guide', hint: 'g g', keywords: 'reference manual models effort modes', run: function () { go('/guide'); } },
+      { id: 'newsroom', ic: '◫', label: 'Go to the newsroom', hint: 'g n', keywords: 'newsroom articles news money campaigns research technology desks', run: function () { go('/articles'); } },
       { id: 'weekly', ic: '≋', label: 'Go to the week', hint: 'g w', keywords: 'weekly digest updates changelog news whats new', run: function () { go('/weekly'); } },
       { id: 'dives', ic: '◈', label: 'Go to deep dives', hint: 'g d', keywords: 'deep dive essays long reads analysis', run: function () { go('/deep-dives'); } },
       { id: 'practices', ic: '»', label: 'Go to practices', hint: 'g p', keywords: 'best practices when do why corpus mcp', run: function () { go('/practices'); } },
@@ -213,7 +214,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {
         gPending = false; clearTimeout(gTimer);
-        var map = { h: '/', g: '/guide', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', r: '/radar', a: '/about' };
+        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', r: '/radar', a: '/about' };
         if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
         return;
       }

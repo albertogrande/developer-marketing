@@ -1,11 +1,12 @@
 # Editorial Memory
 
-Agent-maintained. Read before running any desk (scout, weekly, deep-dive);
-update after. Keep under ~150 lines — retire dead threads by deleting them
-(git history preserves everything).
+Agent-maintained. Read before running any desk (scout, newsroom, weekly,
+deep-dive); update after. Keep under ~170 lines — retire dead threads by
+deleting them (git history preserves everything).
 
-This is the brain that keeps the **guide** current and decides when a thread
-has earned a **deep dive**. It is internal (not rendered).
+This is the brain that keeps the **guide** current, decides when a thread
+has earned a **deep dive**, and gives the **newsroom** its sense of what's
+already been said. It is internal (not rendered).
 
 ## Standing editorial findings
 
@@ -28,6 +29,15 @@ has earned a **deep dive**. It is internal (not rendered).
   pick even on quiet days; the desks moved to signals (internal, daily) + The
   Week (published, Mondays). The radar entries remain rendered at /radar as an
   archive — never add new ones.
+- **2026-07-17, the newsroom** (architecture from the sibling The Wire): the
+  site becomes a technical newspaper on top of the field guide. Five writing
+  desks (`AUTHORS.md`: news, money, campaigns, research, technology) publish
+  to `src/content/articles/` — **at most one article a day, Tue–Sun, editor's
+  call, never a quota** (the anti-padding lesson above is load-bearing). The
+  editor's publish/skip decisions live in `editorial/NEWSROOM.md`; the
+  evergreen idea pool in `editorial/BACKLOG.md`. Articles feed the product:
+  guide patches, practice/example candidates, deep-dive flags. The radar
+  lesson stands — if the newsroom starts padding, cut cadence, not quality.
 
 ## Running threads
 
@@ -122,6 +132,15 @@ about *where* a fact belongs.
 - `06-channels-and-distribution` — where developers are, GEO/AI answers
 - `07-launches` — launches developers amplify, HN/PH dynamics
 - `08-measurement-and-metrics` — DevRel/marketing measurement, funnels
+
+## Coverage index (articles)
+
+Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
+<tags>`. The newsroom appends one line per published article; the editor
+scans this (plus the index below) before assigning, so the paper never
+re-runs a story in new clothes.
+
+- (none yet — newsroom founded 2026-07-17)
 
 ## Coverage index (published)
 

@@ -31,6 +31,20 @@ export const getDivesSorted = memo(async () =>
   (await getCollection('deep-dives')).sort(entryByDateDesc)
 );
 
+// The newsroom — dated desk articles, newest first.
+export const getArticlesSorted = memo(async () =>
+  (await getCollection('articles')).sort(entryByDateDesc)
+);
+
+// Desk key → display label, in one place so pages and endpoints agree.
+export const DESK_LABELS: Record<CollectionEntry<'articles'>['data']['desk'], string> = {
+  news: 'News',
+  money: 'The Money',
+  campaigns: 'Campaigns',
+  research: 'Research',
+  technology: 'Technology',
+};
+
 export const getPracticesSorted = memo(async () =>
   (await getCollection('practices')).sort(
     (a, b) => a.data.section.localeCompare(b.data.section) || a.id.localeCompare(b.id)
@@ -49,6 +63,7 @@ export const getRadarSorted = memo(async () =>
 
 export type TaggedEntry =
   | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
+  | { kind: 'article'; entry: CollectionEntry<'articles'> }
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
   | { kind: 'practice'; entry: CollectionEntry<'practices'> }
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
@@ -57,8 +72,9 @@ export type TaggedEntry =
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, dives, practices, examples, radar] = await Promise.all([
+  const [weekly, articles, dives, practices, examples, radar] = await Promise.all([
     getWeeklySorted(),
+    getArticlesSorted(),
     getDivesSorted(),
     getPracticesSorted(),
     getExamplesSorted(),
@@ -70,6 +86,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
     map.get(tag)!.push(item);
   };
   for (const entry of weekly) for (const t of entry.data.tags) add(t, { kind: 'weekly', entry });
+  for (const entry of articles) for (const t of entry.data.tags) add(t, { kind: 'article', entry });
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
   for (const entry of practices) for (const t of entry.data.tags) add(t, { kind: 'practice', entry });
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });

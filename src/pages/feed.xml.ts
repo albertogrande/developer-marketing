@@ -30,6 +30,13 @@ export const GET: APIRoute = async (context) => {
     tags: e.data.tags,
     path: `/weekly/${e.id}`,
   }));
+  const articles = (await getCollection('articles')).map((e) => ({
+    title: e.data.title,
+    summary: e.data.summary,
+    date: e.data.date,
+    tags: e.data.tags,
+    path: `/articles/${e.id}`,
+  }));
   const dives = (await getCollection('deep-dives')).map((e) => ({
     title: e.data.title,
     summary: e.data.summary,
@@ -45,7 +52,7 @@ export const GET: APIRoute = async (context) => {
     path: `/radar/${e.id}`,
   }));
 
-  const items = [...weekly, ...dives, ...radar].sort(
+  const items = [...weekly, ...articles, ...dives, ...radar].sort(
     (a, b) => b.date.getTime() - a.date.getTime()
   );
 
