@@ -41,12 +41,17 @@ keeps recurring in signals and isn't well covered by the guide is a
   practitioners restructure docs for machine retrieval and ship llms.txt
   (07-07 radar). Caveat held so far: no major AI provider has confirmed
   reading llms.txt — the durable win is chunk-retrievable docs. This site now
-  eats the dog food (/llms.txt, /practices.json). Now compounding on two
+  eats the dog food (/llms.txt, /practices.json). Now compounding on three
   fronts: GEO-monitoring is getting productized (Show HN "Crawlie Cloud",
-  07-10 signal) and the machine-mediated-discovery thread is extending from
-  docs to API/vendor selection itself (Show HN "OpenBenchmarks", 07-11
-  signal — agents picking SaaS APIs, not just reading about them). Guide: §02
-  (docs), §06 (channels). → [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
+  07-10 signal), the machine-mediated-discovery thread is extending from docs
+  to API/vendor selection itself (Show HN "OpenBenchmarks", 07-11 signal —
+  agents picking SaaS APIs, not just reading about them), and now a live
+  example of agent-safe API design as a shipped product surface — GoDaddy's
+  new Developer Platform serves docs as markdown/plain-text/OpenAPI and adds
+  quote-then-execute + idempotency + consent so an agent can transact, not
+  just read (07-17 signal, example-candidate). The deep-dive candidate below
+  is close to ripe. Guide: §02 (docs), §06 (channels). →
+  [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
 - **DevRel measurement: influence, not attribution** `↑` — the 2026
   practitioner consensus keeps landing on influenced pipeline + activation
   over last-touch sourced leads; new pressure: "does our brand show up in
