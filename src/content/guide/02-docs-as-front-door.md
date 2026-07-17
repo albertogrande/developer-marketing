@@ -2,7 +2,7 @@
 title: Docs as the front door
 order: 2
 summary: Why documentation is the highest-leverage marketing surface you own, what a great quickstart looks like, and how docs-led growth turns reading into adoption.
-updated: 2026-07-07
+updated: 2026-07-17
 ---
 
 For a developer product, the docs are not a support afterthought — they are the top of the funnel, the demo, and the sales engineer combined. Developers evaluate you by reading. The companies with outsized developer adoption almost all share one trait: documentation good enough to be a competitive moat. Treat docs as a product, staffed and measured like one.
@@ -33,6 +33,7 @@ Docs-led growth means treating documentation as a discoverable, indexable, conve
 - **SEO by job.** Developers search for tasks ("how to verify a webhook signature"). Structure guides around those queries; you'll capture intent your competitors' gated content can't.
 - **Ungate everything you can.** A login wall in front of docs is a conversion leak. Let developers read and try before they sign up; qualify them with a great free tier, not a form.
 - **Interactive where it counts.** Runnable snippets, an API explorer, and copyable examples convert far better than static text.
+- **Readable by machines.** A growing share of your docs' readers are AI assistants and answer engines acting on a developer's behalf, and what they retrieve becomes the developer's first impression. Structure for retrieval — one section answers one question, the golden path up top, descriptive link text — and publish machine-readable surfaces (llms.txt as a curated index, OpenAPI for the reference). The same structure helps human readers for free, which is why it's worth doing regardless of which indexing convention wins.
 
 ## Measure docs like a product
 

@@ -49,8 +49,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   example of agent-safe API design as a shipped product surface — GoDaddy's
   new Developer Platform serves docs as markdown/plain-text/OpenAPI and adds
   quote-then-execute + idempotency + consent so an agent can transact, not
-  just read (07-17 signal, example-candidate). The deep-dive candidate below
-  is close to ripe. Guide: §02 (docs), §06 (channels). →
+  just read (07-17 signal, example-candidate). W28 issue led with this thread
+  ("from reading your docs to picking your vendor") and folded machine-reader
+  bullets into §02 and §06; the deep dive is now **commissioned** (see below).
+  Note: Crawlie moved domains crawlie.dev → crawlie.co mid-July — use .co.
+  Guide: §02 (docs), §06 (channels). →
   [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
 - **DevRel measurement: influence, not attribution** `↑` — the 2026
   practitioner consensus keeps landing on influenced pipeline + activation
@@ -73,17 +76,31 @@ keeps recurring in signals and isn't well covered by the guide is a
   hardcoded integrations with silent 404s (07-16 signal) — the inverse
   lesson: silent breaking changes burn the same trust verifiable proof
   builds. Guide: §01, §05, §07.
+- **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
+  (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
+  reputation + a runnable open-source artifact out-distributes launch budget;
+  promoted to examples (juggler-launches-on-reputation-and-a-runnable-repo).
+  Watch for counter-evidence: earned launches that flop despite substance, or
+  paid pushes that developers actually reward. Guide: §06, §07.
+
+W28 orphan triage: Shopify's 07-09 plan-testing change (dx/time-to-value,
+covered in the W28 "Also" section) dropped as a one-off — the time-to-value
+thread already has its dive; Crawlie/OpenBenchmarks folded into the
+AI-assistants thread above.
 
 ## Deep-dive candidates
 
 Promote here when a thread is recurring in signals AND the guide only covers
 it thinly. The weekly desk commissions from this list.
 
-- **GEO for devtools: marketing when the reader is a model** — the AI-readers
-  thread keeps compounding (docs restructuring, llms.txt, AI-answer presence
-  as a discovery metric) and the guide covers it in fragments across §02/§06.
-  A dive on what a devtool marketer should actually do about machine-mediated
-  discovery — what's measurable, what's cargo cult — is close to ripe.
+- **GEO for devtools: marketing when the reader is a model** — **COMMISSIONED
+  2026-07-17 by the W28 desk** (COMMISSION.txt; dispatched as its own run).
+  Brief: what a devtool marketer should actually do about machine-mediated
+  discovery — the reading layer (docs retrieval, llms.txt), the new selection
+  layer (GEO monitoring, agent-facing benchmarks like OpenBenchmarks), what's
+  measurable today vs. cargo cult. Earned it: 4+ dated signals across three
+  weeks (07-07 radar, 07-10, 07-11, 07-17) with only fragment-level guide
+  coverage. Remove this entry once the dive publishes.
 - **What a developer segment is actually worth** — if the population plateau
   holds across the next SlashData wave, the "pick a segment and go deep" claim
   deserves numbers: how operators size and choose segments. Not yet — watching.
@@ -108,4 +125,5 @@ about *where* a fact belongs.
 Weeklies and dives, newest first. Append one line each time. (Radar archive:
 5 entries, 2026-07-05 → 2026-07-08 — closed.)
 
+- 2026-W28 · weekly · *The agent reading your docs is starting to shop* · docs, channels, distribution, launches
 - 2026-07-06 · dive · *Time-to-value: the growth engine hiding in your onboarding* · dx, activation, metrics

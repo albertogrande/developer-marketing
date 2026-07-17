@@ -2,7 +2,7 @@
 title: Channels & distribution
 order: 6
 summary: Where developers actually pay attention, which channels reach them and which repel them, and why earned beats paid for a technical audience.
-updated: 2026-07-07
+updated: 2026-07-17
 ---
 
 Developers are reachable, but not through the channels most marketing playbooks assume. They block ads, ignore cold email, and distrust anything that feels like a funnel. They *do* pay attention to peers, to genuinely useful content, and to being where the work happens. Distribution for developers is mostly about earning attention, not buying it.
@@ -15,6 +15,7 @@ Developers are reachable, but not through the channels most marketing playbooks 
 - **Content platforms.** Dev.to, Hashnode, personal blogs, YouTube (long-form tutorials and conference talks), and technical newsletters.
 - **Events.** Conferences, meetups, hackathons, and workshops — high cost, high trust, best for depth and relationships rather than reach.
 - **Open source.** A useful open-source project is a distribution channel: it earns stars, contributors, and top-of-mind presence with exactly the right people.
+- **AI assistants & answer engines.** A growing share of first impressions are machine-mediated: a coding assistant or answer engine paraphrases your docs — and, increasingly, compares you against alternatives when a developer (or their agent) is choosing a tool. You can't buy presence here; you earn it with retrievable docs, machine-readable surfaces (llms.txt, OpenAPI), and specific, quotable facts. Measurement of this channel is still immature — the honest check is asking assistants task-shaped questions in your category and seeing whether, and how accurately, you appear.
 
 ## Earned beats paid
 
