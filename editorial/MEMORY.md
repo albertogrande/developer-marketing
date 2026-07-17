@@ -43,11 +43,14 @@ keeps recurring in signals and isn't well covered by the guide is a
   reading llms.txt — the durable win is chunk-retrievable docs. This site now
   eats the dog food (/llms.txt, /practices.json). Guide: §02 (docs), §06
   (channels). → [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
-- **DevRel measurement: influence, not attribution** `→` — the 2026
+- **DevRel measurement: influence, not attribution** `↑` — the 2026
   practitioner consensus keeps landing on influenced pipeline + activation
   over last-touch sourced leads; new pressure: "does our brand show up in
-  AI-generated answers" entering as a discovery metric (07-07 radar). Guide:
-  §08 (measurement), §03 (devrel).
+  AI-generated answers" entering as a discovery metric (07-07 radar). Now
+  showing up on the hiring side too: DevRel job postings reportedly screen for
+  specific, measurable-ROI skills the listings don't state outright (07-17
+  signal, one practitioner's account — watch for corroboration). Guide: §08
+  (measurement), §03 (devrel).
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move
