@@ -42,6 +42,11 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The Weekly dispatches commissioned dives with the workflow token,
+          # so the triggering actor is github-actions[bot] — which the action
+          # rejects unless allowed. Only actors with actions:write can
+          # dispatch this workflow, so this allows nothing untrusted.
+          allowed_bots: "github-actions"
           prompt: >
             Run the deep-dive skill (.claude/skills/deep-dive/SKILL.md).
             ${{ github.event.inputs.topic && format('Topic: {0}.', github.event.inputs.topic) || 'No topic given — pick the top deep-dive candidate from editorial/MEMORY.md.' }}
@@ -71,6 +76,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "github-actions" # same bot-dispatch path as the writer step
           prompt: >
             You are the fact-integrity gate for this repo's autonomous writer.
             The previous step wrote a deep-dive essay but nothing is committed
