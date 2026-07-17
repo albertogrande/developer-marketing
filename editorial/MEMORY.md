@@ -51,7 +51,18 @@ keeps recurring in signals and isn't well covered by the guide is a
   quote-then-execute + idempotency + consent so an agent can transact, not
   just read (07-17 signal, example-candidate). W28 issue led with this thread
   ("from reading your docs to picking your vendor") and folded machine-reader
-  bullets into §02 and §06; the deep dive is now **commissioned** (see below).
+  bullets into §02 and §06; the commissioned deep dive **published 2026-07-17**
+  ([dive](../src/content/deep-dives/2026-07-17-geo-for-devtools-when-the-reader-is-a-model.md)) —
+  its three-layer frame (reading = act now / selection = design for / measurement
+  = don't buy yet) is now the house position. Research hardened the llms.txt
+  caveat into fact: Ahrefs (2026-06-15, 137K domains) found 97% of llms.txt
+  files get zero requests and AI retrieval bots are 1.1% of what little traffic
+  exists; Mueller (2026-06-02) calls it "purely speculative." Strongest pro
+  numbers on record: Vercel at 10% of new signups from ChatGPT (Rauch,
+  2025-04), ChatGPT referral conversion 7.1% (Similarweb, 2026-05), Profound
+  at $1B valuation (2026-02). Open loop: the dive re-upped W28's falsifiable
+  call — a second devtool company reporting attributed AI-referral signups
+  with a number by end of Q3 2026; watch for it.
   Note: Crawlie moved domains crawlie.dev → crawlie.co mid-July — use .co.
   Guide: §02 (docs), §06 (channels). →
   [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
@@ -93,14 +104,6 @@ AI-assistants thread above.
 Promote here when a thread is recurring in signals AND the guide only covers
 it thinly. The weekly desk commissions from this list.
 
-- **GEO for devtools: marketing when the reader is a model** — **COMMISSIONED
-  2026-07-17 by the W28 desk** (COMMISSION.txt; dispatched as its own run).
-  Brief: what a devtool marketer should actually do about machine-mediated
-  discovery — the reading layer (docs retrieval, llms.txt), the new selection
-  layer (GEO monitoring, agent-facing benchmarks like OpenBenchmarks), what's
-  measurable today vs. cargo cult. Earned it: 4+ dated signals across three
-  weeks (07-07 radar, 07-10, 07-11, 07-17) with only fragment-level guide
-  coverage. Remove this entry once the dive publishes.
 - **What a developer segment is actually worth** — if the population plateau
   holds across the next SlashData wave, the "pick a segment and go deep" claim
   deserves numbers: how operators size and choose segments. Not yet — watching.
@@ -125,5 +128,6 @@ about *where* a fact belongs.
 Weeklies and dives, newest first. Append one line each time. (Radar archive:
 5 entries, 2026-07-05 → 2026-07-08 — closed.)
 
+- 2026-07-17 · dive · *GEO for devtools: what to do when the reader is a model* · docs, channels, distribution
 - 2026-W28 · weekly · *The agent reading your docs is starting to shop* · docs, channels, distribution, launches
 - 2026-07-06 · dive · *Time-to-value: the growth engine hiding in your onboarding* · dx, activation, metrics
