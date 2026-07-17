@@ -1,0 +1,65 @@
+name: Health
+
+# Dead-man's switch for the autonomous desks. The writer guards inside each
+# workflow catch a run that errors or no-ops; this watchdog catches the
+# failure class those can never see — the schedule itself going quiet (GitHub
+# disabling crons on an inactive repo, a broken workflow file on main, an
+# action's moving tag regressing to silent success). If the scout hasn't
+# committed signals in 2 days, or the weekly hasn't committed a digest in 9,
+# something upstream is dead — open/comment the pipeline-failure issue.
+
+on:
+  schedule:
+    # 12:00 UTC daily — hours after the scout's 05:00 run and the Monday
+    # weekly at 07:00, so a healthy day is never mid-flight when checked.
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history — the checks read commit dates
+
+      - name: Check desk freshness
+        run: |
+          set -euo pipefail
+          now=$(date -u +%s)
+          stale=0
+
+          check() {
+            local label="$1" pathspec="$2" max_days="$3"
+            local last age_days
+            last=$(git log -1 --format=%ct -- "$pathspec")
+            if [ -z "$last" ]; then
+              echo "::error::$label desk: no commit has ever touched $pathspec"
+              stale=1
+              return
+            fi
+            age_days=$(( (now - last) / 86400 ))
+            if [ "$age_days" -ge "$max_days" ]; then
+              echo "::error::$label desk: last commit touching $pathspec is ${age_days} days old (limit ${max_days})"
+              stale=1
+            else
+              echo "$label desk OK: last commit touching $pathspec is ${age_days} day(s) old."
+            fi
+          }
+
+          # The scout appends signals every day — even quiet days get a line.
+          check "Scout" "signals/" 2
+          # The weekly commits a digest every Monday; 9 days is one missed
+          # Monday plus slack.
+          check "Weekly" "src/content/weekly/" 9
+
+          exit "$stale"
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

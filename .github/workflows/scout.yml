@@ -67,6 +67,14 @@ jobs:
             --max-turns 40
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
 
+      # Even a quiet day appends "- (quiet day)" to signals/, so a healthy
+      # scout run always leaves changes there.
+      - name: Guard — writer ran and captured
+        uses: ./.github/actions/writer-guard
+        with:
+          execution_file: ${{ steps.claude.outputs.execution_file }}
+          expect_changes: signals/
+
       - name: Detect content changes
         id: changes
         run: echo "n=$(git status --porcelain -- src signals editorial | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
@@ -97,6 +105,13 @@ jobs:
             --model claude-sonnet-5
             --max-turns 25
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+
+      # A clean verify may change nothing — only require that it really ran.
+      - name: Guard — verifier ran
+        if: steps.changes.outputs.n != '0'
+        uses: ./.github/actions/writer-guard
+        with:
+          execution_file: ${{ steps.verify.outputs.execution_file }}
 
       - name: Run editorial gates
         if: steps.changes.outputs.n != '0'
