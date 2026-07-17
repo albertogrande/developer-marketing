@@ -5,6 +5,9 @@ import { withBase, isoDate } from '../../lib/site';
 import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
 
 const articles = await getArticlesSorted();
+const desks = (['news', 'money', 'campaigns', 'research', 'technology'] as const)
+  .map((d) => ({ key: d, label: DESK_LABELS[d], n: articles.filter((a) => a.data.desk === d).length }))
+  .filter((d) => d.n > 0);
 ---
 <BaseLayout
   title="The Newsroom"
@@ -22,18 +25,26 @@ const articles = await getArticlesSorted();
     </p>
   </div>
 
+  {desks.length > 1 && (
+    <div class="fd-beats" role="group" aria-label="Filter by desk">
+      <button class="fd-beat is-on" data-desk="all" type="button">all <span class="ar-count">{articles.length}</span></button>
+      {desks.map((d) => (
+        <button class="fd-beat" data-desk={d.key} type="button">{d.label.toLowerCase()} <span class="ar-count">{d.n}</span></button>
+      ))}
+    </div>
+  )}
+
   {articles.length > 0 ? (
-    <ul class="ar-list">
+    <ul class="ar-list" id="article-list">
       {articles.map((a) => (
-        <li class="ar-row">
+        <li class="ar-row" data-desk={a.data.desk}>
           <span class="ar-date">{isoDate(a.data.date)}</span>
           <div class="ar-main">
             <div class="ar-head">
               <span class="kind">{DESK_LABELS[a.data.desk]}</span>
               <a href={withBase(`/articles/${a.id}`)} class="ar-title">{a.data.title}</a>
             </div>
-            <span class="ar-meta">{a.data.summary}</span>
-            <span class="ar-meta dim">{a.data.byline}</span>
+            <span class="ar-meta">{a.data.byline} · {a.data.summary}</span>
             <TagList tags={a.data.tags} style="margin-top:8px" />
           </div>
         </li>
@@ -42,4 +53,21 @@ const articles = await getArticlesSorted();
   ) : (
     <p class="dek">The first edition is in the works. Check back shortly.</p>
   )}
+
+  <script is:inline>
+    (function () {
+      var chips = [].slice.call(document.querySelectorAll('.fd-beat[data-desk]'));
+      var rows = [].slice.call(document.querySelectorAll('#article-list [data-desk]'));
+      if (!chips.length) return;
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var desk = chip.getAttribute('data-desk');
+          chips.forEach(function (c) { c.classList.toggle('is-on', c === chip); });
+          rows.forEach(function (r) {
+            r.style.display = desk === 'all' || r.getAttribute('data-desk') === desk ? '' : 'none';
+          });
+        });
+      });
+    })();
+  </script>
 </BaseLayout>

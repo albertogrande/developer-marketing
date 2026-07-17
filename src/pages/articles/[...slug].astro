@@ -1,19 +1,33 @@
 ---
-import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { fmtLong } from '../../lib/site';
-import { DESK_LABELS } from '../../lib/content';
+import { withBase, fmtLong, isoDate } from '../../lib/site';
+import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
+import { AUTHORS } from '../../lib/authors';
+import { render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const articles = await getCollection('articles');
-  return articles.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  // Sorted newest-first: prev = the newer piece, next = the older one, plus
+  // up to three more articles from the same desk for the byline block.
+  const articles = await getArticlesSorted();
+  return articles.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      newer: i > 0 ? articles[i - 1] : null,
+      older: i < articles.length - 1 ? articles[i + 1] : null,
+      fromDesk: articles
+        .filter((a) => a.data.desk === entry.data.desk && a.id !== entry.id)
+        .slice(0, 3),
+    },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, newer, older, fromDesk } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const author = AUTHORS[d.desk];
 ---
 <ReadingLayout
   title={d.title}
@@ -32,14 +46,39 @@ const d = entry.data;
 
   <Content />
 
-  <ArticleFoot
-    slot="foot"
-    updated={d.updated}
-    related={d.related}
-    sources={d.sources}
-    backHref="/articles"
-    backLabel="the newsroom"
-    forwardHref="/guide"
-    forwardLabel="the guide"
-  />
+  <Fragment slot="foot">
+    {author && (
+      <div class="byline-card">
+        <span class="byline-name">{author.name}</span>
+        <span class="byline-desk">{author.title}</span>
+        <p class="byline-line">{author.line}</p>
+      </div>
+    )}
+
+    {fromDesk.length > 0 && (
+      <div class="hub" style="margin-top:26px">
+        <div class="hub-sec">
+          <p class="hub-h">More from {DESK_LABELS[d.desk]}</p>
+          <ul class="hub-list">
+            {fromDesk.map((a) => (
+              <li class="hub-item">
+                <a href={withBase(`/articles/${a.id}`)}>{a.data.title}</a>
+                <span class="hub-m">{isoDate(a.data.date)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )}
+
+    <ArticleFoot
+      updated={d.updated}
+      related={d.related}
+      sources={d.sources}
+      backHref={older ? `/articles/${older.id}` : '/articles'}
+      backLabel={older ? `earlier: ${older.data.title}` : 'the newsroom'}
+      forwardHref={newer ? `/articles/${newer.id}` : '/guide'}
+      forwardLabel={newer ? `later: ${newer.data.title}` : 'the guide'}
+    />
+  </Fragment>
 </ReadingLayout>

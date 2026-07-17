@@ -2,68 +2,32 @@
 import { render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import { withBase, fmtLong, isoDate } from '../../lib/site';
-import {
-  getGuideSorted,
-  getWeeklySorted,
-  getDivesSorted,
-  getPracticesSorted,
-  getRadarSorted,
-} from '../../lib/content';
+import { getGuideSorted, getGuideGraph } from '../../lib/content';
 
+// Topic hub: the evergreen section plus everything the site knows about the
+// topic — the practices that implement it, the examples that evidence it,
+// and the dated coverage that mentions it. The graph is inverted once per
+// build in lib/content.ts.
 export async function getStaticPaths() {
-  // Backlinks: the schemas already carry the graph — surface it. Computed
-  // once here (not per page): practices that belong to each section, and
-  // weeklies/dives/radar entries whose `related` points at it.
-  const [guide, allPractices, weekly, dives, radar] = await Promise.all([
-    getGuideSorted(),
-    getPracticesSorted(),
-    getWeeklySorted(),
-    getDivesSorted(),
-    getRadarSorted(),
-  ]);
-  const stripHash = (h: string) => h.split('#')[0].replace(/\/$/, '');
-  const practicesBySection = new Map<string, typeof allPractices>();
-  for (const p of allPractices) {
-    if (!practicesBySection.has(p.data.section)) practicesBySection.set(p.data.section, []);
-    practicesBySection.get(p.data.section)!.push(p);
-  }
-  const refsBySection = new Map<string, { label: string; href: string }[]>();
-  const addRef = (sectionId: string, ref: { label: string; href: string }) => {
-    if (!refsBySection.has(sectionId)) refsBySection.set(sectionId, []);
-    refsBySection.get(sectionId)!.push(ref);
-  };
-  for (const w of weekly)
-    for (const r of w.data.related) {
-      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
-      if (m) addRef(m[1], { label: `The Week — ${w.data.title}`, href: `/weekly/${w.id}` });
-    }
-  for (const v of dives)
-    for (const r of v.data.related) {
-      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
-      if (m) addRef(m[1], { label: `Deep dive — ${v.data.title}`, href: `/deep-dives/${v.id}` });
-    }
-  for (const e of radar)
-    for (const r of e.data.related) {
-      const m = stripHash(r.href).match(/^\/guide\/(.+)$/);
-      if (m) addRef(m[1], { label: `Radar — ${e.data.title}`, href: `/radar/${e.id}` });
-    }
-
+  const [guide, graph] = await Promise.all([getGuideSorted(), getGuideGraph()]);
   return guide.map((entry, i) => ({
     params: { slug: entry.id },
     props: {
       entry,
       prev: i > 0 ? guide[i - 1] : null,
       next: i < guide.length - 1 ? guide[i + 1] : null,
-      practices: practicesBySection.get(entry.id) ?? [],
-      referencedIn: refsBySection.get(entry.id) ?? [],
+      practices: graph.practicesBySection.get(entry.id) ?? [],
+      examples: graph.examplesBySection.get(entry.id) ?? [],
+      coverage: graph.coverageBySection.get(entry.id) ?? [],
     },
   }));
 }
 
-const { entry, prev, next, practices, referencedIn } = Astro.props;
+const { entry, prev, next, practices, examples, coverage } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
+const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', radar: 'radar' };
 ---
 <ReadingLayout title={d.title} description={d.summary} deskLabel="Guide" stamp={stamp} updated={d.updated}>
   <div class="entry-lead" slot="lead">
@@ -73,28 +37,52 @@ const stamp = `Section ${String(d.order).padStart(2, '0')}`;
   <Content />
 
   <Fragment slot="foot">
-    {practices.length > 0 && (
-      <p class="related">
-        <span class="related-k">Practices</span>
-        {practices.map((p, i) => (
-          <Fragment>
-            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
-            <a href={withBase(`/practices#${p.id}`)}>{p.data.title}</a>
-          </Fragment>
-        ))}
-      </p>
-    )}
-    {referencedIn.length > 0 && (
-      <p class="related">
-        <span class="related-k">Referenced in</span>
-        {referencedIn.map((r, i) => (
-          <Fragment>
-            {i > 0 && <span class="sep" aria-hidden="true">·</span>}
-            <a href={withBase(r.href)}>{r.label}</a>
-          </Fragment>
-        ))}
-      </p>
-    )}
+    <div class="hub">
+      {practices.length > 0 && (
+        <div class="hub-sec">
+          <p class="hub-h">In practice <span class="ar-count">{practices.length}</span></p>
+          <ul class="hub-list">
+            {practices.map((p) => (
+              <li class="hub-item">
+                <a href={withBase(`/practices#${p.id}`)}>{p.data.title}</a>
+                {p.data.since && <span class="hub-m">since {p.data.since}</span>}
+                <span class="hub-sub">when {p.data.when} → {p.data.do}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {examples.length > 0 && (
+        <div class="hub-sec">
+          <p class="hub-h">Evidence <span class="ar-count">{examples.length}</span></p>
+          <ul class="hub-list">
+            {examples.map((e) => (
+              <li class="hub-item">
+                <a href={withBase(`/examples#${e.id}`)}>{e.data.company}: {e.data.title}</a>
+                <span class="hub-m">{e.data.artifact}</span>
+                <span class="hub-sub">{e.data.summary}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {coverage.length > 0 && (
+        <div class="hub-sec">
+          <p class="hub-h">Coverage <span class="ar-count">{coverage.length}</span></p>
+          <ul class="hub-list">
+            {coverage.map((c) => (
+              <li class="hub-item">
+                <a href={withBase(c.href)}>{c.title}</a>
+                <span class="hub-m">{KIND_LABEL[c.kind]} · {isoDate(c.date)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
     <nav class="section-nav">
       {prev ? (
         <a href={withBase(`/guide/${prev.id}`)}>← {prev.data.title}</a>
