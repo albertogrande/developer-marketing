@@ -82,8 +82,14 @@ keeps recurring in signals and isn't well covered by the guide is a
   AI-generated answers" entering as a discovery metric (07-07 radar). Now
   showing up on the hiring side too: DevRel job postings reportedly screen for
   specific, measurable-ROI skills the listings don't state outright (07-17
-  signal, one practitioner's account — watch for corroboration). Guide: §08
-  (measurement), §03 (devrel).
+  signal, one practitioner's account — watch for corroboration). The signal
+  layer itself is consolidating into GTM stacks: Zoom is acquiring Common
+  Room (announced 07-02, caught via a 07-17 Draft.dev breakdown) — third
+  community/product-signal-to-revenue-attribution roll-up this year (Clari+
+  Salesloft 12-2025, Apollo+Pocus 03-2026) — and Common Room's own 07-18 Otter
+  case study shows the mechanism: first-party product usage, not intent data,
+  drives the outbound play (07-18 signals). Guide: §08 (measurement), §03
+  (devrel).
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move

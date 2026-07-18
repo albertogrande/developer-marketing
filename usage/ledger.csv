@@ -12,3 +12,5 @@ date,workflow,run_id,step,model,cost_usd,duration_ms,turns
 2026-07-17,Weekly,29564562110,verify,claude-fable-5,0.8510592000000001,173743,26
 2026-07-17,Deep Dive,29567174345,writer,claude-fable-5,2.411934700000001,398830,24
 2026-07-17,Deep Dive,29567174345,verify,claude-fable-5,2.411934700000001,398830,24
+2026-07-18,Scout,29635029468,writer,claude-sonnet-5,0.8264116,171217,21
+2026-07-18,Scout,29635029468,verify,claude-sonnet-5,0.8264116,171217,21
