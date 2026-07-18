@@ -88,8 +88,17 @@ keeps recurring in signals and isn't well covered by the guide is a
   community/product-signal-to-revenue-attribution roll-up this year (Clari+
   Salesloft 12-2025, Apollo+Pocus 03-2026) — and Common Room's own 07-18 Otter
   case study shows the mechanism: first-party product usage, not intent data,
-  drives the outbound play (07-18 signals). Guide: §08 (measurement), §03
-  (devrel).
+  drives the outbound play (07-18 signals). **Newsroom ran this 2026-07-18**
+  (money · Mara Kessler ·
+  [article](../src/content/articles/2026-07-18-community-signal-rollup.md)):
+  the through-line is consolidation — Zoom/Common Room is the third GTM-signal
+  roll-up in eight months (Clari+Salesloft Dec 2025, Apollo+Pocus Mar 2026),
+  all terms undisclosed, and the community-intelligence category is being
+  repriced as buyer intent for outbound. House take: own the first-party signal
+  (get raw events into a warehouse you control), expect Common Room's roadmap to
+  tilt to revenue, measure community as influence not attribution (§08). Open
+  loop: watch for the fourth deal and the first disclosed price. Guide: §08
+  (measurement), §03 (devrel).
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move
@@ -146,7 +155,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 scans this (plus the index below) before assigning, so the paper never
 re-runs a story in new clothes.
 
-- (none yet — newsroom founded 2026-07-17)
+- 2026-07-18 · money · *The community-signal category just got its third acquirer in eight months* · m&a, community, devrel, measurement
 
 ## Coverage index (published)
 

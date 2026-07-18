@@ -11,4 +11,5 @@ Format:
 
 ## Log
 
+- 2026-07-18 · ran · money · community-signal-rollup — Zoom/Common Room is the third GTM-signal roll-up in eight months; hard comparable table + live DevRel-measurement thread, and the community-intelligence category is being repriced as buyer intent.
 - 2026-07-17 · (newsroom founded — first edition decision pending)
