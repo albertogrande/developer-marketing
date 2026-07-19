@@ -13,6 +13,7 @@ a news-pegged piece instead — that's fine.
 - The state of devtools free tiers in 2026: who cut what, and the pattern
 - What GitHub's pricing/packaging changes this year mean for tools that ride the marketplace
 - DevRel layoffs and rebuilds: what the hiring data says the role is becoming
+- Marketing in the age of slop: the anti-slop playbook practitioners are converging on — forum engagement (20 min/day answering before pitching), research-framed outreach over cold email, exact-match + negative-keyword paid search, evidence-first tactics (07-17 Ask HN thread + Frhog + DevGTM roundup). Cross-source; may be weekly-shaped — check sourcing depth before assigning.
 
 ## Live — money (Mara Kessler)
 
@@ -27,6 +28,7 @@ a news-pegged piece instead — that's fine.
 - The best devtool ads developers didn't hate — a short annotated set
 - Conference sponsorship math: what a booth actually buys a devtool in 2026
 - "Show HN" as a channel: the anatomy of launches that worked this year
+- Agent-infra startups are using Launch HN as a primary GTM channel — the W29 pattern (Agnost 85pts, Coasty 44pts, plus prior weeks); wait for a larger sample before the teardown
 
 ## Live — research (Ivy Osei)
 
