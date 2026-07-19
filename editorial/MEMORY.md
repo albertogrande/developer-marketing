@@ -111,7 +111,9 @@ keeps recurring in signals and isn't well covered by the guide is a
   pruned its free-tier model catalog with no deprecation notice, breaking
   hardcoded integrations with silent 404s (07-16 signal) — the inverse
   lesson: silent breaking changes burn the same trust verifiable proof
-  builds. Guide: §01, §05, §07.
+  builds. Backlash spread past HN into wider dev-adjacent social this week
+  (Hot Aisle on X, 07-19 signal) — the trust cost is compounding, not a
+  one-day story. Guide: §01, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
   reputation + a runnable open-source artifact out-distributes launch budget;
