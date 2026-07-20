@@ -46,85 +46,70 @@ and, when evidence cuts against it, a `Tension:` note inline. A thread that
 keeps recurring in signals and isn't well covered by the guide is a
 **deep-dive candidate** (flag it below).
 
-- **AI assistants as a primary reader of your docs** `↑` — coding assistants
-  and answer engines increasingly mediate a developer's first impression;
-  practitioners restructure docs for machine retrieval and ship llms.txt
-  (07-07 radar). Caveat held so far: no major AI provider has confirmed
-  reading llms.txt — the durable win is chunk-retrievable docs. This site now
-  eats the dog food (/llms.txt, /practices.json). Now compounding on three
-  fronts: GEO-monitoring is getting productized (Show HN "Crawlie Cloud",
-  07-10 signal), the machine-mediated-discovery thread is extending from docs
-  to API/vendor selection itself (Show HN "OpenBenchmarks", 07-11 signal —
-  agents picking SaaS APIs, not just reading about them), and now a live
-  example of agent-safe API design as a shipped product surface — GoDaddy's
-  new Developer Platform serves docs as markdown/plain-text/OpenAPI and adds
-  quote-then-execute + idempotency + consent so an agent can transact, not
-  just read (07-17 signal, example-candidate). W28 issue led with this thread
-  ("from reading your docs to picking your vendor") and folded machine-reader
-  bullets into §02 and §06; the commissioned deep dive **published 2026-07-17**
-  ([dive](../src/content/deep-dives/2026-07-17-geo-for-devtools-when-the-reader-is-a-model.md)) —
-  its three-layer frame (reading = act now / selection = design for / measurement
-  = don't buy yet) is now the house position. Research hardened the llms.txt
-  caveat into fact: Ahrefs (2026-06-15, 137K domains) found 97% of llms.txt
-  files get zero requests and AI retrieval bots are 1.1% of what little traffic
-  exists; Mueller (2026-06-02) calls it "purely speculative." Strongest pro
-  numbers on record: Vercel at 10% of new signups from ChatGPT (Rauch,
-  2025-04), ChatGPT referral conversion 7.1% (Similarweb, 2026-05), Profound
-  at $1B valuation (2026-02). Open loop: the dive re-upped W28's falsifiable
-  call — a second devtool company reporting attributed AI-referral signups
-  with a number by end of Q3 2026; watch for it.
+- **AI assistants as a primary reader of your docs** `↑` — machine-mediated
+  discovery, from docs restructuring to agents selecting (and now buying from)
+  vendors. House position = the GEO dive (published 2026-07-17): reading = act
+  now, selection = design for, measurement = don't buy yet. Hard numbers on
+  record: Ahrefs (2026-06-15, 137K domains) — 97% of llms.txt files get zero
+  requests, AI retrieval bots ~1.1% of that traffic; pro side: Vercel ~10% of
+  new signups from ChatGPT (Rauch, 2025-04), ChatGPT referral conversion 7.1%
+  (Similarweb, 2026-05). **W29 turned the corner: incumbents shipped.**
+  GoDaddy's Developer Platform (07-14 — markdown docs, hand-the-spec-to-your-
+  LLM quickstart, quote-token + idempotency + consent purchase flow) promoted
+  to example (godaddy-builds-the-checkout-for-the-agent), practice
+  (make-your-purchase-flow-agent-safe), and a new §02 "actionable by agents"
+  bullet; Atlassian repositioned Jira as the human+agent orchestration hub
+  (07-15; their pitch stat: engineer AI usage +65%, velocity gains ~10%).
+  Open loop: the falsifiable call — a devtool company reporting attributed
+  AI-referral signups with a number by end of Q3 2026.
   Note: Crawlie moved domains crawlie.dev → crawlie.co mid-July — use .co.
-  Guide: §02 (docs), §06 (channels). →
-  [radar 07-07](../src/content/radar/2026-07-07-ai-assistants-are-reading-your-docs.md)
-- **DevRel measurement: influence, not attribution** `↑` — the 2026
-  practitioner consensus keeps landing on influenced pipeline + activation
-  over last-touch sourced leads; new pressure: "does our brand show up in
-  AI-generated answers" entering as a discovery metric (07-07 radar). Now
-  showing up on the hiring side too: DevRel job postings reportedly screen for
-  specific, measurable-ROI skills the listings don't state outright (07-17
-  signal, one practitioner's account — watch for corroboration). The signal
-  layer itself is consolidating into GTM stacks: Zoom is acquiring Common
-  Room (announced 07-02, caught via a 07-17 Draft.dev breakdown) — third
-  community/product-signal-to-revenue-attribution roll-up this year (Clari+
-  Salesloft 12-2025, Apollo+Pocus 03-2026) — and Common Room's own 07-18 Otter
-  case study shows the mechanism: first-party product usage, not intent data,
-  drives the outbound play (07-18 signals). **Newsroom ran this 2026-07-18**
-  (money · Mara Kessler ·
-  [article](../src/content/articles/2026-07-18-community-signal-rollup.md)):
-  the through-line is consolidation — Zoom/Common Room is the third GTM-signal
-  roll-up in eight months (Clari+Salesloft Dec 2025, Apollo+Pocus Mar 2026),
-  all terms undisclosed, and the community-intelligence category is being
-  repriced as buyer intent for outbound. House take: own the first-party signal
-  (get raw events into a warehouse you control), expect Common Room's roadmap to
-  tilt to revenue, measure community as influence not attribution (§08). Open
-  loop: watch for the fourth deal and the first disclosed price. Guide: §08
-  (measurement), §03 (devrel).
+  Guide: §02 (docs), §06 (channels).
+- **DevRel measurement: influence, not attribution** `↑` — consensus on
+  influenced pipeline + activation over sourced leads; AI-answer presence
+  entering as a discovery metric. The signal layer is consolidating into GTM
+  stacks: Zoom+Common Room (announced 07-02) is the third roll-up in eight
+  months (Clari+Salesloft 12-2025, Apollo+Pocus 03-2026), all terms
+  undisclosed — newsroom ran it 2026-07-18 (money · Mara Kessler ·
+  [article](../src/content/articles/2026-07-18-community-signal-rollup.md)).
+  House take: own the first-party signal (raw events in your own warehouse),
+  measure community as influence not attribution. W29 distilled the Otter
+  case study (07-17: 2x outbound pipeline, ~80% behavioral scoring, 10–12
+  play cap) into practice (score-outbound-on-first-party-usage) and a new §08
+  paragraph. Hiring side: one practitioner claims postings silently screen
+  for measurable-ROI skills (07-17 teaser) — W29's watch item; DevRelCon NYC
+  (07-22/23) recaps are the corroboration test. Open loops: the fourth deal /
+  first disclosed price; the DevRelCon recaps. Guide: §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move
   each wave — re-check on new waves. Guide: §01 (positioning), §06 (channels).
 - **Verification-first marketing** `↑` — developers fact-check claims in
-  public, so ship proof, not adjectives: live verifiable metrics over logo
-  walls, real prices with caps, runnable launches over influencer choruses
-  (07-08 radar); connects to time-to-value as the real growth engine
-  (07-06 dive). New cautionary case on the trust side: Cerebras quietly
-  pruned its free-tier model catalog with no deprecation notice, breaking
-  hardcoded integrations with silent 404s (07-16 signal) — the inverse
-  lesson: silent breaking changes burn the same trust verifiable proof
-  builds. Backlash spread past HN into wider dev-adjacent social this week
-  (Hot Aisle on X, 07-19 signal) — the trust cost is compounding, not a
-  one-day story. Guide: §01, §05, §07.
+  public, so ship proof, not adjectives: live verifiable metrics, real prices
+  with caps, runnable launches (07-08 radar); connects to time-to-value
+  (07-06 dive). Named counter-case: Cerebras sunsets its free tier 2026-08-17
+  ($5 credits behind a payment method) after quietly pruning its model
+  catalog earlier this year — silent 404s on hardcoded integrations
+  (single-sourced practitioner account). Tension / W29 correction: the
+  "backlash" was smaller than the signals implied — the HN thread drew 4
+  points and resignation, not outrage; the real cost is quiet re-anchoring,
+  not a firestorm. §04 gained the deprecation-as-trust-event paragraph.
+  Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
   reputation + a runnable open-source artifact out-distributes launch budget;
   promoted to examples (juggler-launches-on-reputation-and-a-runnable-repo).
-  Watch for counter-evidence: earned launches that flop despite substance, or
-  paid pushes that developers actually reward. Guide: §06, §07.
+  W29 channel-side read: Launch HN is the default GTM for agent-infra
+  startups (Agnost YC S26, 85 pts 07-14; Coasty YC S26, 44 pts 07-15 — same
+  batch, same channel, same week). Slop-era texture (Ask HN 07-15): forum
+  answering 20 min/day before pitching; exact-match + negative keywords over
+  abandoning paid search. Watch for counter-evidence: earned launches that
+  flop despite substance, or paid pushes developers reward. Guide: §06, §07.
 
-W28 orphan triage: Shopify's 07-09 plan-testing change (dx/time-to-value,
-covered in the W28 "Also" section) dropped as a one-off — the time-to-value
-thread already has its dive; Crawlie/OpenBenchmarks folded into the
-AI-assistants thread above.
+W29 orphan triage: Frhog (AI growth advisor for solo founders, 07-17) dropped
+as a one-off; Atlassian's Jira repositioning folded into the AI-assistants
+thread; Agnost/Coasty and the Ask HN slop thread folded into earned
+distribution. (W28 triage: Shopify plan-testing dropped; Crawlie/
+OpenBenchmarks folded into AI-assistants.)
 
 ## Deep-dive candidates
 
@@ -134,6 +119,12 @@ it thinly. The weekly desk commissions from this list.
 - **What a developer segment is actually worth** — if the population plateau
   holds across the next SlashData wave, the "pick a segment and go deep" claim
   deserves numbers: how operators size and choose segments. Not yet — watching.
+- **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17
+  DevRelCon teaser) that postings silently screen for quantified-impact
+  skills. Commission only if the DevRelCon NYC recaps (conference 07-22/23)
+  corroborate it across multiple talks — would pair the influence-not-
+  attribution thread with the org/hiring angle the guide barely covers. W29
+  skipped commissioning on this basis: single-sourced until the recaps land.
 
 ## Guide coverage index
 
@@ -164,6 +155,7 @@ re-runs a story in new clothes.
 Weeklies and dives, newest first. Append one line each time. (Radar archive:
 5 entries, 2026-07-05 → 2026-07-08 — closed.)
 
+- 2026-W29 · weekly · *Incumbents start shipping for the agent-as-buyer* · docs, positioning, dx, launches
 - 2026-07-17 · dive · *GEO for devtools: what to do when the reader is a model* · docs, channels, distribution
 - 2026-W28 · weekly · *The agent reading your docs is starting to shop* · docs, channels, distribution, launches
 - 2026-07-06 · dive · *Time-to-value: the growth engine hiding in your onboarding* · dx, activation, metrics

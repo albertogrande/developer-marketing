@@ -2,7 +2,7 @@
 title: Developer experience & activation
 order: 4
 summary: Time-to-value as the metric that governs adoption, mapping the developer funnel from first touch to habit, and removing the friction that quietly kills integrations.
-updated: 2026-07-07
+updated: 2026-07-20
 ---
 
 Developer experience (DX) is the sum of every friction and delight a developer meets while trying to build with you — from the first `npm install` to the third production incident. For a developer product, DX *is* the growth engine: great DX turns a curious signup into a paying, retained, referring integration; poor DX loses them silently, and they rarely tell you why.
@@ -38,5 +38,7 @@ Most teams over-invest in Discover and under-invest in Activate → Integrate, w
 ## Free tiers and self-serve
 
 For most developer products the free tier or open-source core is the top of the funnel, and self-serve is the default motion. Price and package so a developer can go from evaluating to building to paying without talking to anyone — and so the moment they should talk to sales is obvious and well-timed, not forced early.
+
+A free tier is also a contract, and developers build on it literally — hardcoded model names, assumed endpoints, cron jobs that call you at 3 a.m. Changing or sunsetting one is a deprecation event, not a pricing tweak: give it a date, email the people whose integrations will break, return an error that says *deprecated* rather than a silent 404, and offer a migration path. The failure mode is rarely public outrage; it's a quiet re-anchoring on "this vendor breaks things without telling me" that surfaces at the next build-vs-buy decision. Sunsetting a free tier is usually defensible — doing it silently is what burns the trust.
 
 DX is where marketing, product, and engineering share a scoreboard. If activation is falling, no amount of top-of-funnel spend fixes it.

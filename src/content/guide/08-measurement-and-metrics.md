@@ -2,7 +2,7 @@
 title: Measurement & metrics
 order: 8
 summary: The metrics that tell you developer marketing is working, how to measure DevRel without pretending it's direct-response, and the funnel numbers worth instrumenting.
-updated: 2026-07-07
+updated: 2026-07-20
 ---
 
 Developer marketing is measurable — but not with a lead-gen dashboard. Much of its value is leading-indicator (activation, retention, sentiment) and influence (deals it shaped without a clean attribution line). The job is to measure honestly: instrument what you can, be explicit about what you can only influence, and resist forcing everything into last-touch attribution.
@@ -27,6 +27,10 @@ Don't put a lead quota on DevRel (section 03). Measure it on the layer it actual
 - **Community health** — contributors, time-to-first-response, sentiment, returning participants.
 - **Product feedback delivered** — issues surfaced, features shaped. Real value, usually uncounted.
 - **Influenced pipeline** — deals where DevRel touchpoints appear in the story, reported as *influence*, not *attribution*. Sourced-lead credit misrepresents how developer trust actually converts.
+
+## Product usage is the signal nobody else can buy
+
+The same instrumentation that measures activation doubles as go-to-market data. Third-party intent signals — website visits, keyword tracking — are commoditized; every competitor can buy the same feed. First-party product usage is proprietary by definition, and operators who run outbound on it weight it heavily: scoring models built on roughly 80% behavioral signals (usage volume, new users added, in-app engagement) to 20% firmographics, with the play list deliberately capped at a dozen or fewer so sales can actually run it. Get raw usage events into a warehouse you control before you rent anyone's signal layer — the vendors that package these signals keep getting acquired into big GTM suites, and their roadmaps follow their new owners.
 
 ## Leading vs lagging
 
