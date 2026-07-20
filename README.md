@@ -1,5 +1,9 @@
 # Developer Marketing — a newsroom on a living field guide
 
+[![CI](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml)
+[![Deploy](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml)
+[![License](https://img.shields.io/github/license/albertogrande/developer-marketing)](LICENSE)
+
 A technical newspaper about **developer marketing**, DevRel, and the devtools
 industry — its news, money, campaigns, research, and stack technologies —
 built on top of a living field guide to the state of the art. Written for a
@@ -10,14 +14,15 @@ Researched, written, edited, and fact-checked by autonomous
 Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
 [AUTHORS.md](AUTHORS.md).
 
+<!-- TODO(author): add a screenshot/GIF of the site here -->
+
 - **Live site** — https://albertogrande.github.io/developer-marketing/
-- **The newsroom** — dated desk articles at `/articles`, at most one a day and
-  only when the story earns it (news · money · campaigns · research · technology).
+- **The newsroom** — dated desk articles at `/articles`, at most one a day when the story earns it.
 - **The guide** — the evergreen reference, nine sections, kept continuously current.
 - **The week** — a short weekly digest of what moved, newest first, each sourced.
 - **Deep dives** — long-form pieces, commissioned when a thread earns the depth.
 - **Practices** — atomic "when X → do Y (because Z)" units, human- and machine-readable.
-- **Examples** — a swipe file of real, sourced dev-marketing artifacts; the evidence behind the practices.
+- **Examples** — a swipe file of real, sourced artifacts; the evidence behind the practices.
 - **Radar (archive)** — the dated daily posts from the site's first phase.
 
 Built with [Astro](https://astro.build). Architecture and visual identity shared
@@ -26,53 +31,34 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 
 ## How it works
 
-Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs end to end:
+Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs end to end.
 
-- The **scout** (`.claude/skills/daily-scout/`) runs daily: it sweeps
-  practitioner blogs, DevRel communities, industry research, and the newsroom
-  beats (money, campaigns, stack technology), files raw one-liners to
-  `signals/<week>.md` with desk flags, and patches `src/content/guide/` the
-  moment a hard fact changes.
-- The **newsroom** (`.claude/skills/newsroom/`) runs Tue–Sun after the scout:
-  the editor reads the signals and decides whether today earned an article —
-  at most one, never a quota. When it did, the specialized desk that owns the
-  story ([AUTHORS.md](AUTHORS.md)) writes it to `src/content/articles/`; every
-  run logs its publish/skip decision to `editorial/NEWSROOM.md`.
-- The **weekly editor** (`.claude/skills/weekly-digest/`) runs weekly: it reads
-  the week's signals and writes one short issue to `src/content/weekly/`, does a
-  fuller guide-accuracy pass, distills `src/content/practices/` from the week's
-  practice-candidates, promotes 0–3 example-candidates into the swipe file at
-  `src/content/examples/`, and — when a thread has earned it — commissions a
-  **deep dive** (`.claude/skills/deep-dive/`) into `src/content/deep-dives/`.
-- `editorial/MEMORY.md` (running threads, deep-dive candidates, the guide
-  coverage index) is the brain that decides what's worth depth;
-  `editorial/TASTE.md` is the reader profile. Both are internal.
+- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)) — daily, sweeps blogs, communities, and research into `signals/<week>.md` and patches `src/content/guide/` on hard-fact changes.
+- **Newsroom** ([`newsroom`](.claude/skills/newsroom/)) — Tue–Sun, the owning desk ([AUTHORS.md](AUTHORS.md)) publishes at most one article to `src/content/articles/`, logging each decision to `editorial/NEWSROOM.md`.
+- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)) — weekly, writes the digest and distills `src/content/practices/` and `src/content/examples/`, commissioning a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
+- **Memory** — `editorial/MEMORY.md` tracks threads and guide coverage; `editorial/TASTE.md` is the reader profile. Both internal.
 
-Each desk is a [GitHub Actions workflow](.github/workflows/) — `scout.yml`
-(daily), `weekly.yml` (Mondays), `deep-dive.yml` (on demand, or dispatched by
-the Weekly when it commissions one) — that runs the skill via
-[claude-code-action](https://github.com/anthropics/claude-code-action). Every
-writer run gets a **fresh-context fact-integrity pass** (a second Claude that
-verifies changed claims against primary sources), then deterministic gates
-(a **writer guard** that fails the run if a Claude step errored or wrote
-nothing — an expired token must never pass as a quiet day —
-`scripts/check-refs.mjs` referential integrity in the build,
-`scripts/check-sources.mjs` source liveness) before a rebase-safe commit.
-A daily **Health watchdog** (`health.yml`) alarms if the scout or the weekly
-stops committing on schedule, catching failures the in-run guards can't see.
-A failed run uploads its uncommitted work as a `rescue-patch` artifact
-(14-day retention) instead of discarding it with the runner. The
-**Deploy workflow** then builds the site and publishes to GitHub Pages;
-failures open a `pipeline-failure` issue instead of dying silently.
+Each desk is a [GitHub Actions workflow](.github/workflows/) that runs the skill via [claude-code-action](https://github.com/anthropics/claude-code-action). Every writer run gets a fresh-context fact-integrity pass, then deterministic gates before a rebase-safe commit.
 
-Content is frontmatter-driven (see `src/content.config.ts`) so the agents can
-write it deterministically.
+- **Gates** — a writer guard fails empty or errored runs; `scripts/check-refs.mjs` and `scripts/check-sources.mjs` enforce referential integrity and source liveness.
+- **Health watchdog** (`health.yml`) — alarms if the scout or weekly stops committing on schedule.
+- **Rescue** — a failed run uploads its uncommitted work as a `rescue-patch` artifact (14-day retention).
+- **Deploy** (`deploy.yml`) — builds and publishes to GitHub Pages; failures open a `pipeline-failure` issue.
+- **Content** — frontmatter-driven (see `src/content.config.ts`) so agents write it deterministically.
 
 ## Local development
 
+Prerequisites: Node 20 and npm (the toolchain pinned in CI).
+
 ```
 npm install
-npm run dev      # http://localhost:4321/developer-marketing
+npm run dev
+```
+
+Astro starts on port 4321 and serves the site at its base path:
+
+```
+┃ Local    http://localhost:4321/developer-marketing
 ```
 
 - `npm run dev` — hot-reloads `src/`.
