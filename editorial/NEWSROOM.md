@@ -11,6 +11,8 @@ Format:
 
 ## Log
 
+- 2026-07-21 · ran · campaigns · honest-benchmark-noise — HeimWall's secret-scan post is a copyable honest-benchmark template (public rerunnable dataset, published false-positive rate, self-reported weak F1); makes the verification-first thread concrete and independently verifiable via DevGPT/CredData.
+- 2026-07-20 · skip — quiet Monday-into-Tuesday sweep; no signal dated to the last ~24h cleared the bar (funding news all AI-coding mega-rounds outside the lane; DevRelWeekly unreachable), and DevRelCon NYC recaps not out until 07-22/23.
 - 2026-07-19 · skip — genuinely quiet Sunday: the only fresh 07-19 signal is an amplification tweet on Cerebras' free-tier sunset (07-16 news, already captured in MEMORY's verification-first thread); the Common Room roll-up ran yesterday, and the remaining W29 threads (anti-slop channel re-convergence, agent-infra Launch HN pattern) are weekly-shaped or under-sourced for a desk. Filed both to BACKLOG.
 - 2026-07-18 · ran · money · community-signal-rollup — Zoom/Common Room is the third GTM-signal roll-up in eight months; hard comparable table + live DevRel-measurement thread, and the community-intelligence category is being repriced as buyer intent.
 - 2026-07-17 · (newsroom founded — first edition decision pending)

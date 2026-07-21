@@ -2,7 +2,7 @@
 title: Content that earns trust
 order: 5
 summary: Why technical content is the core of developer marketing, how to make things worth a developer's attention, and the fluff patterns that burn credibility.
-updated: 2026-07-07
+updated: 2026-07-21
 ---
 
 Content is where most developer marketing lives, because developers learn by reading and doing. But the bar is high: a developer's time is scarce and their tolerance for filler is zero. Winning content teaches something real, respects the reader's intelligence, and is often useful whether or not they ever buy from you.
@@ -16,7 +16,7 @@ If the answer is no, it's not doing its job. The content that compounds is the c
 - **Task tutorials.** "How to do $specific_thing" — the workhorse. Ranks in search, matches intent, and demonstrates the product in the reader's own context.
 - **Deep technical explainers.** How a hard thing actually works (consistency, auth, streaming, indexing). These build authority and attract exactly the senior developers who make adoption decisions.
 - **Reference architectures & example apps.** Complete, runnable, production-shaped. Developers copy these; make them copy yours.
-- **Honest comparisons and benchmarks.** With methodology, reproducible, fair to competitors. A credible comparison you'd trust from a stranger is worth more than ten pages of self-praise.
+- **Honest comparisons and benchmarks.** With methodology, reproducible, fair to competitors. Publish the noise next to the signal — your false-positive rate, which rule or case produced most of it, even your own weak scores — because a benchmark that hides its noise reads as marketing, and a developer audience checks (HeimWall's July 2026 secret-scan post, run on a public dataset anyone can rerun, is a clean template). A credible comparison you'd trust from a stranger is worth more than ten pages of self-praise.
 - **Teardowns and post-mortems.** How you built or broke something. Vulnerability and specificity read as authenticity.
 
 ## Distribution is half the work

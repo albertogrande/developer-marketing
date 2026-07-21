@@ -93,10 +93,16 @@ keeps recurring in signals and isn't well covered by the guide is a
   "backlash" was smaller than the signals implied — the HN thread drew 4
   points and resignation, not outrage; the real cost is quiet re-anchoring,
   not a firestorm. §04 gained the deprecation-as-trust-event paragraph.
-  New practitioner example (07-21, HeimWall): publishing the false-positive
-  breakdown next to the headline finding, with the line "a benchmark readout
-  that skips the noise analysis is marketing" — a runnable honest-benchmark
-  template, single-sourced so far. Guide: §01, §04, §05, §07.
+  Newsroom ran the HeimWall honest-benchmark post 2026-07-21 (campaigns ·
+  Nico Ferrant · [article](../src/content/articles/2026-07-21-honest-benchmark-noise.md)):
+  the copyable play is publishing the noise next to the signal — false-positive
+  rate, which rule fired most (one UUID rule = 48% of alerts), and your own
+  weak public-benchmark scores (CredData F1 0.449). Verified reproducible: the
+  scan runs on the public DevGPT dataset (MSR 2024) anyone can rerun, so it's
+  no longer single-sourced. §05's honest-benchmarks bullet gained the
+  publish-the-noise sharpening (updated 07-21). Still ` · example-candidate`
+  for the weekly swipe file (runnable honest-benchmark template). Guide: §01,
+  §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
   reputation + a runnable open-source artifact out-distributes launch budget;
@@ -151,6 +157,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 scans this (plus the index below) before assigning, so the paper never
 re-runs a story in new clothes.
 
+- 2026-07-21 · campaigns · *The security benchmark that published its own false-positive rate* · content, benchmarks, trust, security
 - 2026-07-18 · money · *The community-signal category just got its third acquirer in eight months* · m&a, community, devrel, measurement
 
 ## Coverage index (published)
