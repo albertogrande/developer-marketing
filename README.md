@@ -1,13 +1,10 @@
-# Developer Marketing — a newsroom on a living field guide
+# Developer Marketing
 
 [![CI](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml)
 [![Deploy](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/github/license/albertogrande/developer-marketing)](LICENSE)
 
-A technical newspaper about **developer marketing**, DevRel, and the devtools
-industry — its news, money, campaigns, research, and stack technologies —
-built on top of a living field guide to the state of the art. Written for a
-practitioner who markets to developers.
+A newspaper on developer marketing and DevRel.
 
 Researched, written, edited, and fact-checked by autonomous
 [Claude Code](https://claude.com/claude-code) agents. No human in the byline.
@@ -16,14 +13,14 @@ Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
 
 <!-- TODO(author): add a screenshot/GIF of the site here -->
 
-- **Live site** — https://albertogrande.github.io/developer-marketing/
-- **The newsroom** — dated desk articles at `/articles`, at most one a day when the story earns it.
-- **The guide** — the evergreen reference, nine sections, kept continuously current.
-- **The week** — a short weekly digest of what moved, newest first, each sourced.
-- **Deep dives** — long-form pieces, commissioned when a thread earns the depth.
-- **Practices** — atomic "when X → do Y (because Z)" units, human- and machine-readable.
-- **Examples** — a swipe file of real, sourced artifacts; the evidence behind the practices.
-- **Radar (archive)** — the dated daily posts from the site's first phase.
+- **Live site**: https://albertogrande.github.io/developer-marketing/
+- **The newsroom**: dated desk articles at `/articles`, at most one a day when the story earns it.
+- **The guide**: the evergreen reference, nine sections, kept continuously current.
+- **The week**: a short weekly digest of what moved, newest first, each sourced.
+- **Deep dives**: long-form pieces, commissioned when a thread earns the depth.
+- **Practices**: atomic "when X → do Y (because Z)" units, human- and machine-readable.
+- **Examples**: a swipe file of real, sourced artifacts; the evidence behind the practices.
+- **Radar (archive)**: the dated daily posts from the site's first phase.
 
 Built with [Astro](https://astro.build). Architecture and visual identity shared
 with the [Claude Code field guide](https://github.com/albertogrande/claude-code),
@@ -33,18 +30,18 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 
 Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs end to end.
 
-- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)) — daily, sweeps blogs, communities, and research into `signals/<week>.md` and patches `src/content/guide/` on hard-fact changes.
-- **Newsroom** ([`newsroom`](.claude/skills/newsroom/)) — Tue–Sun, the owning desk ([AUTHORS.md](AUTHORS.md)) publishes at most one article to `src/content/articles/`, logging each decision to `editorial/NEWSROOM.md`.
-- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)) — weekly, writes the digest and distills `src/content/practices/` and `src/content/examples/`, commissioning a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
-- **Memory** — `editorial/MEMORY.md` tracks threads and guide coverage; `editorial/TASTE.md` is the reader profile. Both internal.
+- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, sweeps blogs, communities, and research into `signals/<week>.md` and patches `src/content/guide/` on hard-fact changes.
+- **Newsroom** ([`newsroom`](.claude/skills/newsroom/)): Tue–Sun, the owning desk ([AUTHORS.md](AUTHORS.md)) publishes at most one article to `src/content/articles/`, logging each decision to `editorial/NEWSROOM.md`.
+- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)): weekly, writes the digest and distills `src/content/practices/` and `src/content/examples/`, commissioning a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
+- **Memory**: `editorial/MEMORY.md` tracks threads and guide coverage; `editorial/TASTE.md` is the reader profile. Both internal.
 
 Each desk is a [GitHub Actions workflow](.github/workflows/) that runs the skill via [claude-code-action](https://github.com/anthropics/claude-code-action). Every writer run gets a fresh-context fact-integrity pass, then deterministic gates before a rebase-safe commit.
 
-- **Gates** — a writer guard fails empty or errored runs; `scripts/check-refs.mjs` and `scripts/check-sources.mjs` enforce referential integrity and source liveness.
-- **Health watchdog** (`health.yml`) — alarms if the scout or weekly stops committing on schedule.
-- **Rescue** — a failed run uploads its uncommitted work as a `rescue-patch` artifact (14-day retention).
-- **Deploy** (`deploy.yml`) — builds and publishes to GitHub Pages; failures open a `pipeline-failure` issue.
-- **Content** — frontmatter-driven (see `src/content.config.ts`) so agents write it deterministically.
+- **Gates**: a writer guard fails empty or errored runs; `scripts/check-refs.mjs` and `scripts/check-sources.mjs` enforce referential integrity and source liveness.
+- **Health watchdog** (`health.yml`): alarms if the scout or weekly stops committing on schedule.
+- **Rescue**: a failed run uploads its uncommitted work as a `rescue-patch` artifact (14-day retention).
+- **Deploy** (`deploy.yml`): builds and publishes to GitHub Pages; failures open a `pipeline-failure` issue.
+- **Content**: frontmatter-driven (see `src/content.config.ts`) so agents write it deterministically.
 
 ## Local development
 
@@ -61,23 +58,23 @@ Astro starts on port 4321 and serves the site at its base path:
 ┃ Local    http://localhost:4321/developer-marketing
 ```
 
-- `npm run dev` — hot-reloads `src/`.
-- `npm run build` — check-refs gate + production build to `dist/` + Pagefind search index.
-- `npm run check` — referential integrity + source liveness on changed content.
-- `npm run preview` — serves the built `dist/`.
+- `npm run dev`: hot-reloads `src/`.
+- `npm run build`: check-refs gate + production build to `dist/` + Pagefind search index.
+- `npm run check`: referential integrity + source liveness on changed content.
+- `npm run preview`: serves the built `dist/`.
 
 ## Layout
 
 ```
 src/
   content/
-    guide/           # evergreen reference — NN-slug.md, frontmatter: title, order, summary, updated
-    articles/        # the newsroom — YYYY-MM-DD-slug.md, frontmatter: title, date, desk, byline, summary, tags, sources
-    weekly/          # weekly digest — YYYY-Www.md, frontmatter: title, week, date, summary, tags, sources
-    practices/       # atomic best-practices — {when, do, why, section, since, verify} — feed the agent endpoints
-    deep-dives/      # long-form pieces — YYYY-MM-DD-slug.md, dated + sourced
-    examples/        # swipe file — one real artifact per file: {company, artifact, channel, demonstrates, source}
-    radar/           # ARCHIVE — dated posts from the first phase; no new entries
+    guide/           # evergreen reference: NN-slug.md, frontmatter: title, order, summary, updated
+    articles/        # the newsroom: YYYY-MM-DD-slug.md, frontmatter: title, date, desk, byline, summary, tags, sources
+    weekly/          # weekly digest: YYYY-Www.md, frontmatter: title, week, date, summary, tags, sources
+    practices/       # atomic best-practices: {when, do, why, section, since, verify}; feed the agent endpoints
+    deep-dives/      # long-form pieces: YYYY-MM-DD-slug.md, dated + sourced
+    examples/        # swipe file: one real artifact per file: {company, artifact, channel, demonstrates, source}
+    radar/           # ARCHIVE: dated posts from the first phase; no new entries
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
@@ -86,11 +83,11 @@ src/
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
-editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool) — internal
+editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
 scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
-.claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive — the autonomous desks
+.claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
 .github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
 .github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
 ```
@@ -108,11 +105,11 @@ The autonomous desks need a Claude Code OAuth token:
    Deep Dive is manual-only, or the Weekly commissions one when a thread earns it.
 
 Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/weekly-digest`,
-`/deep-dive [topic]`. Interactive runs write files without committing — you decide.
+`/deep-dive [topic]`. Interactive runs write files without committing. You decide.
 
 ## Use the guide from your own sessions
 
-The guide is also a **source agents can query**, not just a site to read — it
+The guide is also a **source agents can query**, not just a site to read. It
 practices the machine-readable-docs play it preaches. It publishes machine
 endpoints: [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
 (curated index), `/llms-full.txt` (the whole corpus in one file),
@@ -120,4 +117,4 @@ endpoints: [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llm
 
 ## License
 
-MIT. Content under `src/content/` is CC BY 4.0 — quote it, link the page.
+MIT. Content under `src/content/` is CC BY 4.0: quote it, link the page.
