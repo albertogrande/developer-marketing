@@ -93,7 +93,10 @@ keeps recurring in signals and isn't well covered by the guide is a
   "backlash" was smaller than the signals implied — the HN thread drew 4
   points and resignation, not outrage; the real cost is quiet re-anchoring,
   not a firestorm. §04 gained the deprecation-as-trust-event paragraph.
-  Guide: §01, §04, §05, §07.
+  New practitioner example (07-21, HeimWall): publishing the false-positive
+  breakdown next to the headline finding, with the line "a benchmark readout
+  that skips the noise analysis is marketing" — a runnable honest-benchmark
+  template, single-sourced so far. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
   reputation + a runnable open-source artifact out-distributes launch budget;
