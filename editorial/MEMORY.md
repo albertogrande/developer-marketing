@@ -54,15 +54,13 @@ keeps recurring in signals and isn't well covered by the guide is a
   requests, AI retrieval bots ~1.1% of that traffic; pro side: Vercel ~10% of
   new signups from ChatGPT (Rauch, 2025-04), ChatGPT referral conversion 7.1%
   (Similarweb, 2026-05). **W29 turned the corner: incumbents shipped.**
-  GoDaddy's Developer Platform (07-14 — markdown docs, hand-the-spec-to-your-
-  LLM quickstart, quote-token + idempotency + consent purchase flow) promoted
-  to example (godaddy-builds-the-checkout-for-the-agent), practice
-  (make-your-purchase-flow-agent-safe), and a new §02 "actionable by agents"
-  bullet; Atlassian repositioned Jira as the human+agent orchestration hub
-  (07-15; their pitch stat: engineer AI usage +65%, velocity gains ~10%).
-  Open loop: the falsifiable call — a devtool company reporting attributed
-  AI-referral signups with a number by end of Q3 2026.
-  Note: Crawlie moved domains crawlie.dev → crawlie.co mid-July — use .co.
+  GoDaddy's Developer Platform (07-14 — markdown docs, hand-the-spec quickstart,
+  quote-token + idempotency + consent purchase flow) → example
+  (godaddy-builds-the-checkout-for-the-agent), practice
+  (make-your-purchase-flow-agent-safe), new §02 "actionable by agents" bullet;
+  Atlassian repositioned Jira as the human+agent orchestration hub (07-15).
+  Open loop: the falsifiable call — a devtool reporting attributed AI-referral
+  signups with a number by end of Q3 2026. (Crawlie domain: use .co.)
   Guide: §02 (docs), §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
@@ -95,14 +93,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   not a firestorm. §04 gained the deprecation-as-trust-event paragraph.
   Newsroom ran the HeimWall honest-benchmark post 2026-07-21 (campaigns ·
   Nico Ferrant · [article](../src/content/articles/2026-07-21-honest-benchmark-noise.md)):
-  the copyable play is publishing the noise next to the signal — false-positive
-  rate, which rule fired most (one UUID rule = 48% of alerts), and your own
-  weak public-benchmark scores (CredData F1 0.449). Verified reproducible: the
-  scan runs on the public DevGPT dataset (MSR 2024) anyone can rerun, so it's
-  no longer single-sourced. §05's honest-benchmarks bullet gained the
-  publish-the-noise sharpening (updated 07-21). Still ` · example-candidate`
-  for the weekly swipe file (runnable honest-benchmark template). Guide: §01,
-  §04, §05, §07.
+  the copyable play is publishing the noise next to the signal (false-positive
+  rate, top rule = 48% of alerts, own weak CredData F1 0.449), reproducible on
+  the public DevGPT dataset. §05's honest-benchmarks bullet gained the
+  publish-the-noise sharpening (07-21). Still ` · example-candidate` for the
+  weekly swipe file. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
   reputation + a runnable open-source artifact out-distributes launch budget;
@@ -116,12 +111,27 @@ keeps recurring in signals and isn't well covered by the guide is a
   pure founder credibility — 304 HN pts but a skeptical verdict ("LLM slop") —
   reputation buys attention, not the verdict. Still watching for a paid push
   developers reward. Guide: §06, §07.
+- **AI features priced as seat + meter** `↑` — the devtools category has
+  converged on a two-part tariff for AI: a per-seat license plus metered
+  model consumption. GitHub Code Quality's GA (07-20: $10/active committer/mo
+  + usage-based AI detection & Autofix + CodeQL on Actions minutes) extends
+  the shape from generation (Copilot) to *review*. Comparables on record:
+  Copilot Business $19/Enterprise $39 per user/mo, each incl. matching AI
+  Credits that drain by token usage since the 06-01-2026 usage-billing move;
+  CodeRabbit Pro $24/dev/mo (annual) + on-demand credits past the rate limit.
+  Newsroom ran it 2026-07-22 (money · Mara Kessler ·
+  [article](../src/content/articles/2026-07-22-seat-plus-meter-pricing.md)).
+  House take: the seat is the floor, not the price — publish both the seat and
+  the meter, and the monthly cap with them (§01's legible-pricing/usage-cap
+  advice is exactly where the AI meter bites; §04's silent-deprecation trust
+  cost is the failure mode of an uncapped meter). Open loop: the first
+  *non-generative* feature (security scan, docs, observability) put on a
+  metered AI line, and whether Copilot's promo credits lapsing (~Sept 2026)
+  produces bill-shock backlash. Guide: §01, §04.
 
-W29 orphan triage: Frhog (AI growth advisor for solo founders, 07-17) dropped
-as a one-off; Atlassian's Jira repositioning folded into the AI-assistants
-thread; Agnost/Coasty and the Ask HN slop thread folded into earned
-distribution. (W28 triage: Shopify plan-testing dropped; Crawlie/
-OpenBenchmarks folded into AI-assistants.)
+W29 orphan triage: Frhog (07-17) dropped as a one-off; Atlassian's Jira
+repositioning folded into AI-assistants; Agnost/Coasty + Ask HN slop folded
+into earned distribution.
 
 ## Deep-dive candidates
 
@@ -160,6 +170,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 scans this (plus the index below) before assigning, so the paper never
 re-runs a story in new clothes.
 
+- 2026-07-22 · money · *GitHub Code Quality shipped the default AI price: a seat, plus a meter* · pricing, ai, github, monetization
 - 2026-07-21 · campaigns · *The security benchmark that published its own false-positive rate* · content, benchmarks, trust, security
 - 2026-07-18 · money · *The community-signal category just got its third acquirer in eight months* · m&a, community, devrel, measurement
 

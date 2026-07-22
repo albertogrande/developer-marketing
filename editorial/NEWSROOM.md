@@ -11,6 +11,7 @@ Format:
 
 ## Log
 
+- 2026-07-22 · ran · money · seat-plus-meter-pricing — GitHub Code Quality's paid GA ($10/committer + metered AI) is the tell that devtools converged on a seat-plus-meter AI price; verified table across Code Quality, Copilot, CodeRabbit from primary pricing pages. Buzz launch skipped (day-old, unsettled verdict, already a MEMORY one-liner); GitHub Code Quality won on durability + a different desk from yesterday.
 - 2026-07-21 · ran · campaigns · honest-benchmark-noise — HeimWall's secret-scan post is a copyable honest-benchmark template (public rerunnable dataset, published false-positive rate, self-reported weak F1); makes the verification-first thread concrete and independently verifiable via DevGPT/CredData.
 - 2026-07-20 · skip — quiet Monday-into-Tuesday sweep; no signal dated to the last ~24h cleared the bar (funding news all AI-coding mega-rounds outside the lane; DevRelWeekly unreachable), and DevRelCon NYC recaps not out until 07-22/23.
 - 2026-07-19 · skip — genuinely quiet Sunday: the only fresh 07-19 signal is an amplification tweet on Cerebras' free-tier sunset (07-16 news, already captured in MEMORY's verification-first thread); the Common Room roll-up ran yesterday, and the remaining W29 threads (anti-slop channel re-convergence, agent-infra Launch HN pattern) are weekly-shaped or under-sourced for a desk. Filed both to BACKLOG.

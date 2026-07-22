@@ -19,7 +19,6 @@ a news-pegged piece instead — that's fine.
 
 - The devtools funding map 2026: where the rounds concentrated, with a table
 - Acquisition patterns: who buys devtools companies and at what stage — the last 24 months
-- Usage-based vs seat pricing in devtools: what the public pricing pages show
 - Open-source company exits: what the acquirers actually paid for
 
 ## Live — campaigns (Nico Ferrant)
@@ -47,4 +46,4 @@ a news-pegged piece instead — that's fine.
 
 ## Used
 
-- (none yet)
+- Usage-based vs seat pricing in devtools: what the public pricing pages show → 2026-07-22-seat-plus-meter-pricing.md (money; news-pegged to GitHub Code Quality GA)
