@@ -111,8 +111,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   startups (Agnost YC S26, 85 pts 07-14; Coasty YC S26, 44 pts 07-15 — same
   batch, same channel, same week). Slop-era texture (Ask HN 07-15): forum
   answering 20 min/day before pitching; exact-match + negative keywords over
-  abandoning paid search. Watch for counter-evidence: earned launches that
-  flop despite substance, or paid pushes developers reward. Guide: §06, §07.
+  abandoning paid search. First counter-evidence (07-21): Jack Dorsey's Block
+  launched Buzz (open-source Slack+GitHub rival, agents get Nostr identity) on
+  pure founder credibility — 304 HN pts but a skeptical verdict ("LLM slop") —
+  reputation buys attention, not the verdict. Still watching for a paid push
+  developers reward. Guide: §06, §07.
 
 W29 orphan triage: Frhog (AI growth advisor for solo founders, 07-17) dropped
 as a one-off; Atlassian's Jira repositioning folded into the AI-assistants
