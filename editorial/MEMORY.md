@@ -60,8 +60,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   (make-your-purchase-flow-agent-safe), new §02 "actionable by agents" bullet;
   Atlassian repositioned Jira as the human+agent orchestration hub (07-15).
   Open loop: the falsifiable call — a devtool reporting attributed AI-referral
-  signups with a number by end of Q3 2026. (Crawlie domain: use .co.)
-  Guide: §02 (docs), §06 (channels).
+  signups with a number by end of Q3 2026. (Crawlie domain: use .co.) New
+  texture (07-23, antirez): argues repos should ship as templates for AI
+  agents to *edit*, not just frozen releases for humans to read — reading
+  vs. editing may be separate design problems; single-sourced, watching for
+  practitioner pushback. Guide: §02 (docs), §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
@@ -75,8 +78,15 @@ keeps recurring in signals and isn't well covered by the guide is a
   play cap) into practice (score-outbound-on-first-party-usage) and a new §08
   paragraph. Hiring side: one practitioner claims postings silently screen
   for measurable-ROI skills (07-17 teaser) — W29's watch item; DevRelCon NYC
-  (07-22/23) recaps are the corroboration test. Open loops: the fourth deal /
-  first disclosed price; the DevRelCon recaps. Guide: §08, §03.
+  (07-22/23, wrapped 07-23) recaps are the corroboration test — none published
+  yet, watch W31. GitHub's new Copilot impact dashboard (07-22: adoption-phase
+  cohorts — code-first / agent-first / multi-agent / passive — replacing raw
+  seat-activity counts) is a seller-side instance of influence-not-attribution,
+  built to answer the ROI-skepticism gap HCLTech's 500-enterprise survey named
+  the same week (90% say AI is transforming workflows, only 18% see
+  significant revenue impact; vendor-commissioned, flag accordingly). Open
+  loops: the fourth deal / first disclosed price; the DevRelCon recaps. Guide:
+  §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move
@@ -127,7 +137,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   cost is the failure mode of an uncapped meter). Open loop: the first
   *non-generative* feature (security scan, docs, observability) put on a
   metered AI line, and whether Copilot's promo credits lapsing (~Sept 2026)
-  produces bill-shock backlash. Guide: §01, §04.
+  produces bill-shock backlash. Counter-texture (07-23): a Show HN from
+  Helical Insight un-gating its BI platform's paid tier (AI analytics,
+  embedding, SSO, RLS) into Community Edition, monetizing on support/SLAs
+  instead — traction was minimal (1 pt) so not yet evidence of a trend, just
+  a data point to watch. Guide: §01, §04.
 
 W29 orphan triage: Frhog (07-17) dropped as a one-off; Atlassian's Jira
 repositioning folded into AI-assistants; Agnost/Coasty + Ask HN slop folded
