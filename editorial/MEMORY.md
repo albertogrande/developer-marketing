@@ -84,9 +84,18 @@ keeps recurring in signals and isn't well covered by the guide is a
   seat-activity counts) is a seller-side instance of influence-not-attribution,
   built to answer the ROI-skepticism gap HCLTech's 500-enterprise survey named
   the same week (90% say AI is transforming workflows, only 18% see
-  significant revenue impact; vendor-commissioned, flag accordingly). Open
-  loops: the fourth deal / first disclosed price; the DevRelCon recaps. Guide:
-  §08, §03.
+  significant revenue impact; vendor-commissioned, flag accordingly). Newsroom
+  ran the dashboard 2026-07-23 (news · Rio Vidal ·
+  [article](../src/content/articles/2026-07-23-copilot-passive-seats.md)):
+  house take = report adoption in progression cohorts and *count the
+  passive/licensed-but-unengaged seat* rather than hiding it in an "active"
+  denominator; §08 gained the adoption-phase-cohorts bullet (07-23).
+  Passive-seat/phase-cohort reporting is a live **practice-candidate** for the
+  weekly (when reporting seat-based adoption → break out progression phases +
+  the passive segment, because raw seat counts hide shelfware and buyers push
+  on it). Open loops: the fourth signal-tool deal / first disclosed price;
+  whether a second AI dev tool ships phase cohorts and "passive seat" enters
+  renewal talks; the DevRelCon recaps. Guide: §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData puts the
   population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
   South Asia / Greater China (07-06 radar). Direction durable, figures move
@@ -184,6 +193,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 scans this (plus the index below) before assigning, so the paper never
 re-runs a story in new clothes.
 
+- 2026-07-23 · news · *GitHub's Copilot dashboard now counts the seats nobody uses* · metrics, ai, github, devrel
 - 2026-07-22 · money · *GitHub Code Quality shipped the default AI price: a seat, plus a meter* · pricing, ai, github, monetization
 - 2026-07-21 · campaigns · *The security benchmark that published its own false-positive rate* · content, benchmarks, trust, security
 - 2026-07-18 · money · *The community-signal category just got its third acquirer in eight months* · m&a, community, devrel, measurement

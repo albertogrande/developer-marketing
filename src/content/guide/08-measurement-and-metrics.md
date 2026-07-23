@@ -2,7 +2,7 @@
 title: Measurement & metrics
 order: 8
 summary: The metrics that tell you developer marketing is working, how to measure DevRel without pretending it's direct-response, and the funnel numbers worth instrumenting.
-updated: 2026-07-20
+updated: 2026-07-23
 ---
 
 Developer marketing is measurable — but not with a lead-gen dashboard. Much of its value is leading-indicator (activation, retention, sentiment) and influence (deals it shaped without a clean attribution line). The job is to measure honestly: instrument what you can, be explicit about what you can only influence, and resist forcing everything into last-touch attribution.
@@ -16,6 +16,7 @@ Adapt to your product, but most developer businesses should be able to see:
 - **Signup → integration → production** conversion — where developers drop between trying and shipping.
 - **Retention / active integrations** — are they still calling the API next month? For dev tools, retained usage beats signups every time.
 - **Expansion** — usage and surface-area growth within accounts.
+- **Adoption-phase cohorts, with the passive seat counted** — for seat- or license-based tools, sort users by how far they've progressed (first use → agentic/advanced use → orchestration) and break out the *licensed-but-unengaged* segment explicitly instead of folding it into an "active" denominator. GitHub built exactly this into its Copilot admin dashboard (2026-07-22): three engaged phases plus a named "Passive" cohort. Naming shelfware gives a renewal buyer an honest number to trust — and a skeptical one a number you've already answered.
 - **Docs metrics** — top landing pages, zero-result searches, quickstart drop-off step.
 
 ## Measuring DevRel without breaking it
