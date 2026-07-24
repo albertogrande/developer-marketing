@@ -64,7 +64,11 @@ keeps recurring in signals and isn't well covered by the guide is a
   texture (07-23, antirez): argues repos should ship as templates for AI
   agents to *edit*, not just frozen releases for humans to read — reading
   vs. editing may be separate design problems; single-sourced, watching for
-  practitioner pushback. Guide: §02 (docs), §06 (channels).
+  practitioner pushback (07-24: no pushback found yet). New texture (07-24):
+  OneCLI's Show HN (94 pts, OSS credential gateway keeping raw API keys away
+  from agents) is a second buildable-category data point alongside GoDaddy's
+  agent-safe checkout — "make the agent's actions safe by design" is starting
+  to look like a pattern, not a one-off. Guide: §02 (docs), §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
