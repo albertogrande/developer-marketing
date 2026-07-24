@@ -68,7 +68,13 @@ keeps recurring in signals and isn't well covered by the guide is a
   OneCLI's Show HN (94 pts, OSS credential gateway keeping raw API keys away
   from agents) is a second buildable-category data point alongside GoDaddy's
   agent-safe checkout — "make the agent's actions safe by design" is starting
-  to look like a pattern, not a one-off. Guide: §02 (docs), §06 (channels).
+  to look like a pattern, not a one-off. Caveat (07-24 newsroom): OneCLI is not
+  new — it first hit Show HN as "Vault for AI Agents in Rust" in March 2026, so
+  treat this as a re-launch/corroboration, not a fresh category. Newsroom
+  skipped it as a daily peg (two tools, one re-launch = weekly texture, not an
+  article); the "safe-by-design" pattern is a **technology-desk article
+  candidate once a third distinct tool lands** (backlog). Guide: §02 (docs),
+  §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
