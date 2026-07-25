@@ -73,8 +73,14 @@ keeps recurring in signals and isn't well covered by the guide is a
   treat this as a re-launch/corroboration, not a fresh category. Newsroom
   skipped it as a daily peg (two tools, one re-launch = weekly texture, not an
   article); the "safe-by-design" pattern is a **technology-desk article
-  candidate once a third distinct tool lands** (backlog). Guide: §02 (docs),
-  §06 (channels).
+  candidate once a third distinct tool lands** (backlog). Adjacent texture
+  (07-25): Common Room's headless `cr` CLI + MCP write-layer lets agents
+  execute GTM workflows directly, gated on identity resolution to stop
+  agent-driven writes from creating duplicate records (Incident.io
+  vendor-claimed 3%→0.3% duplicate-account rate) — same "guardrail the
+  agent's actions by design" shape, but for CRM data integrity, not
+  security/payments, so it's a cousin thread, not the third confirming tool.
+  Guide: §02 (docs), §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
