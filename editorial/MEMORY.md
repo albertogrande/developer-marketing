@@ -80,7 +80,14 @@ keeps recurring in signals and isn't well covered by the guide is a
   vendor-claimed 3%→0.3% duplicate-account rate) — same "guardrail the
   agent's actions by design" shape, but for CRM data integrity, not
   security/payments, so it's a cousin thread, not the third confirming tool.
-  Guide: §02 (docs), §06 (channels).
+  Newsroom skipped it as a daily peg (07-25): already-covered vendor +
+  vendor-claimed proof only = weekly texture, not an article. New,
+  under-sourced texture (07-25 web sweep): an "AgentRel" framing is emerging —
+  Manicule pitches "DevRel rebuilt for a world where agents make the decisions"
+  (self-reported $53K MRR / 100% MoM on a startup-listicle blog, not
+  independently verified); a scout watch for the agent-as-buyer thread's
+  positioning/vendor angle, not yet article-grade. Guide: §02 (docs), §06
+  (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
