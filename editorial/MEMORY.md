@@ -81,7 +81,12 @@ keeps recurring in signals and isn't well covered by the guide is a
   agent's actions by design" shape, but for CRM data integrity, not
   security/payments, so it's a cousin thread, not the third confirming tool.
   Newsroom skipped it as a daily peg (07-25): already-covered vendor +
-  vendor-claimed proof only = weekly texture, not an article. New,
+  vendor-claimed proof only = weekly texture, not an article. Two more
+  thin-traction Show HNs landed same-day (07-26): Axtary and ActionRail, both
+  binding agent actions to pre-approved payloads before execution — volume of
+  attempts on this shape keeps rising, but each individual entrant still has
+  ~3 points, no adoption proof; the pattern call still rests on GoDaddy +
+  OneCLI, not on count of launches. New,
   under-sourced texture (07-25 web sweep): an "AgentRel" framing is emerging —
   Manicule pitches "DevRel rebuilt for a world where agents make the decisions"
   (self-reported $53K MRR / 100% MoM on a startup-listicle blog, not
