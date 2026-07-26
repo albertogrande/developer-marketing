@@ -1,27 +1,40 @@
-// The list. An append-only NDJSON log, replayed into a Map on start.
+// The list, kept in an append-only NDJSON log and replayed into a Map on start.
 //
 // A subscriber list is small (tens of thousands of rows at the very most) and
 // must never lose a write, so this is a log, not a database: every state change
 // appends one JSON line and the last line for an address wins. That makes the
-// file greppable, diffable, trivially backed up with cp, and recoverable by
-// hand if something ever goes wrong at 3am.
+// file greppable, diffable, trivially backed up with cp, and recoverable by hand
+// if something ever goes wrong at 3am.
 //
 // Concurrency: all writes go through a single promise chain, so appends cannot
 // interleave. A single process owns the file.
 //
-// This assumes a durable filesystem and one writer, which rules out serverless:
-// a Vercel or Lambda function gets a read-only filesystem apart from /tmp, and
-// /tmp is per-instance and evaporates. If the service moves there, the returned
-// object below is the interface to reimplement against a database — get,
-// getById, subscribe, confirm, unsubscribe, confirmed, all, stats — and nothing
-// that calls it needs to change. See newsletter/README.md.
+// This assumes a durable filesystem and one writer, which rules out serverless —
+// see store-postgres.mjs for the implementation that does not. Both satisfy the
+// same contract (test/store-contract.mjs), and every method is async even where
+// this one could answer from memory, because an interface that only a local
+// in-memory store can satisfy is not an interface.
 
 import { appendFile, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { newId } from './tokens.mjs';
 
-/** @typedef {'pending'|'confirmed'|'unsubscribed'} Status */
+/**
+ * @typedef {'pending'|'confirmed'|'unsubscribed'|'bounced'|'complained'} Status
+ *
+ * pending      — asked to subscribe, has not clicked the confirmation link
+ * confirmed    — the only status that receives an issue
+ * unsubscribed — asked to leave
+ * bounced      — the mailbox rejected us permanently, or too many times
+ * complained   — marked an issue as spam, which is a harder no than unsubscribe
+ */
+
+/** Statuses that must never be mailed again. */
+export const SUPPRESSED = new Set(['unsubscribed', 'bounced', 'complained']);
+
+/** Soft bounces tolerated before an address is suppressed anyway. */
+export const SOFT_BOUNCE_LIMIT = 5;
 
 const normalize = (email) => String(email || '').trim().toLowerCase();
 
@@ -86,10 +99,10 @@ export async function openStore(dataDir, { file = 'subscribers.ndjson' } = {}) {
   return {
     path,
 
-    get(email) {
+    async get(email) {
       return byEmail.get(normalize(email));
     },
-    getById(id) {
+    async getById(id) {
       return byId.get(id);
     },
 
@@ -138,20 +151,81 @@ export async function openStore(dataDir, { file = 'subscribers.ndjson' } = {}) {
       return put({ ...rec, status: 'unsubscribed', unsubscribedAt: at, updated: at });
     },
 
+    /**
+     * A permanent delivery failure, from a relay webhook or a DSN. Keyed by
+     * address because that is all a bounce report carries.
+     *
+     * A transient failure does not suppress on its own — mailboxes are full for
+     * a week and then they are not — but SOFT_BOUNCE_LIMIT of them in a row is
+     * indistinguishable from gone.
+     */
+    async markBounced(email, { permanent = true, reason = '', now = new Date() } = {}) {
+      const rec = byEmail.get(normalize(email));
+      if (!rec) return null;
+      const at = now.toISOString();
+
+      if (!permanent) {
+        const softBounces = (rec.softBounces ?? 0) + 1;
+        const next = { ...rec, softBounces, updated: at };
+        if (softBounces >= SOFT_BOUNCE_LIMIT) {
+          return put({ ...next, status: 'bounced', bouncedAt: at, bounceReason: reason || 'repeated soft bounces' });
+        }
+        return put(next);
+      }
+
+      if (rec.status === 'bounced') return rec;
+      return put({ ...rec, status: 'bounced', bouncedAt: at, bounceReason: reason, updated: at });
+    },
+
+    /** A spam complaint. Never mail this address again. */
+    async markComplained(email, { reason = '', now = new Date() } = {}) {
+      const rec = byEmail.get(normalize(email));
+      if (!rec) return null;
+      if (rec.status === 'complained') return rec;
+      const at = now.toISOString();
+      return put({ ...rec, status: 'complained', complainedAt: at, bounceReason: reason || rec.bounceReason, updated: at });
+    },
+
     /** Everyone who should receive an issue. */
-    confirmed() {
+    async confirmed() {
       return [...byEmail.values()].filter((r) => r.status === 'confirmed');
     },
 
-    all() {
+    async all() {
       return [...byEmail.values()];
     },
 
-    stats() {
-      const out = { total: byEmail.size, pending: 0, confirmed: 0, unsubscribed: 0 };
+    async stats() {
+      const out = { total: byEmail.size, pending: 0, confirmed: 0, unsubscribed: 0, bounced: 0, complained: 0 };
       for (const r of byEmail.values()) out[r.status] = (out[r.status] ?? 0) + 1;
       return out;
     },
+
+    /**
+     * Drop unconfirmed records older than the confirmation window. The public
+     * page says an unconfirmed address is deleted rather than kept warm; this is
+     * what makes that literally true. Rewrites the log, since a delete cannot be
+     * expressed as an append.
+     */
+    async prunePending(ttlDays, { now = new Date() } = {}) {
+      const cutoff = now.getTime() - ttlDays * 86400_000;
+      // Inclusive: a record created in the same millisecond as the cutoff is at
+      // the boundary, not inside it. With a strict `<`, prunePending(0) left
+      // whichever record happened to share a millisecond with the call.
+      const doomed = [...byEmail.values()].filter(
+        (r) => r.status === 'pending' && new Date(r.created).getTime() <= cutoff
+      );
+      if (!doomed.length) return 0;
+      for (const rec of doomed) {
+        byEmail.delete(rec.email);
+        byId.delete(rec.id);
+      }
+      await this.compact();
+      return doomed.length;
+    },
+
+    /** Nothing to close; here so callers can treat both stores alike. */
+    async close() {},
 
     /**
      * Rewrite the log with one line per address. Optional: the log is correct

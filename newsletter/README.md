@@ -23,6 +23,9 @@ newsletter/
   lib/
     config.mjs      environment → config, with fail-fast validation
     store.mjs       the list: append-only NDJSON, replayed into memory
+    store-postgres.mjs  the same list in Postgres, for hosts with no disk
+    store-open.mjs  which of the two to open
+    webhooks.mjs    relay bounce/complaint events, signature-verified
     tokens.mjs      HMAC-signed confirm/unsubscribe links
     transport.mjs   how mail leaves: smtp | resend | dry-run
     smtp.mjs        an SMTP client (EHLO, STARTTLS, AUTH, MAIL/RCPT/DATA)
@@ -30,7 +33,8 @@ newsletter/
     markdown.mjs    the markdown subset the digests use → HTML + plain text
     templates.mjs   the two emails: confirmation, issue
     issues.mjs      reads src/content/weekly/<YYYY-Www>.md
-  test/             69 tests: node --test newsletter/test/*.test.mjs
+  test/             142 tests: node --test newsletter/test/*.test.mjs
+                    (124 without a database; the Postgres contract skips)
 ```
 
 ## How it fits together
@@ -333,9 +337,67 @@ skips anyone already in it, so an interrupted send is resumed by running the
 same command again. Recipients come from the local list, or over HTTP from a
 running service with `--api https://list.example.com` plus `ADMIN_TOKEN`.
 
+## Bounces and complaints
+
+A list that keeps mailing dead addresses is how a sending reputation dies. Both
+halves are handled:
+
+**Asynchronous — the relay tells us later.** Add a webhook in Resend pointing at
+`https://your-host/webhooks/resend`, subscribe it to `email.bounced` and
+`email.complained`, and put the `whsec_…` it gives you in `WEBHOOK_SECRET`. The
+endpoint verifies the Svix signature (HMAC-SHA256 over `id.timestamp.body`, with
+a five-minute replay window) before it believes anything — it suppresses
+addresses, so an unauthenticated version would let a stranger cancel readers one
+at a time. With no secret configured, every webhook is rejected.
+
+**Synchronous — we saw it ourselves.** Over SMTP a dead mailbox is a `550` at
+`RCPT TO`, known immediately with no webhook involved. The sender records it, via
+`POST /admin/suppress` when it is running elsewhere, or straight to the store when
+it is not.
+
+Policy, in both paths:
+
+- A **permanent** bounce suppresses immediately.
+- A **transient** one (mailbox full, greylisted) does not: it is counted, and
+  five in a row suppresses, because a mailbox that is full for five weeks is gone.
+- A **complaint** is a harder no than an unsubscribe and is treated as final.
+- Suppressed addresses can return, but only by re-subscribing and clicking the
+  confirmation link — which is itself proof the mailbox is alive again.
+- `email.opened` and `email.clicked` are **ignored even when offered**, and the
+  relay's own tracking should stay switched off. `/newsletter` promises we cannot
+  tell whether you read an issue.
+
+## Where the list lives
+
+Two stores, one contract (`test/store-contract.mjs`), chosen with
+`NEWSLETTER_STORE` or inferred from the environment:
+
+| | `ndjson` (default) | `postgres` |
+|---|---|---|
+| Where | a file you can back up with `cp` | Neon, Supabase, Vercel Postgres, your own |
+| Needs | a durable filesystem and one writer | a connection string |
+| Use when | a box, a container, a VM | serverless, where there is no disk |
+
+A `DATABASE_URL` in the environment selects Postgres on its own, which is exactly
+what Vercel's Neon integration injects — so a deployment there needs no extra
+configuration. Use the **pooled** connection string; a function opening direct
+connections exhausts the database's slots on the first burst. `pg` is an optional
+dependency, imported only on that path.
+
+The table is created on first connect. To run the contract against a real
+database:
+
+```
+TEST_DATABASE_URL=postgres://postgres@127.0.0.1:5432/postgres \
+  node --test newsletter/test/store-postgres.test.mjs
+```
+
+Without `TEST_DATABASE_URL` those cases skip, so CI stays green with no database.
+
 ## What is stored, and what is not
 
-One line of NDJSON per state change, in `newsletter/data/subscribers.ndjson`:
+One line of NDJSON per state change, in `newsletter/data/subscribers.ndjson`
+(or one row per address in Postgres):
 
 ```json
 {"email":"reader@example.com","id":"kR3…","status":"confirmed","created":"…","confirmedAt":"…","source":"/weekly","ipHash":"9f2…"}
@@ -343,11 +405,17 @@ One line of NDJSON per state change, in `newsletter/data/subscribers.ndjson`:
 
 The address, an opaque id, the status, timestamps, the page the signup came
 from, and an HMAC of the submitting IP (keyed with the service secret, truncated
-to 96 bits) used only for rate limiting. No names, no enrichment, no profiles.
+to 96 bits) used only for rate limiting. Delivery failures add `bouncedAt`,
+`bounceReason` and a soft-bounce counter, so a dead mailbox is not mailed twice.
+No names, no enrichment, no profiles.
 
 Not stored, because it is never collected: opens, clicks, user agents, or
-anything else that would require a pixel or a redirect. The only number the list
-produces is how many people are on it.
+anything else that would require a pixel or a redirect. The only numbers the list
+produces are how many people are on it and how many messages were refused.
+
+`/newsletter` tells readers exactly this, and one contract test enforces it: a
+record may only carry the fields on that page, so a store that quietly adds one
+fails the suite until the disclosure is updated or the field is dropped.
 
 ## The rules this implements
 

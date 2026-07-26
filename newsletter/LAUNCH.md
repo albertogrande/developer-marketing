@@ -1,7 +1,8 @@
 # Going live
 
-The code is done and tested. What is left is configuration, one decision, and a
-domain. This is the order that gets there fastest, with who has to do each step.
+The code is done and tested. What is left is configuration, a domain, and one
+afternoon of deployment. This is the order that gets there fastest, with who has
+to do each step.
 
 Nothing here is reversible-with-difficulty: the list is ours, the relay is one
 environment variable, and the site degrades honestly at every stage.
@@ -12,17 +13,16 @@ environment variable, and the site degrades honestly at every stage.
   ┌─ 1. merge the branch ─────────────────── 5 min   ─┐
   │                                                   ├─→ 5. doctor → test send → live
   ├─ 2. a domain you own ────────────────── 10 min   ─┤
-  ├─ 3. a host for /subscribe ───────── 30 min–2 h   ─┤
+  ├─ 3. deploy the endpoint ────────── 30 min–4 h   ─┤
   └─ 4. secrets and variables ───────────── 10 min   ─┘
 ```
 
-Steps 2, 3 and 4 are independent — do them in whatever order suits. Step 3 is
-the only one with a real decision in it.
+Steps 2, 3 and 4 are independent — do them in whatever order suits.
 
 ## 1. Merge — 5 minutes
 
 Nothing ships from a branch. `claude/resources-newsletter-setup-xequ9n` is green:
-build, 96 tests, no dead links. Merging publishes `/resources` immediately —
+build, 142 tests, no dead links. Merging publishes `/resources` immediately —
 that half has no external dependency at all. The newsletter call-to-action ships
 in its honest "not wired up yet" state until step 4.
 
@@ -42,31 +42,34 @@ Once you have one:
 Verify with `npm run newsletter:doctor -- --dkim-selector resend`. It checks all
 three records and the domain's verification status in Resend, and sends nothing.
 
-## 3. Somewhere to accept a POST — the one decision
+## 3. Somewhere to accept a POST — decided: Vercel + Postgres
 
-A static site cannot take a form post. Two shapes, and they are not equally
-fast:
+A static site cannot take a form post. The decision is made: the endpoint goes in
+the Vercel project as a function, with the list in Postgres, because a serverless
+filesystem is not durable. Cost: nothing. Neon's free tier is 0.5 GB and 100
+compute-hours a month; this table is kilobytes.
 
-**A. A small box — live today, zero new code.** Any $5 VPS, Fly machine or
-container. `newsletter/README.md` has the systemd unit and the Caddy block.
-The list is a file you can back up with `cp`. Works identically whether the site
-sits on GitHub Pages or Vercel, because the service was always separate.
+The store side is **done and tested** — `newsletter/lib/store-postgres.mjs` passes
+the same contract as the file-based one, verified against a real Postgres 16. What
+remains is the thin part: the function handlers under `api/`, and the Astro config
+change for serving at the root instead of `/developer-marketing`.
 
-**B. One Vercel deployment — needs a database first.** Consolidating the endpoint
-into the same project as `/api/subscribe` is tidier and where you are heading
-anyway, but serverless has no durable filesystem, so the NDJSON list cannot live
-there. That means picking a store (Postgres via Neon or Vercel Postgres; Upstash
-Redis if you would rather stay dependency-free over HTTP) and writing an adapter.
+Use the **self-managed** Neon integration from the Vercel Marketplace rather than
+the Vercel-managed one: same auto-injected `DATABASE_URL` and the same
+per-preview-deployment database branch, but you own the Neon account, so the data
+and its billing do not become Vercel's to hold. Two things it gives you for free
+that are worth having:
 
-The adapter is a known, bounded piece of work: `newsletter/test/store-contract.mjs`
-is the specification as executable tests. Twelve tests, twelve behaviours, eight
-methods — point them at a new backend and passing means the service and the
-sender work against it unchanged. That is deliberately the *only* thing that has
-to change.
+- `DATABASE_URL` is injected into every environment, and the code picks Postgres
+  up from it with no other configuration.
+- Preview deployments get their own database branch, so a preview form cannot
+  write into the live list.
 
-Fastest overall: **A now, B later if you still want it.** A costs nothing to
-throw away — the site config is one variable either way — and it gets the form
-live while the domain's DNS is still propagating.
+Use the **pooled** connection string, not `DATABASE_URL_UNPOOLED` — a function
+opening direct connections exhausts the database's slots on the first burst.
+
+In the meantime, `NEWSLETTER_STORE=ndjson` on any box still works unchanged, so
+nothing is blocked on the migration.
 
 ## 4. Secrets and variables — 10 minutes
 
@@ -86,7 +89,9 @@ On the host running the service (or the Vercel project):
 | `PUBLIC_BASE_URL` | where the service is reachable, e.g. `https://list.yourdomain` |
 | `SITE_URL` | the published site, for the confirm/unsubscribe redirects |
 | `ALLOWED_ORIGINS` | the site's origin, so only it can post the form |
-| `ADMIN_TOKEN` | so the send job can read the list |
+| `ADMIN_TOKEN` | so the send job can read the list and report rejections |
+| `WEBHOOK_SECRET` | the `whsec_…` from Resend, or bounces are never honoured |
+| `DATABASE_URL` | pooled connection string, if the store is Postgres |
 | `RESEND_API_KEY` | or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` |
 | `FROM_EMAIL`, `REPLY_TO` | on the domain from step 2 |
 | `TRUST_PROXY=1` | only if a reverse proxy sits in front |
@@ -96,6 +101,9 @@ In the repository, so the forms render live and the weekly send runs:
 - **variable** `NEWSLETTER_API` → the service's public URL (or `/api` if same-origin)
 - **secrets** `NEWSLETTER_SECRET`, `NEWSLETTER_ADMIN_TOKEN`, `FROM_EMAIL`, and
   `RESEND_API_KEY` (or the `SMTP_*` set)
+
+And in Resend, one webhook pointing at `https://your-host/webhooks/resend`,
+subscribed to `email.bounced` and `email.complained`.
 
 Until `NEWSLETTER_API` is set the call-to-action says so rather than failing
 silently, and the send workflow skips instead of going red.
@@ -119,23 +127,32 @@ delivery is logged and a re-run skips whoever already got it.
 
 ## What is not built yet
 
-Stated plainly, because discovering it later is worse:
+Stated plainly, because discovering it later is worse.
 
-- **Bounce and complaint handling.** Nothing consumes Resend's webhooks or
-  processes DSNs, so a dead address stays on the list and keeps being mailed.
-  Harmless for a small list, corrosive to sender reputation as it grows. This is
-  the first thing to build after launch: a webhook route plus a `bounced` status
-  the sender skips. Half a day.
-- **A Vercel-native store**, if you choose shape B above. Bounded by the
-  contract tests. Half a day.
-- **List export.** `data/subscribers.ndjson` is the export; if you want a CSV
-  command, say so.
+**Done since this list was written:**
+
+- ~~Bounce and complaint handling.~~ Built. `POST /webhooks/resend` verifies the
+  relay's Svix signature and suppresses on permanent bounces and complaints; a
+  transient failure is counted and five in a row suppresses. The sender also
+  reports the `550`s it sees for itself, so the SMTP path needs no webhook at all.
+  Add the webhook in Resend, subscribe it to `email.bounced` and
+  `email.complained`, and set `WEBHOOK_SECRET`.
+- ~~A Postgres store.~~ Built and contract-tested against a real database.
+- ~~Pruning the pending pile.~~ `prunePending(ttlDays)` exists on both stores and
+  is contract-tested. Still needs a caller — a weekly cron line, one hour of work.
+
+**Still outstanding:**
+
+- **The Vercel function wiring.** `api/subscribe`, `api/confirm`,
+  `api/unsubscribe`, `api/webhooks/resend` delegating to the handlers in
+  `server.mjs`, plus `base`/`site` in `astro.config.mjs` for serving at the root.
+  Half a day, and the only thing between here and one deployment.
+- **A cron for `prunePending`.** The privacy note promises unconfirmed addresses
+  are dropped; the function exists, nothing calls it yet.
+- **List export.** `data/subscribers.ndjson` *is* the export for the file store;
+  Postgres needs a `newsletter:export` command, or `psql -c "copy … to csv"`.
 - **No welcome email.** Confirming lands on `/newsletter/confirmed` and the next
-  issue is the first thing that arrives. That is a choice, not an omission.
-- **Nothing prunes the pending pile.** Unconfirmed records stay forever; the copy
-  on `/newsletter` promises they are dropped. A weekly `compact()` plus a delete
-  of pending records older than the confirm TTL would make that literally true.
-  An hour.
+  issue is the first thing that arrives. A choice, not an omission.
 
 ## Maintaining the directory
 

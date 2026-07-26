@@ -18,7 +18,7 @@
 import { promises as dns } from 'node:dns';
 import net from 'node:net';
 import { config } from './lib/config.mjs';
-import { openStore } from './lib/store.mjs';
+import { openConfiguredStore, describeStore } from './lib/store-open.mjs';
 import { SmtpClient } from './lib/smtp.mjs';
 
 const PASS = 'ok  ';
@@ -97,9 +97,25 @@ async function checkConfig() {
   );
   report(PASS, 'MAIL_TRANSPORT', config.transport);
   report(
+    config.store === 'postgres' && !config.databaseUrl ? FAIL : PASS,
+    'NEWSLETTER_STORE',
+    config.store === 'postgres'
+      ? config.databaseUrl
+        ? 'postgres (DATABASE_URL set)'
+        : 'postgres, but DATABASE_URL is unset'
+      : `ndjson at ${config.dataDir} — needs a durable disk, so not serverless`
+  );
+  report(
     config.adminToken ? PASS : INFO,
     'ADMIN_TOKEN',
-    config.adminToken ? 'set' : 'unset — /admin/subscribers is disabled (fine unless the sender runs elsewhere)'
+    config.adminToken ? 'set' : 'unset — /admin/* is disabled (fine unless the sender runs elsewhere)'
+  );
+  report(
+    config.webhookSecret ? PASS : WARN,
+    'WEBHOOK_SECRET',
+    config.webhookSecret
+      ? 'set — bounces and complaints will be honoured'
+      : 'unset — every webhook is rejected, so dead addresses stay on the list'
   );
 }
 
@@ -258,9 +274,14 @@ async function checkVolume() {
   section('volume and cost');
   let confirmed = 0;
   try {
-    const store = await openStore(config.dataDir);
-    confirmed = store.stats().confirmed;
-    report(INFO, 'list', `${confirmed} confirmed, ${store.stats().pending} pending`);
+    const store = await openConfiguredStore(config);
+    const stats = await store.stats();
+    confirmed = stats.confirmed;
+    report(
+      INFO,
+      'list',
+      `${confirmed} confirmed, ${stats.pending} pending, ${stats.bounced + stats.complained} suppressed`
+    );
   } catch (err) {
     report(INFO, 'list', `could not read ${config.dataDir} (${err.code || err.message})`);
   }

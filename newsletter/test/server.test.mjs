@@ -23,9 +23,11 @@ process.env.ADMIN_TOKEN = 'admin-token-for-tests';
 process.env.MAIL_DRY_RUN = '1';
 process.env.RATE_PER_IP = '500';
 process.env.MIN_FILL_MS = '1200';
+process.env.WEBHOOK_SECRET = 'whsec_' + Buffer.from('test webhook signing secret').toString('base64');
 
 const { createServer, createLimiter } = await import('../server.mjs');
 const { sign } = await import('../lib/tokens.mjs');
+const { createHmac } = await import('node:crypto');
 
 const { server, store } = await createServer();
 const port = await new Promise((resolve) =>
@@ -71,7 +73,7 @@ test('subscribing stores a pending record and writes one confirmation', async ()
   assert.equal(res.status, 202);
   assert.deepEqual(await res.json(), { ok: true, status: 'pending' });
 
-  const record = store.get('reader@example.com');
+  const record = (await store.get('reader@example.com'));
   assert.equal(record.status, 'pending');
   assert.equal(record.source, '/weekly');
   assert.ok(record.ipHash && !record.ipHash.includes('127.0.0.1'), 'the raw IP is never stored');
@@ -89,20 +91,20 @@ test('the honeypot looks exactly like success and stores nothing', async () => {
   const res = await post('/subscribe', { email: 'bot@example.com', website: 'https://spam.example' });
   assert.equal(res.status, 202);
   assert.deepEqual(await res.json(), { ok: true });
-  assert.equal(store.get('bot@example.com'), undefined);
+  assert.equal((await store.get('bot@example.com')), undefined);
   assert.equal(outbox().length, before, 'no mail is sent for a honeypot hit');
 });
 
 test('a submit faster than a human can type is dropped', async () => {
   const res = await post('/subscribe', { email: 'fast@example.com', rendered_at: Date.now() });
   assert.equal(res.status, 202);
-  assert.equal(store.get('fast@example.com'), undefined);
+  assert.equal((await store.get('fast@example.com')), undefined);
 });
 
 test('a plausible fill time is accepted', async () => {
   const res = await post('/subscribe', { email: 'human@example.com', rendered_at: Date.now() - 5000 });
   assert.equal(res.status, 202);
-  assert.equal(store.get('human@example.com').status, 'pending');
+  assert.equal((await store.get('human@example.com')).status, 'pending');
 });
 
 test('an invalid address is rejected', async () => {
@@ -120,7 +122,7 @@ test('a form post without JavaScript redirects instead of answering JSON', async
   });
   assert.equal(res.status, 303);
   assert.equal(res.headers.get('location'), `${SITE}/newsletter/check-your-inbox`);
-  assert.equal(store.get('nojs@example.com').status, 'pending');
+  assert.equal((await store.get('nojs@example.com')).status, 'pending');
 });
 
 test('an origin outside the allow-list is refused', async () => {
@@ -137,21 +139,21 @@ test('the site origin is allowed and echoed back', async () => {
 });
 
 test('confirming moves the record and lands on the confirmed page', async () => {
-  const record = store.get('reader@example.com');
+  const record = (await store.get('reader@example.com'));
   const token = sign(SECRET, 'confirm', record.id, 86400_000);
   const res = await fetch(`${base}/confirm?t=${encodeURIComponent(token)}`, { redirect: 'manual' });
   assert.equal(res.status, 303);
   assert.equal(res.headers.get('location'), `${SITE}/newsletter/confirmed`);
-  assert.equal(store.get('reader@example.com').status, 'confirmed');
+  assert.equal((await store.get('reader@example.com')).status, 'confirmed');
 });
 
 test('a tampered or wrong-purpose token is refused', async () => {
-  const record = store.get('human@example.com');
+  const record = (await store.get('human@example.com'));
   const unsubToken = sign(SECRET, 'unsubscribe', record.id, 0);
   const res = await fetch(`${base}/confirm?t=${encodeURIComponent(unsubToken)}`, { redirect: 'manual' });
   assert.equal(res.status, 303);
   assert.match(res.headers.get('location'), /\/newsletter\?e=purpose$/);
-  assert.equal(store.get('human@example.com').status, 'pending', 'still not confirmed');
+  assert.equal((await store.get('human@example.com')).status, 'pending', 'still not confirmed');
 });
 
 test('re-subscribing a confirmed address sends nothing and leaks nothing', async () => {
@@ -160,7 +162,7 @@ test('re-subscribing a confirmed address sends nothing and leaks nothing', async
   assert.equal(res.status, 202);
   assert.deepEqual(await res.json(), { ok: true, status: 'pending' }, 'same response as a new address');
   assert.equal(outbox().length, before);
-  assert.equal(store.get('reader@example.com').status, 'confirmed', 'delivery is not suspended');
+  assert.equal((await store.get('reader@example.com')).status, 'confirmed', 'delivery is not suspended');
 });
 
 test('the sender can read the confirmed list with the admin token', async () => {
@@ -178,12 +180,12 @@ test('the sender can read the confirmed list with the admin token', async () => 
 });
 
 test('one-click unsubscribe answers 200 and removes the reader', async () => {
-  const record = store.get('reader@example.com');
+  const record = (await store.get('reader@example.com'));
   const token = sign(SECRET, 'unsubscribe', record.id, 0);
   const res = await fetch(`${base}/unsubscribe?t=${encodeURIComponent(token)}`, { method: 'POST' });
   assert.equal(res.status, 200);
   assert.deepEqual(await res.json(), { ok: true });
-  assert.equal(store.get('reader@example.com').status, 'unsubscribed');
+  assert.equal((await store.get('reader@example.com')).status, 'unsubscribed');
 
   const list = await (
     await fetch(`${base}/admin/subscribers`, { headers: { authorization: 'Bearer admin-token-for-tests' } })
@@ -200,6 +202,71 @@ test('clicking an unsubscribe link lands on the unsubscribed page', async () => 
   assert.equal(res.headers.get('location'), `${SITE}/newsletter/unsubscribed`);
 });
 
+test('a signed bounce webhook suppresses the reader', async () => {
+  const { record } = await store.subscribe('bouncer@example.com');
+  await store.confirm(record.id);
+
+  const body = JSON.stringify({
+    type: 'email.bounced',
+    data: { to: ['bouncer@example.com'], bounce: { type: 'Permanent', message: 'no such user' } },
+  });
+  const id = 'msg_test';
+  const timestamp = String(Math.floor(Date.now() / 1000));
+  const key = Buffer.from(process.env.WEBHOOK_SECRET.replace(/^whsec_/, ''), 'base64');
+  const signature = createHmac('sha256', key).update(`${id}.${timestamp}.${body}`).digest('base64');
+
+  const res = await fetch(`${base}/webhooks/resend`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'svix-id': id,
+      'svix-timestamp': timestamp,
+      'svix-signature': `v1,${signature}`,
+    },
+    body,
+  });
+
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { ok: true, applied: true, action: 'bounce' });
+  assert.equal((await store.get('bouncer@example.com')).status, 'bounced');
+});
+
+test('an unsigned webhook cannot cancel a reader', async () => {
+  const { record } = await store.subscribe('safe@example.com');
+  await store.confirm(record.id);
+
+  const res = await fetch(`${base}/webhooks/resend`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ type: 'email.bounced', data: { to: ['safe@example.com'], bounce: { type: 'Permanent' } } }),
+  });
+
+  assert.equal(res.status, 401);
+  assert.equal((await store.get('safe@example.com')).status, 'confirmed', 'untouched');
+});
+
+test('the sender can report a permanent rejection it saw for itself', async () => {
+  const { record } = await store.subscribe('rejected@example.com');
+  await store.confirm(record.id);
+
+  const anon = await fetch(`${base}/admin/suppress`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email: 'rejected@example.com' }),
+  });
+  assert.equal(anon.status, 404, 'no token, no suppression');
+  assert.equal((await store.get('rejected@example.com')).status, 'confirmed');
+
+  const res = await fetch(`${base}/admin/suppress`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: 'Bearer admin-token-for-tests' },
+    body: JSON.stringify({ email: 'rejected@example.com', reason: '550 5.1.1 unknown' }),
+  });
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { ok: true, status: 'bounced' });
+  assert.equal((await store.get('rejected@example.com')).bounceReason, '550 5.1.1 unknown');
+});
+
 test('unknown routes and wrong methods are refused', async () => {
   assert.equal((await fetch(`${base}/nope`)).status, 404);
   assert.equal((await fetch(`${base}/subscribe`)).status, 405);
@@ -214,7 +281,7 @@ test('an oversized body cannot exhaust memory', async () => {
   // Either refused outright or the connection is cut: both fine. What matters
   // is that the read stopped early and nothing was stored.
   assert.notEqual(res.status, 202);
-  assert.equal(store.get('huge@example.com'), undefined);
+  assert.equal((await store.get('huge@example.com')), undefined);
 });
 
 test('the rate limiter caps per IP', () => {

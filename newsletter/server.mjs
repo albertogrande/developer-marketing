@@ -1,15 +1,17 @@
 #!/usr/bin/env node
-// The capture service. Four routes, no framework, no database, no dependencies.
+// The capture service. No framework, no dependencies.
 //
 //   POST /subscribe            take an address, send one confirmation
 //   GET  /confirm?t=…          double opt-in lands here
 //   GET|POST /unsubscribe?t=…  signed link, and RFC 8058 One-Click
-//   GET  /health               counts, for a monitor
+//   POST /webhooks/resend      bounces and complaints, signature-verified
+//   GET  /health               counts and which transport, for a monitor
 //   GET  /admin/subscribers    the list, for the sender (bearer token)
+//   POST /admin/suppress       the sender reporting a permanent rejection
 //
-// A static site on GitHub Pages cannot accept a POST, so this is the one piece
-// that needs a host — a $5 box, a container, anything that can hold a file. It
-// is the whole reason the newsletter does not need Mailchimp.
+// A static site cannot accept a POST, so this is the one piece that needs a host
+// — a box, a container, or a serverless function with a database behind it. It is
+// the whole reason the newsletter does not need Mailchimp.
 //
 //   NEWSLETTER_SECRET=$(openssl rand -hex 32) node newsletter/server.mjs
 //
@@ -17,9 +19,11 @@
 
 import http from 'node:http';
 import { config, assertServerConfig, isDryRun } from './lib/config.mjs';
-import { openStore, isValidEmail } from './lib/store.mjs';
+import { isValidEmail } from './lib/store.mjs';
+import { openConfiguredStore, describeStore } from './lib/store-open.mjs';
 import { sign, verify, hashIp } from './lib/tokens.mjs';
 import { createTransport } from './lib/transport.mjs';
+import { verifySvix, applyEvent } from './lib/webhooks.mjs';
 import { confirmEmail } from './lib/templates.mjs';
 
 const MAX_BODY = 8 * 1024;
@@ -247,18 +251,89 @@ async function handleUnsubscribe(req, res, url, store) {
   return redirect(res, `${config.siteUrl}/newsletter/unsubscribed`);
 }
 
-function handleAdmin(req, res, store) {
+async function handleAdmin(req, res, store) {
   const auth = String(req.headers.authorization || '');
   if (!config.adminToken || auth !== `Bearer ${config.adminToken}`) {
     return json(res, 404, { ok: false }); // 404, not 403: do not confirm it exists
   }
+  const [stats, confirmed] = await Promise.all([store.stats(), store.confirmed()]);
   return json(res, 200, {
     updated: new Date().toISOString(),
-    stats: store.stats(),
+    stats,
     // Only what the sender needs: an address and the id its unsubscribe token
     // is minted from. No IP hashes, no sources.
-    subscribers: store.confirmed().map((r) => ({ email: r.email, id: r.id, confirmedAt: r.confirmedAt })),
+    subscribers: confirmed.map((r) => ({ email: r.email, id: r.id, confirmedAt: r.confirmedAt })),
   });
+}
+
+/**
+ * Relay webhooks: a bounce or a complaint arriving after the send is over.
+ *
+ * Verified before it is believed — this endpoint suppresses addresses, so an
+ * unauthenticated one would let a stranger cancel our readers one at a time. A
+ * bad signature gets 401 and nothing is touched.
+ */
+async function handleWebhook(req, res, store) {
+  let body;
+  try {
+    body = await readBody(req);
+  } catch {
+    return json(res, 413, { ok: false });
+  }
+
+  const check = verifySvix({ secret: config.webhookSecret, body, headers: req.headers });
+  if (!check.ok) {
+    log(`webhook: rejected (${check.reason})`);
+    return json(res, 401, { ok: false, error: 'signature verification failed' });
+  }
+
+  let event;
+  try {
+    event = JSON.parse(body);
+  } catch {
+    return json(res, 400, { ok: false, error: 'body is not JSON' });
+  }
+
+  const result = await applyEvent(store, event);
+  log(
+    result.applied
+      ? `webhook: ${result.action} → ${result.records.map((r) => `${r.email} is ${r.status}`).join(', ')}`
+      : `webhook: ignored (${result.reason})`
+  );
+  // 200 either way once the signature is good: an event about someone who is not
+  // on the list is not a failure, and a relay that gets a 4xx will retry forever.
+  return json(res, 200, { ok: true, applied: result.applied, action: result.action ?? 'ignore' });
+}
+
+/**
+ * The synchronous half of bounce handling. Over SMTP a dead mailbox is a 550 at
+ * RCPT TO — known immediately, with no webhook involved — so the sender reports
+ * it here when it is running somewhere else and has no direct access to the list.
+ */
+async function handleSuppress(req, res, store) {
+  const auth = String(req.headers.authorization || '');
+  if (!config.adminToken || auth !== `Bearer ${config.adminToken}`) {
+    return json(res, 404, { ok: false });
+  }
+
+  let payload;
+  try {
+    payload = parseBody(await readBody(req), String(req.headers['content-type'] || ''));
+  } catch {
+    return json(res, 413, { ok: false });
+  }
+
+  const email = String(payload.email || '').trim().toLowerCase();
+  if (!email) return json(res, 400, { ok: false, error: 'email is required' });
+
+  const permanent = payload.permanent === undefined ? true : /^(1|true|yes)$/i.test(String(payload.permanent));
+  const record =
+    payload.kind === 'complaint'
+      ? await store.markComplained(email, { reason: String(payload.reason || '') })
+      : await store.markBounced(email, { permanent, reason: String(payload.reason || '') });
+
+  log(`suppress: ${email} → ${record ? record.status : 'not on the list'}`);
+  return json(res, 200, { ok: true, status: record?.status ?? null });
 }
 
 // The externally reachable base for links we mint. Behind a reverse proxy the
@@ -270,7 +345,7 @@ const publicBase = () => (process.env.PUBLIC_BASE_URL || `http://${config.host}:
 // ---------------------------------------------------------------------------
 export async function createServer({ transport } = {}) {
   assertServerConfig();
-  const store = await openStore(config.dataDir);
+  const store = await openConfiguredStore(config);
   const limit = createLimiter(config.rate);
   const mail = transport ?? createTransport(config, log);
 
@@ -286,7 +361,7 @@ export async function createServer({ transport } = {}) {
       }
 
       if (path === '/health' && req.method === 'GET') {
-        return json(res, 200, { ok: true, ...store.stats(), transport: mail.name, dryRun: isDryRun() });
+        return json(res, 200, { ok: true, ...(await store.stats()), transport: mail.name, dryRun: isDryRun() });
       }
 
       if (path === '/subscribe') {
@@ -300,7 +375,12 @@ export async function createServer({ transport } = {}) {
       if (path === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST'))
         return await handleUnsubscribe(req, res, url, store);
 
-      if (path === '/admin/subscribers' && req.method === 'GET') return handleAdmin(req, res, store);
+      if (path === '/admin/subscribers' && req.method === 'GET') return await handleAdmin(req, res, store);
+
+      // Both halves of bounce handling: asynchronous (relay webhooks) and
+      // synchronous (a 5xx the sender saw for itself).
+      if (path === '/webhooks/resend' && req.method === 'POST') return await handleWebhook(req, res, store);
+      if (path === '/admin/suppress' && req.method === 'POST') return await handleSuppress(req, res, store);
 
       return json(res, 404, { ok: false, error: 'not found' });
     } catch (err) {
@@ -319,7 +399,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   server.listen(config.port, config.host, () => {
     log(`newsletter service on http://${config.host}:${config.port}`);
     log(`  links minted as ${publicBase()}/confirm?t=…`);
-    log(`  data ${store.path}`);
+    log(`  store ${describeStore(store)}`);
     log(`  origins ${config.allowedOrigins.join(', ') || '(none)'}`);
     log(`  transport ${transport.name}`);
     if (isDryRun()) log('  DRY RUN — messages are written to data/outbox, not sent');

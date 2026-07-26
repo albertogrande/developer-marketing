@@ -22,6 +22,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { config, isDryRun } from './lib/config.mjs';
 import { openStore } from './lib/store.mjs';
+import { openConfiguredStore } from './lib/store-open.mjs';
 import { sign } from './lib/tokens.mjs';
 import { createTransport, isTemporary } from './lib/transport.mjs';
 import { issueEmail } from './lib/templates.mjs';
@@ -71,7 +72,10 @@ ADMIN_TOKEN (with --api), and one transport — RESEND_API_KEY or SMTP_*.
 See newsletter/README.md.
 `;
 
-/** Confirmed subscribers, from the service over HTTP or from the file. */
+/** `--list <file>` always means an NDJSON file, whatever the configured store is. */
+const openLocalList = (file) => openStore(config.dataDir, { file });
+
+/** Confirmed subscribers, from the service over HTTP or from the store. */
 async function loadRecipients({ api, list }) {
   if (api) {
     const url = `${api.replace(/\/+$/, '')}/admin/subscribers`;
@@ -81,8 +85,37 @@ async function loadRecipients({ api, list }) {
     if (!Array.isArray(data.subscribers)) throw new Error('recipients: malformed response');
     return data.subscribers;
   }
-  const store = await openStore(config.dataDir, list ? { file: list } : {});
-  return store.confirmed().map((r) => ({ email: r.email, id: r.id }));
+  const store = list ? await openLocalList(list) : await openConfiguredStore(config);
+  return (await store.confirmed()).map((r) => ({ email: r.email, id: r.id }));
+}
+
+/**
+ * Take an address off the list after a permanent rejection. Over the admin
+ * endpoint when the sender runs elsewhere (CI), directly otherwise. Never fatal:
+ * a failed suppression must not abandon the rest of the send.
+ */
+async function suppress({ api, list }, { email, reason }) {
+  try {
+    if (api) {
+      const res = await fetch(`${api.replace(/\/+$/, '')}/admin/suppress`, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${config.adminToken}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email, reason, permanent: true }),
+      });
+      if (!res.ok) throw new Error(`admin/suppress returned ${res.status}`);
+      return true;
+    }
+    const store = list ? await openLocalList(list) : await openConfiguredStore(config);
+    await store.markBounced(email, { permanent: true, reason });
+    await store.flush();
+    return true;
+  } catch (err) {
+    console.error(`  ! could not suppress ${email}: ${err.message}`);
+    return false;
+  }
 }
 
 /** Addresses already delivered for this issue — the resume log. */
@@ -176,6 +209,7 @@ async function main() {
 
   let sent = 0;
   let failed = 0;
+  let suppressed = 0;
 
   const record = async (entry) => {
     if (sentPath) await appendFile(sentPath, JSON.stringify(entry) + '\n', 'utf8');
@@ -225,13 +259,24 @@ async function main() {
       failed++;
       console.error(`  ! ${person.email}: ${err.message}`);
       await record({ ok: false, email: person.email, id: person.id, at: new Date().toISOString(), error: err.message });
+
+      // A permanent rejection is a bounce we learned about synchronously — over
+      // SMTP that is a 550 at RCPT TO, with no webhook involved. Record it now,
+      // or the same dead mailbox gets mailed again next week and every week after.
+      if (err?.permanent && !args.test) {
+        const noted = await suppress(args, { email: person.email, reason: err.message });
+        if (noted) suppressed++;
+      }
     }
 
     if (gapMs) await sleep(gapMs);
   }
 
   await transport.close();
-  log(`\ndone: ${sent} sent, ${failed} failed${sentPath ? ` · log ${sentPath}` : ''}`);
+  log(
+    `\ndone: ${sent} sent, ${failed} failed, ${suppressed} suppressed` +
+      `${sentPath ? ` · log ${sentPath}` : ''}`
+  );
   if (failed) process.exitCode = 1;
 }
 

@@ -46,7 +46,13 @@ export const config = {
   trustProxy: bool(env.TRUST_PROXY, false),
 
   // --- storage --------------------------------------------------------------
+  // 'ndjson' (a file) or 'postgres' (required on hosts with no durable disk).
+  // Inferred from DATABASE_URL, which is what Vercel's Neon integration injects.
+  store: env.NEWSLETTER_STORE || (env.DATABASE_URL || env.POSTGRES_URL ? 'postgres' : 'ndjson'),
   dataDir: resolve(env.DATA_DIR || './data'),
+  // Prefer the pooled connection string: a serverless function opening direct
+  // connections exhausts the database's slots on the first burst of traffic.
+  databaseUrl: env.DATABASE_URL || env.POSTGRES_URL || env.DATABASE_URL_UNPOOLED || '',
 
   // --- crypto ---------------------------------------------------------------
   // Used for confirm/unsubscribe tokens and to salt stored IP hashes.
@@ -96,9 +102,13 @@ export const config = {
   minFillMs: num(env.MIN_FILL_MS, 1200),
 
   // --- admin ----------------------------------------------------------------
-  // Bearer token for GET /admin/subscribers, which the sender reads. Empty
-  // disables the endpoint entirely rather than leaving it open.
+  // Bearer token for /admin/*, which the sender reads and reports to. Empty
+  // disables those endpoints entirely rather than leaving them open.
   adminToken: env.ADMIN_TOKEN || '',
+  // Signing secret for relay webhooks (Resend's whsec_…). Empty means every
+  // webhook is rejected — the endpoint suppresses addresses, so unauthenticated
+  // is not an option.
+  webhookSecret: env.WEBHOOK_SECRET || '',
 };
 
 /** True when no mail actually leaves — messages land in $DATA_DIR/outbox. */
@@ -113,6 +123,10 @@ export function assertServerConfig(cfg = config) {
     problems.push('ALLOWED_ORIGINS is empty and SITE_URL has no parsable origin');
   if (!['smtp', 'resend', 'dry-run'].includes(cfg.transport))
     problems.push(`MAIL_TRANSPORT "${cfg.transport}" is not one of smtp, resend, dry-run`);
+  if (!['ndjson', 'postgres'].includes(cfg.store))
+    problems.push(`NEWSLETTER_STORE "${cfg.store}" is not one of ndjson, postgres`);
+  if (cfg.store === 'postgres' && !cfg.databaseUrl)
+    problems.push('NEWSLETTER_STORE=postgres needs DATABASE_URL');
   if (cfg.transport === 'smtp' && !cfg.smtp.host) problems.push('MAIL_TRANSPORT=smtp needs SMTP_HOST');
   if (cfg.transport === 'resend' && !cfg.resend.apiKey)
     problems.push('MAIL_TRANSPORT=resend needs RESEND_API_KEY');

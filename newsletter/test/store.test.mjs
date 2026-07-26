@@ -43,8 +43,15 @@ test('state survives a restart, last line wins', async () => {
   await first.flush();
 
   const second = await openStore(dir);
-  assert.deepEqual(second.stats(), { total: 2, pending: 1, confirmed: 1, unsubscribed: 0 });
-  assert.equal(second.getById(record.id).status, 'confirmed');
+  assert.deepEqual(await second.stats(), {
+    total: 2,
+    pending: 1,
+    confirmed: 1,
+    unsubscribed: 0,
+    bounced: 0,
+    complained: 0,
+  });
+  assert.equal((await second.getById(record.id)).status, 'confirmed');
 });
 
 test('a torn final line does not stop the service', async () => {
@@ -55,7 +62,7 @@ test('a torn final line does not stop the service', async () => {
   await writeFile(store.path, (await readFile(store.path, 'utf8')) + '{"email":"b@exa', 'utf8');
 
   const reopened = await openStore(dir);
-  assert.equal(reopened.stats().total, 1);
+  assert.equal((await reopened.stats()).total, 1);
 });
 
 test('compaction leaves one line per address', async () => {
@@ -86,5 +93,5 @@ test('concurrent writes do not interleave or lose rows', async () => {
   const lines = (await readFile(store.path, 'utf8')).trim().split('\n');
   assert.equal(lines.length, 40);
   for (const line of lines) JSON.parse(line); // every line is complete JSON
-  assert.equal(store.stats().total, 40);
+  assert.equal((await store.stats()).total, 40);
 });

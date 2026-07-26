@@ -70,13 +70,18 @@ const recent = weekly.slice(0, 6);
       <li>
         <b>What is stored.</b> Your address, the page you subscribed from, the
         timestamps, and a salted hash of the IP that submitted the form (kept for
-        rate-limiting, never reversible to you). Nothing else. No name field, no
-        company enrichment, no profile.
+        rate-limiting, never reversible to you). If your mail server ever rejects
+        an issue, the rejection and its reason are recorded too, so we stop
+        sending rather than hammering a dead mailbox. Nothing else: no name field,
+        no company enrichment, no profile.
       </li>
       <li>
         <b>No tracking.</b> No open pixel, no click-wrapped links, no per-reader
         identifiers in URLs. We cannot tell whether you opened an issue, which is
-        the point. The only number we have is how many people are on the list.
+        the point. The only numbers we have are how many people are on the list
+        and how many messages the mail servers refused. Where the relay offers to
+        report opens and clicks, that reporting is switched off and the code
+        ignores those events anyway.
       </li>
       <li>
         <b>One-click unsubscribe.</b> Every issue carries a signed unsubscribe
