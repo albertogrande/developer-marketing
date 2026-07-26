@@ -42,9 +42,9 @@ a news-pegged piece instead — that's fine.
 - Knowledge graphs are back: who's adopting them and the docs/positioning angle
 - Embedded and vector databases: the quiet stack shift under AI features
 - llms.txt one year in: measured adoption, not vibes
-- Agent-safe by design: the buildable category — tools that make an agent's *actions* safe, not just its reading (GoDaddy's agent-safe checkout, OneCLI's credential gateway, …). How they work, the positioning window, the docs angle. Two data points so far (one a March re-launch) — write when a third distinct tool lands.
 - Local models in dev workflows: what changes for cloud-devtool positioning
 
 ## Used
 
 - Usage-based vs seat pricing in devtools: what the public pricing pages show → 2026-07-22-seat-plus-meter-pricing.md (money; news-pegged to GitHub Code Quality GA)
+- Agent-safe by design: the buildable category (agent-action guardrails) → 2026-07-26-agent-safe-by-design.md (technology; the "third distinct tool" trigger met — GoDaddy/OneCLI/Common Room/Axtary/ActionRail + arXiv OAP + NHI analyst frame)
