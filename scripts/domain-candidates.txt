@@ -2,71 +2,139 @@
 # whatever --tlds you pass (default dev,com,io); a line with a dot is checked as
 # written. Blank lines and #-comments are ignored.
 #
-#   node scripts/check-domains.mjs --file scripts/domain-candidates.txt --tlds dev,io
+#   node scripts/check-domains.mjs --file scripts/domain-candidates.txt --tlds dev,com --available
 #
-# Short names are mostly gone or registry-priced, so the pool keeps both lengths:
-# check the short ones for luck, the longer ones for what you can actually hold.
+# The site is a publication (news, an evergreen guide, teardowns, a job board,
+# salary data, a newsletter) that doubles as the front door for consulting. So the
+# pool leans two ways: editorial authority, and a name a person can put on an
+# invoice. Short names are mostly gone or registry-priced; the pool keeps both
+# lengths deliberately.
 
-# --- three letters ---
-mkt
-gtm
-dxm
-dmk
-dvm
-drl
-dxr
-mkg
-gmk
-mkx
-dxp
-dxo
-
-# --- four letters ---
-mktg
-gtmd
-dxmk
-devm
-drel
-mkts
-mktx
-devx
-dmkt
-dvmk
-mrkt
-mktr
-gtmx
-dxio
-
-# --- short words ---
-wire
-desk
-beat
-feed
-pulse
-brief
-scoop
-press
-digest
-byline
-column
-ledger
-signal
-radar
-memo
-
-# --- longer, likelier to be free ---
+# --- short brandables known free from an earlier sweep, kept for comparison ---
 mkt2
+mktx
+mkts
+gtmd
+dxo
+dxr
+beat
+
+# --- newspaper metaphor + dev ---
+devbeat
+devpress
+devpulse
+devsignal
+devbrief
+devdigest
+devpost
+devdaily
+devweekly
+devfeed
+devradar
+devscoop
+devledger
+devtimes
+
+# --- marketing + dev ---
 devmkt
 mktdev
-devmarketing
-devmarketer
-devwire
-devrelwire
-dxwire
-devdesk
-thedevdesk
 devgtm
 gtmdev
-dxmarketing
-adoptioncurve
-mktcurve
+devmktg
+mktdevs
+dmktg
+devmarket
+devmarkets
+marketdev
+marketdevs
+thedevmarket
+
+# --- audience-facing phrasing (reads well on a consulting page) ---
+todevs
+fordevs
+reachdevs
+winningdevs
+devfirst
+devled
+sellingtodevs
+markettodevs
+mkt4devs
+gtm4devs
+dx4devs
+
+# --- DX ---
+dxdesk
+dxbeat
+dxpulse
+dxbrief
+dxlab
+dxhq
+dxgtm
+dxmkt
+dxmktg
+
+# --- adoption and growth ---
+devadoption
+adoptdev
+devfunnel
+mktfunnel
+devgrowth
+growthdev
+devplg
+plgdev
+plgmkt
+
+# --- hq / lab / studio (the consulting half) ---
+mktlab
+gtmlab
+devmktlab
+mktstudio
+devmkthq
+dmhq
+mkthq
+gtmhq
+devhq
+
+# --- misc short ---
+mktng
+dvmkt
+mktdv
+devmk
+devmx
+mktz
+mktq
+
+# --- second pass: explicit "developer marketing" phrasings (SEO-legible) ---
+developermarketing
+devmarketinghq
+devmarketingguide
+devmarketingweekly
+devmarketingjobs
+devmarketingdesk
+devmktdesk
+devmktweekly
+devrelhq
+devrelweekly
+devgtmhq
+mktdesk
+themktdesk
+devaudience
+audiencedev
+marketingtodevs
+marketingfordevs
+gtmfordevs
+shiptodevs
+buildfordevs
+
+# --- "2" read as "to": the mkt2 idea taken all the way to a phrase ---
+mkt2devs
+sell2devs
+gtm2devs
+ship2devs
+build2devs
+market2devs
+talk2devs
+devmkts
+devsmkt
+mktguide
+devmktguide
