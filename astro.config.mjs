@@ -2,14 +2,18 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
+import { SITE_ORIGIN, SITE_BASE } from './site.config.mjs';
 
 // A GitHub Pages project site: a living field guide to the state of the art in
 // developer marketing. Content is frontmatter-driven (see src/content.config.ts)
 // so the autonomous editorial agents (scout, weekly, deep-dive) can write
 // entries reliably.
+// `site` and `base` come from site.config.mjs, which defaults to the GitHub
+// Pages deployment. Serving from a custom domain or Vercel is SITE_ORIGIN and
+// SITE_BASE at build time — no source changes.
 export default defineConfig({
-  site: 'https://albertogrande.github.io',
-  base: '/developer-marketing',
+  site: SITE_ORIGIN,
+  base: SITE_BASE,
   trailingSlash: 'ignore',
   integrations: [
     mdx(),

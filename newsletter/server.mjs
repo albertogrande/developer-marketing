@@ -341,15 +341,17 @@ async function handleSuppress(req, res, store) {
 const publicBase = () => (process.env.PUBLIC_BASE_URL || `http://${config.host}:${config.port}`).replace(/\/+$/, '');
 
 // ---------------------------------------------------------------------------
-// server
+// routing
 // ---------------------------------------------------------------------------
-export async function createServer({ transport } = {}) {
-  assertServerConfig();
-  const store = await openConfiguredStore(config);
-  const limit = createLimiter(config.rate);
-  const mail = transport ?? createTransport(config, log);
 
-  const server = http.createServer(async (req, res) => {
+/**
+ * The routes, as one Node-style handler. Extracted from createServer so the
+ * same code serves both deployments: a long-lived HTTP server on a box, and a
+ * serverless function on Vercel (see lib/vercel.mjs). One implementation, one
+ * set of tests, two front doors.
+ */
+export function createRouter({ store, limit, transport: mail }) {
+  return async function route(req, res) {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const allowed = cors(req, res);
@@ -388,9 +390,25 @@ export async function createServer({ transport } = {}) {
       if (!res.headersSent) json(res, 500, { ok: false, error: 'internal error' });
       else res.end();
     }
-  });
+  };
+}
 
-  return { server, store, transport: mail };
+/** Everything the routes need, built once. Shared by both front doors. */
+export async function createContext({ transport } = {}) {
+  assertServerConfig();
+  const store = await openConfiguredStore(config);
+  const limit = createLimiter(config.rate);
+  const mail = transport ?? createTransport(config, log);
+  return { store, limit, transport: mail };
+}
+
+// ---------------------------------------------------------------------------
+// server
+// ---------------------------------------------------------------------------
+export async function createServer({ transport } = {}) {
+  const context = await createContext({ transport });
+  const server = http.createServer(createRouter(context));
+  return { server, store: context.store, transport: context.transport };
 }
 
 // Run directly (`node newsletter/server.mjs`), not when imported by a test.

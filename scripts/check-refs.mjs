@@ -18,8 +18,11 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { SITE_BASE } from '../site.config.mjs';
 
-const BASE = (readFileSync('astro.config.mjs', 'utf8').match(/base:\s*'([^']+)'/) || [])[1] || '';
+// Same source as the build, so the gate cannot drift from what Astro emits.
+// '/' means "served at the root", which for a link prefix is no prefix at all.
+const BASE = SITE_BASE === '/' ? '' : SITE_BASE.replace(/\/+$/, '');
 
 // A collection dir may not exist yet (e.g. weekly/ before the first issue).
 const mdFiles = (dir) =>

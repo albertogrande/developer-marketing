@@ -42,34 +42,67 @@ Once you have one:
 Verify with `npm run newsletter:doctor -- --dkim-selector resend`. It checks all
 three records and the domain's verification status in Resend, and sends nothing.
 
-## 3. Somewhere to accept a POST — decided: Vercel + Postgres
+## 3. Deploy the endpoint — built, needs connecting
 
-A static site cannot take a form post. The decision is made: the endpoint goes in
-the Vercel project as a function, with the list in Postgres, because a serverless
-filesystem is not durable. Cost: nothing. Neon's free tier is 0.5 GB and 100
-compute-hours a month; this table is kilobytes.
+A static site cannot take a form post, so the endpoint is a Vercel Function. This
+part is **done**: `api/` holds seven small files, each binding one route from
+`newsletter/server.mjs`, and they are tested by driving real `Request` objects
+through them (`newsletter/test/vercel.test.mjs`).
 
-The store side is **done and tested** — `newsletter/lib/store-postgres.mjs` passes
-the same contract as the file-based one, verified against a real Postgres 16. What
-remains is the thin part: the function handlers under `api/`, and the Astro config
-change for serving at the root instead of `/developer-marketing`.
+No framework conversion was needed. Vercel runs functions from a top-level `api/`
+directory for any project, including a plain static build, so the Astro site is
+untouched and still static.
 
-Use the **self-managed** Neon integration from the Vercel Marketplace rather than
-the Vercel-managed one: same auto-injected `DATABASE_URL` and the same
-per-preview-deployment database branch, but you own the Neon account, so the data
-and its billing do not become Vercel's to hold. Two things it gives you for free
-that are worth having:
+```
+api/
+  subscribe.js          → POST /api/subscribe
+  confirm.js            → GET  /api/confirm?t=…
+  unsubscribe.js        → GET|POST /api/unsubscribe?t=…
+  health.js             → GET  /api/health
+  webhooks/resend.js    → POST /api/webhooks/resend
+  admin/subscribers.js  → GET  /api/admin/subscribers
+  admin/suppress.js     → POST /api/admin/suppress
+```
 
-- `DATABASE_URL` is injected into every environment, and the code picks Postgres
-  up from it with no other configuration.
-- Preview deployments get their own database branch, so a preview form cannot
-  write into the live list.
+Because the endpoint is same-origin, set `PUBLIC_NEWSLETTER_API=/api` and CORS
+stops applying at all.
 
-Use the **pooled** connection string, not `DATABASE_URL_UNPOOLED` — a function
-opening direct connections exhausts the database's slots on the first burst.
+The list goes in Postgres, because a serverless filesystem is not durable. Cost:
+nothing — Neon's free tier is 0.5 GB and 100 compute-hours a month, and this
+table is kilobytes. Use the **self-managed** Neon integration from the Vercel
+Marketplace rather than the Vercel-managed one: same auto-injected `DATABASE_URL`,
+same per-preview database branch, but you own the Neon account, so the data and
+its billing do not become Vercel's to hold. Use the **pooled** connection string;
+a function opening direct connections exhausts the database's slots on the first
+burst.
 
-In the meantime, `NEWSLETTER_STORE=ndjson` on any box still works unchanged, so
-nothing is blocked on the migration.
+`DATABASE_URL` alone selects the Postgres store — no other configuration.
+
+### Serving at the root
+
+Pages serves this site under `/developer-marketing`; Vercel and a custom domain
+serve at `/`. The build takes that from `site.config.mjs`:
+
+```
+SITE_ORIGIN=https://your-domain  SITE_BASE=/  npm run build
+```
+
+**That flag alone is not enough, and the build will tell you so.** Fourteen links
+inside published articles hard-code the current base — `/developer-marketing/guide
+/…` — because that is what works today and what the link gate has always required.
+At the root they would 404, so `check-refs` fails the build instead of shipping
+them.
+
+Fixing it properly is a small, separate change with a decision in it: content
+should stop encoding the deployment path, which means a remark plugin that adds
+the base at build time, inverting rule 3 in `scripts/check-refs.mjs`, rewriting
+those fourteen links, and updating the writer instructions in `.claude/skills/`
+so the next digest follows the new convention. An hour or two, and worth doing
+once rather than papering over — a `sed` alone would be undone by the next
+weekly issue.
+
+Until then, deploying to Vercel with the default base works fine; the site just
+lives at `your-domain/developer-marketing/`.
 
 ## 4. Secrets and variables — 10 minutes
 
@@ -143,10 +176,8 @@ Stated plainly, because discovering it later is worse.
 
 **Still outstanding:**
 
-- **The Vercel function wiring.** `api/subscribe`, `api/confirm`,
-  `api/unsubscribe`, `api/webhooks/resend` delegating to the handlers in
-  `server.mjs`, plus `base`/`site` in `astro.config.mjs` for serving at the root.
-  Half a day, and the only thing between here and one deployment.
+- **Serving at the root** (see below). The config switch is in; 14 links in
+  published content are not.
 - **A cron for `prunePending`.** The privacy note promises unconfirmed addresses
   are dropped; the function exists, nothing calls it yet.
 - **List export.** `data/subscribers.ndjson` *is* the export for the file store;
