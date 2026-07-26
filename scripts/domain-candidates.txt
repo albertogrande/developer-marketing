@@ -3,7 +3,58 @@
 # written. Blank lines and #-comments are ignored.
 #
 #   node scripts/check-domains.mjs --file scripts/domain-candidates.txt --tlds dev,io
+#
+# Short names are mostly gone or registry-priced, so the pool keeps both lengths:
+# check the short ones for luck, the longer ones for what you can actually hold.
 
+# --- three letters ---
+mkt
+gtm
+dxm
+dmk
+dvm
+drl
+dxr
+mkg
+gmk
+mkx
+dxp
+dxo
+
+# --- four letters ---
+mktg
+gtmd
+dxmk
+devm
+drel
+mkts
+mktx
+devx
+dmkt
+dvmk
+mrkt
+mktr
+gtmx
+dxio
+
+# --- short words ---
+wire
+desk
+beat
+feed
+pulse
+brief
+scoop
+press
+digest
+byline
+column
+ledger
+signal
+radar
+memo
+
+# --- longer, likelier to be free ---
 mkt2
 devmkt
 mktdev

@@ -38,6 +38,15 @@ const DEFAULT_TLDS = ['dev', 'com', 'io'];
 const TIMEOUT_MS = 10_000;
 const CONCURRENCY = 6;
 const MAX_RETRIES = 3;
+// A throttled registry can ask for a Retry-After measured in hours. Waiting that
+// out would hang a sweep with no output; past this the lookup is just inconclusive.
+const RETRY_AFTER_CAP_MS = 15_000;
+// Registries rate-limit per client, so a wide sweep has to pace itself per host
+// rather than just cap total concurrency — most lookups in a run hit the same
+// registry. Distinct registries still proceed in parallel.
+const MIN_HOST_INTERVAL_MS = 250;
+// How far a 429 pushes that host's queue back, on top of the interval.
+const THROTTLE_PENALTY_MS = 2_000;
 const UA =
   'Mozilla/5.0 (compatible; developer-marketing-domaincheck/1.0; +https://albertogrande.github.io/developer-marketing/)';
 
@@ -49,10 +58,12 @@ function parseArgs(argv) {
   let tlds = null;
   let file = null;
   let json = false;
+  let availableOnly = false;
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--json') json = true;
+    else if (arg === '--available') availableOnly = true;
     else if (arg === '--tlds') tlds = argv[++i];
     else if (arg.startsWith('--tlds=')) tlds = arg.slice(7);
     else if (arg === '--file') file = argv[++i];
@@ -66,6 +77,7 @@ function parseArgs(argv) {
     names,
     file,
     json,
+    availableOnly,
     tlds: (tlds ? tlds.split(',') : DEFAULT_TLDS)
       .map((t) => t.trim().replace(/^\./, '').toLowerCase())
       .filter(Boolean),
@@ -102,8 +114,27 @@ function validate(domain) {
   return null;
 }
 
+// Per-host slot reservation. Single-threaded, so read-then-write can't interleave:
+// each caller claims the next free slot and pushes the host's cursor forward.
+const nextSlot = new Map();
+
+async function pace(host) {
+  const now = Date.now();
+  const at = Math.max(now, nextSlot.get(host) || 0);
+  nextSlot.set(host, at + MIN_HOST_INTERVAL_MS);
+  if (at > now) await sleep(at - now);
+}
+
+// A 429 is about the host, not this one request — slow every queued lookup for it.
+function penalize(host, extraMs) {
+  const until = Date.now() + extraMs + THROTTLE_PENALTY_MS;
+  nextSlot.set(host, Math.max(nextSlot.get(host) || 0, until));
+}
+
 async function getJson(url, { retries = MAX_RETRIES } = {}) {
+  const host = new URL(url).host;
   for (let attempt = 0; ; attempt++) {
+    await pace(host);
     let res;
     try {
       res = await fetch(url, {
@@ -120,7 +151,12 @@ async function getJson(url, { retries = MAX_RETRIES } = {}) {
     // 429/5xx are the registry throttling or wobbling — worth another try.
     if ((res.status === 429 || res.status >= 500) && attempt < retries) {
       const after = Number(res.headers.get('retry-after'));
-      await sleep(Number.isFinite(after) && after > 0 ? after * 1000 : 500 * 2 ** attempt);
+      const wait =
+        Number.isFinite(after) && after > 0
+          ? Math.min(after * 1000, RETRY_AFTER_CAP_MS)
+          : 500 * 2 ** attempt;
+      if (res.status === 429) penalize(host, wait);
+      else await sleep(wait);
       continue;
     }
 
@@ -206,8 +242,10 @@ async function mapPool(items, limit, fn) {
 
 const HELP = `Domain availability over RDAP.
 
-  node scripts/check-domains.mjs <name|domain>... [--tlds dev,com,io] [--file list.txt] [--json]
+  node scripts/check-domains.mjs <name|domain>... [--tlds dev,com,io] [--file list.txt]
+                                 [--available] [--json]
 
+--available drops the taken/inconclusive rows, for sweeps too long to read whole.
 Bare names are crossed with --tlds (default: ${DEFAULT_TLDS.join(',')}); names containing a
 dot are checked as given. "available" means unregistered, not necessarily
 buyable at base price — registries reserve and premium-price names separately.`;
@@ -227,15 +265,31 @@ async function main() {
 
   const domains = expand(names, opts.tlds);
   const bootstrap = await loadBootstrap();
-  const results = await mapPool(domains, CONCURRENCY, (d) => check(d, bootstrap));
+
+  // A wide sweep prints nothing until every lookup lands, which is indistinguishable
+  // from a hang. Tick each completion to stderr so progress is visible; stdout stays
+  // clean for piping.
+  let done = 0;
+  const progress = process.stderr.isTTY
+    ? (r) => process.stderr.write(`\r${++done}/${domains.length} checked (${r.domain})`.padEnd(60))
+    : () => ++done;
+
+  const results = await mapPool(domains, CONCURRENCY, async (d) => {
+    const r = await check(d, bootstrap);
+    progress(r);
+    return r;
+  });
+  if (process.stderr.isTTY) process.stderr.write('\r'.padEnd(61) + '\r');
+  // The tally always counts every lookup; --available only narrows what's printed.
+  const shown = opts.availableOnly ? results.filter((r) => r.state === 'available') : results;
 
   if (opts.json) {
-    console.log(JSON.stringify(results, null, 2));
+    console.log(JSON.stringify(shown, null, 2));
   } else {
-    const width = Math.max(...results.map((r) => r.domain.length));
+    const width = Math.max(1, ...shown.map((r) => r.domain.length));
     const MARK = { available: '✓', taken: '✗', unknown: '?', invalid: '!' };
     const order = { available: 0, taken: 1, unknown: 2, invalid: 3 };
-    for (const r of [...results].sort(
+    for (const r of [...shown].sort(
       (a, b) => order[a.state] - order[b.state] || a.domain.localeCompare(b.domain),
     )) {
       const detail = r.detail ? `  ${r.detail}` : '';
