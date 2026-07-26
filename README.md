@@ -13,7 +13,7 @@ Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
 
 <!-- TODO(author): add a screenshot/GIF of the site here -->
 
-- **Live site**: https://albertogrande.github.io/developer-marketing/
+- **Live site**: https://developer-marketing.vercel.app/ (the old GitHub Pages URLs redirect here)
 - **The newsroom**: dated desk articles at `/articles`, at most one a day when the story earns it.
 - **The guide**: the evergreen reference, nine sections, kept continuously current.
 - **The week**: a short weekly digest of what moved, newest first, each sourced.
@@ -102,7 +102,7 @@ signals/             # raw daily capture, one file per ISO week (internal, not r
 editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
-docs/                # search-engines.md (console setup) + custom-domain.md + apex-shim/ (root robots.txt & llms.txt kit)
+docs/                # search-engines.md (console setup) + custom-domain.md (Vercel domain move) + apex-shim/ (superseded)
 scripts/             # check-refs.mjs, check-agent-surface.mjs, check-sources.mjs (gates) + lib/routes.mjs (shared route/date map)
                      #  + remark-base-paths.mjs (adds the site base to markdown links at build) + indexnow-ping.mjs + append-ledger.sh
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
@@ -172,9 +172,9 @@ The guide is also a **source agents can query**, not just a site to read. It
 practices the machine-readable-docs play it preaches — see
 [AGENTS.md](AGENTS.md) for the full consumption guide. The surfaces:
 
-- [`/api.json`](https://albertogrande.github.io/developer-marketing/api.json) —
+- [`/api.json`](https://developer-marketing.vercel.app/api.json) —
   the manifest: every endpoint and collection, with counts and honest updated dates. Start here.
-- [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
+- [`/llms.txt`](https://developer-marketing.vercel.app/llms.txt)
   (curated index of everything) and `/llms-full.txt` (the evergreen corpus in
   one fetch, plus recent dated pieces).
 - **Raw markdown siblings** — every entry at `/<collection>/<id>.md`,

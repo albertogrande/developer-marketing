@@ -5,7 +5,7 @@
 const RAW_BASE = import.meta.env.BASE_URL ?? '/';
 const BASE = RAW_BASE.replace(/\/$/, ''); // "/developer-marketing"
 
-export const SITE_ORIGIN = import.meta.env.SITE ?? 'https://albertogrande.github.io';
+export const SITE_ORIGIN = import.meta.env.SITE ?? 'https://developer-marketing.vercel.app';
 
 // Content is CC BY 4.0 (code is MIT) — stated in README, LICENSE, and the
 // structured data / machine surfaces that cite this constant.

@@ -1,12 +1,19 @@
 name: Deploy
 
-# Builds the Astro site and publishes it to GitHub Pages. Runs on push to main,
-# after an editorial workflow finishes (their bot commits do NOT trigger `push`,
-# so the workflow_run trigger is what publishes scheduled updates), and on
-# demand. Only successful editorial runs trigger a rebuild — a failed writer
-# didn't push anything worth publishing. Pages must be set to "GitHub Actions"
-# as its source. A failed deploy opens a pipeline-failure issue: a silent
-# deploy failure means the live site is silently stale.
+# The site's home is Vercel (site.config.mjs), which builds main on every push
+# — including the editorial bots' commits — with no help needed from here.
+# This workflow now does the two jobs that remain on the GitHub side:
+#
+#   1. Publish the REDIRECT LAYER to GitHub Pages: every URL the old
+#      albertogrande.github.io/developer-marketing deployment ever served gets
+#      a stub pointing at its new home (scripts/build-redirects.mjs), so old
+#      citations, subscriptions, and bookmarks keep resolving.
+#   2. Ping IndexNow with the URLs that changed, so the search indexes that
+#      feed the answer engines recrawl within hours, not days.
+#
+# Runs on push to main, after an editorial workflow finishes (their bot
+# commits do NOT trigger `push` for workflows — Vercel's webhook still fires),
+# and on demand. A failed run opens a pipeline-failure issue.
 on:
   push:
     branches: [main]
@@ -26,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  redirects:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -36,13 +43,7 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
-      # PUBLIC_NEWSLETTER_API is baked into the built pages: set the repository
-      # variable once the capture service is up (see newsletter/README.md) and
-      # the subscribe forms go live on the next deploy. Unset, the newsletter
-      # call-to-action renders its honest "not wired up yet" state.
-      - run: npm run build
-        env:
-          PUBLIC_NEWSLETTER_API: ${{ vars.NEWSLETTER_API }}
+      - run: node scripts/build-redirects.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -51,7 +52,7 @@ jobs:
         uses: ./.github/actions/notify-failure
 
   deploy:
-    needs: build
+    needs: redirects
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -69,10 +70,11 @@ jobs:
         uses: ./.github/actions/notify-failure
 
   # Tell the search indexes what changed (IndexNow → Bing, which is what
-  # ChatGPT Search retrieves through). Diffed against the last successful
-  # deploy; degrades to a full ping, never to silence. Best-effort by design:
-  # the script exits 0 on API/network failure — a missed ping only delays
-  # recrawl — so this job can only redden a deploy on real misconfiguration
+  # ChatGPT Search retrieves through). URLs and the key location come from
+  # site.config.mjs, so this submits the Vercel URLs. Diffed against the last
+  # successful run; degrades to a full ping, never to silence. Best-effort by
+  # design: the script exits 0 on API/network failure — a missed ping only
+  # delays recrawl — so this job can only redden on real misconfiguration
   # (e.g. a missing key file).
   ping:
     needs: deploy
@@ -84,7 +86,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Resolve previously deployed commit
+      - name: Resolve previously pinged commit
         id: prev
         env:
           GH_TOKEN: ${{ github.token }}

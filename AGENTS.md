@@ -1,7 +1,7 @@
 # AGENTS.md
 
 This repository publishes **Developer Marketing — a field guide**
-(https://albertogrande.github.io/developer-marketing/), a site written to be
+(https://developer-marketing.vercel.app/), a site written to be
 read by agents as much as by people. This file is for two kinds of agent: one
 **consuming** the published content, and one **working on** this repo.
 
@@ -11,7 +11,7 @@ Start with the manifest — one fetch enumerates everything, with counts and
 honest updated dates:
 
 ```
-https://albertogrande.github.io/developer-marketing/api.json
+https://developer-marketing.vercel.app/api.json
 ```
 
 | Surface | URL (under the site root) | What it is |

@@ -2,19 +2,22 @@
 
 Being in the search indexes is what makes the site retrievable by answer
 engines: ChatGPT Search retrieves overwhelmingly through **Bing's index**, and
-Google's index feeds AI Overviews and Gemini grounding. The build already
-pings IndexNow on every deploy (`scripts/indexnow-ping.mjs`); these two
-console verifications are the only steps that need a human with account
+Google's index feeds AI Overviews and Gemini grounding. The deploy pipeline
+already pings IndexNow with changed URLs (`scripts/indexnow-ping.mjs`); these
+two console verifications are the only steps that need a human with account
 access. Budget ~15 minutes.
+
+The property to verify is the live origin: **https://developer-marketing.vercel.app/**
+(re-do this for the new host if a custom domain arrives — `custom-domain.md`).
 
 ## 1. Google Search Console
 
 1. Open https://search.google.com/search-console → Add property →
-   **URL prefix** → `https://albertogrande.github.io/developer-marketing/`.
+   **URL prefix** → `https://developer-marketing.vercel.app/`.
 2. Choose the **HTML tag** verification method and copy the token from
    `<meta name="google-site-verification" content="TOKEN">`.
 3. Paste the token into `VERIFICATION.google` in `src/lib/site.ts`, commit,
-   and wait for the deploy — the meta tag renders on every page.
+   and wait for the Vercel deploy — the meta tag renders on every page.
 4. Back in Search Console, click Verify.
 5. Sitemaps → submit `sitemap-index.xml`.
 
@@ -26,10 +29,10 @@ access. Budget ~15 minutes.
    `msvalidate.01` token into `VERIFICATION.bing` in `src/lib/site.ts`,
    commit, deploy, verify.
 3. Sitemaps → submit
-   `https://albertogrande.github.io/developer-marketing/sitemap-index.xml`.
-4. IndexNow: nothing to do — the key file ships in `public/` and the deploy
-   workflow submits changed URLs after every publish. The URL Submission
-   panel in Bing Webmaster Tools will show them arriving.
+   `https://developer-marketing.vercel.app/sitemap-index.xml`.
+4. IndexNow: nothing to do — the key file ships at the domain root and the
+   deploy workflow submits changed URLs after every publish. The URL
+   Submission panel in Bing Webmaster Tools will show them arriving.
 
 ## Why this matters (the short version)
 
@@ -41,8 +44,3 @@ access. Budget ~15 minutes.
 - **Google**: AI Overviews draw on the live Google index via normal
   Googlebot; Gemini grounding additionally respects `Google-Extended`
   (which robots.txt explicitly allows).
-
-## After a custom-domain move
-
-Re-do both verifications for the new host and resubmit the sitemap — see
-`custom-domain.md`.

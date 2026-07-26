@@ -5,6 +5,7 @@
 // an address they do not own.
 
 import { resolve } from 'node:path';
+import { SITE_URL as DEFAULT_SITE_URL } from '../../site.config.mjs';
 
 const env = process.env;
 
@@ -15,7 +16,7 @@ const num = (v, fallback) => {
 const bool = (v, fallback) =>
   v === undefined || v === '' ? fallback : /^(1|true|yes|on)$/i.test(v);
 
-const SITE_URL = (env.SITE_URL || 'https://albertogrande.github.io/developer-marketing').replace(
+const SITE_URL = (env.SITE_URL || DEFAULT_SITE_URL).replace(
   /\/+$/,
   ''
 );

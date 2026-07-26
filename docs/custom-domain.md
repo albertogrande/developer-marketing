@@ -1,48 +1,35 @@
-# Moving to a custom domain
+# Moving to a custom domain (on Vercel)
 
-A custom domain makes this site the domain root, which unlocks the two
-root-convention surfaces a project site can't serve (see
-`apex-shim/README.md` for the interim fix): a crawler-visible
-`/robots.txt` (with sitemap autodiscovery) and the root `/llms.txt` probe
-path. Everything else on this site is already base-agnostic — the switch is
-deliberately one config change plus DNS.
+The site lives on Vercel at https://developer-marketing.vercel.app/, serving
+at the domain root. Moving to a custom domain keeps that shape — it's a DNS
+step plus one config value.
 
 ## Steps
 
-1. **DNS**: add a `CNAME` record for your domain (e.g. `devmarketing.example`)
-   pointing to `albertogrande.github.io`, or A/AAAA records to GitHub Pages'
-   IPs for an apex domain.
-2. **Repo**: create `public/CNAME` containing exactly the domain:
-
-   ```
-   devmarketing.example
-   ```
-
-3. **Config** (`astro.config.mjs`): set
+1. **Vercel dashboard**: Project → Settings → Domains → add the domain.
+   Vercel tells you the DNS records to set (CNAME for a subdomain, A/AAAA for
+   an apex) and provisions HTTPS automatically.
+2. **Config**: update the default in `site.config.mjs`:
 
    ```js
-   const SITE = 'https://devmarketing.example';
-   const BASE = '';
+   export const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://devmarketing.example';
    ```
 
-   Those two constants are the only URL configuration in the repo — every
-   canonical, sitemap entry, feed id, JSON-LD node, llms link, and .md
-   sibling derives from them via `src/lib/site.ts` and rebuilds correctly.
-4. **GitHub**: Settings → Pages → Custom domain → enter the domain, keep
-   "Enforce HTTPS" on.
-5. **Re-verify and re-point** (see `search-engines.md`):
-   - Add the new domain as a property in Google Search Console and Bing
-     Webmaster Tools; resubmit the sitemap.
-   - The IndexNow key file moves to the domain root automatically (it lives
-     in `public/`); the ping script derives host and keyLocation from
-     `astro.config.mjs`, so no change there.
-6. **Old URLs**: GitHub redirects `albertogrande.github.io/developer-marketing/*`
-   to the custom domain automatically once the CNAME is set.
+   (or set the `SITE_ORIGIN` env var in Vercel instead — the default just
+   makes local builds and the link gates agree without configuration).
+   `SITE_BASE` stays `/`. Every canonical, sitemap entry, feed id, JSON-LD
+   node, llms link, robots.txt Sitemap line, `.md` sibling and the IndexNow
+   key location derive from these two values and rebuild correctly.
+3. **Redirect layer**: nothing to do — `scripts/build-redirects.mjs` reads
+   the same config, so the old GitHub Pages URLs start pointing at the new
+   domain on the next deploy. Vercel also 308-redirects the `*.vercel.app`
+   URLs to the custom domain once it's set as primary.
+4. **Re-verify** the new host in Google Search Console and Bing Webmaster
+   Tools and resubmit the sitemap — see `search-engines.md`.
 
-## What changes for AEO
+## Why it matters for AEO
 
-- `robots.txt` (already written with explicit AI-crawler stanzas) becomes
-  live at the root.
-- `llms.txt` becomes discoverable at the conventional root path.
-- The canonical identity consolidates on one clean host — the form answer
-  engines cite.
+One clean host is the citable identity: answer engines consolidate signals on
+the canonical origin. A custom domain also survives any future hosting move
+without breaking a single cited URL — the strongest durability property a
+citation can have.

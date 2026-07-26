@@ -1,42 +1,16 @@
-# Apex shim — root-convention files for a project site
+# Apex shim — superseded
 
-**The problem.** This site is a GitHub Pages *project* site: it lives under
-`https://albertogrande.github.io/developer-marketing/`. Crawlers and agents
-fetch root-convention files from the *domain root* only —
-`https://albertogrande.github.io/robots.txt` and `/llms.txt` — and that root
-belongs to a different repository: `albertogrande/albertogrande.github.io`
-(the *user site*), which doesn't exist yet.
+This kit existed because a GitHub Pages *project* site can't serve the
+root-convention files crawlers actually fetch (`/robots.txt`, `/llms.txt` at
+the domain root).
 
-Nothing is blocked today (a missing root robots.txt means allow-all), but two
-things are lost while the root is empty:
+**It's no longer needed.** The site now lives at
+https://developer-marketing.vercel.app/ and serves at the domain root, so
+`robots.txt` (generated, with the correct Sitemap line) and `llms.txt` are
+natively at their conventional paths. The old GitHub Pages deployment is a
+redirect layer (`scripts/build-redirects.mjs`, published by
+`.github/workflows/deploy.yml`) that keeps every previously served URL
+resolving to its new home.
 
-1. **Sitemap autodiscovery** — crawlers that find sitemaps via robots.txt
-   never see ours.
-2. **The root `/llms.txt` convention** — agents that probe the domain root
-   find nothing.
-
-**The fix (10 minutes).** Create the user-site repo and ship the two files in
-this directory:
-
-1. Create a new public repository named exactly `albertogrande.github.io`.
-2. Copy `robots.txt` and `llms.txt` from this directory into its root.
-3. Commit. GitHub Pages activates automatically for user-site repos (Settings
-   → Pages if it doesn't).
-4. Verify: `curl https://albertogrande.github.io/robots.txt` shows the
-   sitemap line; `curl https://albertogrande.github.io/llms.txt` shows the
-   pointer.
-
-Notes:
-
-- The root robots.txt governs the **whole host**, including every other
-  project site under the account. The one here allows everything and adds
-  this site's sitemap — extend it if other projects need their own rules.
-- The root llms.txt is a *pointer*, not a copy: the real, always-current
-  index is generated at build time at
-  `/developer-marketing/llms.txt`. Don't duplicate content into the shim —
-  it would go stale.
-- If the account ever adds more Pages projects with agent surfaces, add one
-  `Sitemap:` line and one llms.txt link each.
-
-**The alternative fix** is a custom domain, which makes this site the domain
-root and the shim unnecessary — see `../custom-domain.md`.
+If the site ever returns to sub-path hosting, recover the two stub files from
+git history (`docs/apex-shim/` before this commit).
