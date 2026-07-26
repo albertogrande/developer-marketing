@@ -11,8 +11,9 @@ name: Newsletter
 # permanently red.
 #
 # Requires secrets NEWSLETTER_SECRET (the same one the service signs with),
-# NEWSLETTER_ADMIN_TOKEN, SMTP_HOST, SMTP_USER, SMTP_PASS, FROM_EMAIL, and
-# variables NEWSLETTER_API (the service's public URL) and SITE_URL.
+# NEWSLETTER_ADMIN_TOKEN, FROM_EMAIL, one mail transport — either RESEND_API_KEY
+# or SMTP_HOST/SMTP_USER/SMTP_PASS — and variables NEWSLETTER_API (the service's
+# public URL) and SITE_URL.
 
 on:
   schedule:
@@ -64,9 +65,13 @@ jobs:
           API: ${{ vars.NEWSLETTER_API }}
           SECRET: ${{ secrets.NEWSLETTER_SECRET }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
-          if [ -z "$API" ] || [ -z "$SECRET" ] || [ -z "$SMTP_HOST" ]; then
-            echo "newsletter not configured (NEWSLETTER_API / NEWSLETTER_SECRET / SMTP_HOST) — skipping."
+          if [ -z "$API" ] || [ -z "$SECRET" ]; then
+            echo "newsletter not configured (NEWSLETTER_API / NEWSLETTER_SECRET) — skipping."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          elif [ -z "$SMTP_HOST" ] && [ -z "$RESEND_API_KEY" ]; then
+            echo "no mail transport (need RESEND_API_KEY or SMTP_HOST) — skipping."
             echo "ready=no" >> "$GITHUB_OUTPUT"
           else
             echo "ready=yes" >> "$GITHUB_OUTPUT"
@@ -79,6 +84,9 @@ jobs:
           ADMIN_TOKEN: ${{ secrets.NEWSLETTER_ADMIN_TOKEN }}
           PUBLIC_BASE_URL: ${{ vars.NEWSLETTER_API }}
           SITE_URL: ${{ vars.SITE_URL || 'https://albertogrande.github.io/developer-marketing' }}
+          # Whichever is set wins; MAIL_TRANSPORT can force one explicitly.
+          MAIL_TRANSPORT: ${{ vars.MAIL_TRANSPORT }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
           SMTP_USER: ${{ secrets.SMTP_USER }}

@@ -16,13 +16,10 @@
 // See newsletter/README.md for deployment, TLS and systemd.
 
 import http from 'node:http';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { config, assertServerConfig } from './lib/config.mjs';
+import { config, assertServerConfig, isDryRun } from './lib/config.mjs';
 import { openStore, isValidEmail } from './lib/store.mjs';
 import { sign, verify, hashIp } from './lib/tokens.mjs';
-import { buildMessage } from './lib/mime.mjs';
-import { sendMail } from './lib/smtp.mjs';
+import { createTransport } from './lib/transport.mjs';
 import { confirmEmail } from './lib/templates.mjs';
 
 const MAX_BODY = 8 * 1024;
@@ -126,46 +123,27 @@ function redirect(res, url) {
 }
 
 // ---------------------------------------------------------------------------
-// mail
+// mail — one transactional message, the confirmation. The transport decides
+// whether that goes over SMTP, over Resend's API, or into the outbox.
 // ---------------------------------------------------------------------------
-async function deliver({ to, subject, text, html, headers }) {
-  const raw = buildMessage({
-    from: { name: config.fromName, email: config.fromEmail },
+async function deliver(transport, { to, subject, text, html, headers }) {
+  return transport.send({
     to,
     subject,
     text,
     html,
     headers: {
       'List-Id': `<${config.listId}>`,
-      ...(config.replyTo ? { 'Reply-To': config.replyTo } : {}),
       'Auto-Submitted': 'auto-generated',
       ...headers,
     },
   });
-
-  if (config.dryRun) {
-    // Write it out rather than swallowing it: you can open the .eml and see
-    // exactly what a subscriber would have received.
-    const dir = join(config.dataDir, 'outbox');
-    await mkdir(dir, { recursive: true });
-    const file = join(dir, `${Date.now()}-${to.replace(/[^a-z0-9]+/gi, '_')}.eml`);
-    await writeFile(file, raw, 'utf8');
-    log(`mail[dry-run] → ${to} · ${subject} · ${file}`);
-    return { dryRun: true, file };
-  }
-
-  await sendMail(
-    { ...config.smtp, name: new URL(config.siteUrl).hostname },
-    { from: config.fromEmail, to, raw }
-  );
-  log(`mail → ${to} · ${subject}`);
-  return { dryRun: false };
 }
 
 // ---------------------------------------------------------------------------
 // routes
 // ---------------------------------------------------------------------------
-async function handleSubscribe(req, res, store, limit) {
+async function handleSubscribe(req, res, store, limit, transport) {
   const asJson = wantsJson(req);
   let raw;
   try {
@@ -225,7 +203,7 @@ async function handleSubscribe(req, res, store, limit) {
     const confirmUrl = `${publicBase()}/confirm?t=${encodeURIComponent(token)}`;
     const mail = confirmEmail({ siteUrl: config.siteUrl, confirmUrl });
     try {
-      await deliver({ to: email, ...mail, headers: { 'X-Auto-Response-Suppress': 'All' } });
+      await deliver(transport, { to: email, ...mail, headers: { 'X-Auto-Response-Suppress': 'All' } });
     } catch (err) {
       log(`subscribe: send failed for ${email}: ${err.message}`);
       return asJson
@@ -290,10 +268,11 @@ const publicBase = () => (process.env.PUBLIC_BASE_URL || `http://${config.host}:
 // ---------------------------------------------------------------------------
 // server
 // ---------------------------------------------------------------------------
-export async function createServer() {
+export async function createServer({ transport } = {}) {
   assertServerConfig();
   const store = await openStore(config.dataDir);
   const limit = createLimiter(config.rate);
+  const mail = transport ?? createTransport(config, log);
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -307,13 +286,13 @@ export async function createServer() {
       }
 
       if (path === '/health' && req.method === 'GET') {
-        return json(res, 200, { ok: true, ...store.stats(), dryRun: config.dryRun });
+        return json(res, 200, { ok: true, ...store.stats(), transport: mail.name, dryRun: isDryRun() });
       }
 
       if (path === '/subscribe') {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (req.headers.origin && !allowed) return json(res, 403, { ok: false, error: 'origin not allowed' });
-        return await handleSubscribe(req, res, store, limit);
+        return await handleSubscribe(req, res, store, limit, mail);
       }
 
       if (path === '/confirm' && req.method === 'GET') return await handleConfirm(req, res, url, store);
@@ -331,18 +310,19 @@ export async function createServer() {
     }
   });
 
-  return { server, store };
+  return { server, store, transport: mail };
 }
 
 // Run directly (`node newsletter/server.mjs`), not when imported by a test.
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { server, store } = await createServer();
+  const { server, store, transport } = await createServer();
   server.listen(config.port, config.host, () => {
     log(`newsletter service on http://${config.host}:${config.port}`);
     log(`  links minted as ${publicBase()}/confirm?t=…`);
     log(`  data ${store.path}`);
     log(`  origins ${config.allowedOrigins.join(', ') || '(none)'}`);
-    if (config.dryRun) log('  MAIL DRY RUN — messages are written to data/outbox, not sent');
+    log(`  transport ${transport.name}`);
+    if (isDryRun()) log('  DRY RUN — messages are written to data/outbox, not sent');
   });
 
   for (const signal of ['SIGINT', 'SIGTERM']) {
@@ -350,6 +330,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       log(`${signal} — draining`);
       server.close();
       await store.flush();
+      await transport.close();
       process.exit(0);
     });
   }

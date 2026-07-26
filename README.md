@@ -118,9 +118,13 @@ Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/week
 ## The newsletter
 
 The weekly digest goes out by email from this repository — our list, our
-templates, our SMTP sender, no email service provider in the path and no
-tracking of any kind. Full documentation, including a systemd unit and the
-deliverability checklist: [`newsletter/README.md`](newsletter/README.md).
+templates, our sender, no email service provider owning the audience and no
+tracking of any kind. A mail relay (Resend, SES, Postmark, your own Postfix)
+does the last mile over SMTP or, on serverless hosts, Resend's HTTPS API;
+`newsletter/lib/transport.mjs` is the only file that knows which. Full
+documentation, including Resend setup, the Vercel migration notes, a systemd
+unit and the deliverability checklist:
+[`newsletter/README.md`](newsletter/README.md).
 
 ```
 cp newsletter/.env.example newsletter/.env    # fill in NEWSLETTER_SECRET
@@ -129,16 +133,17 @@ npm run newsletter:serve                      # capture service on :8787
 npm run newsletter:preview                    # render the newest issue, send nothing
 ```
 
-With no `SMTP_HOST` set, mail is written to `newsletter/data/outbox/*.eml`
+With no transport configured, mail is written to `newsletter/data/outbox/*.eml`
 instead of being sent, so the whole double-opt-in flow is testable offline.
 
 The static site cannot accept a POST, so the subscribe form needs that service's
 public URL at build time. Set the repository **variable** `NEWSLETTER_API` (e.g.
-`https://list.example.com`) and the next deploy renders live forms; leave it
-unset and the call-to-action says so instead of failing silently. Sending needs
-secrets `NEWSLETTER_SECRET` (the same one the service signs with),
-`NEWSLETTER_ADMIN_TOKEN`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `FROM_EMAIL`;
-without them the weekly send job skips and stays green.
+`https://list.example.com`, or `/api` if the endpoint ends up same-origin) and
+the next deploy renders live forms; leave it unset and the call-to-action says so
+instead of failing silently. Sending needs secrets `NEWSLETTER_SECRET` (the same
+one the service signs with), `NEWSLETTER_ADMIN_TOKEN`, `FROM_EMAIL`, and one
+transport — `RESEND_API_KEY`, or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS`. Without
+them the weekly send job skips and stays green.
 
 ## Use the guide from your own sessions
 

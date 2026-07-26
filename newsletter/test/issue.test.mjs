@@ -89,6 +89,29 @@ test('the rendered issue survives MIME assembly', { skip: !hasIssues }, () => {
   assert.ok(!raw.includes('\n\n'), 'CRLF throughout');
 });
 
+test('a long link survives quoted-printable intact', () => {
+  // Confirm and unsubscribe URLs are ~130 characters, so the encoder soft-wraps
+  // them. That is correct, and it is also the classic way to ship a subtly
+  // broken opt-in link — so decode the built message the way a mail client does
+  // and check the URL comes back byte for byte.
+  const confirmUrl = `https://list.example.test/confirm?t=${'v1.confirm.aGVsbG8.0.'}${'x'.repeat(64)}`;
+  const mail = confirmEmail({ siteUrl: SITE, confirmUrl });
+  const raw = buildMessage({
+    from: { name: 'The Week', email: 'week@example.com' },
+    to: 'reader@example.org',
+    subject: mail.subject,
+    text: mail.text,
+    html: mail.html,
+  });
+
+  const decoded = raw
+    .replace(/=\r\n/g, '') // soft line breaks
+    .replace(/=([0-9A-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+
+  const occurrences = decoded.split(confirmUrl).length - 1;
+  assert.equal(occurrences, 3, 'the URL appears whole in the button, the fallback and the plain text');
+});
+
 test('the confirmation email is one link and no marketing', () => {
   const mail = confirmEmail({ siteUrl: SITE, confirmUrl: 'https://list.example.test/confirm?t=abc' });
   assert.match(mail.subject, /^Confirm your subscription/);

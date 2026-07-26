@@ -97,13 +97,15 @@ const roster = (['news', 'money', 'campaigns', 'research', 'technology'] as cons
     <h2 class="kicker">The newsletter</h2>
     <p>
       <a href={withBase('/newsletter')}>The Week by email</a> is run in-house:
-      the list is a file on a machine we control, the sender is
+      the list is a file on a machine we control and the sender is
       <a href="https://github.com/albertogrande/developer-marketing/tree/main/newsletter">
-        in this repository</a>, and there is no email service provider in the
-      path. Double opt-in, one-click unsubscribe, no open pixel, no click
-      tracking — we cannot tell whether you read an issue, which is deliberate.
-      A publication that tells people to respect developers should not surveil
-      its own readers.
+        in this repository</a>, so no email service provider owns the audience.
+      A mail relay does the last mile — one finished message at a time, never the
+      list — because sending from our own box would cost deliverability without
+      buying independence. Double opt-in, one-click unsubscribe, no open pixel,
+      no click tracking: we cannot tell whether you read an issue, which is
+      deliberate. A publication that tells people to respect developers should
+      not surveil its own readers.
     </p>
 
     <h2 class="kicker">For agents</h2>

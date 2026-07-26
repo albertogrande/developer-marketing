@@ -56,12 +56,13 @@ const outbox = () => {
   }
 };
 
-test('health reports the counts', async () => {
+test('health reports the counts and which pipe is in use', async () => {
   const res = await fetch(`${base}/health`);
   assert.equal(res.status, 200);
   const body = await res.json();
   assert.equal(body.ok, true);
   assert.equal(body.dryRun, true);
+  assert.equal(body.transport, 'dry-run', 'so a misconfigured relay is visible from a monitor');
 });
 
 test('subscribing stores a pending record and writes one confirmation', async () => {

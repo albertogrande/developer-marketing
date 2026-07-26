@@ -20,11 +20,10 @@
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { config } from './lib/config.mjs';
+import { config, isDryRun } from './lib/config.mjs';
 import { openStore } from './lib/store.mjs';
 import { sign } from './lib/tokens.mjs';
-import { buildMessage } from './lib/mime.mjs';
-import { SmtpClient, SmtpError } from './lib/smtp.mjs';
+import { createTransport, isTemporary } from './lib/transport.mjs';
 import { issueEmail } from './lib/templates.mjs';
 import { loadIssue, latestIssueId } from './lib/issues.mjs';
 
@@ -67,8 +66,9 @@ newsletter/send.mjs — deliver one weekly issue
   --api <url>         fetch recipients from a running service instead
   --yes               required for a real send to the list
 
-Environment: NEWSLETTER_SECRET, PUBLIC_BASE_URL, SITE_URL, SMTP_*, FROM_EMAIL,
-ADMIN_TOKEN (with --api). See newsletter/README.md.
+Environment: NEWSLETTER_SECRET, PUBLIC_BASE_URL, SITE_URL, FROM_EMAIL,
+ADMIN_TOKEN (with --api), and one transport — RESEND_API_KEY or SMTP_*.
+See newsletter/README.md.
 `;
 
 /** Confirmed subscribers, from the service over HTTP or from the file. */
@@ -159,38 +159,30 @@ async function main() {
   if (!args.test && !args.yes) {
     throw new Error('refusing to send to the list without --yes');
   }
-  if (config.dryRun) {
-    throw new Error('MAIL_DRY_RUN is set (or SMTP_HOST is missing) — configure SMTP before a real send');
+  if (isDryRun()) {
+    throw new Error(
+      'no mail transport configured — set RESEND_API_KEY or SMTP_HOST (see newsletter/README.md)'
+    );
   }
 
   // --- send ----------------------------------------------------------------
   if (sentPath) await mkdir(join(config.dataDir, 'sent'), { recursive: true });
   const gapMs = args.rate > 0 ? Math.max(0, Math.round(60_000 / args.rate)) : 0;
-  const smtp = { ...config.smtp, name: new URL(config.siteUrl).hostname };
+  const transport = createTransport(config, () => {});
+  log(`via     ${transport.name}`);
 
-  let client = await new SmtpClient(smtp).connect();
   let sent = 0;
   let failed = 0;
-  let sinceConnect = 0;
 
   const record = async (entry) => {
     if (sentPath) await appendFile(sentPath, JSON.stringify(entry) + '\n', 'utf8');
   };
 
   for (const person of queue) {
-    // Relays get unhappy about very long sessions; a fresh one every 100
-    // messages is cheap insurance.
-    if (sinceConnect >= 100) {
-      await client.quit();
-      client = await new SmtpClient(smtp).connect();
-      sinceConnect = 0;
-    }
-
     const token = sign(config.secret, 'unsubscribe', person.id, 0);
     const unsubscribeUrl = `${base}/unsubscribe?t=${encodeURIComponent(token)}`;
     const mail = issueEmail({ issue, siteUrl: config.siteUrl, webUrl, unsubscribeUrl });
-    const raw = buildMessage({
-      from: { name: config.fromName, email: config.fromEmail },
+    const message = {
       to: person.email,
       subject: mail.subject,
       text: mail.text,
@@ -202,28 +194,25 @@ async function main() {
         // opening a browser, which mailbox providers now expect from bulk mail.
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         'List-Archive': `<${config.siteUrl}/weekly>`,
-        ...(config.replyTo ? { 'Reply-To': config.replyTo } : {}),
         Precedence: 'bulk',
+        // One issue, one recipient, one send — even if this run is repeated.
+        'X-Idempotency-Key': `${issue.week}:${person.id}`,
       },
-    });
+    };
 
     try {
-      await client.send({ from: config.fromEmail, to: person.email, raw });
+      await transport.send(message);
       sent++;
-      sinceConnect++;
       await record({ ok: true, email: person.email, id: person.id, at: new Date().toISOString() });
       if (sent % 25 === 0) log(`  … ${sent}/${queue.length}`);
     } catch (err) {
-      const smtpErr = err instanceof SmtpError ? err : null;
-      // Temporary failure: one retry on a fresh connection, then move on.
-      if (smtpErr && !smtpErr.permanent) {
+      // Temporary failure (a busy relay, a 429, a dropped connection): one
+      // retry after a pause. The transport reconnects on its own.
+      if (isTemporary(err)) {
         try {
-          await client.quit().catch(() => {});
-          client = await new SmtpClient(smtp).connect();
-          sinceConnect = 0;
-          await client.send({ from: config.fromEmail, to: person.email, raw });
+          await sleep(Math.max(gapMs, 2000));
+          await transport.send(message);
           sent++;
-          sinceConnect++;
           await record({ ok: true, email: person.email, id: person.id, at: new Date().toISOString(), retried: true });
           continue;
         } catch (retryErr) {
@@ -233,17 +222,12 @@ async function main() {
       failed++;
       console.error(`  ! ${person.email}: ${err.message}`);
       await record({ ok: false, email: person.email, id: person.id, at: new Date().toISOString(), error: err.message });
-      // Keep the session usable after a rejected recipient.
-      await client.reset().catch(async () => {
-        client = await new SmtpClient(smtp).connect();
-        sinceConnect = 0;
-      });
     }
 
     if (gapMs) await sleep(gapMs);
   }
 
-  await client.quit();
+  await transport.close();
   log(`\ndone: ${sent} sent, ${failed} failed${sentPath ? ` · log ${sentPath}` : ''}`);
   if (failed) process.exitCode = 1;
 }

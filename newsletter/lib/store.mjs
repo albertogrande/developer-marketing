@@ -8,6 +8,13 @@
 //
 // Concurrency: all writes go through a single promise chain, so appends cannot
 // interleave. A single process owns the file.
+//
+// This assumes a durable filesystem and one writer, which rules out serverless:
+// a Vercel or Lambda function gets a read-only filesystem apart from /tmp, and
+// /tmp is per-instance and evaporates. If the service moves there, the returned
+// object below is the interface to reimplement against a database — get,
+// getById, subscribe, confirm, unsubscribe, confirmed, all, stats — and nothing
+// that calls it needs to change. See newsletter/README.md.
 
 import { appendFile, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';

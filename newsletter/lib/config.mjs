@@ -59,7 +59,16 @@ export const config = {
   replyTo: env.REPLY_TO || '',
   // RFC 2919 list identity. Mail clients group and filter on it.
   listId: env.LIST_ID || `the-week.${originOf(SITE_URL).replace(/^https?:\/\//, '') || 'localhost'}`,
+  // How mail leaves: 'smtp' (our client → any relay), 'resend' (their HTTPS
+  // API), or 'dry-run' (.eml files in $DATA_DIR/outbox). Inferred from what is
+  // configured unless set explicitly. MAIL_DRY_RUN=1 still forces dry-run, so
+  // the older switch keeps working.
+  transport: bool(env.MAIL_DRY_RUN, false)
+    ? 'dry-run'
+    : env.MAIL_TRANSPORT || (env.RESEND_API_KEY ? 'resend' : env.SMTP_HOST ? 'smtp' : 'dry-run'),
   smtp: {
+    // Resend: smtp.resend.com, user "resend", pass = the API key. SES, Postmark
+    // and a Postfix on your own box all speak the same protocol.
     host: env.SMTP_HOST || '',
     port: num(env.SMTP_PORT, 587),
     user: env.SMTP_USER || '',
@@ -70,9 +79,10 @@ export const config = {
     rejectUnauthorized: bool(env.SMTP_TLS_REJECT_UNAUTHORIZED, true),
     timeoutMs: num(env.SMTP_TIMEOUT_MS, 20_000),
   },
-  // Log the message instead of opening a connection. Set automatically when no
-  // SMTP host is configured, so a fresh checkout runs without a mail server.
-  dryRun: bool(env.MAIL_DRY_RUN, !env.SMTP_HOST),
+  resend: {
+    apiKey: env.RESEND_API_KEY || '',
+    baseUrl: env.RESEND_BASE_URL || 'https://api.resend.com',
+  },
 
   // --- abuse control --------------------------------------------------------
   rate: {
@@ -91,6 +101,9 @@ export const config = {
   adminToken: env.ADMIN_TOKEN || '',
 };
 
+/** True when no mail actually leaves — messages land in $DATA_DIR/outbox. */
+export const isDryRun = (cfg = config) => cfg.transport === 'dry-run';
+
 /** Fail fast with a readable message rather than serving broken crypto. */
 export function assertServerConfig(cfg = config) {
   const problems = [];
@@ -98,7 +111,11 @@ export function assertServerConfig(cfg = config) {
     problems.push('NEWSLETTER_SECRET must be set to at least 32 characters (openssl rand -hex 32)');
   if (!cfg.allowedOrigins.length)
     problems.push('ALLOWED_ORIGINS is empty and SITE_URL has no parsable origin');
-  if (!cfg.dryRun && !cfg.smtp.host) problems.push('SMTP_HOST is required unless MAIL_DRY_RUN=1');
+  if (!['smtp', 'resend', 'dry-run'].includes(cfg.transport))
+    problems.push(`MAIL_TRANSPORT "${cfg.transport}" is not one of smtp, resend, dry-run`);
+  if (cfg.transport === 'smtp' && !cfg.smtp.host) problems.push('MAIL_TRANSPORT=smtp needs SMTP_HOST');
+  if (cfg.transport === 'resend' && !cfg.resend.apiKey)
+    problems.push('MAIL_TRANSPORT=resend needs RESEND_API_KEY');
   if (problems.length) {
     throw new Error(`newsletter config:\n  - ${problems.join('\n  - ')}`);
   }
