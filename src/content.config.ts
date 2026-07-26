@@ -1,5 +1,14 @@
 import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { glob as globLoader } from 'astro/loaders';
+
+// Ids are the filename minus extension, literally — not slugified. The
+// default loader lowercases (2026-W28.md → 2026-w28), silently diverging
+// from the filenames the writers link to (/weekly/2026-W28) on a
+// case-sensitive host. Every machine surface (routes, .md siblings, llms,
+// sitemap lastmod) assumes id === filename, so make that the loader's
+// contract too.
+const glob = (opts: Parameters<typeof globLoader>[0]) =>
+  globLoader({ generateId: ({ entry }) => entry.replace(/\.mdx?$/, ''), ...opts });
 
 // Five collections, all frontmatter-driven so the editorial agents can write
 // them deterministically.
