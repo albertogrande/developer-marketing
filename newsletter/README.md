@@ -4,9 +4,10 @@ The weekly digest, delivered by email. Self-hosted end to end: our list, our
 templates, our sender, no Mailchimp, Substack or beehiiv anywhere in the path.
 Zero runtime dependencies — everything here is Node's standard library.
 
-The one thing worth buying is the pipe. See
-[Transports: do we need Resend?](#transports-do-we-need-resend) — short answer,
-yes, and it costs one env var either way.
+The one part worth outsourcing is the pipe, and at this size it is free. See
+[Transports: do we need Resend?](#transports-do-we-need-resend) and
+[Do we have to pay for it?](#do-we-have-to-pay-for-it) — short answers: a relay
+yes, a paid plan no, and either way it is one environment variable.
 
 A guide that tells people to respect developers cannot run its own list through
 a service that pixel-tracks them. So it doesn't.
@@ -15,6 +16,7 @@ a service that pixel-tracks them. So it doesn't.
 newsletter/
   server.mjs        the capture service: subscribe, confirm, unsubscribe
   send.mjs          the sender: one issue → the confirmed list
+  doctor.mjs        preflight: SPF/DKIM/DMARC, port 25, rDNS, credentials, cost
   lib/
     config.mjs      environment → config, with fail-fast validation
     store.mjs       the list: append-only NDJSON, replayed into memory
@@ -154,6 +156,71 @@ that knows which one, so it stays swappable.
 
 The transport is inferred: `RESEND_API_KEY` → `resend`, `SMTP_HOST` → `smtp`,
 neither → `dry-run`. Set `MAIL_TRANSPORT` to override.
+
+### Do we have to pay for it?
+
+No, and probably not ever. Two separate questions get tangled here.
+
+**"Do we need a paid plan?"** No. A weekly send to fewer than 100 confirmed
+subscribers fits inside Resend's free tier with room to spare (3,000/month, and
+the 100/day cap is the one that matters since a weekly send goes out in one day).
+Past that, the cheap answer is not Resend Pro at $20/month — it is Amazon SES at
+**$0.10 per 1,000 recipients** ([pricing](https://aws.amazon.com/ses/pricing/),
+checked 2026-07-26), with no daily cap:
+
+| Confirmed subscribers | Emails/month | Resend | SES |
+|---|---|---|---|
+| 50 | ~215 | free | ~$0.02 |
+| 100 | ~430 | free (at the cap) | ~$0.04 |
+| 500 | ~2,150 | $20/mo (daily cap) | ~$0.22 |
+| 5,000 | ~21,500 | $20/mo | ~$2.15 |
+
+SES is fiddlier to set up (sandbox removal, a support request for the sending
+limit) and gives you a worse dashboard. It is also two orders of magnitude
+cheaper and speaks the same SMTP, so switching is three environment variables.
+Start free, and if the list ever grows enough to matter, move to SES.
+
+**"Could we do the delivery ourselves and pay nobody?"** Technically yes: install
+Postfix, point `SMTP_HOST=127.0.0.1 SMTP_PORT=25` at it, and this code sends
+through it unchanged. What stops most people is not the software:
+
+- **Port 25 egress is blocked on nearly every cloud.** Google Cloud blocks it
+  permanently with no exceptions. DigitalOcean and Hetzner block it by default
+  and unblock case by case, after account age and a support ticket. AWS, Azure
+  and Oracle require a request too. Ports 587 and 465 — submission to a relay —
+  stay open everywhere, which is exactly the shape the industry has settled on.
+- **Reverse DNS is mandatory.** Gmail and Microsoft check that your sending IP
+  has a PTR record resolving back to itself. Plenty of hosts do not let you set
+  one.
+- **A fresh cloud IP starts in the hole.** Large parts of VPS address space sit
+  in Spamhaus's policy lists precisely because it is where spam comes from, so
+  step one is often asking to be delisted for a reputation you have not built.
+- **Microsoft is unforgiving of new small senders** — deferrals and silent drops
+  are the norm until you enroll in SNDS/JMRP and accumulate history.
+- **You inherit bounce and complaint handling.** A relay gives you suppression
+  lists and webhooks; your own MTA gives you a mailbox full of DSNs that nobody
+  reads while your reputation quietly rots. This sender does not process bounces
+  today — that work is real, and it is the strongest argument against DIY.
+
+So the honest trade is not money against independence. It is **a few cents a
+month against a recurring operations job**, for zero gain in what actually
+matters — the list, the consent record and the archive are already ours, and the
+relay only ever sees one finished message at a time.
+
+Run the preflight before deciding. It measures all of the above on the machine
+you would actually send from, and sends nothing:
+
+```
+npm run newsletter:doctor -- --dkim-selector resend
+```
+
+```
+port 25 egress (only needed to run our own MTA)
+  warn  outbound 25 — timed out (blocked or filtered) — normal: most clouds
+        block it (GCP permanently; DigitalOcean and Hetzner on request).
+```
+
+That one line is usually the end of the debate.
 
 ### Setting up Resend
 

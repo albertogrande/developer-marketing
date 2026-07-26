@@ -134,7 +134,17 @@ npm run newsletter:preview                    # render the newest issue, send no
 ```
 
 With no transport configured, mail is written to `newsletter/data/outbox/*.eml`
-instead of being sent, so the whole double-opt-in flow is testable offline.
+instead of being sent, so the whole double-opt-in flow is testable offline. When
+a real relay is configured, `npm run newsletter:doctor` checks SPF/DKIM/DMARC on
+the sending domain, whether port 25 egress and reverse DNS would allow
+self-hosting an MTA at all, whether the relay accepts the credentials, and what
+the list size means for free-tier caps — without sending anything.
+
+At this size the relay is free: a weekly send to under 100 subscribers fits
+Resend's free tier, and past that SES costs about $0.10 per 1,000 recipients.
+Self-hosting the MTA is possible and documented, but most clouds block outbound
+port 25 and none of it improves the part that matters — the list was never
+theirs to hold.
 
 The static site cannot accept a POST, so the subscribe form needs that service's
 public URL at build time. Set the repository **variable** `NEWSLETTER_API` (e.g.
