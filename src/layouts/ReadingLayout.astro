@@ -8,10 +8,11 @@ interface Props {
   stamp?: string; // right side of the kicker, e.g. a date or "Section 01"
   published?: Date;
   updated?: Date;
+  jsonLd?: object[]; // page-specific schema.org nodes (lib/jsonld.ts)
 }
-const { title, description, deskLabel, stamp, published, updated } = Astro.props;
+const { title, description, deskLabel, stamp, published, updated, jsonLd } = Astro.props;
 ---
-<BaseLayout title={title} description={description} type="article" published={published} updated={updated}>
+<BaseLayout title={title} description={description} type="article" published={published} updated={updated} jsonLd={jsonLd}>
   <article class="article" data-pagefind-body>
     <header class="article-head">
       <div class="kicker">

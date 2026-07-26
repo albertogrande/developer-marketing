@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { collectByTag } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
   const map = await collectByTag();
@@ -21,10 +22,30 @@ const practices = items.filter((i) => i.kind === 'practice');
 const examples = items.filter((i) => i.kind === 'example');
 const skills = items.filter((i) => i.kind === 'skill');
 const radar = items.filter((i) => i.kind === 'radar');
+
+// Every tagged thing, at its page or gallery-anchor URL.
+const taggedUrl = (i: (typeof items)[number]) =>
+  ({
+    weekly: absUrl(`/weekly/${i.entry.id}`),
+    article: absUrl(`/articles/${i.entry.id}`),
+    'deep-dive': absUrl(`/deep-dives/${i.entry.id}`),
+    practice: `${absUrl('/practices')}#${i.entry.id}`,
+    example: `${absUrl('/examples')}#${i.entry.id}`,
+    skill: `${absUrl('/skills')}#${i.entry.id}`,
+    radar: absUrl(`/radar/${i.entry.id}`),
+  })[i.kind];
 ---
 <BaseLayout
   title={`Tagged: ${tag}`}
   description={`Everything on the field guide tagged "${tag}" — weekly issues, deep dives, practices, examples, skills, and radar entries.`}
+  jsonLd={[
+    collectionPageNode({
+      name: `Tagged: ${tag}`,
+      description: `Everything on the field guide tagged "${tag}".`,
+      url: absUrl(`/tags/${tag}`),
+      items: items.map((i) => ({ name: i.entry.data.title, url: taggedUrl(i) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags / {tag}</div>

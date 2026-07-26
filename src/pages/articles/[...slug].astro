@@ -5,6 +5,7 @@ import TagList from '../../components/TagList.astro';
 import { withBase, fmtLong, isoDate } from '../../lib/site';
 import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
 import { AUTHORS } from '../../lib/authors';
+import { newsArticleNode } from '../../lib/jsonld';
 import { render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -36,6 +37,7 @@ const author = AUTHORS[d.desk];
   stamp={`${d.byline} · ${fmtLong(d.date)}`}
   published={d.date}
   updated={d.updated}
+  jsonLd={[newsArticleNode(entry)]}
 >
   <div class="entry-lead" slot="lead">
     <span class="kind">{DESK_LABELS[d.desk].toLowerCase()}</span>

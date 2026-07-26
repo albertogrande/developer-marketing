@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getGuideSorted, getGuideGraph } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 // The handbook home. Each section shows what the site knows about the topic
 // — practices, evidence, coverage — so a reader (and the editor) can see at
@@ -24,6 +25,15 @@ const countsFor = (id: string) => {
 <BaseLayout
   title="Guide"
   description="A practitioner's field guide to developer marketing: positioning, docs, DevRel, developer experience, content, distribution, launches, and measurement."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Guide',
+      description:
+        "A practitioner's field guide to developer marketing: positioning, docs, DevRel, developer experience, content, distribution, launches, and measurement.",
+      url: absUrl('/guide'),
+      items: guide.map((g) => ({ name: g.data.title, url: absUrl(`/guide/${g.id}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> guide</div>

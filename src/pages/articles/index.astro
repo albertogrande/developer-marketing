@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 const articles = await getArticlesSorted();
 const desks = (['news', 'money', 'campaigns', 'research', 'technology'] as const)
@@ -12,6 +13,15 @@ const desks = (['news', 'money', 'campaigns', 'research', 'technology'] as const
 <BaseLayout
   title="The Newsroom"
   description="Dated articles on the news, money, campaigns, research, and technology of the developer-tools industry — written by specialized desks, at most one a day, only when the story earns it."
+  jsonLd={[
+    collectionPageNode({
+      name: 'The Newsroom',
+      description:
+        'Dated articles on the news, money, campaigns, research, and technology of the developer-tools industry — written by specialized desks, at most one a day, only when the story earns it.',
+      url: absUrl('/articles'),
+      items: articles.map((a) => ({ name: a.data.title, url: absUrl(`/articles/${a.id}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsroom</div>

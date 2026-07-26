@@ -1,14 +1,24 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
-import { withBase } from '../../lib/site';
+import { withBase, absUrl } from '../../lib/site';
 import { getWeeklySorted } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 const weekly = await getWeeklySorted();
 ---
 <BaseLayout
   title="The Week"
   description="A short weekly digest of what changed in developer marketing — the one read to stay current. Newest first, each week sourced."
+  jsonLd={[
+    collectionPageNode({
+      name: 'The Week',
+      description:
+        'A short weekly digest of what changed in developer marketing — the one read to stay current. Newest first, each week sourced.',
+      url: absUrl('/weekly'),
+      items: weekly.map((w) => ({ name: w.data.title, url: absUrl(`/weekly/${w.id}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> weekly</div>

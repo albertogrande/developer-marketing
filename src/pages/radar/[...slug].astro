@@ -3,7 +3,8 @@ import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { fmtLong } from '../../lib/site';
+import { absUrl, fmtLong } from '../../lib/site';
+import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
   const radar = await getCollection('radar');
@@ -20,6 +21,18 @@ const d = entry.data;
   deskLabel="Radar · archive"
   stamp={fmtLong(d.date)}
   published={d.date}
+  jsonLd={[
+    articleNode({
+      schemaType: 'Article',
+      title: d.title,
+      description: d.summary,
+      url: absUrl(`/radar/${entry.id}`),
+      published: d.date,
+      section: 'Radar archive',
+      tags: d.tags,
+      sources: d.sources,
+    }),
+  ]}
 >
   <div class="entry-lead" slot="lead">
     <span class="kind">{d.kind}</span>

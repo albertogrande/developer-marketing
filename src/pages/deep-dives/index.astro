@@ -1,14 +1,24 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getDivesSorted } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 const dives = await getDivesSorted();
 ---
 <BaseLayout
   title="Deep dives"
   description="Long-form, researched deep dives on developer marketing — the plays, metrics, and decisions worth getting right. Each one sourced."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Deep Dives',
+      description:
+        'Long-form, researched deep dives on developer marketing — the plays, metrics, and decisions worth getting right. Each one sourced.',
+      url: absUrl('/deep-dives'),
+      items: dives.map((v) => ({ name: v.data.title, url: absUrl(`/deep-dives/${v.id}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> deep dives</div>

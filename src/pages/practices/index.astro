@@ -2,8 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getGuideSorted, getPracticesSorted } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 // The agent-facing corpus, human-readable: every practice, grouped by the
 // guide section it belongs to. Agents read this via /practices.json and
@@ -32,6 +33,18 @@ const groups = await Promise.all(
 <BaseLayout
   title="Practices"
   description="Atomic best-practices for developer marketing — when X, do Y, because Z. Dated, sourced, and machine-readable at /practices.json."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Practices',
+      description:
+        'Atomic best-practices for developer marketing — when X, do Y, because Z. Dated, sourced, and machine-readable at /practices.json.',
+      url: absUrl('/practices'),
+      items: practices.map((p) => ({
+        name: p.data.title,
+        url: `${absUrl('/practices')}#${p.id}`,
+      })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> practices</div>
