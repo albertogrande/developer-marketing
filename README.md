@@ -88,7 +88,9 @@ signals/             # raw daily capture, one file per ISO week (internal, not r
 editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
+DOMAIN.md            # decision record for the publication's own domain
 scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
+                     #  + check-domains.mjs (RDAP availability) + domain-candidates.txt
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
 .github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
 .github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
