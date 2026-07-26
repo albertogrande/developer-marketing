@@ -1,5 +1,5 @@
 ---
-import { withBase, isoDate } from '../lib/site';
+import { withBase, isoDate, canonicalFor } from '../lib/site';
 
 interface Props {
   title: string;
@@ -21,7 +21,7 @@ const {
 const SITE_TITLE = 'Developer Marketing';
 const fullTitle =
   title === SITE_TITLE ? 'Developer Marketing — a field guide' : `${title} · ${SITE_TITLE}`;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
 

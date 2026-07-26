@@ -59,7 +59,11 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
     var pf = null, gPending = false, gTimer = null, navLinks = [], navIdx = -1;
     var debounce, rows = [], sel = -1, searchToken = 0;
 
-    function go(path) { location.href = base.replace(/\/$/, '') + path; }
+    function go(path) {
+      // Page routes get the trailing-slash form GH Pages serves (no 301 hop).
+      var p = path.indexOf('.') === -1 && path.slice(-1) !== '/' ? path + '/' : path;
+      location.href = base.replace(/\/$/, '') + p;
+    }
     function toggleTheme() { var b = document.getElementById('theme-toggle'); if (b) b.click(); }
     function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     function copyLink() {
