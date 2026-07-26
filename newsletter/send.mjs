@@ -19,7 +19,7 @@
 
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { config, isDryRun } from './lib/config.mjs';
 import { openStore } from './lib/store.mjs';
 import { sign } from './lib/tokens.mjs';
@@ -133,6 +133,9 @@ async function main() {
   log(`subject ${preview.subject}`);
 
   if (args.out) {
+    // data/ is gitignored, so on a fresh clone the default --out path has no
+    // parent directory yet.
+    await mkdir(dirname(args.out), { recursive: true });
     await writeFile(args.out, preview.html, 'utf8');
     log(`wrote   ${args.out} (${Buffer.byteLength(preview.html)} bytes html, ${Buffer.byteLength(preview.text)} bytes text)`);
   }

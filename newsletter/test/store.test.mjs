@@ -4,8 +4,13 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openStore, isValidEmail } from '../lib/store.mjs';
+import { runStoreContract } from './store-contract.mjs';
 
 const tmp = () => mkdtemp(join(tmpdir(), 'nl-store-'));
+
+// The behaviour every backend must have, run against this one. A Postgres or
+// Redis adapter for a serverless host imports the same contract.
+runStoreContract('ndjson', async () => openStore(await tmp()));
 
 test('email validation', () => {
   for (const good of ['a@b.co', 'first.last+tag@sub.example.com', 'DEV@Example.DEV']) {
@@ -26,51 +31,8 @@ test('email validation', () => {
   }
 });
 
-test('subscribe → confirm → unsubscribe', async () => {
-  const dir = await tmp();
-  const store = await openStore(dir);
-
-  const { record, created } = await store.subscribe('Reader@Example.com', { source: '/weekly' });
-  assert.equal(created, true);
-  assert.equal(record.email, 'reader@example.com', 'addresses are normalized');
-  assert.equal(record.status, 'pending');
-  assert.deepEqual(store.stats(), { total: 1, pending: 1, confirmed: 0, unsubscribed: 0 });
-  assert.equal(store.confirmed().length, 0, 'pending addresses never receive an issue');
-
-  await store.confirm(record.id);
-  assert.equal(store.confirmed().length, 1);
-
-  await store.unsubscribe(record.id);
-  assert.equal(store.confirmed().length, 0);
-  assert.equal(store.get('reader@example.com').status, 'unsubscribed');
-});
-
-test('confirm and unsubscribe are idempotent', async () => {
-  const store = await openStore(await tmp());
-  const { record } = await store.subscribe('a@example.com');
-  const first = await store.confirm(record.id);
-  const second = await store.confirm(record.id);
-  assert.equal(first.confirmedAt, second.confirmedAt, 'a link clicked twice does not move the timestamp');
-  await store.unsubscribe(record.id);
-  await store.unsubscribe(record.id);
-  assert.equal(store.stats().unsubscribed, 1);
-});
-
-test('re-subscribing cannot silently suspend a confirmed reader', async () => {
-  const store = await openStore(await tmp());
-  const { record } = await store.subscribe('a@example.com');
-  await store.confirm(record.id);
-  const again = await store.subscribe('a@example.com');
-  assert.equal(again.alreadyConfirmed, true);
-  assert.equal(store.get('a@example.com').status, 'confirmed');
-  assert.equal(store.confirmed().length, 1);
-});
-
-test('unknown ids are a no-op, not a crash', async () => {
-  const store = await openStore(await tmp());
-  assert.equal(await store.confirm('nope'), null);
-  assert.equal(await store.unsubscribe('nope'), null);
-});
+// The behavioural basics live in store-contract.mjs, run above. What follows is
+// specific to keeping the list in an append-only file.
 
 test('state survives a restart, last line wins', async () => {
   const dir = await tmp();

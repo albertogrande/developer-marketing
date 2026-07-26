@@ -9,6 +9,9 @@ The one part worth outsourcing is the pipe, and at this size it is free. See
 [Do we have to pay for it?](#do-we-have-to-pay-for-it) — short answers: a relay
 yes, a paid plan no, and either way it is one environment variable.
 
+**Going live:** [`LAUNCH.md`](LAUNCH.md) is the sequenced checklist — what to do
+in what order, who has to do it, and what is deliberately not built yet.
+
 A guide that tells people to respect developers cannot run its own list through
 a service that pixel-tracks them. So it doesn't.
 
