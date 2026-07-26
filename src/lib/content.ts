@@ -56,6 +56,58 @@ export const getExamplesSorted = memo(async () =>
   (await getCollection('examples')).sort(entryByDateDesc)
 );
 
+// The directory of outside help — grouped by category on the page, so the
+// stable order here is category then name (case-insensitive, so "ércule" sorts
+// where a reader expects it).
+export const getResourcesSorted = memo(async () =>
+  (await getCollection('resources')).sort((a, b) =>
+    a.data.name.localeCompare(b.data.name, 'en', { sensitivity: 'base' })
+  )
+);
+
+// Category key → label + one-line "what this section is for". One place, so
+// the page, the JSON endpoint and llms.txt describe the directory identically.
+export const RESOURCE_CATEGORIES: {
+  id: CollectionEntry<'resources'>['data']['category'];
+  label: string;
+  blurb: string;
+}[] = [
+  {
+    id: 'content',
+    label: 'Technical content',
+    blurb: 'Tutorials, comparisons and essays written by people who can actually run the thing.',
+  },
+  {
+    id: 'positioning',
+    label: 'Positioning & GTM',
+    blurb: 'What you say and why anyone should believe it, before you pay anyone to say it at volume.',
+  },
+  {
+    id: 'devrel',
+    label: 'DevRel & developer programmes',
+    blurb: 'Strategy, friction audits and the people to run a developer programme that survives a budget review.',
+  },
+  {
+    id: 'docs',
+    label: 'Documentation',
+    blurb: 'The highest-leverage surface you own, treated as engineering rather than as content.',
+  },
+  {
+    id: 'community',
+    label: 'Community, events & creators',
+    blurb: 'Borrowed reach and owned community: creators, hackathons, ambassador programmes.',
+  },
+  {
+    id: 'research',
+    label: 'Research & data',
+    blurb: 'Numbers about developers that came from asking developers, with a published method.',
+  },
+];
+
+export const RESOURCE_CATEGORY_LABELS = Object.fromEntries(
+  RESOURCE_CATEGORIES.map((c) => [c.id, c.label])
+) as Record<CollectionEntry<'resources'>['data']['category'], string>;
+
 // The shelf — installable agent skills, ordered by the guide section whose job
 // they do (then by id) so the page reads in the guide's own order rather than
 // by the arbitrary date a batch was added.
@@ -136,24 +188,89 @@ export const getGuideGraph = memo(async () => {
   return { practicesBySection, examplesBySection, skillsBySection, coverageBySection };
 });
 
+// The syndication stream — every dated piece (weekly, newsroom, deep dives,
+// the radar archive), newest first, one shape. Both feeds read this; the
+// guide is deliberately absent (it mutates continuously — its freshness is
+// carried by sitemap lastmod, api.json, and llms.txt dates instead).
+export type FeedItem = {
+  title: string;
+  summary: string;
+  date: Date;
+  updated?: Date;
+  tags: string[];
+  path: string;
+  body: string;
+  byline?: string;
+};
+
+export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
+  const [weekly, articles, dives, radar] = await Promise.all([
+    getWeeklySorted(),
+    getArticlesSorted(),
+    getDivesSorted(),
+    getRadarSorted(),
+  ]);
+  const items: FeedItem[] = [
+    ...weekly.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/weekly/${e.id}`,
+      body: e.body ?? '',
+    })),
+    ...articles.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/articles/${e.id}`,
+      body: e.body ?? '',
+      byline: e.data.byline,
+    })),
+    ...dives.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/deep-dives/${e.id}`,
+      body: e.body ?? '',
+    })),
+    ...radar.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      tags: e.data.tags,
+      path: `/radar/${e.id}`,
+      body: e.body ?? '',
+    })),
+  ];
+  return items.sort((a, b) => b.date.getTime() - a.date.getTime());
+});
+
 export type TaggedEntry =
   | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
   | { kind: 'article'; entry: CollectionEntry<'articles'> }
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
   | { kind: 'practice'; entry: CollectionEntry<'practices'> }
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
+  | { kind: 'resource'; entry: CollectionEntry<'resources'> }
   | { kind: 'skill'; entry: CollectionEntry<'skills'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, articles, dives, practices, examples, skills, radar] = await Promise.all([
+  const [weekly, articles, dives, practices, examples, resources, skills, radar] = await Promise.all([
     getWeeklySorted(),
     getArticlesSorted(),
     getDivesSorted(),
     getPracticesSorted(),
     getExamplesSorted(),
+    getResourcesSorted(),
     getSkillsSorted(),
     getRadarSorted(),
   ]);
@@ -167,6 +284,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
   for (const entry of practices) for (const t of entry.data.tags) add(t, { kind: 'practice', entry });
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
+  for (const entry of resources) for (const t of entry.data.tags) add(t, { kind: 'resource', entry });
   for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;

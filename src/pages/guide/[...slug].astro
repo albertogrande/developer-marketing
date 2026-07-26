@@ -1,8 +1,9 @@
 ---
 import { render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
-import { withBase, fmtLong, isoDate } from '../../lib/site';
+import { withBase, absUrl, fmtLong, isoDate } from '../../lib/site';
 import { getGuideSorted, getGuideGraph } from '../../lib/content';
+import { articleNode } from '../../lib/jsonld';
 
 // Topic hub: the evergreen section plus everything the site knows about the
 // topic — the practices that implement it, the examples that evidence it,
@@ -30,7 +31,25 @@ const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
 const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', radar: 'radar' };
 ---
-<ReadingLayout title={d.title} description={d.summary} deskLabel="Guide" stamp={stamp} updated={d.updated}>
+<ReadingLayout
+  title={d.title}
+  description={d.summary}
+  deskLabel="Guide"
+  stamp={stamp}
+  updated={d.updated}
+  jsonLd={[
+    // Continuously-maintained reference: dateModified only, no invented
+    // publish date.
+    articleNode({
+      schemaType: 'TechArticle',
+      title: d.title,
+      description: d.summary,
+      url: absUrl(`/guide/${entry.id}`),
+      updated: d.updated,
+      section: 'Guide',
+    }),
+  ]}
+>
   <div class="entry-lead" slot="lead">
     <span>last checked <time datetime={isoDate(d.updated)}>{fmtLong(d.updated)}</time></span>
   </div>

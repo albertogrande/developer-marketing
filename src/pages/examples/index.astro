@@ -2,8 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getExamplesSorted, getGuideSorted } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 // The swipe file — real, sourced dev-marketing artifacts, newest first. Each
 // card carries the "why it works" note, the guide section it demonstrates, and
@@ -19,6 +20,18 @@ const cards = await Promise.all(
 <BaseLayout
   title="Examples"
   description="A swipe file of real, sourced developer-marketing artifacts — pricing pages, API references, launches — each with what makes it work and a link to the real thing."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Examples',
+      description:
+        'A swipe file of real, sourced developer-marketing artifacts — pricing pages, API references, launches — each with what makes it work and a link to the real thing.',
+      url: absUrl('/examples'),
+      items: examples.map((e) => ({
+        name: `${e.data.company}: ${e.data.title}`,
+        url: `${absUrl('/examples')}#${e.id}`,
+      })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> examples</div>

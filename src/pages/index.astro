@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsletterCta from '../components/NewsletterCta.astro';
 import { withBase, fmtMed, isoDate } from '../lib/site';
 import {
   getGuideSorted,
@@ -9,13 +10,14 @@ import {
   getPracticesSorted,
   getSkillsSorted,
   getArticlesSorted,
+  getResourcesSorted,
   DESK_LABELS,
 } from '../lib/content';
 
 // The edition. One merged, dated stream of published pieces decides the
 // hierarchy: the freshest piece leads (an article most days, The Week on
 // Mondays), the next two get the secondary boxes, the rest run on the wire.
-const [guide, weekly, dives, examples, practices, skills, articles] = await Promise.all([
+const [guide, weekly, dives, examples, practices, skills, articles, resources] = await Promise.all([
   getGuideSorted(),
   getWeeklySorted(),
   getDivesSorted(),
@@ -23,6 +25,7 @@ const [guide, weekly, dives, examples, practices, skills, articles] = await Prom
   getPracticesSorted(),
   getSkillsSorted(),
   getArticlesSorted(),
+  getResourcesSorted(),
 ]);
 
 type Piece = {
@@ -172,6 +175,8 @@ const deskCounts = (['news', 'money', 'campaigns', 'research', 'technology'] as 
       </div>
 
       <aside class="fm-rail">
+        <NewsletterCta variant="rail" source="/" />
+
         {latestIssue && (
           <div class="rail-box">
             <span class="rail-legend">THE WEEK</span>
@@ -220,11 +225,13 @@ const deskCounts = (['news', 'money', 'campaigns', 'research', 'technology'] as 
             <span>practices <b>{practices.length}</b></span>
             <span>examples <b>{examples.length}</b></span>
             <span>skills <b>{skills.length}</b></span>
+            <span>resources <b>{resources.length}</b></span>
           </p>
           <ul class="rail-list" style="margin-top:8px">
             <li><a href={withBase('/practices')}><span class="ln">»</span>when X → do Y, dated and sourced</a></li>
             <li><a href={withBase('/examples')}><span class="ln">❏</span>the swipe file of real artifacts</a></li>
             <li><a href={withBase('/skills')}><span class="ln">⌗</span>agent skills you can install today</a></li>
+            <li><a href={withBase('/resources')}><span class="ln">⌾</span>who to hire, vetted and unpaid-for</a></li>
           </ul>
         </div>
       </aside>
@@ -238,8 +245,10 @@ const deskCounts = (['news', 'money', 'campaigns', 'research', 'technology'] as 
       <a href={withBase('/practices')}><b>g&thinsp;p</b> practices</a>
       <a href={withBase('/examples')}><b>g&thinsp;e</b> examples</a>
       <a href={withBase('/skills')}><b>g&thinsp;s</b> skills</a>
+      <a href={withBase('/resources')}><b>g&thinsp;o</b> resources</a>
       <a href={withBase('/radar')}><b>g&thinsp;r</b> radar archive</a>
       <a href={withBase('/about')}><b>g&thinsp;a</b> about</a>
+      <a href={withBase('/newsletter')}><b>g&thinsp;m</b> newsletter</a>
       <a href={withBase('/feed.xml')}><b>≋</b> feed</a>
     </footer>
   </div>

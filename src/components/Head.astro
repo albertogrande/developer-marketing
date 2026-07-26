@@ -1,5 +1,9 @@
 ---
-import { withBase, isoDate } from '../lib/site';
+import { withBase, isoDate, canonicalFor, stripBase, absUrl, CONTENT_LICENSE_URL, VERIFICATION } from '../lib/site';
+import { websiteNode, orgNode, articleNode } from '../lib/jsonld';
+
+const SITE_DESC =
+  'The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, distribution, and the metrics that matter. Kept current by an autonomous agent.';
 
 interface Props {
   title: string;
@@ -9,42 +13,91 @@ interface Props {
   type?: 'website' | 'article';
   published?: Date;
   updated?: Date;
+  // Page-specific schema.org nodes (see lib/jsonld.ts). When absent, a
+  // sensible default node is derived from the props above.
+  jsonLd?: object[];
 }
 const {
   title,
-  description = 'The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, distribution, and the metrics that matter. Kept current by an autonomous agent.',
+  description = SITE_DESC,
   type = 'website',
   published,
   updated,
+  jsonLd,
 } = Astro.props;
 
 const SITE_TITLE = 'Developer Marketing';
 const fullTitle =
   title === SITE_TITLE ? 'Developer Marketing — a field guide' : `${title} · ${SITE_TITLE}`;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
 
-const jsonLd =
+// Machine-readable alternates, derived from the canonical path: every entry
+// page has a raw-markdown sibling (/<coll>/<id>.md), every collection index a
+// JSON endpoint (/<coll>.json). The agent-surface gate verifies the targets.
+const sitePath = stripBase(Astro.url.pathname);
+const mdMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar)\/([^/]+)\/?$/);
+const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
+const jsonMatch = sitePath.match(
+  /^\/(guide|articles|weekly|deep-dives|radar|practices|examples|skills|resources)\/?$/
+);
+const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
+
+// One @graph per page: the site-wide WebSite/Organization pair, an automatic
+// breadcrumb trail, and either the page-supplied nodes or a default derived
+// from the props (Article for reading pages, WebPage otherwise).
+const SECTION_LABELS: Record<string, string> = {
+  guide: 'Guide',
+  articles: 'Newsroom',
+  weekly: 'The Week',
+  'deep-dives': 'Deep Dives',
+  radar: 'Radar archive',
+  practices: 'Practices',
+  examples: 'Examples',
+  skills: 'Skills',
+  resources: 'Resources',
+  newsletter: 'Newsletter',
+  tags: 'Tags',
+  about: 'About',
+};
+const segs = sitePath.replace(/\/$/, '').split('/').filter(Boolean);
+const breadcrumb = segs.length
+  ? {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { name: 'Home', item: absUrl('/') },
+        ...(segs.length === 1
+          ? [{ name: SECTION_LABELS[segs[0]] ?? title, item: canonical }]
+          : [
+              { name: SECTION_LABELS[segs[0]] ?? segs[0], item: absUrl(`/${segs[0]}`) },
+              { name: title, item: canonical },
+            ]),
+      ].map((c, i) => ({ '@type': 'ListItem', position: i + 1, ...c })),
+    }
+  : undefined;
+
+const defaultNode =
   type === 'article'
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: title,
+    ? articleNode({ schemaType: 'Article', title, description, url: canonical, published, updated })
+    : {
+        '@type': 'WebPage',
+        name: fullTitle,
         description,
         url: canonical,
-        image: ogImage,
-        ...(published ? { datePublished: isoDate(published) } : {}),
-        ...(updated ? { dateModified: isoDate(updated) } : {}),
-        author: { '@type': 'Organization', name: 'Developer Marketing field guide' },
-      }
-    : {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'Developer Marketing — a field guide',
-        description,
-        url: new URL(withBase('/'), Astro.site).href,
+        isPartOf: { '@id': `${absUrl('/')}#website` },
+        inLanguage: 'en',
       };
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    websiteNode(SITE_DESC),
+    orgNode(),
+    ...(breadcrumb ? [breadcrumb] : []),
+    ...(jsonLd ?? [defaultNode]),
+  ],
+};
 ---
 <head>
   <meta charset="utf-8" />
@@ -74,7 +127,12 @@ const jsonLd =
 
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
+  {/* Answer engines may reuse as much of the page as they need. */}
+  <meta name="robots" content="max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  {VERIFICATION.google && <meta name="google-site-verification" content={VERIFICATION.google} />}
+  {VERIFICATION.bing && <meta name="msvalidate.01" content={VERIFICATION.bing} />}
   <link rel="canonical" href={canonical} />
+  <link rel="license" href={CONTENT_LICENSE_URL} />
   <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
 
   <meta property="og:type" content={type} />
@@ -92,7 +150,7 @@ const jsonLd =
 
   {/* <-escape so writer-authored titles/summaries containing "</script"
       can't close the element early (broken page / injection). */}
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
+  <script type="application/ld+json" set:html={JSON.stringify(graph).replace(/</g, '\\u003c')} />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -101,5 +159,8 @@ const jsonLd =
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
   />
   <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href={feed} />
+  <link rel="alternate" type="application/feed+json" title={SITE_TITLE} href={withBase('/feed.json')} />
+  {mdPath && <link rel="alternate" type="text/markdown" title="Markdown" href={withBase(mdPath)} />}
+  {jsonPath && <link rel="alternate" type="application/json" title="JSON" href={withBase(jsonPath)} />}
   <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 </head>

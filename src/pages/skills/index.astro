@@ -2,8 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getSkillsSorted, getGuideSorted } from '../../lib/content';
+import { collectionPageNode, softwareAppNode } from '../../lib/jsonld';
 
 // The shelf — installable agent skills that do the work the guide describes,
 // grouped by the guide section whose job they automate. Every card carries the
@@ -33,6 +34,15 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
 <BaseLayout
   title="Skills"
   description="A shelf of real, installable agent skills that do developer-marketing work — README review, docs auditing, GEO, changelogs, MCP surfaces — each tied to the guide section it automates, with its install line and its honest limit."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Skills',
+      description:
+        'A shelf of real, installable agent skills that do developer-marketing work — README review, docs auditing, GEO, changelogs, MCP surfaces — each tied to the guide section it automates, with its install line and its honest limit.',
+      url: absUrl('/skills'),
+      itemNodes: skills.map(softwareAppNode),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> skills</div>

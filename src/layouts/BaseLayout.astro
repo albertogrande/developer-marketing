@@ -12,12 +12,13 @@ interface Props {
   type?: 'website' | 'article';
   published?: Date;
   updated?: Date;
+  jsonLd?: object[]; // page-specific schema.org nodes (lib/jsonld.ts)
 }
-const { title, description, home = false, type, published, updated } = Astro.props;
+const { title, description, home = false, type, published, updated, jsonLd } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
-  <Head title={title} description={description} type={type} published={published} updated={updated} />
+  <Head title={title} description={description} type={type} published={published} updated={updated} jsonLd={jsonLd} />
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
     <Chrome wide={home} />

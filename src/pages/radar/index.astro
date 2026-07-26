@@ -1,14 +1,24 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
-import { withBase, isoDate } from '../../lib/site';
+import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getRadarSorted } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 const radar = await getRadarSorted();
 ---
 <BaseLayout
   title="Radar (archive)"
   description="The archived radar — dated posts on developer marketing, DevRel, and developer experience from the site's first phase. The cadence now lives in the weekly."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Radar archive',
+      description:
+        "The archived radar — dated posts on developer marketing, DevRel, and developer experience from the site's first phase. The cadence now lives in the weekly.",
+      url: absUrl('/radar'),
+      items: radar.map((r) => ({ name: r.data.title, url: absUrl(`/radar/${r.id}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> radar</div>

@@ -31,8 +31,11 @@ function sh(cmd) {
 }
 
 function changedFiles() {
-  // Uncommitted changes first (writer workflows run pre-commit).
-  const dirty = sh(`git status --porcelain -- ${CONTENT_PATHS.join(' ')}`)
+  // Uncommitted changes first (writer workflows run pre-commit). `-uall` lists
+  // untracked files individually — without it git reports a brand-new content
+  // directory as one entry ("src/content/resources/") and every file inside it
+  // would skip the gate.
+  const dirty = sh(`git status --porcelain -uall -- ${CONTENT_PATHS.join(' ')}`)
     .split('\n')
     .filter(Boolean)
     .map((l) => l.slice(3).trim())

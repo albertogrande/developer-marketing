@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { withBase } from '../../lib/site';
+import { withBase, absUrl } from '../../lib/site';
 import { collectByTag } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
 
 const map = await collectByTag();
 const tags = [...map.entries()]
@@ -11,6 +12,15 @@ const tags = [...map.entries()]
 <BaseLayout
   title="Tags"
   description="Browse the field guide by tag — positioning, docs, devrel, metrics, launches, and more."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Tags',
+      description:
+        'Browse the field guide by tag — positioning, docs, devrel, metrics, launches, and more.',
+      url: absUrl('/tags'),
+      items: tags.map(({ tag }) => ({ name: tag, url: absUrl(`/tags/${tag}`) })),
+    }),
+  ]}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags</div>

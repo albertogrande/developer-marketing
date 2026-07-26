@@ -3,8 +3,9 @@ import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { fmtLong } from '../../lib/site';
+import { absUrl, fmtLong } from '../../lib/site';
 import { entryByDateDesc } from '../../lib/content';
+import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
   // Sorted newest-first: issue navigation walks the archive — earlier issue
@@ -31,6 +32,19 @@ const d = entry.data;
   stamp={`${d.week} · ${fmtLong(d.date)}`}
   published={d.date}
   updated={d.updated}
+  jsonLd={[
+    articleNode({
+      schemaType: 'Article',
+      title: d.title,
+      description: d.summary,
+      url: absUrl(`/weekly/${entry.id}`),
+      published: d.date,
+      updated: d.updated,
+      section: 'The Week',
+      tags: d.tags,
+      sources: d.sources,
+    }),
+  ]}
 >
   <div class="entry-lead" slot="lead">
     <span class="kind">the week</span>

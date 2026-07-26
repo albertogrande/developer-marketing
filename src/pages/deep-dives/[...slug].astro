@@ -3,7 +3,8 @@ import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { fmtLong } from '../../lib/site';
+import { absUrl, fmtLong } from '../../lib/site';
+import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
   const dives = await getCollection('deep-dives');
@@ -21,6 +22,19 @@ const d = entry.data;
   stamp={fmtLong(d.date)}
   published={d.date}
   updated={d.updated}
+  jsonLd={[
+    articleNode({
+      schemaType: 'Article',
+      title: d.title,
+      description: d.summary,
+      url: absUrl(`/deep-dives/${entry.id}`),
+      published: d.date,
+      updated: d.updated,
+      section: 'Deep Dives',
+      tags: d.tags,
+      sources: d.sources,
+    }),
+  ]}
 >
   <div class="entry-lead" slot="lead">
     {d.dek && <p class="dek" style="margin-top:14px">{d.dek}</p>}

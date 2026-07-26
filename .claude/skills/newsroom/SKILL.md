@@ -99,9 +99,9 @@ Technologist's how-it-works paragraph). Rules:
   an excuse.
 - Vendor claims labeled as vendor claims. Single-sourced facts flagged
   inline ("reportedly", with the source).
-- Internal links carry the site base (`/developer-marketing/...`); `related`
-  hrefs are base-less (`/guide/...`). The build's check-refs gate enforces
-  this.
+- Internal links are base-less site paths — `[the guide](/guide/02-docs-as-front-door)`,
+  same as `related` hrefs. The build adds the site base; writing it by hand is
+  an error the check-refs gate rejects. Relative `./file.md` links break.
 - No invented links, no invented numbers, no padding to hit a length.
 
 ## Step 3 — Feed the product

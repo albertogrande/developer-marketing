@@ -18,6 +18,7 @@ Every article must leave the product better than it found it.
 | **The Week** | One short essay on what actually moved, plus the guide-accuracy pass, practices distilled, examples promoted. `src/content/weekly/` | Monday |
 | **Deep Dives** | One subject taken seriously — commissioned by the weekly editor when a thread earns it, or on demand. `src/content/deep-dives/` | When earned |
 | **The Product** | The nine-section guide, the practices, the examples swipe file — the evergreen reference the articles keep honest. | Continuously |
+| **The Directory** | Vetted outside help: who a practitioner can hire to do this work (`src/content/resources/`). Rendered at `/resources`, served at `/resources.json`. | Reviewed, never sold |
 
 ## Editorial charter
 
@@ -47,6 +48,16 @@ Every article must leave the product better than it found it.
    figures, company names, dated moves — never rhetorical flourish. What
    happened → why it matters → what to do about it. Bylines differ in
    *method*, not in temperature (see `AUTHORS.md`).
+8. **Nothing is for sale.** No sponsored slots, no affiliate links, no paid
+   placement or ranking anywhere on this site, and the directory
+   (`src/content/resources/`) is held to the same bar as the rest: a live site,
+   one proof point a reader can verify, the date it was checked, and the
+   uncomfortable caveat stated. A provider never previews its own entry. A
+   claim quoted from a vendor's own page is self-reported and says so.
+9. **Don't surveil the reader.** No analytics that identify a person, no open
+   pixels, no click tracking in the newsletter (`newsletter/`). Consent is
+   double opt-in and leaving is one click. Audience numbers we cannot collect
+   honestly, we do without.
 
 ## The newsroom
 

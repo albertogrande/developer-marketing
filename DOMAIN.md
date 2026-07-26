@@ -1,6 +1,10 @@
 # Domain
 
-Decision record for the publication's own address. Nothing here is bought yet.
+Decision record for the publication's own address — **which** name to buy and
+why. Once one is bought, `docs/custom-domain.md` covers **how** to point the
+site at it (a DNS step plus `SITE_ORIGIN` in `site.config.mjs`).
+
+Nothing here is bought yet.
 
 Availability was checked with `scripts/check-domains.mjs`, which reads RDAP —
 the registry-authoritative successor to whois. RDAP reports whether a name is

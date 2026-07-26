@@ -15,11 +15,12 @@
 // accepts — block lists, quoted scalars, the lot), and static routes are
 // derived from src/pages/ so the gate can't drift from the actual site.
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { readdirSync, existsSync } from 'node:fs';
+import { frontmatterOf, pageRoutes, siteConfig } from './lib/routes.mjs';
 
-const BASE = (readFileSync('astro.config.mjs', 'utf8').match(/base:\s*'([^']+)'/) || [])[1] || '';
+// Same source as the build (site.config.mjs, via routes.mjs), so the gate
+// cannot drift from what Astro emits. base is '' when served at the root.
+const BASE = siteConfig().base;
 
 // A collection dir may not exist yet (e.g. weekly/ before the first issue).
 const mdFiles = (dir) =>
@@ -33,49 +34,19 @@ const diveIds = ids('src/content/deep-dives');
 const practiceIds = ids('src/content/practices');
 const exampleIds = ids('src/content/examples');
 const skillIds = ids('src/content/skills');
+const resourceIds = ids('src/content/resources');
 const radarIds = ids('src/content/radar');
 
-function frontmatterOf(file) {
-  const text = readFileSync(file, 'utf8');
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  let fm = {};
-  if (m) {
-    try {
-      fm = parseYaml(m[1]) ?? {};
-    } catch (e) {
-      return { fm: null, body: text, err: e.message };
-    }
-  }
-  return { fm, body: m ? text.slice(m[0].length) : text };
-}
-
-// Static routes derived from src/pages/ — index.astro → parent dir, foo.astro
-// → /foo, name.ext.ts → /name.ext. Dynamic ([param]) and 404 excluded.
-function pageRoutes(dir = 'src/pages', prefix = '') {
-  const routes = new Set();
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      for (const r of pageRoutes(full, `${prefix}/${entry}`)) routes.add(r);
-      continue;
-    }
-    if (entry.includes('[') || entry.startsWith('404')) continue;
-    if (entry.endsWith('.astro')) {
-      const name = entry.replace(/\.astro$/, '');
-      routes.add(name === 'index' ? prefix || '/' : `${prefix}/${name}`);
-    } else if (entry.endsWith('.ts')) {
-      routes.add(`${prefix}/${entry.replace(/\.ts$/, '')}`);
-    }
-  }
-  return routes;
-}
+// Frontmatter parsing and the src/pages route table live in ./lib/routes.mjs,
+// shared with the sitemap lastmod hook, the agent-surface gate, and the
+// IndexNow ping so none of them can drift from this gate.
 const STATIC_ROUTES = pageRoutes();
 
 // Tag vocabulary across the tagged collections → valid /tags/<tag> routes.
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'skills', 'radar']) {
+for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'skills', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -85,6 +56,18 @@ for (const e of entries) {
   for (const t of e.fm?.tags ?? []) if (typeof t === 'string') tags.add(t);
 }
 
+const MD_SIBLING_IDS = {
+  guide: () => guideIds,
+  weekly: () => weeklyIds,
+  articles: () => articleIds,
+  'deep-dives': () => diveIds,
+  radar: () => radarIds,
+  practices: () => practiceIds,
+  examples: () => exampleIds,
+  skills: () => skillIds,
+  resources: () => resourceIds,
+};
+
 // href is a base-less site path (the `related` convention) — resolve it.
 function resolves(href) {
   const [path, hash] = href.split('#');
@@ -92,8 +75,13 @@ function resolves(href) {
   if (clean === '/practices' && hash) return practiceIds.has(hash);
   if (clean === '/examples' && hash) return exampleIds.has(hash);
   if (clean === '/skills' && hash) return skillIds.has(hash);
+  if (clean === '/resources' && hash) return resourceIds.has(hash);
   if (STATIC_ROUTES.has(clean)) return true;
   let m;
+  // Markdown siblings: every entry serves a raw /<collection>/<id>.md variant.
+  if ((m = clean.match(/^\/([a-z-]+)\/([^/]+)\.md$/)) && MD_SIBLING_IDS[m[1]]) {
+    return MD_SIBLING_IDS[m[1]]().has(m[2]);
+  }
   if ((m = clean.match(/^\/guide\/([^/]+)$/))) return guideIds.has(m[1]);
   if ((m = clean.match(/^\/weekly\/([^/]+)$/))) return weeklyIds.has(m[1]);
   if ((m = clean.match(/^\/articles\/([^/]+)$/))) return articleIds.has(m[1]);
@@ -142,16 +130,19 @@ for (const { dir, file, fm, body, err } of entries) {
     else if (!resolves(href)) problems.push(`${file}: related href "${href}" resolves to nothing`);
   }
 
-  // 3. body markdown links
+  // 3. body markdown links — base-less site paths, same convention as `related`
+  // above. scripts/remark-base-paths.mjs adds the base at build time, so content
+  // that hard-codes it would come out doubled and would break the day the site
+  // moves.
   for (const m of body.matchAll(/\]\(([^)\s]+)\)/g)) {
     const href = m[1];
     if (/^(https?:|mailto:|#)/.test(href)) continue;
     if (/^\.{1,2}\//.test(href)) {
-      problems.push(`${file}: relative body link "${href}" breaks on the built site — use ${BASE}/<path>`);
+      problems.push(`${file}: relative body link "${href}" breaks on the built site — use /<path>`);
     } else if (href.startsWith('/')) {
-      if (BASE && !href.startsWith(`${BASE}/`) && href !== BASE) {
-        problems.push(`${file}: body link "${href}" is missing the site base ${BASE}`);
-      } else if (!resolves(href.slice(BASE.length) || '/')) {
+      if (BASE && (href === BASE || href.startsWith(`${BASE}/`))) {
+        problems.push(`${file}: body link "${href}" must be base-less (drop ${BASE} — the build adds it)`);
+      } else if (!resolves(href)) {
         problems.push(`${file}: body link "${href}" resolves to nothing`);
       }
     }
@@ -164,5 +155,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );
