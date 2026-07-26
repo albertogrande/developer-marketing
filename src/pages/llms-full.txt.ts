@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { withBase, isoDate } from '../lib/site';
-import { getExamplesSorted, getGuideSorted, getPracticesSorted } from '../lib/content';
+import { getExamplesSorted, getGuideSorted, getPracticesSorted, getSkillsSorted } from '../lib/content';
 
 // llms-full.txt — the entire guide plus the practices, concatenated as plain
 // markdown, so an agent can pull the whole corpus in one fetch.
@@ -12,6 +12,7 @@ export const GET: APIRoute = async (context) => {
   const guide = await getGuideSorted();
   const practices = await getPracticesSorted();
   const examples = await getExamplesSorted();
+  const skills = await getSkillsSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -65,6 +66,35 @@ export const GET: APIRoute = async (context) => {
       out.push(`- **Demonstrates:** ${abs(`/guide/${e.data.demonstrates}`)}`);
       out.push(`- **See it:** ${e.data.source.label} (${e.data.source.url})`);
       const note = (e.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
+    }
+  }
+
+  if (skills.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Skills');
+    out.push('');
+    out.push(
+      'Installable agent skills that do this work. The caveat is part of the recommendation.'
+    );
+    for (const s of skills) {
+      out.push('');
+      out.push(`## ${s.data.name} — ${s.data.title}`);
+      out.push(`- **Does:** ${s.data.summary}`);
+      out.push(`- **Publisher:** ${s.data.author} (${s.data.repo})`);
+      out.push(`- **Install:** ${s.data.install.trim().replace(/\n+/g, ' && ')}`);
+      out.push(`- **Runs in:** ${s.data.agents.join(', ') || 'unspecified'}`);
+      out.push(`- **Caveat:** ${s.data.caveat}`);
+      if (s.data.disclosure) out.push(`- **Disclosure:** ${s.data.disclosure}`);
+      out.push(`- **Does the work of:** ${abs(`/guide/${s.data.section}`)}`);
+      out.push(`- **Source:** ${s.data.source.label} (${s.data.source.url})`);
+      out.push(`- **Verified:** ${isoDate(s.data.verified)}`);
+      const note = (s.body ?? '').trim();
       if (note) {
         out.push('');
         out.push(note);

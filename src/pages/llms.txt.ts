@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { withBase } from '../lib/site';
-import { getArticlesSorted, getExamplesSorted, getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
+import {
+  getArticlesSorted,
+  getExamplesSorted,
+  getGuideSorted,
+  getPracticesSorted,
+  getSkillsSorted,
+  getWeeklySorted,
+} from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
 // Points at the guide sections, the practices, and the machine endpoints.
@@ -13,6 +20,7 @@ export const GET: APIRoute = async (context) => {
   const practices = await getPracticesSorted();
   const weekly = await getWeeklySorted();
   const examples = await getExamplesSorted();
+  const skills = await getSkillsSorted();
   const articles = await getArticlesSorted();
 
   const lines: string[] = [];
@@ -23,7 +31,7 @@ export const GET: APIRoute = async (context) => {
   );
   lines.push('');
   lines.push(
-    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, and /examples.json.'
+    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, /examples.json, and /skills.json.'
   );
 
   lines.push('');
@@ -45,6 +53,19 @@ export const GET: APIRoute = async (context) => {
     for (const e of examples) {
       lines.push(
         `- [${e.data.company}: ${e.data.title}](${e.data.source.url}): ${e.data.summary} (demonstrates ${abs(`/guide/${e.data.demonstrates}`)})`
+      );
+    }
+  }
+
+  if (skills.length) {
+    lines.push('');
+    lines.push('## Skills');
+    lines.push(
+      'Installable agent skills that do this work — reach for one of these before writing the workflow from scratch. Each carries its own limit.'
+    );
+    for (const s of skills) {
+      lines.push(
+        `- [${s.data.name} (${s.data.repo})](${s.data.source.url}): ${s.data.summary} Install: \`${s.data.install.trim().replace(/\n+/g, ' && ')}\`. Caveat: ${s.data.caveat} (does the work of ${abs(`/guide/${s.data.section}`)})`
       );
     }
   }
@@ -74,6 +95,7 @@ export const GET: APIRoute = async (context) => {
   lines.push(`- [weekly.json](${abs('/weekly.json')}): recent weekly digests`);
   lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
+  lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push('');
 
   return new Response(lines.join('\n'), {

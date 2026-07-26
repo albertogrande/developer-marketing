@@ -39,6 +39,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       <li><span><kbd>g</kbd> <kbd>d</kbd></span> deep dives</li>
       <li><span><kbd>g</kbd> <kbd>p</kbd></span> practices</li>
       <li><span><kbd>g</kbd> <kbd>e</kbd></span> examples</li>
+      <li><span><kbd>g</kbd> <kbd>s</kbd></span> skills</li>
       <li><span><kbd>g</kbd> <kbd>r</kbd></span> radar archive</li>
       <li><span><kbd>g</kbd> <kbd>a</kbd></span> about</li>
       <li><span><kbd>?</kbd></span> this help · <kbd>esc</kbd> close</li>
@@ -80,6 +81,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       { id: 'dives', ic: '◈', label: 'Go to deep dives', hint: 'g d', keywords: 'deep dive essays long reads analysis', run: function () { go('/deep-dives'); } },
       { id: 'practices', ic: '»', label: 'Go to practices', hint: 'g p', keywords: 'best practices when do why corpus mcp', run: function () { go('/practices'); } },
       { id: 'examples', ic: '❏', label: 'Go to examples', hint: 'g e', keywords: 'examples swipe file gallery teardown artifacts real', run: function () { go('/examples'); } },
+      { id: 'skills', ic: '⌗', label: 'Go to skills', hint: 'g s', keywords: 'skills agent claude code install plugin tools shelf automate', run: function () { go('/skills'); } },
       { id: 'radar', ic: '◍', label: 'Go to the radar archive', hint: 'g r', keywords: 'radar archive dated signals history', run: function () { go('/radar'); } },
       { id: 'tags', ic: '#', label: 'Browse tags', hint: '', keywords: 'topics tags categories browse', run: function () { go('/tags'); } },
       { id: 'about', ic: 'ⓘ', label: 'Go to about', hint: 'g a', keywords: 'colophon who how it updates', run: function () { go('/about'); } },
@@ -214,7 +216,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {
         gPending = false; clearTimeout(gTimer);
-        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', r: '/radar', a: '/about' };
+        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', s: '/skills', r: '/radar', a: '/about' };
         if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
         return;
       }

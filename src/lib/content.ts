@@ -56,15 +56,25 @@ export const getExamplesSorted = memo(async () =>
   (await getCollection('examples')).sort(entryByDateDesc)
 );
 
+// The shelf — installable agent skills, ordered by the guide section whose job
+// they do (then by id) so the page reads in the guide's own order rather than
+// by the arbitrary date a batch was added.
+export const getSkillsSorted = memo(async () =>
+  (await getCollection('skills')).sort(
+    (a, b) => a.data.section.localeCompare(b.data.section) || a.id.localeCompare(b.id)
+  )
+);
+
 // The archived radar — dated posts from the site's first phase, still rendered.
 export const getRadarSorted = memo(async () =>
   (await getCollection('radar')).sort(entryByDateDesc)
 );
 
 // The guide's knowledge graph, inverted once per build: for each section,
-// the practices that implement it, the examples that evidence it, and the
-// dated coverage (articles, weeklies, dives, radar) whose `related` points
-// at it. The topic-hub pages and the handbook index both read this.
+// the practices that implement it, the examples that evidence it, the skills
+// that automate it, and the dated coverage (articles, weeklies, dives, radar)
+// whose `related` points at it. The topic-hub pages and the handbook index
+// both read this.
 export type CoverageRef = {
   kind: 'article' | 'weekly' | 'dive' | 'radar';
   title: string;
@@ -73,9 +83,10 @@ export type CoverageRef = {
 };
 
 export const getGuideGraph = memo(async () => {
-  const [practices, examples, articles, weekly, dives, radar] = await Promise.all([
+  const [practices, examples, skills, articles, weekly, dives, radar] = await Promise.all([
     getPracticesSorted(),
     getExamplesSorted(),
+    getSkillsSorted(),
     getArticlesSorted(),
     getWeeklySorted(),
     getDivesSorted(),
@@ -92,6 +103,12 @@ export const getGuideGraph = memo(async () => {
   for (const e of examples) {
     if (!examplesBySection.has(e.data.demonstrates)) examplesBySection.set(e.data.demonstrates, []);
     examplesBySection.get(e.data.demonstrates)!.push(e);
+  }
+
+  const skillsBySection = new Map<string, typeof skills>();
+  for (const s of skills) {
+    if (!skillsBySection.has(s.data.section)) skillsBySection.set(s.data.section, []);
+    skillsBySection.get(s.data.section)!.push(s);
   }
 
   const coverageBySection = new Map<string, CoverageRef[]>();
@@ -116,7 +133,7 @@ export const getGuideGraph = memo(async () => {
       addRef(r.href, { kind: 'radar', title: e.data.title, href: `/radar/${e.id}`, date: e.data.date });
   for (const refs of coverageBySection.values()) refs.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  return { practicesBySection, examplesBySection, coverageBySection };
+  return { practicesBySection, examplesBySection, skillsBySection, coverageBySection };
 });
 
 export type TaggedEntry =
@@ -125,17 +142,19 @@ export type TaggedEntry =
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
   | { kind: 'practice'; entry: CollectionEntry<'practices'> }
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
+  | { kind: 'skill'; entry: CollectionEntry<'skills'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, articles, dives, practices, examples, radar] = await Promise.all([
+  const [weekly, articles, dives, practices, examples, skills, radar] = await Promise.all([
     getWeeklySorted(),
     getArticlesSorted(),
     getDivesSorted(),
     getPracticesSorted(),
     getExamplesSorted(),
+    getSkillsSorted(),
     getRadarSorted(),
   ]);
   const map = new Map<string, TaggedEntry[]>();
@@ -148,6 +167,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
   for (const entry of practices) for (const t of entry.data.tags) add(t, { kind: 'practice', entry });
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
+  for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

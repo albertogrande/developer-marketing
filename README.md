@@ -20,6 +20,7 @@ Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
 - **Deep dives**: long-form pieces, commissioned when a thread earns the depth.
 - **Practices**: atomic "when X → do Y (because Z)" units, human- and machine-readable.
 - **Examples**: a swipe file of real, sourced artifacts; the evidence behind the practices.
+- **Skills**: a shelf of installable agent skills that do this work, each with its verbatim install line and its honest limit.
 - **Radar (archive)**: the dated daily posts from the site's first phase.
 
 Built with [Astro](https://astro.build). Architecture and visual identity shared
@@ -32,7 +33,7 @@ Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs
 
 - **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, sweeps blogs, communities, and research into `signals/<week>.md` and patches `src/content/guide/` on hard-fact changes.
 - **Newsroom** ([`newsroom`](.claude/skills/newsroom/)): Tue–Sun, the owning desk ([AUTHORS.md](AUTHORS.md)) publishes at most one article to `src/content/articles/`, logging each decision to `editorial/NEWSROOM.md`.
-- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)): weekly, writes the digest and distills `src/content/practices/` and `src/content/examples/`, commissioning a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
+- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)): weekly, writes the digest, distills `src/content/practices/` and `src/content/examples/`, keeps the skills shelf verified, and commissions a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
 - **Memory**: `editorial/MEMORY.md` tracks threads and guide coverage; `editorial/TASTE.md` is the reader profile. Both internal.
 
 Each desk is a [GitHub Actions workflow](.github/workflows/) that runs the skill via [claude-code-action](https://github.com/anthropics/claude-code-action). Every writer run gets a fresh-context fact-integrity pass, then deterministic gates before a rebase-safe commit.
@@ -74,12 +75,13 @@ src/
     practices/       # atomic best-practices: {when, do, why, section, since, verify}; feed the agent endpoints
     deep-dives/      # long-form pieces: YYYY-MM-DD-slug.md, dated + sourced
     examples/        # swipe file: one real artifact per file: {company, artifact, channel, demonstrates, source}
+    skills/          # the shelf: one installable agent skill per file: {name, repo, job, install, caveat, section, verified}
     radar/           # ARCHIVE: dated posts from the first phase; no new entries
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
-  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, tags/, radar/, about, feed.xml.ts
-                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, articles.json, examples.json
+  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, skills/, tags/, radar/, about, feed.xml.ts
+                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, articles.json, examples.json, skills.json
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
@@ -113,7 +115,9 @@ The guide is also a **source agents can query**, not just a site to read. It
 practices the machine-readable-docs play it preaches. It publishes machine
 endpoints: [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
 (curated index), `/llms-full.txt` (the whole corpus in one file),
-`/practices.json`, `/guide.json`, and `/weekly.json`.
+`/practices.json`, `/guide.json`, `/weekly.json`, `/examples.json`, and
+`/skills.json` — the last one so an agent asked to audit your docs or write your
+changelog can find the skill that already does it, caveat included.
 
 ## License
 

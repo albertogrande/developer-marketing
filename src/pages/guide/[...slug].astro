@@ -18,12 +18,13 @@ export async function getStaticPaths() {
       next: i < guide.length - 1 ? guide[i + 1] : null,
       practices: graph.practicesBySection.get(entry.id) ?? [],
       examples: graph.examplesBySection.get(entry.id) ?? [],
+      skills: graph.skillsBySection.get(entry.id) ?? [],
       coverage: graph.coverageBySection.get(entry.id) ?? [],
     },
   }));
 }
 
-const { entry, prev, next, practices, examples, coverage } = Astro.props;
+const { entry, prev, next, practices, examples, skills, coverage } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
@@ -62,6 +63,21 @@ const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', 
                 <a href={withBase(`/examples#${e.id}`)}>{e.data.company}: {e.data.title}</a>
                 <span class="hub-m">{e.data.artifact}</span>
                 <span class="hub-sub">{e.data.summary}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {skills.length > 0 && (
+        <div class="hub-sec">
+          <p class="hub-h">Automate it <span class="ar-count">{skills.length}</span></p>
+          <ul class="hub-list">
+            {skills.map((s) => (
+              <li class="hub-item">
+                <a href={withBase(`/skills#${s.id}`)}>{s.data.name}</a>
+                <span class="hub-m">{s.data.repo}</span>
+                <span class="hub-sub">{s.data.summary}</span>
               </li>
             ))}
           </ul>
