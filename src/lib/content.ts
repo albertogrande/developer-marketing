@@ -136,6 +136,69 @@ export const getGuideGraph = memo(async () => {
   return { practicesBySection, examplesBySection, skillsBySection, coverageBySection };
 });
 
+// The syndication stream — every dated piece (weekly, newsroom, deep dives,
+// the radar archive), newest first, one shape. Both feeds read this; the
+// guide is deliberately absent (it mutates continuously — its freshness is
+// carried by sitemap lastmod, api.json, and llms.txt dates instead).
+export type FeedItem = {
+  title: string;
+  summary: string;
+  date: Date;
+  updated?: Date;
+  tags: string[];
+  path: string;
+  body: string;
+  byline?: string;
+};
+
+export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
+  const [weekly, articles, dives, radar] = await Promise.all([
+    getWeeklySorted(),
+    getArticlesSorted(),
+    getDivesSorted(),
+    getRadarSorted(),
+  ]);
+  const items: FeedItem[] = [
+    ...weekly.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/weekly/${e.id}`,
+      body: e.body ?? '',
+    })),
+    ...articles.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/articles/${e.id}`,
+      body: e.body ?? '',
+      byline: e.data.byline,
+    })),
+    ...dives.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      updated: e.data.updated,
+      tags: e.data.tags,
+      path: `/deep-dives/${e.id}`,
+      body: e.body ?? '',
+    })),
+    ...radar.map((e) => ({
+      title: e.data.title,
+      summary: e.data.summary,
+      date: e.data.date,
+      tags: e.data.tags,
+      path: `/radar/${e.id}`,
+      body: e.body ?? '',
+    })),
+  ];
+  return items.sort((a, b) => b.date.getTime() - a.date.getTime());
+});
+
 export type TaggedEntry =
   | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
   | { kind: 'article'; entry: CollectionEntry<'articles'> }
