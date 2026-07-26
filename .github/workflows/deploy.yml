@@ -61,3 +61,30 @@ jobs:
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure
+
+  # Tell the search indexes what changed (IndexNow → Bing, which is what
+  # ChatGPT Search retrieves through). Diffed against the last successful
+  # deploy; degrades to a full ping, never to silence. Best-effort by design:
+  # the script exits 0 on API/network failure — a missed ping only delays
+  # recrawl — so this job can only redden a deploy on real misconfiguration
+  # (e.g. a missing key file).
+  ping:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve previously deployed commit
+        id: prev
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "sha=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty')" >> "$GITHUB_OUTPUT"
+      - name: Submit changed URLs to IndexNow
+        env:
+          BASE_SHA: ${{ steps.prev.outputs.sha }}
+        run: node scripts/indexnow-ping.mjs
