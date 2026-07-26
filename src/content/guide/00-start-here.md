@@ -34,4 +34,4 @@ The guide is a reference, not a tutorial — jump to what you need:
 - **Launches** — how to ship an announcement developers amplify instead of ignore.
 - **Measurement** — the metrics that tell you any of this is working.
 
-Each section is stamped with the date it was last reviewed. When something moves in the field, it shows up in [the week](/developer-marketing/weekly) — one short digest every Monday on what actually mattered. The dated daily posts from this site's first phase live on in the [radar archive](/developer-marketing/radar).
+Each section is stamped with the date it was last reviewed. When something moves in the field, it shows up in [the week](/weekly) — one short digest every Monday on what actually mattered. The dated daily posts from this site's first phase live on in the [radar archive](/radar).

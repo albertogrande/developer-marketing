@@ -64,7 +64,11 @@ Astro starts on port 4321 and serves the site at its base path:
 - `npm run build`: check-refs gate + production build to `dist/` + Pagefind search index.
 - `npm run check`: referential integrity + source liveness on changed content.
 - `npm run preview`: serves the built `dist/`.
-- `npm test`: the newsletter suite (crypto, list durability, MIME/SMTP encoders, the capture service).
+- `npm test`: the newsletter suite (crypto, list durability, MIME/SMTP encoders, the capture service) and the build's link-rewriting plugin.
+
+Content writes internal links base-less — `[the guide](/guide/02-docs-as-front-door)` —
+and the build adds the site's base path. Moving the site is then two variables,
+not a content migration: `SITE_ORIGIN=https://your-domain SITE_BASE=/ npm run build`.
 
 ## Layout
 
@@ -89,11 +93,14 @@ src/
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path + dates) + content.ts (shared collection queries) + newsletter.ts (capture config)
 newsletter/          # the in-house newsletter: capture service, SMTP sender, own MIME/markdown/token libs + tests
+api/                 # Vercel Functions binding the newsletter routes to URLs (static site stays static)
+site.config.mjs      # where the site is served from: SITE_ORIGIN + SITE_BASE, read by the build and the link gate
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
 editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
-scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
+scripts/             # check-refs.mjs, check-sources.mjs (gates) + remark-base-paths.mjs (adds the site base to
+                     #  markdown links at build time) + append-ledger.sh (usage bookkeeping)
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
 .github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), newsletter (Mondays),
                      #  deploy (Pages), ci (build + tests), health (watchdog)

@@ -134,16 +134,19 @@ for (const { dir, file, fm, body, err } of entries) {
     else if (!resolves(href)) problems.push(`${file}: related href "${href}" resolves to nothing`);
   }
 
-  // 3. body markdown links
+  // 3. body markdown links — base-less site paths, same convention as `related`
+  // above. scripts/remark-base-paths.mjs adds the base at build time, so content
+  // that hard-codes it would come out doubled and would break the day the site
+  // moves.
   for (const m of body.matchAll(/\]\(([^)\s]+)\)/g)) {
     const href = m[1];
     if (/^(https?:|mailto:|#)/.test(href)) continue;
     if (/^\.{1,2}\//.test(href)) {
-      problems.push(`${file}: relative body link "${href}" breaks on the built site — use ${BASE}/<path>`);
+      problems.push(`${file}: relative body link "${href}" breaks on the built site — use /<path>`);
     } else if (href.startsWith('/')) {
-      if (BASE && !href.startsWith(`${BASE}/`) && href !== BASE) {
-        problems.push(`${file}: body link "${href}" is missing the site base ${BASE}`);
-      } else if (!resolves(href.slice(BASE.length) || '/')) {
+      if (BASE && (href === BASE || href.startsWith(`${BASE}/`))) {
+        problems.push(`${file}: body link "${href}" must be base-less (drop ${BASE} — the build adds it)`);
+      } else if (!resolves(href)) {
         problems.push(`${file}: body link "${href}" resolves to nothing`);
       }
     }

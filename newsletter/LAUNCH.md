@@ -81,28 +81,22 @@ burst.
 ### Serving at the root
 
 Pages serves this site under `/developer-marketing`; Vercel and a custom domain
-serve at `/`. The build takes that from `site.config.mjs`:
+serve at `/`. Both work, and the switch is two build-time variables:
 
 ```
 SITE_ORIGIN=https://your-domain  SITE_BASE=/  npm run build
 ```
 
-**That flag alone is not enough, and the build will tell you so.** Fourteen links
-inside published articles hard-code the current base — `/developer-marketing/guide
-/…` — because that is what works today and what the link gate has always required.
-At the root they would 404, so `check-refs` fails the build instead of shipping
-them.
+Content no longer encodes the deployment path. Markdown bodies write site links
+base-less — `[the guide](/guide/02-docs-as-front-door)` — exactly like
+frontmatter `related` hrefs always have, and `scripts/remark-base-paths.mjs`
+adds the base at build time. `check-refs` enforces the convention, so a link
+with the base typed in by hand fails the build instead of shipping doubled.
 
-Fixing it properly is a small, separate change with a decision in it: content
-should stop encoding the deployment path, which means a remark plugin that adds
-the base at build time, inverting rule 3 in `scripts/check-refs.mjs`, rewriting
-those fourteen links, and updating the writer instructions in `.claude/skills/`
-so the next digest follows the new convention. An hour or two, and worth doing
-once rather than papering over — a `sed` alone would be undone by the next
-weekly issue.
-
-Until then, deploying to Vercel with the default base works fine; the site just
-lives at `your-domain/developer-marketing/`.
+Verified both ways: the default build is byte-identical to what Pages serves
+today (all 62 pages), and the root build emits `/weekly/2026-W28` with no
+`/developer-marketing` prefix anywhere except the GitHub source link, which
+should have it.
 
 ## 4. Secrets and variables — 10 minutes
 
@@ -173,11 +167,12 @@ Stated plainly, because discovering it later is worse.
 - ~~A Postgres store.~~ Built and contract-tested against a real database.
 - ~~Pruning the pending pile.~~ `prunePending(ttlDays)` exists on both stores and
   is contract-tested. Still needs a caller — a weekly cron line, one hour of work.
+- ~~The Vercel function wiring.~~ Built: seven files in `api/`, tested by driving
+  real `Request` objects through them. No framework conversion needed.
+- ~~Serving at the root.~~ Two build-time variables; content is base-less now.
 
 **Still outstanding:**
 
-- **Serving at the root** (see below). The config switch is in; 14 links in
-  published content are not.
 - **A cron for `prunePending`.** The privacy note promises unconfirmed addresses
   are dropped; the function exists, nothing calls it yet.
 - **List export.** `data/subscribers.ndjson` *is* the export for the file store;

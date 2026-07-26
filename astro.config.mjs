@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import { SITE_ORIGIN, SITE_BASE } from './site.config.mjs';
+import remarkBasePaths from './scripts/remark-base-paths.mjs';
 
 // A GitHub Pages project site: a living field guide to the state of the art in
 // developer marketing. Content is frontmatter-driven (see src/content.config.ts)
@@ -15,6 +16,12 @@ export default defineConfig({
   site: SITE_ORIGIN,
   base: SITE_BASE,
   trailingSlash: 'ignore',
+  markdown: {
+    // Markdown bodies write site links base-less, exactly like frontmatter
+    // `related` hrefs; this adds the base at build time so the content does not
+    // encode where the site is deployed.
+    remarkPlugins: [[remarkBasePaths, { base: SITE_BASE }]],
+  },
   integrations: [
     mdx(),
     sitemap({
