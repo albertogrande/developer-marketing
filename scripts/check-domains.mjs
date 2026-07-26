@@ -27,12 +27,13 @@ const BOOTSTRAP_URL = 'https://data.iana.org/rdap/dns.json';
 // route, so a result is only trustworthy if it actually redirected somewhere else.
 const ROUTER_URL = 'https://rdap.org';
 // ccTLDs the bootstrap omits (it only mandates gTLDs) but which do serve RDAP.
-// Identity Digital operates .io/.sh/.ac; each verified to answer 200 for a
+// Identity Digital operates .io/.sh/.ac/.me; each verified to answer 200 for a
 // registered name and 404 for a free one.
 const OVERRIDES = new Map([
   ['io', 'https://rdap.identitydigital.services/rdap'],
   ['sh', 'https://rdap.identitydigital.services/rdap'],
   ['ac', 'https://rdap.identitydigital.services/rdap'],
+  ['me', 'https://rdap.identitydigital.services/rdap'],
 ]);
 const DEFAULT_TLDS = ['dev', 'com', 'io'];
 const TIMEOUT_MS = 10_000;
