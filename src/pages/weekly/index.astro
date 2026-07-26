@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
+import NewsletterCta from '../../components/NewsletterCta.astro';
 import { withBase } from '../../lib/site';
 import { getWeeklySorted } from '../../lib/content';
 
@@ -40,4 +41,11 @@ const weekly = await getWeeklySorted();
   ) : (
     <p class="dek">The first issue is in the works. Check back shortly.</p>
   )}
+
+  <NewsletterCta
+    variant="inline"
+    source="/weekly"
+    heading="Have it delivered"
+    blurb="The same digest, in your inbox on Monday mornings. Self-hosted list, no tracking, one-click unsubscribe."
+  />
 </BaseLayout>

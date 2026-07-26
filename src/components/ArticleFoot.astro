@@ -1,7 +1,12 @@
 ---
-// Shared article foot: revision stamp, related links, sources, and the
-// back/forward nav. One component instead of the near-identical blocks the
-// weekly and deep-dive templates used to carry.
+// Shared article foot: revision stamp, related links, sources, the newsletter
+// call-to-action, and the back/forward nav. One component instead of the
+// near-identical blocks the weekly and deep-dive templates used to carry.
+//
+// The subscribe box sits after the sources and before the nav: the reader has
+// just finished the piece, which is the only moment the ask is earned. Pass
+// `subscribe={false}` on pages where it would be noise.
+import NewsletterCta from './NewsletterCta.astro';
 import { withBase, fmtLong, isoDate } from '../lib/site';
 
 interface Props {
@@ -12,9 +17,18 @@ interface Props {
   backLabel: string;
   forwardHref: string;
   forwardLabel: string;
+  subscribe?: boolean;
 }
-const { updated, related = [], sources = [], backHref, backLabel, forwardHref, forwardLabel } =
-  Astro.props;
+const {
+  updated,
+  related = [],
+  sources = [],
+  backHref,
+  backLabel,
+  forwardHref,
+  forwardLabel,
+  subscribe = true,
+} = Astro.props;
 ---
 {updated && (
   <p class="related">
@@ -46,6 +60,7 @@ const { updated, related = [], sources = [], backHref, backLabel, forwardHref, f
     </ol>
   </div>
 )}
+{subscribe && <NewsletterCta variant="inline" source={Astro.url.pathname} />}
 <nav class="section-nav">
   <a href={withBase(backHref)}>← {backLabel}</a>
   <span class="spacer"></span>

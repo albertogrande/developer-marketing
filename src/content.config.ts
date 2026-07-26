@@ -18,6 +18,11 @@ import { glob } from 'astro/loaders';
 //              works" note, the guide section it demonstrates, and a link to
 //              the real thing. Evidence for the guide's judgment; browsed as a
 //              gallery at /examples and served to machines at /examples.json.
+//  resources/ — the directory. Vetted outside help for developer marketing:
+//              agencies, studios, collectives, independents. Each entry is a
+//              real provider with a live site, one verifiable proof point, and
+//              the date we last checked it. Rendered at /resources, served to
+//              machines at /resources.json.
 //  radar/    — ARCHIVE. The dated daily posts from the site's first phase
 //              (2026-07-05 → 2026-07-08), kept rendered so URLs don't break.
 //              No new entries: daily capture now goes to signals/ (internal)
@@ -238,6 +243,76 @@ const examples = defineCollection({
   }),
 });
 
+// resources/ — the directory of outside help. One file per provider. The bar
+// for an entry: a live site, a real developer-marketing service (not a tool or
+// a media property), and one *verifiable* proof point — a named client wall, a
+// published price, a book, a conference they run, a network size they state.
+// `signal` carries that proof and `checked` stamps when a human-or-agent last
+// opened the page. `caveat` is mandatory in spirit, not in schema: say the
+// uncomfortable thing (self-reported numbers, six months old, not devtools-only)
+// where it applies. No paid placements, ever — see /about.
+const resources = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/resources' }),
+  schema: z.object({
+    // The provider's name as they write it — "Draft.dev", "ércule".
+    name: z.string(),
+    // Their home page. Doubles as the entry's proof link.
+    url: z.string().url(),
+    // What kind of thing you are hiring. Drives the chip on the card.
+    kind: z.enum([
+      'agency', // a shop with a bench and account management
+      'studio', // small, senior, one discipline done deeply
+      'collective', // a network you hire practitioners out of, directly
+      'independent', // one person
+      'network', // creators/programs at scale, brokered
+      'platform', // software first, services attached
+      'research', // sells data and studies, not campaigns
+    ]),
+    // The section of the directory this sits in. Ordering and labels live in
+    // lib/content.ts (RESOURCE_CATEGORIES) so pages and endpoints agree.
+    category: z.enum(['content', 'positioning', 'devrel', 'docs', 'community', 'research']),
+    // What they actually sell. Controlled so the filter chips can't drift.
+    services: z
+      .array(
+        z.enum([
+          'content',
+          'docs',
+          'devrel',
+          'community',
+          'events',
+          'positioning',
+          'gtm',
+          'seo-geo',
+          'video',
+          'design',
+          'ads',
+          'research',
+          'education',
+        ])
+      )
+      .min(1),
+    // How dev-specific the practice is. "technical-b2b" is not a demerit — it
+    // is a warning to check they have shipped to developers specifically.
+    focus: z.enum(['devtools', 'technical-b2b']),
+    // Where they are, loosely — "US · remote", "Europe". Buyers ask.
+    based: z.string().optional(),
+    // The strongest thing about them that a reader can go verify. Required:
+    // an entry nobody can check is an ad.
+    signal: z.string(),
+    // Published pricing only — never a quote we were given, never an estimate.
+    pricing: z.string().optional(),
+    // The honest reservation. Omit only when there genuinely isn't one.
+    caveat: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    // When the site and the claims above were last opened and checked.
+    checked: z.coerce.date(),
+    // Supporting links beyond `url` — a launch post, a methodology page, a book.
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+  }),
+});
+
 // radar/ — archived. Schema unchanged from the site's first phase so the
 // existing entries render exactly as published.
 const radar = defineCollection({
@@ -269,5 +344,6 @@ export const collections = {
   practices,
   'deep-dives': deepDives,
   examples,
+  resources,
   radar,
 };

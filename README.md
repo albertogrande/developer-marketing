@@ -20,6 +20,8 @@ Identity, desks, and charter: [MASTHEAD.md](MASTHEAD.md) · the writing desks:
 - **Deep dives**: long-form pieces, commissioned when a thread earns the depth.
 - **Practices**: atomic "when X → do Y (because Z)" units, human- and machine-readable.
 - **Examples**: a swipe file of real, sourced artifacts; the evidence behind the practices.
+- **Resources**: a vetted directory of who to hire — agencies, studios, collectives, independents. Nothing for sale.
+- **Newsletter**: the weekly digest by email, self-hosted end to end (`newsletter/`). No ESP, no tracking.
 - **Radar (archive)**: the dated daily posts from the site's first phase.
 
 Built with [Astro](https://astro.build). Architecture and visual identity shared
@@ -62,6 +64,7 @@ Astro starts on port 4321 and serves the site at its base path:
 - `npm run build`: check-refs gate + production build to `dist/` + Pagefind search index.
 - `npm run check`: referential integrity + source liveness on changed content.
 - `npm run preview`: serves the built `dist/`.
+- `npm test`: the newsletter suite (crypto, list durability, MIME/SMTP encoders, the capture service).
 
 ## Layout
 
@@ -74,21 +77,26 @@ src/
     practices/       # atomic best-practices: {when, do, why, section, since, verify}; feed the agent endpoints
     deep-dives/      # long-form pieces: YYYY-MM-DD-slug.md, dated + sourced
     examples/        # swipe file: one real artifact per file: {company, artifact, channel, demonstrates, source}
+    resources/       # the directory of outside help: {name, url, kind, category, services, signal, caveat, checked}
     radar/           # ARCHIVE: dated posts from the first phase; no new entries
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
-  components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
-  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, tags/, radar/, about, feed.xml.ts
-                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, articles.json, examples.json
+  components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot, NewsletterCta
+  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, resources/, tags/, radar/,
+                     #  newsletter/ (subscribe + confirm/unsubscribe landings), about, feed.xml.ts
+                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json,
+                     #    articles.json, examples.json, resources.json
   styles/main.scss   # design system, inherited from The Wire
-  lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
+  lib/               # site.ts (base path + dates) + content.ts (shared collection queries) + newsletter.ts (capture config)
+newsletter/          # the in-house newsletter: capture service, SMTP sender, own MIME/markdown/token libs + tests
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
 editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
 scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
-.github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
+.github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), newsletter (Mondays),
+                     #  deploy (Pages), ci (build + tests), health (watchdog)
 .github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
 ```
 
@@ -107,13 +115,40 @@ The autonomous desks need a Claude Code OAuth token:
 Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/weekly-digest`,
 `/deep-dive [topic]`. Interactive runs write files without committing. You decide.
 
+## The newsletter
+
+The weekly digest goes out by email from this repository — our list, our
+templates, our SMTP sender, no email service provider in the path and no
+tracking of any kind. Full documentation, including a systemd unit and the
+deliverability checklist: [`newsletter/README.md`](newsletter/README.md).
+
+```
+cp newsletter/.env.example newsletter/.env    # fill in NEWSLETTER_SECRET
+set -a; . newsletter/.env; set +a
+npm run newsletter:serve                      # capture service on :8787
+npm run newsletter:preview                    # render the newest issue, send nothing
+```
+
+With no `SMTP_HOST` set, mail is written to `newsletter/data/outbox/*.eml`
+instead of being sent, so the whole double-opt-in flow is testable offline.
+
+The static site cannot accept a POST, so the subscribe form needs that service's
+public URL at build time. Set the repository **variable** `NEWSLETTER_API` (e.g.
+`https://list.example.com`) and the next deploy renders live forms; leave it
+unset and the call-to-action says so instead of failing silently. Sending needs
+secrets `NEWSLETTER_SECRET` (the same one the service signs with),
+`NEWSLETTER_ADMIN_TOKEN`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `FROM_EMAIL`;
+without them the weekly send job skips and stays green.
+
 ## Use the guide from your own sessions
 
 The guide is also a **source agents can query**, not just a site to read. It
 practices the machine-readable-docs play it preaches. It publishes machine
 endpoints: [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
 (curated index), `/llms-full.txt` (the whole corpus in one file),
-`/practices.json`, `/guide.json`, and `/weekly.json`.
+`/practices.json`, `/guide.json`, `/weekly.json`, `/examples.json`, and
+`/resources.json` — the last one caveats included, so an agent asked who could
+write your tutorials answers with something checkable.
 
 ## License
 

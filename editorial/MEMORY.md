@@ -38,6 +38,24 @@ already been said. It is internal (not rendered).
   evergreen idea pool in `editorial/BACKLOG.md`. Articles feed the product:
   guide patches, practice/example candidates, deep-dive flags. The radar
   lesson stands — if the newsroom starts padding, cut cadence, not quality.
+- **2026-07-26, the directory + the newsletter** (two new surfaces, both
+  policy-bound; charter rules 8 and 9 in `MASTHEAD.md` are the constraint).
+  `src/content/resources/` catalogs **who a practitioner can hire** — 24 seed
+  entries across six categories (content, positioning, devrel, docs, community,
+  research), rendered at `/resources`, served at `/resources.json`, and joined
+  to the tag graph. Bar for an entry: a live site, a *verifiable* `signal`, a
+  `checked` date, and a `caveat` where one is warranted. **Nothing is for sale**
+  and no provider previews its entry. Maintenance is on demand, not a cadence:
+  when a scout signal names a provider (a rebrand, an acquisition, a shop
+  closing) refresh or remove the entry and re-stamp `checked`; do not pad the
+  list to make it look bigger. The newsletter is **The Week by email**, run
+  in-house from `newsletter/` (capture service + own SMTP sender, double opt-in,
+  HMAC-signed links, no pixels, no click tracking). The site's capture form is
+  live only when `PUBLIC_NEWSLETTER_API` is set at build time; the send workflow
+  (`newsletter.yml`, Mondays 09:00 UTC) skips cleanly while unconfigured. The
+  email body *is* the published digest, so a correction to a weekly issue is a
+  correction to what landed in inboxes — fix it in `src/content/weekly/` and say
+  so in the next issue rather than silently editing history.
 
 ## Running threads
 

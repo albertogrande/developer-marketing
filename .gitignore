@@ -4,6 +4,12 @@ dist/
 .astro/
 # deps
 node_modules/
+# newsletter: the subscriber list, the send logs and the dry-run outbox. Real
+# addresses must never end up in git.
+newsletter/data/
+/data/
+*.eml
+.env
 # os / editor
 .DS_Store
 *.log

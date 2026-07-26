@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { withBase } from '../lib/site';
-import { getArticlesSorted, getExamplesSorted, getGuideSorted, getPracticesSorted, getWeeklySorted } from '../lib/content';
+import {
+  getArticlesSorted,
+  getExamplesSorted,
+  getGuideSorted,
+  getPracticesSorted,
+  getResourcesSorted,
+  getWeeklySorted,
+} from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
 // Points at the guide sections, the practices, and the machine endpoints.
@@ -14,6 +21,7 @@ export const GET: APIRoute = async (context) => {
   const weekly = await getWeeklySorted();
   const examples = await getExamplesSorted();
   const articles = await getArticlesSorted();
+  const resources = await getResourcesSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -23,7 +31,7 @@ export const GET: APIRoute = async (context) => {
   );
   lines.push('');
   lines.push(
-    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, and /examples.json.'
+    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, /examples.json, and /resources.json.'
   );
 
   lines.push('');
@@ -45,6 +53,19 @@ export const GET: APIRoute = async (context) => {
     for (const e of examples) {
       lines.push(
         `- [${e.data.company}: ${e.data.title}](${e.data.source.url}): ${e.data.summary} (demonstrates ${abs(`/guide/${e.data.demonstrates}`)})`
+      );
+    }
+  }
+
+  if (resources.length) {
+    lines.push('');
+    lines.push('## Resources');
+    lines.push(
+      'Who to hire for developer marketing — vetted providers, no paid placements. Claims are self-reported unless stated otherwise.'
+    );
+    for (const r of resources) {
+      lines.push(
+        `- [${r.data.name}](${r.data.url}): ${r.data.kind}, ${r.data.services.join('/')} — ${r.data.signal}${r.data.caveat ? ` Caveat: ${r.data.caveat}` : ''} (${abs(`/resources#${r.id}`)})`
       );
     }
   }
@@ -74,6 +95,7 @@ export const GET: APIRoute = async (context) => {
   lines.push(`- [weekly.json](${abs('/weekly.json')}): recent weekly digests`);
   lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
+  lines.push(`- [resources.json](${abs('/resources.json')}): the directory of developer-marketing providers`);
   lines.push('');
 
   return new Response(lines.join('\n'), {

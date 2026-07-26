@@ -1,6 +1,12 @@
 import type { APIRoute } from 'astro';
 import { withBase, isoDate } from '../lib/site';
-import { getExamplesSorted, getGuideSorted, getPracticesSorted } from '../lib/content';
+import {
+  getExamplesSorted,
+  getGuideSorted,
+  getPracticesSorted,
+  getResourcesSorted,
+  RESOURCE_CATEGORY_LABELS,
+} from '../lib/content';
 
 // llms-full.txt — the entire guide plus the practices, concatenated as plain
 // markdown, so an agent can pull the whole corpus in one fetch.
@@ -12,6 +18,7 @@ export const GET: APIRoute = async (context) => {
   const guide = await getGuideSorted();
   const practices = await getPracticesSorted();
   const examples = await getExamplesSorted();
+  const resources = await getResourcesSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -65,6 +72,32 @@ export const GET: APIRoute = async (context) => {
       out.push(`- **Demonstrates:** ${abs(`/guide/${e.data.demonstrates}`)}`);
       out.push(`- **See it:** ${e.data.source.label} (${e.data.source.url})`);
       const note = (e.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
+    }
+  }
+
+  if (resources.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Resources — who to hire');
+    out.push('');
+    out.push(
+      'Vetted providers of developer-marketing services. No paid placements. Proof points are quoted from each provider’s own site and are self-reported unless stated otherwise; `checked` is when the page was last read.'
+    );
+    for (const r of resources) {
+      out.push('');
+      out.push(`## ${r.data.name}`);
+      out.push(`- **What:** ${r.data.kind}, ${RESOURCE_CATEGORY_LABELS[r.data.category]} (${r.data.services.join(', ')})`);
+      out.push(`- **Focus:** ${r.data.focus === 'devtools' ? 'devtools' : 'technical B2B'}${r.data.based ? ` · ${r.data.based}` : ''}`);
+      out.push(`- **Signal:** ${r.data.signal}`);
+      if (r.data.pricing) out.push(`- **Pricing:** ${r.data.pricing}`);
+      if (r.data.caveat) out.push(`- **Caveat:** ${r.data.caveat}`);
+      out.push(`- **Site:** ${r.data.url} · checked ${isoDate(r.data.checked)}`);
+      const note = (r.body ?? '').trim();
       if (note) {
         out.push('');
         out.push(note);

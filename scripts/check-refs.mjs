@@ -32,6 +32,7 @@ const articleIds = ids('src/content/articles');
 const diveIds = ids('src/content/deep-dives');
 const practiceIds = ids('src/content/practices');
 const exampleIds = ids('src/content/examples');
+const resourceIds = ids('src/content/resources');
 const radarIds = ids('src/content/radar');
 
 function frontmatterOf(file) {
@@ -74,7 +75,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'radar']) {
+for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -90,6 +91,7 @@ function resolves(href) {
   const clean = path.replace(/\/$/, '') || '/';
   if (clean === '/practices' && hash) return practiceIds.has(hash);
   if (clean === '/examples' && hash) return exampleIds.has(hash);
+  if (clean === '/resources' && hash) return resourceIds.has(hash);
   if (STATIC_ROUTES.has(clean)) return true;
   let m;
   if ((m = clean.match(/^\/guide\/([^/]+)$/))) return guideIds.has(m[1]);
@@ -151,5 +153,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

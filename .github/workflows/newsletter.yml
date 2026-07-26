@@ -1,0 +1,108 @@
+name: Newsletter
+
+# Sends the week's digest to the confirmed list, two hours after the Weekly
+# workflow writes it. The list itself lives on the capture service (see
+# newsletter/README.md); this job reads the recipients over its authenticated
+# admin endpoint, renders the issue from src/content/weekly/, and hands each
+# message to the SMTP relay.
+#
+# Wiring is optional: with the secrets unset the job reports that the newsletter
+# is not configured and exits successfully, so a fork or a fresh clone is not
+# permanently red.
+#
+# Requires secrets NEWSLETTER_SECRET (the same one the service signs with),
+# NEWSLETTER_ADMIN_TOKEN, SMTP_HOST, SMTP_USER, SMTP_PASS, FROM_EMAIL, and
+# variables NEWSLETTER_API (the service's public URL) and SITE_URL.
+
+on:
+  schedule:
+    # Monday 09:00 UTC — the Weekly workflow writes the digest at 07:00 and
+    # Deploy publishes it; by now the archive link in the email resolves.
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "ISO week to send (blank = newest issue)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Render only, send nothing"
+        type: boolean
+        default: true
+      test_to:
+        description: "Send a single test message to this address instead of the list"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: newsletter
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+
+      # The renderer and the token signing are covered by tests; a broken
+      # encoder must not reach an inbox.
+      - run: npm test
+
+      - name: Check the newsletter is configured
+        id: config
+        env:
+          API: ${{ vars.NEWSLETTER_API }}
+          SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        run: |
+          if [ -z "$API" ] || [ -z "$SECRET" ] || [ -z "$SMTP_HOST" ]; then
+            echo "newsletter not configured (NEWSLETTER_API / NEWSLETTER_SECRET / SMTP_HOST) — skipping."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send
+        if: steps.config.outputs.ready == 'yes'
+        env:
+          NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+          ADMIN_TOKEN: ${{ secrets.NEWSLETTER_ADMIN_TOKEN }}
+          PUBLIC_BASE_URL: ${{ vars.NEWSLETTER_API }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://albertogrande.github.io/developer-marketing' }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'Developer Marketing — The Week' }}
+          REPLY_TO: ${{ vars.REPLY_TO }}
+          WEEK: ${{ inputs.week }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          TEST_TO: ${{ inputs.test_to }}
+        run: |
+          args=(--api "$PUBLIC_BASE_URL" --rate 30)
+          [ -n "$WEEK" ] && args+=(--week "$WEEK")
+          if [ -n "$TEST_TO" ]; then
+            args+=(--test "$TEST_TO")
+          elif [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          else
+            args+=(--yes)
+          fi
+          echo "send.mjs ${args[*]}"
+          node newsletter/send.mjs "${args[@]}"
+
+      # A silent failure means a week with no issue and nobody the wiser.
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

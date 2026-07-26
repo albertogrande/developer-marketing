@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsletterCta from '../../components/NewsletterCta.astro';
+import { withBase, fmtMed } from '../../lib/site';
+import { getWeeklySorted } from '../../lib/content';
+import { NEWSLETTER, NEWSLETTER_LIVE } from '../../lib/newsletter';
+
+// The subscribe page. Also the honest disclosure page: what we store, what we
+// send, who runs the machine, and how to leave. If a developer-marketing guide
+// runs a shady list, nothing else it says survives.
+
+const weekly = await getWeeklySorted();
+const recent = weekly.slice(0, 6);
+---
+<BaseLayout
+  title="Newsletter"
+  description="The Week by email: one short issue every Monday on what moved in developer marketing, each claim sourced. Self-hosted, double opt-in, no tracking pixels, one-click unsubscribe."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsletter</div>
+    <h1 class="page-title">{NEWSLETTER.name}, in your inbox</h1>
+    <p class="dek">
+      {NEWSLETTER.promise} Sent {NEWSLETTER.cadence}, written by the same desk
+      that writes <a href={withBase('/weekly')}>the digest</a>, and delivered by
+      a mail sender that lives in this repository.
+    </p>
+  </div>
+
+  <NewsletterCta
+    variant="page"
+    source="/newsletter"
+    heading="Subscribe"
+    blurb="Your address, and nothing else. You will get one confirmation email; confirm it and the next issue arrives on Monday."
+  />
+
+  <div class="fm-sec">
+    <span class="amber">##</span><span class="fm-sec-l">what arrives</span>
+    <span class="fm-rule" aria-hidden="true"></span>
+  </div>
+  <ul class="nlp-list">
+    <li><b>One issue a week.</b> Monday morning, UTC. Never more than one, and nothing on the weeks where nothing happened.</li>
+    <li><b>The same words as the site.</b> The email is the week's digest rendered for mail, not a teaser that makes you click through.</li>
+    <li><b>Every claim linked.</b> If an issue says a number moved, the source is one tap away.</li>
+    <li><b>Plain text alongside the HTML.</b> Your terminal mail client gets a readable copy, because some of you read mail in mutt and we know it.</li>
+  </ul>
+
+  <div class="fm-sec">
+    <span class="amber">##</span><span class="fm-sec-l">how the list is run</span>
+    <span class="fm-rule" aria-hidden="true"></span>
+  </div>
+  <div class="nlp-prose">
+    <p>
+      There is no Mailchimp account behind this, no Substack, no beehiiv. The
+      subscribe form posts to a small service we wrote, the list is an
+      append-only file on a machine we control, and the issues go out through our
+      own SMTP sender — all of it in
+      <a href="https://github.com/albertogrande/developer-marketing/tree/main/newsletter">
+        <code>newsletter/</code></a>, with no third-party dependency in the path.
+      You can read exactly what happens to your address before you type it.
+    </p>
+    <ul class="nlp-list">
+      <li>
+        <b>Double opt-in.</b> Subscribing sends one confirmation email. Ignore it
+        and nothing further is ever sent — an unconfirmed address is dropped, not
+        kept warm.
+      </li>
+      <li>
+        <b>What is stored.</b> Your address, the page you subscribed from, the
+        timestamps, and a salted hash of the IP that submitted the form (kept for
+        rate-limiting, never reversible to you). Nothing else. No name field, no
+        company enrichment, no profile.
+      </li>
+      <li>
+        <b>No tracking.</b> No open pixel, no click-wrapped links, no per-reader
+        identifiers in URLs. We cannot tell whether you opened an issue, which is
+        the point. The only number we have is how many people are on the list.
+      </li>
+      <li>
+        <b>One-click unsubscribe.</b> Every issue carries a signed unsubscribe
+        link and the <code>List-Unsubscribe</code> headers your mail client uses
+        for its own unsubscribe button. One request removes you; no confirmation
+        flow, no "are you sure", no exit survey.
+      </li>
+      <li>
+        <b>Never shared.</b> The list is not sold, rented, swapped, uploaded as a
+        custom audience, or used to look you up anywhere else.
+      </li>
+    </ul>
+    {!NEWSLETTER_LIVE && (
+      <p class="nlp-note">
+        <b>Note.</b> This build has no capture endpoint configured, so the form
+        above is not live yet. The
+        <a href={withBase('/feed.xml')}>RSS feed</a> carries every issue in the
+        meantime, and
+        <a href="https://github.com/albertogrande/developer-marketing/blob/main/newsletter/README.md">
+          newsletter/README.md</a> documents how the endpoint gets switched on.
+      </p>
+    )}
+  </div>
+
+  {recent.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">read it first</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(weekly.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {recent.map((w) => (
+          <li class="fm-row">
+            <span class="fm-ln">{w.data.week.slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/weekly/${w.id}`)} class="fm-row-t">{w.data.title}</a>
+              <p class="fm-row-dek">{w.data.summary} <span class="dim">· {fmtMed(w.data.date)}</span></p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="muted-line">
+        <a href={withBase('/weekly')}>every issue →</a>
+        <span class="sb-sep" aria-hidden="true"> · </span>
+        <a href={withBase('/feed.xml')}>≋ feed</a>
+      </p>
+    </Fragment>
+  )}
+</BaseLayout>
+
+<style>
+  .nlp-list { padding-left: 1.1rem; max-width: var(--measure); }
+  .nlp-list li { margin: 0.45rem 0; font-size: 0.97rem; line-height: 1.55; }
+  .nlp-prose { max-width: var(--measure); }
+  .nlp-prose p { font-size: 0.97rem; line-height: 1.6; }
+  .nlp-note {
+    border-left: 2px solid var(--accent);
+    padding-left: 0.9rem;
+    color: var(--muted);
+  }
+</style>
