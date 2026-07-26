@@ -204,6 +204,27 @@ function expiryOf(body) {
   return event?.eventDate ? event.eventDate.slice(0, 10) : null;
 }
 
+// Last resort for a registry that publishes no RDAP at all (several short ccTLDs).
+// DNS delegation is evidence, not an answer: a registered name parked without
+// nameservers still returns NXDOMAIN, so this can only ever say "likely". These
+// states stay distinct from the RDAP-backed ones and are excluded from --available.
+async function guessByDns(domain, tld) {
+  const dns = await import('node:dns');
+  const resolver = new dns.promises.Resolver({ timeout: 5_000, tries: 2 });
+  const note = `no RDAP for .${tld}`;
+  try {
+    const ns = await resolver.resolveNs(domain);
+    return ns.length
+      ? { domain, state: 'likely-taken', detail: `${note}; delegated to ${ns[0]}` }
+      : { domain, state: 'unknown', detail: `${note}; DNS inconclusive` };
+  } catch (err) {
+    if (err.code === 'ENOTFOUND' || err.code === 'NXDOMAIN') {
+      return { domain, state: 'likely-free', detail: `${note}; no DNS record — verify manually` };
+    }
+    return { domain, state: 'unknown', detail: `${note}; DNS ${err.code || 'error'}` };
+  }
+}
+
 async function check(domain, bootstrap) {
   const invalid = validate(domain);
   if (invalid) return { domain, state: 'invalid', detail: invalid };
@@ -217,7 +238,7 @@ async function check(domain, bootstrap) {
 
   // The router answering for itself means it had no route, not that the name is free.
   if (base === ROUTER_URL && new URL(finalUrl).host === new URL(ROUTER_URL).host) {
-    return { domain, state: 'unknown', detail: `no RDAP service found for .${tld}` };
+    return await guessByDns(domain, tld);
   }
 
   if (status === 404) return { domain, state: 'available' };
@@ -288,8 +309,22 @@ async function main() {
     console.log(JSON.stringify(shown, null, 2));
   } else {
     const width = Math.max(1, ...shown.map((r) => r.domain.length));
-    const MARK = { available: '✓', taken: '✗', unknown: '?', invalid: '!' };
-    const order = { available: 0, taken: 1, unknown: 2, invalid: 3 };
+    const MARK = {
+      available: '✓',
+      'likely-free': '~',
+      taken: '✗',
+      'likely-taken': '×',
+      unknown: '?',
+      invalid: '!',
+    };
+    const order = {
+      available: 0,
+      'likely-free': 1,
+      taken: 2,
+      'likely-taken': 3,
+      unknown: 4,
+      invalid: 5,
+    };
     for (const r of [...shown].sort(
       (a, b) => order[a.state] - order[b.state] || a.domain.localeCompare(b.domain),
     )) {
@@ -299,6 +334,7 @@ async function main() {
     const count = (s) => results.filter((r) => r.state === s).length;
     console.error(
       `\n${count('available')} available, ${count('taken')} taken, ` +
+        `${count('likely-free')} likely free, ${count('likely-taken')} likely taken, ` +
         `${count('unknown') + count('invalid')} inconclusive, of ${results.length} checked.`,
     );
   }
