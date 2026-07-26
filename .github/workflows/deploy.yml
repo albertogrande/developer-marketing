@@ -86,6 +86,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # The ping script itself is dependency-free, but it maps changed files
+      # to routes via scripts/lib/routes.mjs, which parses frontmatter with
+      # the yaml package — so the install is not optional here.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
       - name: Resolve previously pinged commit
         id: prev
         env:
