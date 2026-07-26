@@ -20,11 +20,12 @@ const dives = items.filter((i) => i.kind === 'deep-dive');
 const practices = items.filter((i) => i.kind === 'practice');
 const examples = items.filter((i) => i.kind === 'example');
 const resources = items.filter((i) => i.kind === 'resource');
+const skills = items.filter((i) => i.kind === 'skill');
 const radar = items.filter((i) => i.kind === 'radar');
 ---
 <BaseLayout
   title={`Tagged: ${tag}`}
-  description={`Everything on the field guide tagged "${tag}" — weekly issues, deep dives, practices, examples, and radar entries.`}
+  description={`Everything on the field guide tagged "${tag}" — weekly issues, deep dives, practices, examples, skills, and radar entries.`}
 >
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags / {tag}</div>
@@ -91,6 +92,27 @@ const radar = items.filter((i) => i.kind === 'radar');
             <div class="fm-rowmain">
               <a href={withBase(`/resources#${entry.id}`)} class="fm-row-t">{entry.data.name}</a>
               <p class="fm-row-dek">{entry.data.signal}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {skills.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">skills</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(skills.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {skills.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">sk</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/skills#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
             </div>
           </li>
         ))}

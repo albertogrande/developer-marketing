@@ -12,9 +12,11 @@ const countsFor = (id: string) => {
   const parts: string[] = [];
   const p = graph.practicesBySection.get(id)?.length ?? 0;
   const e = graph.examplesBySection.get(id)?.length ?? 0;
+  const s = graph.skillsBySection.get(id)?.length ?? 0;
   const c = graph.coverageBySection.get(id)?.length ?? 0;
   if (p) parts.push(`${p} practice${p > 1 ? 's' : ''}`);
   if (e) parts.push(`${e} example${e > 1 ? 's' : ''}`);
+  if (s) parts.push(`${s} skill${s > 1 ? 's' : ''}`);
   if (c) parts.push(`${c} mention${c > 1 ? 's' : ''}`);
   return parts;
 };
@@ -30,7 +32,8 @@ const countsFor = (id: string) => {
       A practitioner's reference to marketing to developers — nine sections,
       each a topic hub gathering the evergreen state of the art, the
       <a href={withBase('/practices')}>practices</a> that implement it, the
-      <a href={withBase('/examples')}>evidence</a> behind it, and the coverage
+      <a href={withBase('/examples')}>evidence</a> behind it, the
+      <a href={withBase('/skills')}>skills</a> that automate it, and the coverage
       that keeps it honest. Each carries the date it was last checked.
     </p>
   </div>

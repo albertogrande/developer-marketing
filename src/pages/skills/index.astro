@@ -1,0 +1,280 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { render } from 'astro:content';
+import { withBase, isoDate } from '../../lib/site';
+import { getSkillsSorted, getGuideSorted } from '../../lib/content';
+
+// The shelf — installable agent skills that do the work the guide describes,
+// grouped by the guide section whose job they automate. Every card carries the
+// verbatim install line, the honest caveat, and a link to the source repo.
+// Machines read the same set at /skills.json.
+
+const [skills, guide] = await Promise.all([getSkillsSorted(), getGuideSorted()]);
+const sectionTitle = new Map(guide.map((g) => [g.id, g.data.title]));
+
+const cards = await Promise.all(
+  skills.map(async (s) => ({ s, Content: (await render(s)).Content }))
+);
+
+// One group per guide section, in the guide's own order. A section with no
+// skill is simply absent — the gap note below says which those are.
+const groups = guide
+  .map((g) => ({
+    id: g.id,
+    order: g.data.order,
+    title: g.data.title,
+    items: cards.filter(({ s }) => s.data.section === g.id),
+  }))
+  .filter((g) => g.items.length > 0);
+
+const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.id));
+---
+<BaseLayout
+  title="Skills"
+  description="A shelf of real, installable agent skills that do developer-marketing work — README review, docs auditing, GEO, changelogs, MCP surfaces — each tied to the guide section it automates, with its install line and its honest limit."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> skills</div>
+    <h1 class="page-title">Skills</h1>
+    <p class="dek">
+      Agent skills you can actually install, for the work this guide describes.
+      Each card names the job, the publisher, the verbatim install line, and the
+      caveat — because a listing is a pointer, not an endorsement. Grouped by the
+      <a href={withBase('/guide')}>guide section</a> whose work it does. Machines
+      read the set at <a href={withBase('/skills.json')}><code>/skills.json</code></a>.
+    </p>
+  </div>
+
+  {groups.length > 0 ? (
+    <div data-pagefind-body>
+      {groups.map((g) => (
+        <Fragment>
+          <div class="fm-sec">
+            <span class="amber">##</span>
+            <a class="fm-sec-l sk-sec-a" href={withBase(`/guide/${g.id}`)}>{g.title.toLowerCase()}</a>
+            <span class="fm-rule" aria-hidden="true"></span>
+            <span class="dim">{String(g.items.length).padStart(2, '0')}</span>
+          </div>
+          <div class="sk-grid">
+            {g.items.map(({ s, Content }) => (
+              <article class="sk" id={s.id} data-date={isoDate(s.data.date)}>
+                <div class="sk-top">
+                  <code class="sk-name">{s.data.name}</code>
+                  <span class="sk-chip sk-job">{s.data.job}</span>
+                  {s.data.agents.map((a) => <span class="sk-chip dim">{a}</span>)}
+                  <span class="sk-by dim">{s.data.author}</span>
+                </div>
+                <h2 class="sk-h"><a href={`#${s.id}`}>{s.data.title}</a></h2>
+                <p class="sk-sum">{s.data.summary}</p>
+                <div class="sk-body"><Content /></div>
+
+                <div class="sk-install">
+                  <span class="sk-label">install</span>
+                  <pre><code>{s.data.install.trimEnd()}</code></pre>
+                  <button
+                    class="sk-copy"
+                    type="button"
+                    data-cmd={s.data.install.trimEnd()}
+                    aria-label={`Copy the install command for ${s.data.name}`}
+                  >copy</button>
+                </div>
+
+                <p class="sk-caveat"><span class="sk-label">caveat</span> {s.data.caveat}</p>
+                {s.data.disclosure && (
+                  <p class="sk-disc"><span class="sk-label">disclosure</span> {s.data.disclosure}</p>
+                )}
+
+                <div class="sk-meta">
+                  <a class="sk-repo" href={s.data.source.url} rel="noopener">
+                    <span class="amber" aria-hidden="true">↗</span> {s.data.repo}
+                  </a>
+                  {s.data.sources.map((src) => (
+                    <a href={src.url} rel="noopener">{src.label}</a>
+                  ))}
+                  {s.data.license && <span class="dim">{s.data.license}</span>}
+                  <TagList tags={s.data.tags} />
+                  <span class="dim sk-ver">verified {isoDate(s.data.verified)}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </Fragment>
+      ))}
+
+      {uncovered.length > 0 && (
+        <div class="sk-gap">
+          <span class="sk-label">the gaps</span>
+          <p>
+            Nothing installable is doing the work of{' '}
+            {uncovered.map((g, i) => (
+              <Fragment>
+                {i > 0 && (i === uncovered.length - 1 ? ' or ' : ', ')}
+                <a href={withBase(`/guide/${g.id}`)}>{g.data.title.toLowerCase()}</a>
+              </Fragment>
+            ))}
+            {' '}yet. Honest DevRel measurement is the conspicuous hole: the
+            skills that touch metrics all measure search traffic, which is the
+            slice easiest to instrument and the least persuasive about influence.
+            If you know of one that does better, the shelf takes pointers.
+          </p>
+        </div>
+      )}
+    </div>
+  ) : (
+    <p class="dek">The shelf is being stocked. Check back shortly.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .sk-sec-a {
+    text-decoration: none;
+  }
+  .sk-sec-a:hover { text-decoration: underline; }
+  .sk-grid {
+    display: grid;
+    gap: 1.25rem;
+    margin: 1rem 0 1.75rem;
+  }
+  .sk {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.1rem 1.2rem 1rem;
+    background: var(--panel, transparent);
+  }
+  .sk-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .sk-name {
+    font-family: var(--mono, monospace);
+    font-weight: 600;
+    font-size: 0.86rem;
+  }
+  .sk-chip {
+    font-size: 0.72rem;
+    font-family: var(--mono, monospace);
+    padding: 0.08rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+  .sk-job {
+    color: var(--amber, #d08b1e);
+    border-color: currentColor;
+  }
+  .sk-by {
+    margin-left: auto;
+    font-size: 0.78rem;
+  }
+  .sk-h {
+    font-size: 1.15rem;
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+  }
+  .sk-h a { text-decoration: none; }
+  .sk-h a:hover { text-decoration: underline; }
+  .sk-sum {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .sk-body {
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  .sk-body :global(p) { margin: 0.6rem 0 0; }
+  .sk-label {
+    font-family: var(--mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber, #d08b1e);
+    margin-right: 0.4rem;
+  }
+  .sk-install {
+    position: relative;
+    margin-top: 0.9rem;
+  }
+  .sk-install pre {
+    margin: 0.3rem 0 0;
+    padding: 0.55rem 4.2rem 0.55rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .sk-copy {
+    position: absolute;
+    right: 0.35rem;
+    bottom: 0.35rem;
+    font: inherit;
+    font-family: var(--mono, monospace);
+    font-size: 0.72rem;
+    padding: 0.1rem 0.45rem;
+    color: inherit;
+    background: var(--panel, transparent);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .sk-copy:hover { color: var(--amber, #d08b1e); border-color: currentColor; }
+  .sk-caveat,
+  .sk-disc {
+    margin: 0.8rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .sk-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.82rem;
+  }
+  .sk-repo {
+    font-family: var(--mono, monospace);
+    text-decoration: none;
+  }
+  .sk-repo:hover { text-decoration: underline; }
+  .sk-ver {
+    margin-left: auto;
+    font-family: var(--mono, monospace);
+  }
+  .sk-gap {
+    border: 1px dashed var(--rule);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+  .sk-gap p { margin: 0.35rem 0 0; }
+</style>
+
+<script is:inline>
+  (function () {
+    document.addEventListener('click', function (e) {
+      var b = e.target instanceof Element ? e.target.closest('.sk-copy') : null;
+      if (!b) return;
+      var cmd = b.getAttribute('data-cmd') || '';
+      var done = function (msg) {
+        var prev = b.textContent;
+        b.textContent = msg;
+        setTimeout(function () { b.textContent = prev; }, 1400);
+      };
+      try {
+        navigator.clipboard.writeText(cmd).then(function () { done('copied'); }, function () { done('failed'); });
+      } catch (err) {
+        done('failed');
+      }
+    });
+  })();
+</script>

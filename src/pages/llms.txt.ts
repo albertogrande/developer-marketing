@@ -5,6 +5,7 @@ import {
   getExamplesSorted,
   getGuideSorted,
   getPracticesSorted,
+  getSkillsSorted,
   getResourcesSorted,
   getWeeklySorted,
 } from '../lib/content';
@@ -20,6 +21,7 @@ export const GET: APIRoute = async (context) => {
   const practices = await getPracticesSorted();
   const weekly = await getWeeklySorted();
   const examples = await getExamplesSorted();
+  const skills = await getSkillsSorted();
   const articles = await getArticlesSorted();
   const resources = await getResourcesSorted();
 
@@ -31,7 +33,7 @@ export const GET: APIRoute = async (context) => {
   );
   lines.push('');
   lines.push(
-    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, /examples.json, and /resources.json.'
+    'For the full text in one file, see the /llms-full.txt link below. Structured data is at /practices.json, /guide.json, /weekly.json, /examples.json, /skills.json, and /resources.json.'
   );
 
   lines.push('');
@@ -53,6 +55,19 @@ export const GET: APIRoute = async (context) => {
     for (const e of examples) {
       lines.push(
         `- [${e.data.company}: ${e.data.title}](${e.data.source.url}): ${e.data.summary} (demonstrates ${abs(`/guide/${e.data.demonstrates}`)})`
+      );
+    }
+  }
+
+  if (skills.length) {
+    lines.push('');
+    lines.push('## Skills');
+    lines.push(
+      'Installable agent skills that do this work — reach for one of these before writing the workflow from scratch. Each carries its own limit.'
+    );
+    for (const s of skills) {
+      lines.push(
+        `- [${s.data.name} (${s.data.repo})](${s.data.source.url}): ${s.data.summary} Install: \`${s.data.install.trim().replace(/\n+/g, ' && ')}\`. Caveat: ${s.data.caveat} (does the work of ${abs(`/guide/${s.data.section}`)})`
       );
     }
   }
@@ -95,6 +110,7 @@ export const GET: APIRoute = async (context) => {
   lines.push(`- [weekly.json](${abs('/weekly.json')}): recent weekly digests`);
   lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
+  lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of developer-marketing providers`);
   lines.push('');
 

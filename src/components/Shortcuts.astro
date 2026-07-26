@@ -39,7 +39,8 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       <li><span><kbd>g</kbd> <kbd>d</kbd></span> deep dives</li>
       <li><span><kbd>g</kbd> <kbd>p</kbd></span> practices</li>
       <li><span><kbd>g</kbd> <kbd>e</kbd></span> examples</li>
-      <li><span><kbd>g</kbd> <kbd>s</kbd></span> resources (services)</li>
+      <li><span><kbd>g</kbd> <kbd>s</kbd></span> skills</li>
+      <li><span><kbd>g</kbd> <kbd>o</kbd></span> resources (outside help)</li>
       <li><span><kbd>g</kbd> <kbd>m</kbd></span> newsletter (mail)</li>
       <li><span><kbd>g</kbd> <kbd>r</kbd></span> radar archive</li>
       <li><span><kbd>g</kbd> <kbd>a</kbd></span> about</li>
@@ -82,7 +83,8 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       { id: 'dives', ic: '◈', label: 'Go to deep dives', hint: 'g d', keywords: 'deep dive essays long reads analysis', run: function () { go('/deep-dives'); } },
       { id: 'practices', ic: '»', label: 'Go to practices', hint: 'g p', keywords: 'best practices when do why corpus mcp', run: function () { go('/practices'); } },
       { id: 'examples', ic: '❏', label: 'Go to examples', hint: 'g e', keywords: 'examples swipe file gallery teardown artifacts real', run: function () { go('/examples'); } },
-      { id: 'resources', ic: '⌾', label: 'Go to resources — who to hire', hint: 'g s', keywords: 'resources directory agencies agency freelancer consultant devrel content studio services hire vendors', run: function () { go('/resources'); } },
+      { id: 'skills', ic: '⌗', label: 'Go to skills', hint: 'g s', keywords: 'skills agent claude code install plugin tools shelf automate', run: function () { go('/skills'); } },
+      { id: 'resources', ic: '⌾', label: 'Go to resources — who to hire', hint: 'g o', keywords: 'resources directory agencies agency freelancer consultant devrel content studio services hire vendors', run: function () { go('/resources'); } },
       { id: 'newsletter', ic: '✉', label: 'Subscribe to the newsletter', hint: 'g m', keywords: 'newsletter subscribe email mail the week issues signup', run: function () { go('/newsletter'); } },
       { id: 'radar', ic: '◍', label: 'Go to the radar archive', hint: 'g r', keywords: 'radar archive dated signals history', run: function () { go('/radar'); } },
       { id: 'tags', ic: '#', label: 'Browse tags', hint: '', keywords: 'topics tags categories browse', run: function () { go('/tags'); } },
@@ -218,7 +220,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {
         gPending = false; clearTimeout(gTimer);
-        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', s: '/resources', m: '/newsletter', r: '/radar', a: '/about' };
+        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', s: '/skills', o: '/resources', m: '/newsletter', r: '/radar', a: '/about' };
         if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
         return;
       }

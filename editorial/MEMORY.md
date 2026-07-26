@@ -104,7 +104,25 @@ keeps recurring in signals and isn't well covered by the guide is a
   binding agent actions to pre-approved payloads before execution — volume of
   attempts on this shape keeps rising, but each individual entrant still has
   ~3 points, no adoption proof; the pattern call still rests on GoDaddy +
-  OneCLI, not on count of launches. New,
+  OneCLI, not on count of launches. **Newsroom ran the category piece
+  2026-07-26** (technology · Sam Arroyo ·
+  [article](../src/content/articles/2026-07-26-agent-safe-by-design.md)): the
+  backlog trigger ("write when a third distinct tool lands") is met and
+  exceeded — five distinct entrants across payments/credentials/CRM/content/
+  runtime, and what tipped it from "loud" to "moving" is *independent
+  corroboration*: The New Stack's GoDaddy teardown (07-16, "then it had to build
+  guardrails"), an arXiv pre-action-authorization spec attempt ("Open Agent
+  Passport," authors' numbers: 53ms median, 0% on 879 top-tier attacks), and an
+  NHI Mgmt Group analyst frame (07-10: authentication asks can-you-connect,
+  runtime authz asks should-you-do-this-now; cites 80% of orgs seeing agents act
+  beyond scope). House take: build the checkpoint if your product lets an agent
+  take a consequential action, and *document* the transaction flow — a
+  positioning claim competitors mostly can't make yet; §02's "actionable by
+  agents" bullet gained the category+research framing (07-26). Open loops now:
+  whether an OSS entrant posts real adoption vs. a launch spike; whether authz
+  consolidates at the MCP layer / a cloud gateway / OAP; whether a second
+  incumbent after GoDaddy ships an agent-safe flow and says so on the pricing
+  page. New,
   under-sourced texture (07-25 web sweep): an "AgentRel" framing is emerging —
   Manicule pitches "DevRel rebuilt for a world where agents make the decisions"
   (self-reported $53K MRR / 100% MoM on a startup-listicle blog, not
@@ -239,6 +257,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 scans this (plus the index below) before assigning, so the paper never
 re-runs a story in new clothes.
 
+- 2026-07-26 · technology · *A checkpoint before the tool call: 'agent-safe by design' is becoming a category* · ai, agents, positioning, docs
 - 2026-07-23 · news · *GitHub's Copilot dashboard now counts the seats nobody uses* · metrics, ai, github, devrel
 - 2026-07-22 · money · *GitHub Code Quality shipped the default AI price: a seat, plus a meter* · pricing, ai, github, monetization
 - 2026-07-21 · campaigns · *The security benchmark that published its own false-positive rate* · content, benchmarks, trust, security

@@ -1,6 +1,6 @@
 ---
 name: weekly-digest
-description: Read the week's developer-marketing signals and memory, then write ONE short editor's digest ("The Week") on what actually moved and why it matters — saved to src/content/weekly/ — do a full guide-accuracy pass, distill practices, update editorial memory, and commission a deep dive only when a thread earns it. Use when asked to run the weekly digest.
+description: Read the week's developer-marketing signals and memory, then write ONE short editor's digest ("The Week") on what actually moved and why it matters — saved to src/content/weekly/ — do a full guide-accuracy pass, distill practices, verify the skills shelf, update editorial memory, and commission a deep dive only when a thread earns it. Use when asked to run the weekly digest.
 ---
 
 # The Week — Editor
@@ -163,6 +163,33 @@ For each artifact that earns it, create one file in `src/content/examples/`
 - **Refresh, don't duplicate**: if an existing example's artifact changed, bump
   its `updated:` and fix the note rather than adding a near-duplicate.
 
+## Step 5.7 — Keep the skills shelf honest
+
+`src/content/skills/` is the shelf of installable agent skills that do this
+work — one entry per skill, tied to the guide section whose job it automates. It
+renders at `/skills` and feeds `/skills.json` and `/llms.txt`. It rots faster
+than anything else on the site: repos get renamed, install lines change, whole
+shelves are abandoned mid-quarter.
+
+**Cadence: verification every week, additions only when earned.**
+
+- **Verify a slice, not the lot.** Take the entries with the oldest `verified:`
+  dates (about three a week) and open the repo. Repo alive, install line still
+  the one the publisher documents, skill still present under that name? Bump
+  `verified:`. Install line changed → fix it and bump `updated:` too.
+- **Delist without ceremony.** Archived, renamed away, or broken with no fix:
+  delete the file. A dead install line is worse than an absent one. Note the
+  delisting in the digest only if a reader might have installed it.
+- **Add only what clears the bar**: a real, installable skill (not a prompt
+  library or a blog post), doing work a guide section describes, with a
+  publisher's install line you have read. `caveat:` is mandatory and must be the
+  honest limit — what it won't do, or where a human has to finish the job. If you
+  cannot name one, you have not looked hard enough. Disclose any relationship in
+  `disclosure:`.
+- **Watch the gaps.** The `/skills` page names the guide sections nothing
+  installable covers. If a signal this week fills one, that is a strong add; if a
+  gap has closed or opened, say so in the digest.
+
 ## Step 6 — Commission a deep dive (only if earned)
 
 Read MEMORY's **deep-dive candidates**. Commission one **only when a thread has
@@ -195,6 +222,6 @@ Update `editorial/TASTE.md` only if the reader expressed a durable preference.
 
 ## Step 8 — Save
 
-Write the issue, the guide edits, the practices, the examples, and the memory
-update. Do **not** commit or push — in CI the workflow publishes; in an
+Write the issue, the guide edits, the practices, the examples, the skills-shelf
+verifications, and the memory update. Do **not** commit or push — in CI the workflow publishes; in an
 interactive session, tell the user where the files are.

@@ -13,6 +13,9 @@ import { glob } from 'astro/loaders';
 //              /practices.json and llms.txt.
 //  deep-dives/ — long-form researched pieces, commissioned when a thread
 //              earns it. One file per piece: YYYY-MM-DD-slug.md.
+//  skills/   — the shelf. Real, installable agent skills that do the work the
+//              guide describes, each tied to its section, with a verbatim
+//              install line and a mandatory caveat.
 //  examples/ — the swipe file. Real, sourced dev-marketing artifacts (a
 //              pricing page, an API reference, a launch), each with a "why it
 //              works" note, the guide section it demonstrates, and a link to
@@ -313,6 +316,82 @@ const resources = defineCollection({
   }),
 });
 
+// skills/ — the shelf. Real, installable agent skills that do developer-
+// marketing work: one entry per skill, tied to the guide section whose job it
+// automates. `install` is verbatim from the publisher and `caveat` is
+// mandatory — a listing here is a pointer, not an endorsement, and the honest
+// limit belongs on the card. Renders as a gallery at /skills (no per-entry
+// page) and feeds /skills.json and llms.txt.
+const skills = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/skills' }),
+  schema: z.object({
+    // What the skill does for a dev-marketing team, in the imperative.
+    title: z.string(),
+    // The invocable/folder name of the skill itself, e.g. "docs-auditor".
+    name: z.string(),
+    // Who publishes it, credited as they credit themselves.
+    author: z.string(),
+    // owner/repo — the identity both humans and agents recognise.
+    repo: z.string(),
+    // When the shelf added it. Drives ordering.
+    date: z.coerce.date(),
+    updated: z.coerce.date().optional(),
+    summary: z.string(),
+    // The job it does. Controlled vocab — the chips and filters read it, so
+    // extend the enum deliberately rather than ad hoc.
+    job: z.enum([
+      'foundation',
+      'positioning',
+      'docs',
+      'readme',
+      'content',
+      'seo-geo',
+      'dx',
+      'product-surface',
+      'research',
+      'launch',
+    ]),
+    // Where it runs. 'any' = published to the Agent Skills spec and installable
+    // in anything that reads it.
+    agents: z
+      .array(
+        z.enum([
+          'claude-code',
+          'claude-ai',
+          'cursor',
+          'windsurf',
+          'codex',
+          'copilot',
+          'gemini-cli',
+          'any',
+        ])
+      )
+      .default([]),
+    // The install line(s), verbatim from the publisher. Multi-line allowed.
+    install: z.string(),
+    license: z.string().optional(),
+    // The honest limit: what it won't do, or where its output needs a human.
+    // Mandatory — an uncaveated tool recommendation is marketing.
+    caveat: z.string(),
+    // Set when this site's own author published the skill. Shown on the card.
+    disclosure: z.string().optional(),
+    // The guide section whose work it does, e.g. "02-docs-as-front-door".
+    section: z.string(),
+    tags: z.array(z.string()).default([]),
+    // When the entry was last confirmed: repo alive, install line current.
+    verified: z.coerce.date(),
+    // The proof: where the skill lives. Mandatory.
+    source: z.object({ label: z.string(), url: z.string().url() }),
+    // Supporting links — the SKILL.md, the rule set, the spec.
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+    related: z
+      .array(z.object({ label: z.string(), href: z.string() }))
+      .default([]),
+  }),
+});
+
 // radar/ — archived. Schema unchanged from the site's first phase so the
 // existing entries render exactly as published.
 const radar = defineCollection({
@@ -345,5 +424,6 @@ export const collections = {
   'deep-dives': deepDives,
   examples,
   resources,
+  skills,
   radar,
 };

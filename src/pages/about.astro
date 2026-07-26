@@ -73,7 +73,8 @@ const roster = (['news', 'money', 'campaigns', 'research', 'technology'] as cons
       the <a href={withBase('/guide')}>guide</a> is the product — nine evergreen
       topic hubs, each gathering the <a href={withBase('/practices')}>practices</a>
       that implement it, the <a href={withBase('/examples')}>examples</a> that
-      evidence it, and the coverage that keeps it honest. Under it all, a daily
+      evidence it, the <a href={withBase('/skills')}>skills</a> that automate it,
+      and the coverage that keeps it honest. Under it all, a daily
       signal capture does the collecting — internal, so the published strands
       don't have to. The site's first phase published one dated post a day;
       those live on in the <a href={withBase('/radar')}>radar archive</a>.
@@ -120,10 +121,14 @@ const roster = (['news', 'money', 'campaigns', 'research', 'technology'] as cons
       assistant can consult the current state of the art instead of guessing. The
       swipe file rides along at
       <a href={withBase('/examples.json')}><code>examples.json</code></a> — the
-      worked evidence behind the rules — and the directory at
+      worked evidence behind the rules — the
+      <a href={withBase('/skills')}>shelf</a> at
+      <a href={withBase('/skills.json')}><code>skills.json</code></a>, so an
+      agent asked to audit a set of docs or draft a changelog can find the skill
+      that already does it, with its caveat attached — and the directory at
       <a href={withBase('/resources.json')}><code>resources.json</code></a>,
-      caveats included, so an agent asked "who could write our Kubernetes
-      tutorials" can answer with something checkable.
+      caveats included, for when the answer is a person to hire rather than a
+      skill to install.
     </p>
 
     <h2 class="kicker">On accuracy</h2>

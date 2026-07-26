@@ -132,6 +132,12 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   README. Include the direct link to the artifact itself (not a write-up about
   it). These feed the weekly editor's swipe file (`src/content/examples/`). A
   play with no linkable artifact is a practice-candidate, not an example.
+- Append ` · skill-candidate` when the signal is an **installable agent skill**
+  that does developer-marketing work — a published skill, plugin, or marketplace
+  entry with a real install line, not a prompt collection or a think-piece about
+  agents. Include the repo link. These feed the weekly editor's shelf
+  (`src/content/skills/`), where a mandatory caveat and an install line the
+  editor has read are the price of admission.
 - Append a **desk flag** when a signal could carry a newsroom article
   (`.claude/skills/newsroom/`): ` · news-candidate` (industry news that
   changes a decision), ` · analysis-candidate` (a money move or pattern —

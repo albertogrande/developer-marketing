@@ -5,6 +5,7 @@ import {
   getGuideSorted,
   getPracticesSorted,
   getResourcesSorted,
+  getSkillsSorted,
   RESOURCE_CATEGORY_LABELS,
 } from '../lib/content';
 
@@ -18,6 +19,7 @@ export const GET: APIRoute = async (context) => {
   const guide = await getGuideSorted();
   const practices = await getPracticesSorted();
   const examples = await getExamplesSorted();
+  const skills = await getSkillsSorted();
   const resources = await getResourcesSorted();
 
   const out: string[] = [];
@@ -72,6 +74,35 @@ export const GET: APIRoute = async (context) => {
       out.push(`- **Demonstrates:** ${abs(`/guide/${e.data.demonstrates}`)}`);
       out.push(`- **See it:** ${e.data.source.label} (${e.data.source.url})`);
       const note = (e.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
+    }
+  }
+
+  if (skills.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Skills');
+    out.push('');
+    out.push(
+      'Installable agent skills that do this work. The caveat is part of the recommendation.'
+    );
+    for (const s of skills) {
+      out.push('');
+      out.push(`## ${s.data.name} — ${s.data.title}`);
+      out.push(`- **Does:** ${s.data.summary}`);
+      out.push(`- **Publisher:** ${s.data.author} (${s.data.repo})`);
+      out.push(`- **Install:** ${s.data.install.trim().replace(/\n+/g, ' && ')}`);
+      out.push(`- **Runs in:** ${s.data.agents.join(', ') || 'unspecified'}`);
+      out.push(`- **Caveat:** ${s.data.caveat}`);
+      if (s.data.disclosure) out.push(`- **Disclosure:** ${s.data.disclosure}`);
+      out.push(`- **Does the work of:** ${abs(`/guide/${s.data.section}`)}`);
+      out.push(`- **Source:** ${s.data.source.label} (${s.data.source.url})`);
+      out.push(`- **Verified:** ${isoDate(s.data.verified)}`);
+      const note = (s.body ?? '').trim();
       if (note) {
         out.push('');
         out.push(note);
