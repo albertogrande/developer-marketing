@@ -13,6 +13,21 @@ import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
 // ---------------------------------------------------------------------------
+// Site config
+
+// site/base as written in astro.config.mjs — either as the SITE/BASE consts
+// or inline in defineConfig. One extractor so no script greps the config
+// with its own regex (that drifted once already).
+export function siteConfig() {
+  const config = readFileSync('astro.config.mjs', 'utf8');
+  const site =
+    (config.match(/SITE = '([^']+)'/) || config.match(/site:\s*'([^']+)'/) || [])[1] || '';
+  const base =
+    (config.match(/BASE = '([^']*)'/) || config.match(/base:\s*'([^']*)'/) || [])[1] || '';
+  return { site, base };
+}
+
+// ---------------------------------------------------------------------------
 // Frontmatter
 
 export function frontmatterOf(file) {

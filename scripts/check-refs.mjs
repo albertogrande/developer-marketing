@@ -15,10 +15,10 @@
 // accepts — block lists, quoted scalars, the lot), and static routes are
 // derived from src/pages/ so the gate can't drift from the actual site.
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { frontmatterOf, pageRoutes } from './lib/routes.mjs';
+import { readdirSync, existsSync } from 'node:fs';
+import { frontmatterOf, pageRoutes, siteConfig } from './lib/routes.mjs';
 
-const BASE = (readFileSync('astro.config.mjs', 'utf8').match(/base:\s*'([^']+)'/) || [])[1] || '';
+const BASE = siteConfig().base;
 
 // A collection dir may not exist yet (e.g. weekly/ before the first issue).
 const mdFiles = (dir) =>
