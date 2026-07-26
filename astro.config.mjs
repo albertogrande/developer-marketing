@@ -14,9 +14,10 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      // Machine endpoints and the 404 aren't crawlable HTML pages.
+      // Machine endpoints (.json/.txt/.xml and the raw .md siblings) and the
+      // 404 aren't canonical HTML pages.
       filter: (page) =>
-        !/\.(json|txt|xml)$/.test(new URL(page).pathname) && !page.includes('/404'),
+        !/\.(json|txt|xml|md)$/.test(new URL(page).pathname) && !page.includes('/404'),
     }),
   ],
 });

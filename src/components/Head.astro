@@ -1,5 +1,5 @@
 ---
-import { withBase, isoDate, canonicalFor } from '../lib/site';
+import { withBase, isoDate, canonicalFor, stripBase } from '../lib/site';
 
 interface Props {
   title: string;
@@ -24,6 +24,15 @@ const fullTitle =
 const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
+
+// Machine-readable alternates, derived from the canonical path: every entry
+// page has a raw-markdown sibling (/<coll>/<id>.md), every collection index a
+// JSON endpoint (/<coll>.json). The agent-surface gate verifies the targets.
+const sitePath = stripBase(Astro.url.pathname);
+const mdMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar)\/([^/]+)\/?$/);
+const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
+const jsonMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar|practices|examples|skills)\/?$/);
+const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 
 const jsonLd =
   type === 'article'
@@ -101,5 +110,7 @@ const jsonLd =
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
   />
   <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href={feed} />
+  {mdPath && <link rel="alternate" type="text/markdown" title="Markdown" href={withBase(mdPath)} />}
+  {jsonPath && <link rel="alternate" type="application/json" title="JSON" href={withBase(jsonPath)} />}
   <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 </head>

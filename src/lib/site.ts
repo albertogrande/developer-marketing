@@ -47,6 +47,12 @@ export function canonicalFor(pathname: string): string {
   return new URL(normalize(pathname), SITE_ORIGIN).href;
 }
 
+// The base-less site path of a rendered page ('/guide/foo/'), the form the
+// internal route conventions use.
+export function stripBase(pathname: string): string {
+  return pathname.startsWith(BASE) ? pathname.slice(BASE.length) || '/' : pathname;
+}
+
 const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>
   d.toLocaleDateString('en-GB', { timeZone: 'UTC', ...opts });
 
