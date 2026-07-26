@@ -1,0 +1,21 @@
+# Candidate names for this publication's own domain. Bare names get crossed with
+# whatever --tlds you pass (default dev,com,io); a line with a dot is checked as
+# written. Blank lines and #-comments are ignored.
+#
+#   node scripts/check-domains.mjs --file scripts/domain-candidates.txt --tlds dev,io
+
+mkt2
+devmkt
+mktdev
+devmarketing
+devmarketer
+devwire
+devrelwire
+dxwire
+devdesk
+thedevdesk
+devgtm
+gtmdev
+dxmarketing
+adoptioncurve
+mktcurve
