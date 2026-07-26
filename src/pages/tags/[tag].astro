@@ -20,6 +20,7 @@ const articles = items.filter((i) => i.kind === 'article');
 const dives = items.filter((i) => i.kind === 'deep-dive');
 const practices = items.filter((i) => i.kind === 'practice');
 const examples = items.filter((i) => i.kind === 'example');
+const resources = items.filter((i) => i.kind === 'resource');
 const skills = items.filter((i) => i.kind === 'skill');
 const radar = items.filter((i) => i.kind === 'radar');
 
@@ -32,8 +33,13 @@ const taggedUrl = (i: (typeof items)[number]) =>
     practice: `${absUrl('/practices')}#${i.entry.id}`,
     example: `${absUrl('/examples')}#${i.entry.id}`,
     skill: `${absUrl('/skills')}#${i.entry.id}`,
+    resource: `${absUrl('/resources')}#${i.entry.id}`,
     radar: absUrl(`/radar/${i.entry.id}`),
   })[i.kind];
+
+// Resources are named, everything else is titled.
+const taggedName = (i: (typeof items)[number]) =>
+  i.kind === 'resource' ? i.entry.data.name : i.entry.data.title;
 ---
 <BaseLayout
   title={`Tagged: ${tag}`}
@@ -43,7 +49,7 @@ const taggedUrl = (i: (typeof items)[number]) =>
       name: `Tagged: ${tag}`,
       description: `Everything on the field guide tagged "${tag}".`,
       url: absUrl(`/tags/${tag}`),
-      items: items.map((i) => ({ name: i.entry.data.title, url: taggedUrl(i) })),
+      items: items.map((i) => ({ name: taggedName(i), url: taggedUrl(i) })),
     }),
   ]}
 >
@@ -91,6 +97,27 @@ const taggedUrl = (i: (typeof items)[number]) =>
             <div class="fm-rowmain">
               <a href={withBase(`/examples#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {resources.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">outside help</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(resources.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {resources.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">hire</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/resources#${entry.id}`)} class="fm-row-t">{entry.data.name}</a>
+              <p class="fm-row-dek">{entry.data.signal}</p>
             </div>
           </li>
         ))}

@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/site';
+
+// Where the subscribe service sends a browser without JavaScript after it
+// accepts a form post. The JS path shows the same message inline instead.
+---
+<BaseLayout
+  title="Check your inbox"
+  description="One more step: confirm your email address to join The Week."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsletter / confirm</div>
+    <h1 class="page-title">Check your inbox</h1>
+    <p class="dek">
+      We have sent one email with a confirmation link. Click it and you are on
+      the list. Ignore it and nothing more is ever sent — an address that is
+      never confirmed is deleted, not kept.
+    </p>
+  </div>
+
+  <div class="nlx">
+    <p>
+      No email after a few minutes? Look in the spam folder, then
+      <a href={withBase('/newsletter')}>try again</a> — resubmitting the same
+      address just re-sends the confirmation.
+    </p>
+    <p class="muted-line">
+      <a href={withBase('/')}>← back to the front page</a>
+      <span class="sb-sep" aria-hidden="true"> · </span>
+      <a href={withBase('/weekly')}>read past issues</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .nlx { max-width: var(--measure); }
+  .nlx p { font-size: 0.97rem; line-height: 1.6; }
+</style>

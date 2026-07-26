@@ -141,8 +141,10 @@ for (const [, block] of urlBlocks) {
   const loc = (block.match(/<loc>([^<]+)<\/loc>/) || [])[1] ?? '';
   if (!loc.endsWith('/')) problems.push(`sitemap: ${loc} not in trailing-slash form`);
   if (/\.(md|json|txt)$/.test(loc)) problems.push(`sitemap: machine endpoint leaked: ${loc}`);
-  const isAbout = loc === `${ROOT}/about/`;
-  if (!isAbout && !block.includes('<lastmod>')) problems.push(`sitemap: ${loc} missing lastmod`);
+  // Pages with no dated content honestly carry no lastmod: the masthead and
+  // the newsletter flow landings.
+  const undated = loc === `${ROOT}/about/` || loc.startsWith(`${ROOT}/newsletter/`);
+  if (!undated && !block.includes('<lastmod>')) problems.push(`sitemap: ${loc} missing lastmod`);
 }
 
 // --- 8. IndexNow key -------------------------------------------------------

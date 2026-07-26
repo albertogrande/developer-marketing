@@ -91,9 +91,9 @@ thing to watch" — a concrete, falsifiable call.>
 
 Hard requirements:
 - Every dated claim verified inside the window.
-- When continuing a thread, link the earlier issue with a full site path
-  (base included): `as covered [last week](/developer-marketing/weekly/2026-W27)`.
-  Relative `./file.md` links break on the built site.
+- When continuing a thread, link the earlier issue with a base-less site path:
+  `as covered [last week](/weekly/2026-W27)`. The build adds the site base —
+  writing it by hand is an error. Relative `./file.md` links break too.
 - `sources` — at least two resolving URLs; prefer primary.
 - Keep it short. This is the pulse, not the archive — the guide is the archive.
 

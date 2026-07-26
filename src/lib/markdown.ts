@@ -28,7 +28,8 @@ type Kind =
   | 'radar'
   | 'practices'
   | 'examples'
-  | 'skills';
+  | 'skills'
+  | 'resources';
 
 type AnyEntry =
   | CollectionEntry<'guide'>
@@ -38,11 +39,17 @@ type AnyEntry =
   | CollectionEntry<'radar'>
   | CollectionEntry<'practices'>
   | CollectionEntry<'examples'>
-  | CollectionEntry<'skills'>;
+  | CollectionEntry<'skills'>
+  | CollectionEntry<'resources'>;
 
 // Collections whose entries render as #anchors on a gallery page rather than
 // standalone pages — their canonical is the anchor.
-const GALLERY: Partial<Record<Kind, true>> = { practices: true, examples: true, skills: true };
+const GALLERY: Partial<Record<Kind, true>> = {
+  practices: true,
+  examples: true,
+  skills: true,
+  resources: true,
+};
 
 const linkList = (items: { label: string; url: string }[]) =>
   items.map((s) => `- [${s.label}](${s.url})`).join('\n');
@@ -54,7 +61,7 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
   const d = entry.data as Record<string, any>;
   const canonical = GALLERY[kind] ? `${absUrl(`/${kind}`)}#${entry.id}` : absUrl(`/${kind}/${entry.id}`);
 
-  const fm: Record<string, unknown> = { title: d.title, canonical };
+  const fm: Record<string, unknown> = { title: d.title ?? d.name, canonical };
   if (d.date) fm.published = isoDate(d.date);
   if (d.updated) fm.updated = isoDate(d.updated);
   if (kind === 'guide') fm.updated = isoDate(d.updated); // guide has no publish date
@@ -71,12 +78,17 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     if (d.verified) fm.verified = isoDate(d.verified);
   }
   if (kind === 'examples') fm.company = d.company;
+  if (kind === 'resources') {
+    fm.provider_url = d.url;
+    fm.kind = d.kind;
+    fm.checked = isoDate(d.checked);
+  }
   if (d.tags?.length) fm.tags = d.tags;
   fm.collection = kind;
   fm.site = absUrl('/');
   fm.license = CONTENT_LICENSE_URL;
 
-  const parts: string[] = [`---\n${yamlStringify(fm).trimEnd()}\n---`, '', `# ${d.title}`, ''];
+  const parts: string[] = [`---\n${yamlStringify(fm).trimEnd()}\n---`, '', `# ${d.title ?? d.name}`, ''];
   if (GALLERY[kind]) {
     parts.push(`> Canonical: ${canonical} — this entry renders on the ${kind} gallery page, not standalone.`, '');
   }
@@ -118,6 +130,18 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
       '',
       `**Caveat**: ${d.caveat}`,
       ...(d.disclosure ? ['', `**Disclosure**: ${d.disclosure}`] : []),
+      ''
+    );
+  }
+
+  if (kind === 'resources') {
+    parts.push(
+      `- **What**: ${d.kind}${d.services?.length ? ` (${d.services.join(', ')})` : ''}`,
+      `- **Focus**: ${d.focus === 'devtools' ? 'devtools' : 'technical B2B'}${d.based ? ` · ${d.based}` : ''}`,
+      `- **Signal**: ${d.signal}`,
+      ...(d.pricing ? [`- **Pricing**: ${d.pricing}`] : []),
+      ...(d.caveat ? [`- **Caveat**: ${d.caveat}`] : []),
+      `- **Site**: ${d.url} · checked ${isoDate(d.checked)}`,
       ''
     );
   }

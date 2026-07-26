@@ -18,6 +18,8 @@
 import { readdirSync, existsSync } from 'node:fs';
 import { frontmatterOf, pageRoutes, siteConfig } from './lib/routes.mjs';
 
+// Same source as the build (site.config.mjs, via routes.mjs), so the gate
+// cannot drift from what Astro emits. base is '' when served at the root.
 const BASE = siteConfig().base;
 
 // A collection dir may not exist yet (e.g. weekly/ before the first issue).
@@ -32,6 +34,7 @@ const diveIds = ids('src/content/deep-dives');
 const practiceIds = ids('src/content/practices');
 const exampleIds = ids('src/content/examples');
 const skillIds = ids('src/content/skills');
+const resourceIds = ids('src/content/resources');
 const radarIds = ids('src/content/radar');
 
 // Frontmatter parsing and the src/pages route table live in ./lib/routes.mjs,
@@ -43,7 +46,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'skills', 'radar']) {
+for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'skills', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -62,6 +65,7 @@ const MD_SIBLING_IDS = {
   practices: () => practiceIds,
   examples: () => exampleIds,
   skills: () => skillIds,
+  resources: () => resourceIds,
 };
 
 // href is a base-less site path (the `related` convention) — resolve it.
@@ -71,6 +75,7 @@ function resolves(href) {
   if (clean === '/practices' && hash) return practiceIds.has(hash);
   if (clean === '/examples' && hash) return exampleIds.has(hash);
   if (clean === '/skills' && hash) return skillIds.has(hash);
+  if (clean === '/resources' && hash) return resourceIds.has(hash);
   if (STATIC_ROUTES.has(clean)) return true;
   let m;
   // Markdown siblings: every entry serves a raw /<collection>/<id>.md variant.
@@ -125,16 +130,19 @@ for (const { dir, file, fm, body, err } of entries) {
     else if (!resolves(href)) problems.push(`${file}: related href "${href}" resolves to nothing`);
   }
 
-  // 3. body markdown links
+  // 3. body markdown links — base-less site paths, same convention as `related`
+  // above. scripts/remark-base-paths.mjs adds the base at build time, so content
+  // that hard-codes it would come out doubled and would break the day the site
+  // moves.
   for (const m of body.matchAll(/\]\(([^)\s]+)\)/g)) {
     const href = m[1];
     if (/^(https?:|mailto:|#)/.test(href)) continue;
     if (/^\.{1,2}\//.test(href)) {
-      problems.push(`${file}: relative body link "${href}" breaks on the built site — use ${BASE}/<path>`);
+      problems.push(`${file}: relative body link "${href}" breaks on the built site — use /<path>`);
     } else if (href.startsWith('/')) {
-      if (BASE && !href.startsWith(`${BASE}/`) && href !== BASE) {
-        problems.push(`${file}: body link "${href}" is missing the site base ${BASE}`);
-      } else if (!resolves(href.slice(BASE.length) || '/')) {
+      if (BASE && (href === BASE || href.startsWith(`${BASE}/`))) {
+        problems.push(`${file}: body link "${href}" must be base-less (drop ${BASE} — the build adds it)`);
+      } else if (!resolves(href)) {
         problems.push(`${file}: body link "${href}" resolves to nothing`);
       }
     }
@@ -147,5 +155,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

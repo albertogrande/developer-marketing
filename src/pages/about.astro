@@ -91,6 +91,35 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
       those live on in the <a href={withBase('/radar')}>radar archive</a>.
     </p>
 
+    <h2 class="kicker">The directory, and who pays for it</h2>
+    <p>
+      <a href={withBase('/resources')}>Resources</a> lists the agencies, studios,
+      collectives and independents you can hire to do this work. Nobody paid to
+      be on it and nobody can: <strong>no sponsored slots, no affiliate links,
+      no paid rankings, no fee for a listing</strong>, and no arrangement where a
+      provider sees its entry before it publishes. Entries earn their place by
+      being real, developer-specific, and verifiable — a live site, one proof
+      point a reader can go check, and a caveat where one is warranted. Figures
+      quoted from a provider's own site are self-reported unless the entry says
+      otherwise, and each carries the date we last read the page. Entries get
+      removed when the site dies, the focus drifts, or a claim stops checking
+      out.
+    </p>
+
+    <h2 class="kicker">The newsletter</h2>
+    <p>
+      <a href={withBase('/newsletter')}>The Week by email</a> is run in-house:
+      the list is a file on a machine we control and the sender is
+      <a href="https://github.com/albertogrande/developer-marketing/tree/main/newsletter">
+        in this repository</a>, so no email service provider owns the audience.
+      A mail relay does the last mile — one finished message at a time, never the
+      list — because sending from our own box would cost deliverability without
+      buying independence. Double opt-in, one-click unsubscribe, no open pixel,
+      no click tracking: we cannot tell whether you read an issue, which is
+      deliberate. A publication that tells people to respect developers should
+      not surveil its own readers.
+    </p>
+
     <h2 class="kicker">For agents</h2>
     <p>
       The guide is also a product for machines — fitting, for a site that argues
@@ -103,11 +132,14 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
       assistant can consult the current state of the art instead of guessing. The
       swipe file rides along at
       <a href={withBase('/examples.json')}><code>examples.json</code></a> — the
-      worked evidence behind the rules — and the
+      worked evidence behind the rules — the
       <a href={withBase('/skills')}>shelf</a> at
       <a href={withBase('/skills.json')}><code>skills.json</code></a>, so an
       agent asked to audit a set of docs or draft a changelog can find the skill
-      that already does it, with its caveat attached.
+      that already does it, with its caveat attached — and the directory at
+      <a href={withBase('/resources.json')}><code>resources.json</code></a>,
+      caveats included, for when the answer is a person to hire rather than a
+      skill to install.
     </p>
 
     <h2 class="kicker">On accuracy</h2>

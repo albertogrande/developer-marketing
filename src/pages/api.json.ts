@@ -7,6 +7,7 @@ import {
   getGuideSorted,
   getPracticesSorted,
   getRadarSorted,
+  getResourcesSorted,
   getSkillsSorted,
   getWeeklySorted,
 } from '../lib/content';
@@ -19,16 +20,18 @@ import {
 const REPO = 'https://github.com/albertogrande/developer-marketing';
 
 export const GET: APIRoute = async () => {
-  const [guide, articles, weekly, dives, radar, practices, examples, skills] = await Promise.all([
-    getGuideSorted(),
-    getArticlesSorted(),
-    getWeeklySorted(),
-    getDivesSorted(),
-    getRadarSorted(),
-    getPracticesSorted(),
-    getExamplesSorted(),
-    getSkillsSorted(),
-  ]);
+  const [guide, articles, weekly, dives, radar, practices, examples, skills, resources] =
+    await Promise.all([
+      getGuideSorted(),
+      getArticlesSorted(),
+      getWeeklySorted(),
+      getDivesSorted(),
+      getRadarSorted(),
+      getPracticesSorted(),
+      getExamplesSorted(),
+      getSkillsSorted(),
+      getResourcesSorted(),
+    ]);
 
   const newest = (dates: (Date | undefined)[]) => {
     const ds = dates.filter((d): d is Date => !!d).map(isoDate).sort();
@@ -44,7 +47,9 @@ export const GET: APIRoute = async () => {
     description: opts.description,
     count: entries.length,
     updated: newest(
-      entries.flatMap((e) => [e.data.date, e.data.updated, e.data.verified] as (Date | undefined)[])
+      entries.flatMap(
+        (e) => [e.data.date, e.data.updated, e.data.verified, e.data.checked] as (Date | undefined)[]
+      )
     ),
     index_url: absUrl(`/${name}`),
     json_url: absUrl(`/${name}.json`),
@@ -70,8 +75,24 @@ export const GET: APIRoute = async () => {
       weekly: 'Mon 07:00 UTC (the digest; full guide-accuracy pass)',
     },
     updated: newest(
-      [...guide, ...articles, ...weekly, ...dives, ...radar, ...practices, ...examples, ...skills].flatMap(
-        (e) => [e.data.date, e.data.updated, (e.data as { verified?: Date }).verified] as (Date | undefined)[]
+      [
+        ...guide,
+        ...articles,
+        ...weekly,
+        ...dives,
+        ...radar,
+        ...practices,
+        ...examples,
+        ...skills,
+        ...resources,
+      ].flatMap(
+        (e) =>
+          [
+            e.data.date,
+            e.data.updated,
+            (e.data as { verified?: Date }).verified,
+            (e.data as { checked?: Date }).checked,
+          ] as (Date | undefined)[]
       )
     ),
     endpoints: [
@@ -111,6 +132,11 @@ export const GET: APIRoute = async () => {
       skills: collection('skills', skills, {
         pages: false,
         description: 'The shelf — installable agent skills, each with a verbatim install line and an honest caveat.',
+      }),
+      resources: collection('resources', resources, {
+        pages: false,
+        description:
+          'The directory — vetted providers of developer-marketing services, with proof points, caveats, and checked dates. No paid placements.',
       }),
       radar: collection('radar', radar, {
         pages: true,

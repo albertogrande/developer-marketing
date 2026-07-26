@@ -8,6 +8,11 @@
     "build": "node scripts/check-refs.mjs && astro build && pagefind --site dist && node scripts/check-agent-surface.mjs",
     "preview": "astro preview",
     "check": "node scripts/check-refs.mjs && node scripts/check-sources.mjs --changed",
+    "test": "node --test newsletter/test/*.test.mjs scripts/*.test.mjs",
+    "newsletter:serve": "node newsletter/server.mjs",
+    "newsletter:doctor": "node newsletter/doctor.mjs",
+    "newsletter:send": "node newsletter/send.mjs",
+    "newsletter:preview": "node newsletter/send.mjs --dry-run --out newsletter/data/preview.html",
     "astro": "astro"
   },
   "dependencies": {
@@ -20,5 +25,8 @@
   },
   "devDependencies": {
     "pagefind": "^1.3.0"
+  },
+  "optionalDependencies": {
+    "pg": "^8.22.0"
   }
 }

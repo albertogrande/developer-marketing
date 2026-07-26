@@ -7,6 +7,7 @@ import {
   getGuideSorted,
   getPracticesSorted,
   getRadarSorted,
+  getResourcesSorted,
   getSkillsSorted,
   getWeeklySorted,
 } from '../lib/content';
@@ -26,6 +27,7 @@ export const GET: APIRoute = async () => {
   const articles = await getArticlesSorted();
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
+  const resources = await getResourcesSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -80,6 +82,19 @@ export const GET: APIRoute = async () => {
     }
   }
 
+  if (resources.length) {
+    lines.push('');
+    lines.push('## Resources — who to hire');
+    lines.push(
+      'Vetted providers of developer-marketing services. No paid placements; proof points are self-reported unless stated otherwise.'
+    );
+    for (const r of resources) {
+      lines.push(
+        `- [${r.data.name}](${abs(`/resources/${r.id}.md`)}): ${r.data.kind} — ${r.data.signal} (checked ${isoDate(r.data.checked)})`
+      );
+    }
+  }
+
   if (articles.length) {
     lines.push('');
     lines.push('## Newsroom');
@@ -121,6 +136,7 @@ export const GET: APIRoute = async () => {
   lines.push(`- [practices.json](${abs('/practices.json')}): structured best-practices`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
+  lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
   lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
   lines.push(`- [weekly.json](${abs('/weekly.json')}): weekly digests with bodies`);
   lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): deep dives with bodies`);

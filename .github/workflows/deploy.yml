@@ -36,7 +36,13 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+      # PUBLIC_NEWSLETTER_API is baked into the built pages: set the repository
+      # variable once the capture service is up (see newsletter/README.md) and
+      # the subscribe forms go live on the next deploy. Unset, the newsletter
+      # call-to-action renders its honest "not wired up yet" state.
       - run: npm run build
+        env:
+          PUBLIC_NEWSLETTER_API: ${{ vars.NEWSLETTER_API }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

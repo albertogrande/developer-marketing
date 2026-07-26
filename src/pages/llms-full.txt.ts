@@ -7,8 +7,10 @@ import {
   getGuideSorted,
   getPracticesSorted,
   getRadarSorted,
+  getResourcesSorted,
   getSkillsSorted,
   getWeeklySorted,
+  RESOURCE_CATEGORY_LABELS,
 } from '../lib/content';
 
 // llms-full.txt — the corpus in one fetch, bounded so it never grows without
@@ -30,6 +32,7 @@ export const GET: APIRoute = async () => {
   const articles = await getArticlesSorted();
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
+  const resources = await getResourcesSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -118,6 +121,32 @@ export const GET: APIRoute = async () => {
       out.push(`- **Source:** ${s.data.source.label} (${s.data.source.url})`);
       out.push(`- **Verified:** ${isoDate(s.data.verified)}`);
       const note = (s.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
+    }
+  }
+
+  if (resources.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Resources — who to hire');
+    out.push('');
+    out.push(
+      'Vetted providers of developer-marketing services. No paid placements. Proof points are quoted from each provider’s own site and are self-reported unless stated otherwise; `checked` is when the page was last read.'
+    );
+    for (const r of resources) {
+      out.push('');
+      out.push(`## ${r.data.name}`);
+      out.push(`- **What:** ${r.data.kind}, ${RESOURCE_CATEGORY_LABELS[r.data.category]} (${r.data.services.join(', ')})`);
+      out.push(`- **Focus:** ${r.data.focus === 'devtools' ? 'devtools' : 'technical B2B'}${r.data.based ? ` · ${r.data.based}` : ''}`);
+      out.push(`- **Signal:** ${r.data.signal}`);
+      if (r.data.pricing) out.push(`- **Pricing:** ${r.data.pricing}`);
+      if (r.data.caveat) out.push(`- **Caveat:** ${r.data.caveat}`);
+      out.push(`- **Site:** ${r.data.url} · checked ${isoDate(r.data.checked)}`);
+      const note = (r.body ?? '').trim();
       if (note) {
         out.push('');
         out.push(note);

@@ -1,0 +1,249 @@
+---
+// The email capture. Three shapes of the same thing: `rail` for the front-page
+// sidebar, `inline` for the bottom of a page or article, `page` for /newsletter
+// itself.
+//
+// It is a real <form> with a real action, so it works with JavaScript disabled
+// (the service 303s to /newsletter/check-your-inbox). With JS it posts JSON and
+// answers in place. No third-party script, no tracking pixel, no cookie.
+import { withBase } from '../lib/site';
+import { NEWSLETTER, NEWSLETTER_LIVE, SUBSCRIBE_URL } from '../lib/newsletter';
+
+interface Props {
+  variant?: 'rail' | 'inline' | 'page';
+  /** Where the signup happened — stored with the subscriber, never a tracker. */
+  source?: string;
+  heading?: string;
+  blurb?: string;
+}
+const {
+  variant = 'inline',
+  source = Astro.url.pathname,
+  heading = variant === 'rail' ? 'The Week, by email' : 'Get The Week by email',
+  blurb = NEWSLETTER.promise,
+} = Astro.props;
+---
+<section class={`nl nl--${variant}`} aria-labelledby={`nl-h-${variant}`}>
+  {variant === 'rail' && <span class="rail-legend">NEWSLETTER</span>}
+  <h2 class="nl-h" id={`nl-h-${variant}`}>{heading}</h2>
+  <p class="nl-blurb">{blurb}</p>
+
+  {NEWSLETTER_LIVE ? (
+    <form
+      class="nl-form"
+      method="post"
+      action={SUBSCRIBE_URL}
+      data-nl-form
+      novalidate
+    >
+      <label class="sr-only" for={`nl-email-${variant}`}>Email address</label>
+      <input
+        class="nl-input"
+        id={`nl-email-${variant}`}
+        type="email"
+        name="email"
+        inputmode="email"
+        autocomplete="email"
+        spellcheck="false"
+        placeholder="you@company.dev"
+        required
+      />
+      <input type="hidden" name="source" value={source} />
+      <input type="hidden" name="rendered_at" value="" data-nl-ts />
+      {/* Honeypot: a field a person never sees and a bot cannot resist. */}
+      <div class="nl-hp" aria-hidden="true">
+        <label for={`nl-website-${variant}`}>Leave this field empty</label>
+        <input id={`nl-website-${variant}`} type="text" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <button class="nl-btn" type="submit">subscribe</button>
+      <p class="nl-status" role="status" aria-live="polite" data-nl-status></p>
+    </form>
+  ) : (
+    <p class="nl-off">
+      Email sign-up is not wired up on this build. The
+      <a href={withBase('/feed.xml')}>feed</a> carries every issue, and
+      <a href={withBase('/newsletter')}>the newsletter page</a> explains how the
+      list is run.
+    </p>
+  )}
+
+  <p class="nl-fine">
+    {NEWSLETTER.volume} Double opt-in, one-click unsubscribe, and the list lives
+    on our own machine.{' '}
+    {/* On /newsletter itself, "how it works" is the page you are reading. */}
+    {variant !== 'page' && <a href={withBase('/newsletter')}>How it works</a>}
+  </p>
+</section>
+
+{NEWSLETTER_LIVE && (
+  <script is:inline>
+    (function () {
+      if (window.__nlBound) return;
+      window.__nlBound = true;
+
+      // Fill the render stamp: the service rejects a submit that arrives in
+      // under a second, which is a bot, not a fast typist.
+      document.querySelectorAll('[data-nl-ts]').forEach(function (el) {
+        el.value = String(Date.now());
+      });
+
+      function say(form, msg, kind) {
+        var el = form.querySelector('[data-nl-status]');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = 'nl-status' + (kind ? ' is-' + kind : '');
+      }
+
+      document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form || !form.hasAttribute || !form.hasAttribute('data-nl-form')) return;
+        e.preventDefault();
+
+        var email = (form.elements.email.value || '').trim();
+        if (!email || email.indexOf('@') < 1 || email.length > 254) {
+          say(form, 'That does not look like an email address.', 'err');
+          form.elements.email.focus();
+          return;
+        }
+
+        var btn = form.querySelector('.nl-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'sending…'; }
+        say(form, 'Sending…', '');
+
+        var payload = {
+          email: email,
+          source: form.elements.source ? form.elements.source.value : '',
+          website: form.elements.website ? form.elements.website.value : '',
+          rendered_at: form.elements.rendered_at ? Number(form.elements.rendered_at.value) : 0,
+        };
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (data) {
+              return { ok: res.ok, status: res.status, data: data };
+            });
+          })
+          .then(function (r) {
+            if (btn) { btn.disabled = false; btn.textContent = 'subscribe'; }
+            if (r.ok) {
+              form.reset();
+              document.querySelectorAll('[data-nl-ts]').forEach(function (el) {
+                el.value = String(Date.now());
+              });
+              say(form, 'Check your inbox — confirm the link and you are on the list.', 'ok');
+            } else if (r.status === 429) {
+              say(form, 'Too many attempts. Try again in a few minutes.', 'err');
+            } else {
+              say(form, (r.data && r.data.error) || 'That did not go through. Try again shortly.', 'err');
+            }
+          })
+          .catch(function () {
+            if (btn) { btn.disabled = false; btn.textContent = 'subscribe'; }
+            say(form, 'Network error — the subscribe service did not answer.', 'err');
+          });
+      });
+    })();
+  </script>
+)}
+
+<style>
+  .nl {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--panel, transparent);
+    padding: 1.05rem 1.15rem 0.9rem;
+  }
+  .nl--inline { margin-top: 2.4rem; max-width: var(--measure); }
+  .nl--page { margin: 0 0 2rem; max-width: var(--measure); }
+  .nl--rail { position: relative; padding-top: 1.25rem; }
+
+  .nl-h {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 1.25;
+    margin: 0 0 0.35rem;
+  }
+  .nl--rail .nl-h { font-size: 1rem; }
+  .nl--page .nl-h { font-size: 1.3rem; }
+
+  .nl-blurb {
+    margin: 0 0 0.8rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .nl--rail .nl-blurb { font-size: 0.85rem; }
+
+  .nl-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .nl-input {
+    flex: 1 1 14rem;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg);
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 7px 10px;
+  }
+  .nl-input::placeholder { color: var(--faint); }
+  .nl-input:focus-visible { border-color: var(--accent); }
+  .nl-btn {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--bar-fg);
+    background: var(--bar-bg);
+    border: 1px solid var(--bar-bg);
+    border-radius: 4px;
+    padding: 7px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nl-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nl-btn:disabled { opacity: 0.6; cursor: progress; }
+
+  /* Off-canvas rather than display:none — some bots skip hidden fields. */
+  .nl-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .nl-status {
+    flex: 1 0 100%;
+    margin: 2px 0 0;
+    min-height: 1.2em;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .nl-status.is-ok { color: var(--c-correct); }
+  .nl-status.is-err { color: var(--c-incorrect); }
+
+  .nl-off {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .nl-fine {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--faint);
+  }
+</style>

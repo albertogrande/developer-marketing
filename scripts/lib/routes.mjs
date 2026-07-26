@@ -11,20 +11,19 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { SITE_ORIGIN, SITE_BASE } from '../../site.config.mjs';
 
 // ---------------------------------------------------------------------------
 // Site config
 
-// site/base as written in astro.config.mjs — either as the SITE/BASE consts
-// or inline in defineConfig. One extractor so no script greps the config
-// with its own regex (that drifted once already).
+// Same source as the build (site.config.mjs — env-overridable for Vercel or
+// a custom domain), so no script can drift from what Astro emits. base is ''
+// when served at the root.
 export function siteConfig() {
-  const config = readFileSync('astro.config.mjs', 'utf8');
-  const site =
-    (config.match(/SITE = '([^']+)'/) || config.match(/site:\s*'([^']+)'/) || [])[1] || '';
-  const base =
-    (config.match(/BASE = '([^']*)'/) || config.match(/base:\s*'([^']*)'/) || [])[1] || '';
-  return { site, base };
+  return {
+    site: SITE_ORIGIN.replace(/\/+$/, ''),
+    base: SITE_BASE === '/' ? '' : SITE_BASE.replace(/\/+$/, ''),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +60,7 @@ export const COLLECTIONS = {
   practices: { dir: 'src/content/practices', index: '/practices', page: false },
   examples: { dir: 'src/content/examples', index: '/examples', page: false },
   skills: { dir: 'src/content/skills', index: '/skills', page: false },
+  resources: { dir: 'src/content/resources', index: '/resources', page: false },
 };
 
 // Every entry across every collection: { collection, id, file, fm, body, err }.
@@ -85,9 +85,9 @@ const day = (v) =>
 const newest = (...vs) => vs.map(day).filter(Boolean).sort().pop();
 
 // The honest last-changed date for one entry, from whichever date-ish fields
-// its collection carries (date, updated, verified, probe.date).
+// its collection carries (date, updated, verified, checked, probe.date).
 export function entryLastmod(fm) {
-  return newest(fm?.date, fm?.updated, fm?.verified, fm?.probe?.date);
+  return newest(fm?.date, fm?.updated, fm?.verified, fm?.checked, fm?.probe?.date);
 }
 
 // base-less slashless route → 'YYYY-MM-DD' for every page that has an honest

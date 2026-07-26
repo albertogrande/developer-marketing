@@ -39,7 +39,9 @@ const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
 const sitePath = stripBase(Astro.url.pathname);
 const mdMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar)\/([^/]+)\/?$/);
 const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
-const jsonMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar|practices|examples|skills)\/?$/);
+const jsonMatch = sitePath.match(
+  /^\/(guide|articles|weekly|deep-dives|radar|practices|examples|skills|resources)\/?$/
+);
 const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 
 // One @graph per page: the site-wide WebSite/Organization pair, an automatic
@@ -54,6 +56,8 @@ const SECTION_LABELS: Record<string, string> = {
   practices: 'Practices',
   examples: 'Examples',
   skills: 'Skills',
+  resources: 'Resources',
+  newsletter: 'Newsletter',
   tags: 'Tags',
   about: 'About',
 };

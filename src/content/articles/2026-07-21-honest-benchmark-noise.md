@@ -48,7 +48,7 @@ The play is not "scan something and post the finding." Every security vendor doe
 - **Show which rule produced your false positives.** Admitting that one UUID rule caused 48% of your alerts reads as competence, not weakness — it says you actually looked.
 - **Print the benchmark you'd rather hide.** An honest F1 of 0.449 buys more trust than a cherry-picked 0.95, because the reader knows which one they can believe.
 
-This is the verification-first pattern the [guide's content section](/developer-marketing/guide/05-content-that-earns-trust) argues for, made concrete: developers fact-check in public, so the content that survives is the content built to be checked. Flagging this one for the swipe file as a runnable honest-benchmark template.
+This is the verification-first pattern the [guide's content section](/guide/05-content-that-earns-trust) argues for, made concrete: developers fact-check in public, so the content that survives is the content built to be checked. Flagging this one for the swipe file as a runnable honest-benchmark template.
 
 ## Skip that
 

@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/site';
+import { getWeeklySorted } from '../../lib/content';
+import { NEWSLETTER } from '../../lib/newsletter';
+
+// Landing page after a confirmation link is accepted by the subscribe service.
+const [latest] = await getWeeklySorted();
+---
+<BaseLayout
+  title="You're on the list"
+  description="Confirmed. The Week arrives on Monday mornings."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsletter / confirmed</div>
+    <h1 class="page-title">You're on the list</h1>
+    <p class="dek">
+      Confirmed. {NEWSLETTER.name} arrives {NEWSLETTER.cadence}. Every issue has
+      a one-click unsubscribe at the bottom and your mail client's own
+      unsubscribe button will work too.
+    </p>
+  </div>
+
+  <div class="nlx">
+    {latest && (
+      <p>
+        While you wait, the most recent issue is
+        <a href={withBase(`/weekly/${latest.id}`)}>{latest.data.title}</a>.
+      </p>
+    )}
+    <p>
+      Replies reach a person. If something in an issue is wrong, say so and it
+      gets corrected in public.
+    </p>
+    <p class="muted-line">
+      <a href={withBase('/')}>← the front page</a>
+      <span class="sb-sep" aria-hidden="true"> · </span>
+      <a href={withBase('/guide')}>the guide</a>
+      <span class="sb-sep" aria-hidden="true"> · </span>
+      <a href={withBase('/resources')}>who to hire</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .nlx { max-width: var(--measure); }
+  .nlx p { font-size: 0.97rem; line-height: 1.6; }
+</style>

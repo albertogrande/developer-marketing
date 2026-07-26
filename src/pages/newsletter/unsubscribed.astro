@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/site';
+
+// Landing page after an unsubscribe link (or a One-Click List-Unsubscribe POST
+// followed by a browser visit). No win-back flow, no survey: they left.
+---
+<BaseLayout
+  title="Unsubscribed"
+  description="You have been removed from The Week. No further emails will be sent."
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsletter / unsubscribed</div>
+    <h1 class="page-title">Unsubscribed</h1>
+    <p class="dek">
+      Done, immediately. Your address is marked unsubscribed and no further
+      issues will be sent to it.
+    </p>
+  </div>
+
+  <div class="nlx">
+    <p>
+      The record is kept only so a later signup cannot quietly re-add you by
+      accident. Nothing about you is retained beyond the address and that flag,
+      and you can ask for it to be deleted outright by
+      <a href="https://github.com/albertogrande/developer-marketing/issues/new">opening an issue</a>.
+    </p>
+    <p>
+      The writing does not go away: the same digest is published at
+      <a href={withBase('/weekly')}>/weekly</a> and in the
+      <a href={withBase('/feed.xml')}>feed</a>, with no address required.
+    </p>
+    <p class="muted-line">
+      <a href={withBase('/newsletter')}>changed your mind? subscribe again →</a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .nlx { max-width: var(--measure); }
+  .nlx p { font-size: 0.97rem; line-height: 1.6; }
+</style>

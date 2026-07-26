@@ -1,7 +1,8 @@
 name: CI
 
-# Guards the build. A plain Astro build + Pagefind index on every PR and push;
-# no Claude, no quota.
+# Guards the build. A plain Astro build + Pagefind index on every PR and push,
+# plus the newsletter unit tests (tokens, list durability, MIME, SMTP, the
+# capture service); no Claude, no quota.
 on:
   pull_request:
   push:
@@ -25,6 +26,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # The newsletter's own suite: crypto, storage, encoders and the service.
+      - run: npm test
       # Source liveness on content changed by this PR/push (no-op when the
       # diff touches no content).
       - run: node scripts/check-sources.mjs --changed

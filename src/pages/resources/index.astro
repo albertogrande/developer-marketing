@@ -1,0 +1,403 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import NewsletterCta from '../../components/NewsletterCta.astro';
+import { render } from 'astro:content';
+import { withBase, absUrl, isoDate } from '../../lib/site';
+import { getResourcesSorted, RESOURCE_CATEGORIES } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
+
+// The directory of outside help — who you can actually hire to do developer
+// marketing. Grouped by category, filterable by service in the browser (plain
+// data attributes and one inline script; no framework, works without JS beyond
+// losing the filter). Machines read the same set at /resources.json.
+
+const resources = await getResourcesSorted();
+
+const cards = await Promise.all(
+  resources.map(async (r) => ({ r, Content: (await render(r)).Content }))
+);
+
+const groups = RESOURCE_CATEGORIES.map((c) => ({
+  ...c,
+  items: cards.filter(({ r }) => r.data.category === c.id),
+})).filter((g) => g.items.length > 0);
+
+// Filter chips: every service actually used, most-used first, so the row
+// reflects the directory rather than the enum.
+const serviceCounts = new Map<string, number>();
+for (const { r } of cards)
+  for (const s of r.data.services) serviceCounts.set(s, (serviceCounts.get(s) ?? 0) + 1);
+const services = [...serviceCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+// Signals cite book and report titles, so *asterisks* become emphasis. Escape
+// first: the output goes through set:html.
+const esc = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const emphasize = (s: string) => esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+const devtoolsOnly = cards.filter(({ r }) => r.data.focus === 'devtools').length;
+const lastChecked = resources.reduce<Date | null>(
+  (max, r) => (max && max > r.data.checked ? max : r.data.checked),
+  null
+);
+---
+<BaseLayout
+  title="Resources"
+  description="A vetted directory of the agencies, studios, collectives and independents who do developer marketing for devtools — technical content, docs, DevRel, community, positioning and research. No paid placements."
+  jsonLd={[
+    collectionPageNode({
+      name: 'Resources — who to hire',
+      description:
+        'A vetted directory of the agencies, studios, collectives and independents who do developer marketing for devtools. No paid placements.',
+      url: absUrl('/resources'),
+      items: resources.map((r) => ({
+        name: r.data.name,
+        url: `${absUrl('/resources')}#${r.id}`,
+      })),
+    }),
+  ]}
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> resources</div>
+    <h1 class="page-title">Who to hire</h1>
+    <p class="dek">
+      {resources.length} agencies, studios, collectives and independents who sell
+      developer marketing as a service, {devtoolsOnly} of them working on devtools
+      specifically. Every entry has a live site, one proof point you can go check
+      yourself, and the date we last opened it. Nobody paid to be here and nobody
+      can. Machines read the set at
+      <a href={withBase('/resources.json')}><code>/resources.json</code></a>.
+    </p>
+  </div>
+
+  <div class="rs-bar" role="group" aria-label="Filter by service">
+    <button class="rs-chip is-on" type="button" data-svc="all" aria-pressed="true">
+      all <span class="dim">{resources.length}</span>
+    </button>
+    {services.map(([s, n]) => (
+      <button class="rs-chip" type="button" data-svc={s} aria-pressed="false">
+        {s} <span class="dim">{n}</span>
+      </button>
+    ))}
+  </div>
+  <p class="rs-count muted-line" id="rs-count" aria-live="polite"></p>
+
+  <div data-pagefind-body>
+    {groups.map((g) => (
+      <section class="rs-group" data-group={g.id}>
+        <div class="fm-sec">
+          <span class="amber">##</span><span class="fm-sec-l">{g.label}</span>
+          <span class="fm-rule" aria-hidden="true"></span>
+          <span class="dim">{String(g.items.length).padStart(2, '0')}</span>
+        </div>
+        <p class="rs-blurb">{g.blurb}</p>
+
+        {g.items.map(({ r, Content }) => (
+          <article
+            class="rs"
+            id={r.id}
+            data-svc={r.data.services.join(' ')}
+            data-focus={r.data.focus}
+          >
+            <div class="rs-top">
+              <h3 class="rs-h">
+                <a href={r.data.url} rel="noopener nofollow">{r.data.name}</a>
+              </h3>
+              <span class="rs-chip-s rs-kind">{r.data.kind}</span>
+              {r.data.focus === 'devtools' ? (
+                <span class="rs-chip-s rs-focus">devtools</span>
+              ) : (
+                <span class="rs-chip-s dim">technical B2B</span>
+              )}
+              {r.data.based && <span class="rs-where dim">{r.data.based}</span>}
+            </div>
+
+            <dl class="rs-dl">
+              <dt>Signal</dt><dd set:html={emphasize(r.data.signal)} />
+              {r.data.pricing && <Fragment><dt>Pricing</dt><dd>{r.data.pricing}</dd></Fragment>}
+              {r.data.caveat && (
+                <Fragment>
+                  <dt class="rs-dt-caveat">Caveat</dt>
+                  <dd class="rs-caveat">{r.data.caveat}</dd>
+                </Fragment>
+              )}
+            </dl>
+
+            <div class="rs-body"><Content /></div>
+
+            <div class="rs-meta">
+              {/* Services are the filter vocabulary, so they stay plain text —
+                  the linked chips next to them are the topic tags. */}
+              <span class="rs-svcs">{r.data.services.join(' · ')}</span>
+              <TagList tags={r.data.tags} />
+              <span class="rs-links">
+                <a href={r.data.url} rel="noopener nofollow">{new URL(r.data.url).host.replace(/^www\./, '')}</a>
+                {r.data.sources.map((s) => (
+                  <Fragment>
+                    <span class="dim"> · </span>
+                    <a href={s.url} rel="noopener">{s.label}</a>
+                  </Fragment>
+                ))}
+              </span>
+              <span class="dim rs-date">checked {isoDate(r.data.checked)}</span>
+            </div>
+          </article>
+        ))}
+      </section>
+    ))}
+  </div>
+
+  <section class="rs-note">
+    <div class="fm-sec">
+      <span class="amber">##</span><span class="fm-sec-l">how to vet one</span>
+      <span class="fm-rule" aria-hidden="true"></span>
+    </div>
+    <p>
+      The same standard this guide applies to your marketing applies to theirs.
+      An agency that sells developer trust and cannot demonstrate it on its own
+      site has already answered the question.
+    </p>
+    <ol class="rs-checks">
+      <li>
+        <b>Ask for the work, not the logos.</b> A wall of enterprise names means
+        someone there once sold to Cisco. Ask which specific pieces they wrote,
+        then read three of them as a skeptical developer would
+        (<a href={withBase('/practices#show-verifiable-metrics-not-logo-walls')}>practice</a>).
+      </li>
+      <li>
+        <b>Make them run your quickstart on the call.</b> Anyone selling you
+        developer marketing should be able to describe where your onboarding
+        loses people before they pitch a content calendar
+        (<a href={withBase('/guide/04-developer-experience-and-activation')}>§04</a>).
+      </li>
+      <li>
+        <b>Find out who actually writes.</b> "Engineer-writers" covers everything
+        from staff engineers to a marketplace with a technical veneer. Ask for
+        the writer's own byline history in your stack.
+      </li>
+      <li>
+        <b>Ask what they would measure in 90 days.</b> Sessions and impressions
+        are the wrong answer. Time to first successful call, activation rate and
+        influenced pipeline are the right ones
+        (<a href={withBase('/guide/08-measurement-and-metrics')}>§08</a>).
+      </li>
+      <li>
+        <b>Ask about the machine reader.</b> In 2026 a content shop with no
+        opinion on how your docs get retrieved and cited by assistants is selling
+        you 2019
+        (<a href={withBase('/deep-dives/2026-07-17-geo-for-devtools-when-the-reader-is-a-model')}>the GEO dive</a>).
+      </li>
+      <li>
+        <b>Start with something small and reversible.</b> An audit, a sprint, five
+        pieces. The good ones will suggest it before you do.
+      </li>
+    </ol>
+    <p class="rs-fine">
+      <b>How this list is kept.</b> Entries are added when a provider is real,
+      developer-specific and verifiable, and removed when the site dies, the
+      focus drifts or the claim stops checking out. Proof points are quoted from
+      the provider's own site and stamped with the date we read them; unless a
+      figure is marked otherwise, it is self-reported and not audited. There are
+      no affiliate links, no sponsored slots and no rankings for sale
+      {lastChecked && <Fragment> · last pass {isoDate(lastChecked)}</Fragment>}.
+      Missing someone, or listed and out of date?
+      <a href="https://github.com/albertogrande/developer-marketing/issues/new">Open an issue</a>.
+    </p>
+  </section>
+
+  <NewsletterCta
+    variant="inline"
+    source="/resources"
+    heading="New entries go out in The Week"
+    blurb="One short email on Mondays: what actually moved in developer marketing, plus anything added to or dropped from this directory."
+  />
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    var bar = document.querySelector('.rs-bar');
+    if (!bar) return;
+    var chips = [].slice.call(bar.querySelectorAll('.rs-chip'));
+    var cards = [].slice.call(document.querySelectorAll('.rs'));
+    var groups = [].slice.call(document.querySelectorAll('.rs-group'));
+    var count = document.getElementById('rs-count');
+    var active = 'all';
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (card) {
+        var svcs = (card.getAttribute('data-svc') || '').split(' ');
+        var on = active === 'all' || svcs.indexOf(active) !== -1;
+        card.hidden = !on;
+        if (on) shown++;
+      });
+      groups.forEach(function (g) {
+        var any = [].slice.call(g.querySelectorAll('.rs')).some(function (c) { return !c.hidden; });
+        g.hidden = !any;
+      });
+      chips.forEach(function (c) {
+        var on = c.getAttribute('data-svc') === active;
+        c.classList.toggle('is-on', on);
+        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (count) {
+        count.textContent =
+          active === 'all' ? '' : shown + (shown === 1 ? ' provider' : ' providers') + ' doing ' + active;
+      }
+      try {
+        var url = new URL(location.href);
+        if (active === 'all') url.searchParams.delete('svc');
+        else url.searchParams.set('svc', active);
+        history.replaceState(null, '', url);
+      } catch (e) {}
+    }
+
+    bar.addEventListener('click', function (e) {
+      var chip = e.target.closest('.rs-chip');
+      if (!chip) return;
+      var svc = chip.getAttribute('data-svc');
+      active = svc === active && svc !== 'all' ? 'all' : svc;
+      apply();
+    });
+
+    // Deep links: /resources?svc=docs, and #anchor always wins over a filter
+    // that would hide the card someone was linked to.
+    try {
+      var want = new URL(location.href).searchParams.get('svc');
+      if (want && chips.some(function (c) { return c.getAttribute('data-svc') === want; })) active = want;
+      if (location.hash) {
+        var target = document.querySelector(location.hash);
+        if (target && target.classList.contains('rs')) active = 'all';
+      }
+    } catch (e) {}
+    apply();
+  })();
+</script>
+
+<style>
+  .rs-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+  }
+  .rs-chip {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 3px 9px;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  .rs-chip:hover { color: var(--fg); border-color: var(--accent); }
+  .rs-chip.is-on {
+    color: var(--fg);
+    border-color: var(--accent);
+    background: var(--hl);
+  }
+  .rs-count { min-height: 1.2em; margin: 0 0 18px; }
+
+  .rs-blurb {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: -4px 0 14px;
+    max-width: var(--measure);
+  }
+
+  .rs-group[hidden] { display: none; }
+
+  .rs {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.05rem 1.2rem 0.95rem;
+    background: var(--panel, transparent);
+    margin: 0 0 1.1rem;
+  }
+  .rs[hidden] { display: none; }
+  .rs:target { border-color: var(--accent); }
+
+  .rs-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .rs-h { font-size: 1.15rem; margin: 0; line-height: 1.3; }
+  .rs-h a { text-decoration: none; }
+  .rs-h a:hover { text-decoration: underline; }
+  .rs-chip-s {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    padding: 0.08rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .rs-kind { color: var(--accent); border-color: currentColor; }
+  .rs-focus { color: var(--fg); }
+  .rs-where { font-family: var(--font-mono); font-size: 0.75rem; margin-left: auto; }
+
+  .rs-dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.15rem 0.75rem;
+    margin: 0 0 0.7rem;
+    font-size: 0.92rem;
+  }
+  .rs-dl dt {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 0.3em;
+  }
+  .rs-dl dd { margin: 0; line-height: 1.5; }
+  .rs-dt-caveat, .rs-caveat { color: var(--c-partial); }
+
+  .rs-body { font-size: 0.95rem; line-height: 1.6; }
+  .rs-body :global(p) { margin: 0.35rem 0 0; }
+
+  .rs-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+  }
+  .rs-svcs {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    color: var(--faint);
+  }
+  .rs-links { margin-left: auto; }
+  .rs-date { font-family: var(--font-mono); font-size: 0.75rem; }
+
+  .rs-note { margin-top: 2.4rem; max-width: var(--measure); }
+  .rs-note p { font-size: 0.98rem; }
+  .rs-checks { padding-left: 1.1rem; }
+  .rs-checks li { margin: 0.5rem 0; font-size: 0.95rem; line-height: 1.55; }
+  .rs-fine {
+    font-size: 0.85rem !important;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 0.9rem;
+    margin-top: 1.4rem;
+  }
+
+  @media (max-width: 640px) {
+    .rs-dl { grid-template-columns: 1fr; gap: 0 0; }
+    .rs-dl dt { padding-top: 0.5em; }
+    .rs-where { margin-left: 0; }
+    .rs-links { margin-left: 0; }
+  }
+</style>
