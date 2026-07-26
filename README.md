@@ -80,15 +80,17 @@ src/
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot
-  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, skills/, tags/, radar/, about, feed.xml.ts
-                     #  + machine endpoints: llms.txt, llms-full.txt, practices.json, guide.json, weekly.json, articles.json, examples.json, skills.json
+  pages/             # index, guide/, articles/, weekly/, deep-dives/, practices/, examples/, skills/, tags/, radar/, about
+                     #  + machine endpoints: api.json, llms.txt, llms-full.txt, feed.xml, feed.json,
+                     #    eight <collection>.json files, and a [slug].md.ts raw-markdown sibling per collection
   styles/main.scss   # design system, inherited from The Wire
-  lib/               # site.ts (base path + dates) + content.ts (shared collection queries)
+  lib/               # site.ts (base path, URL form, dates) + content.ts (shared queries) + markdown.ts (md→html, .md siblings) + jsonld.ts (schema.org builders)
 signals/             # raw daily capture, one file per ISO week (internal, not rendered)
 editorial/           # MEMORY.md (threads, coverage) + TASTE.md (reader) + NEWSROOM.md (decision log) + BACKLOG.md (idea pool): internal
 MASTHEAD.md          # identity, desks, editorial charter
 AUTHORS.md           # the newsroom's five writing desks
-scripts/             # check-refs.mjs, check-sources.mjs (gates) + append-ledger.sh (usage bookkeeping)
+docs/                # search-engines.md (console setup) + custom-domain.md + apex-shim/ (root robots.txt & llms.txt kit)
+scripts/             # check-refs.mjs, check-agent-surface.mjs, check-sources.mjs (gates) + lib/routes.mjs (shared route/date map) + indexnow-ping.mjs + append-ledger.sh
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
 .github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), deploy (Pages), ci (build check), health (watchdog)
 .github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
@@ -112,12 +114,34 @@ Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/week
 ## Use the guide from your own sessions
 
 The guide is also a **source agents can query**, not just a site to read. It
-practices the machine-readable-docs play it preaches. It publishes machine
-endpoints: [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
-(curated index), `/llms-full.txt` (the whole corpus in one file),
-`/practices.json`, `/guide.json`, `/weekly.json`, `/examples.json`, and
-`/skills.json` — the last one so an agent asked to audit your docs or write your
-changelog can find the skill that already does it, caveat included.
+practices the machine-readable-docs play it preaches — see
+[AGENTS.md](AGENTS.md) for the full consumption guide. The surfaces:
+
+- [`/api.json`](https://albertogrande.github.io/developer-marketing/api.json) —
+  the manifest: every endpoint and collection, with counts and honest updated dates. Start here.
+- [`/llms.txt`](https://albertogrande.github.io/developer-marketing/llms.txt)
+  (curated index of everything) and `/llms-full.txt` (the evergreen corpus in
+  one fetch, plus recent dated pieces).
+- **Raw markdown siblings** — every entry at `/<collection>/<id>.md`,
+  self-contained (canonical URL, dates, license, sources inside), announced
+  from each page via `rel="alternate" type="text/markdown"`.
+- **Eight JSON endpoints** — `/guide.json`, `/practices.json`,
+  `/examples.json`, `/skills.json`, `/articles.json`, `/weekly.json`,
+  `/deep-dives.json`, `/radar.json` — markdown bodies included; the skills one
+  so an agent asked to audit your docs or write your changelog can find the
+  skill that already does it, caveat included.
+- **Feeds with full content** — `/feed.xml` (Atom) and `/feed.json` (JSON
+  Feed 1.1) — and a sitemap with per-page `lastmod`.
+- Every page embeds a schema.org `@graph` (articles with desk authors and
+  citations, collection pages with item lists, skills as
+  `SoftwareApplication`s).
+
+Freshness is pushed, not just published: every deploy pings
+[IndexNow](https://www.indexnow.org) with the changed URLs (Bing's index is
+what ChatGPT Search retrieves through). One-time console setup:
+[docs/search-engines.md](docs/search-engines.md). Root-convention files for
+this project-site host: [docs/apex-shim/](docs/apex-shim/). Custom-domain
+switch: [docs/custom-domain.md](docs/custom-domain.md).
 
 ## License
 

@@ -1,0 +1,9 @@
+# albertogrande.github.io
+
+> This host's main publication is Developer Marketing — a field guide: the state of the art in developer marketing, kept current by an autonomous agent.
+
+The always-current index lives with the site itself:
+
+- [Developer Marketing — llms.txt](https://albertogrande.github.io/developer-marketing/llms.txt): the curated index of everything (guide, practices, examples, skills, newsroom, weekly, deep dives)
+- [Developer Marketing — llms-full.txt](https://albertogrande.github.io/developer-marketing/llms-full.txt): the evergreen corpus in one fetch
+- [Developer Marketing — api.json](https://albertogrande.github.io/developer-marketing/api.json): the machine manifest (every endpoint, counts, updated dates)
