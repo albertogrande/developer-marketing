@@ -127,8 +127,12 @@ keeps recurring in signals and isn't well covered by the guide is a
   Manicule pitches "DevRel rebuilt for a world where agents make the decisions"
   (self-reported $53K MRR / 100% MoM on a startup-listicle blog, not
   independently verified); a scout watch for the agent-as-buyer thread's
-  positioning/vendor angle, not yet article-grade. Guide: §02 (docs), §06
-  (channels).
+  positioning/vendor angle, not yet article-grade. Post-article texture
+  (07-27): two more thin Show HNs (ModelFuzz runtime guardrails, an OpenCode
+  tool-call verifier plugin, 2 pts each) landed the day after the 07-26
+  category piece — attempt volume is still climbing, still no adoption proof;
+  not a new data point, just confirms the piece published into a live trend
+  rather than a peak. Guide: §02 (docs), §06 (channels).
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation over sourced leads; AI-answer presence
   entering as a discovery metric. The signal layer is consolidating into GTM
