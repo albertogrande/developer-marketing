@@ -197,22 +197,28 @@ shelves are abandoned mid-quarter.
   installable covers. If a signal this week fills one, that is a strong add; if a
   gap has closed or opened, say so in the digest.
 
-## Step 6 — Commission a deep dive (only if earned)
+## Step 6 — Leave a deep-dive hint (optional)
 
-Read MEMORY's **deep-dive candidates**. Commission one **only when a thread has
-earned the depth** — it's recurred across several signals/weeks and the guide
-covers it only thinly, or a single story is consequential enough to deserve the
-full treatment. Deep dives are the exception, not a weekly rotation.
+A dive now ships **every Thursday on its own schedule** — you are not the
+trigger, and there is nothing to unblock. Your job here is narrower: if this
+week surfaced a thread that clearly earns the depth, hand it over so Thursday's
+editor doesn't have to rediscover it.
 
-State your pick and reasoning. If running in the weekly pipeline, write the
-commissioned topic as the **single line** of `editorial/COMMISSION.txt` and
-record the commission (topic + one-line brief) under deep-dive candidates in
-MEMORY — the workflow dispatches the Deep Dive run with its own time budget;
-do **not** write the dive in this session. In an interactive session, just
-state the commission. Prefer topics not already dived (check the coverage
-index); revisiting a past dive is fine if the story moved materially. If
-nothing earns it this week, say so and commission nothing — a skipped dive
-beats a padded one.
+Read MEMORY's **deep-dive candidates**. If one is ripe — recurred across
+several signals/weeks and the guide covers it thinly, or a single story is
+consequential enough — write it as the **single line** of
+`editorial/COMMISSION.txt` and record it (topic + one-line brief) under
+deep-dive candidates in MEMORY. Do **not** write the dive in this session.
+
+If nothing is ripe, **write no file and say so** — that is the normal case, not
+a failure. Thursday's run picks its own subject, evergreen if need be, and a
+hint you weren't sure about only crowds out a better pick. Never invent a
+commission to fill the slot.
+
+Keep the shelf stocked either way: if the **evergreen shelf** in MEMORY is down
+to its last two entries, add one or two drawn from the guide sections the
+coverage index shows as thinnest. Prefer topics not already dived (check the
+coverage index); revisiting a past dive is fine if the story moved materially.
 
 ## Step 7 — Update memory
 

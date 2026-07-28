@@ -1,6 +1,6 @@
 ---
 name: deep-dive
-description: Write one standalone, researched deep-dive essay (~1,500–3,000 words) on a developer-marketing subject that has earned the depth — commissioned by the weekly editor from editorial memory, or named by the user. Researches history, mechanics, trade-offs, and the strongest counter-case, then writes an opinionated, sourced piece to src/content/deep-dives/. Use when asked for a deep dive, optionally with a topic.
+description: Write one standalone, researched deep-dive essay (~1,500–3,000 words) on a developer-marketing subject — one ships every week, either a trendy thread that has earned the depth or an evergreen subject from editorial memory, or a topic named by the user. Researches history, mechanics, trade-offs, and the strongest counter-case, then writes an opinionated, sourced piece to src/content/deep-dives/. Use when asked for a deep dive, optionally with a topic.
 ---
 
 # Deep Dive
@@ -19,10 +19,23 @@ reader can act on.
   Sharpen it into an answerable question (e.g. "DevRel measurement" → "What
   should a DevRel team actually report to the CFO, and what happens when you
   get it wrong?").
-- **No topic given:** read `editorial/MEMORY.md` — take the top **deep-dive
-  candidate**. If none is ripe, run 3–5 orientation searches over the last few
-  weeks and pick the one subject a practitioner will still find useful in three
-  months. Your judgment.
+- **No topic given:** you are the editor — pick this week's subject yourself.
+  Work down this order and stop at the first that yields a real subject:
+  1. **A ripe trendy thread** — read MEMORY's **deep-dive candidates**. Take one
+     that has recurred across signals and that the guide covers thinly.
+  2. **An evergreen subject** — a durable question practitioners keep getting
+     wrong, independent of this week's news. MEMORY keeps a standing
+     **evergreen shelf**; the guide's own thin sections are the other source.
+     Check the coverage index for what has gone longest uncovered.
+  3. **Orientation searches** — 3–5 searches over the last few weeks, then the
+     one subject a practitioner will still find useful in three months.
+
+  A dive ships **every week**. There is no "nothing earned it" outcome here:
+  that judgment belongs to the newsroom's daily slot, not to this one. An
+  evergreen piece is a first-class result, not a fallback — if no thread is
+  moving, that is precisely the week to write the durable thing well. What you
+  must not do is force a thin trendy story to fill the slot: pick evergreen
+  instead.
 
 Always check MEMORY's coverage index first: don't repeat a past dive unless the
 story moved materially — if it did, frame the piece as an update and link the
@@ -84,6 +97,12 @@ reader should do.
 In `editorial/MEMORY.md`: retire the deep-dive candidate you just wrote (or note
 what's left open), attach the dive to its running thread, and append one line to
 the published coverage index (date, "dive", title, topics).
+
+Then **refill the shelf** — a weekly cadence empties it faster than the signals
+refill it. If you took from the evergreen shelf, add one to replace it; if the
+shelf is down to its last two, add two. Draw them from the guide sections the
+coverage index shows as thinnest. Leaving the shelf empty hands next Thursday's
+run nothing to pick from.
 
 ## Step 5 — Save
 

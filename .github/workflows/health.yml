@@ -5,8 +5,9 @@ name: Health
 # failure class those can never see — the schedule itself going quiet (GitHub
 # disabling crons on an inactive repo, a broken workflow file on main, an
 # action's moving tag regressing to silent success). If the scout hasn't
-# committed signals in 2 days, or the weekly hasn't committed a digest in 9,
-# something upstream is dead — open/comment the pipeline-failure issue.
+# committed signals in 2 days, or the weekly hasn't committed a digest in 9, or
+# the Thursday dive has gone 9 days without an essay, something upstream is
+# dead — open/comment the pipeline-failure issue.
 
 on:
   schedule:
@@ -61,6 +62,10 @@ jobs:
           # The weekly commits a digest every Monday; 9 days is one missed
           # Monday plus slack.
           check "Weekly" "src/content/weekly/" 9
+          # A dive ships every Thursday — evergreen when no thread is hot, so
+          # a quiet news week is never a reason for silence here. 9 days is one
+          # missed Thursday plus slack.
+          check "Deep Dive" "src/content/deep-dives/" 9
 
           exit "$stale"
 

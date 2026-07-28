@@ -153,9 +153,10 @@ silence into DevRel measurement.
 ## Deep-dive candidates
 
 Promote here when a thread recurs in signals AND the guide covers it thinly.
-The weekly desk commissions from this list. W30 commissioned nothing: the
-ripest candidate still lacks corroboration, and the agent-safe category got
-its treatment as a 07-26 article a day before the digest.
+A dive ships **every Thursday**; this list is the trendy half of what it picks
+from. These entries are gated on outside events, so the list is often not ripe
+— that is expected and is why the evergreen shelf below exists. A dive is never
+skipped for want of a hot thread; it goes evergreen instead.
 
 - **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17)
   that postings silently screen for quantified-impact skills. Commission only
@@ -170,6 +171,30 @@ its treatment as a 07-26 article a day before the digest.
   in one §01 bullet; thread is hot but the money article (07-22) is fresh.
   Commission when the meter produces its first public bill-shock story —
   Copilot's promo-credit lapse (~Sept 2026) is the likely trigger. Watching.
+
+## Evergreen shelf
+
+Durable subjects a practitioner will still need in a year — no news hook
+required, so they are always ripe. Thursday's dive takes from here whenever no
+trendy thread has earned the depth, which is most weeks. **Keep at least three
+on the shelf**: whoever takes one replaces it, drawn from the guide sections
+the coverage index shows as thinnest. A dive that goes evergreen is a normal
+week, not a fallback.
+
+- **What a quickstart owes the reader** — the anatomy of a first five minutes:
+  what to cut, what to hard-code, when a sandbox key beats a signup, and how
+  operators actually measure the drop-off. Guide covers the principle in §02
+  and §04 but never the mechanics. (`02`, `04`)
+- **Pricing pages developers trust** — why the free tier's shape reads as a
+  promise, what a published limit signals, and what happens to trust when a
+  tier moves. Cerebras' 07-16 sunset is a live case; the subject outlives it.
+  (`01`)
+- **The deprecation that didn't burn anyone** — migration windows, codemods,
+  and the comms cadence that separates a clean deprecation from a churn event.
+  §04 owns "deprecation trust" in a single bullet. (`04`)
+- **What to report to a CFO** — the DevRel measurement question underneath the
+  influence-vs-attribution argument: which four numbers survive contact with
+  finance, and what each one costs to collect. (`03`, `08`)
 
 ## Guide coverage index
 

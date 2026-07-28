@@ -10,6 +10,12 @@ name: Deep Dive
 # Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
 
 on:
+  schedule:
+    # Thursday 13:00 UTC — one dive a week, every week. Midweek so the editor
+    # has Monday's digest plus three days of fresh signals to pick from, and
+    # well clear of the morning writers (scout 05:00, newsroom 06:30) that
+    # share the `main-writers` concurrency group.
+    - cron: "0 13 * * 4"
   workflow_dispatch:
     inputs:
       topic:
@@ -37,6 +43,25 @@ jobs:
           node-version: "20"
           cache: npm
 
+      # Topic precedence: an explicit dispatch input, else a hint Monday's
+      # digest left in editorial/COMMISSION.txt, else nothing — the editor
+      # picks. The hint is consumed here (and committed as removed below) so a
+      # stale one can never steer a second dive.
+      - name: Resolve the topic
+        id: topic
+        env:
+          INPUT_TOPIC: ${{ github.event.inputs.topic }}
+        run: |
+          topic="$INPUT_TOPIC"
+          if [ -f editorial/COMMISSION.txt ]; then
+            if [ -z "$topic" ]; then
+              topic=$(head -1 editorial/COMMISSION.txt | tr -d '\n')
+            fi
+            rm editorial/COMMISSION.txt
+          fi
+          echo "topic=$topic" >> "$GITHUB_OUTPUT"
+          echo "Topic: ${topic:-(none — editor picks)}"
+
       - name: Write the dive
         id: claude
         uses: anthropics/claude-code-action@v1
@@ -49,7 +74,7 @@ jobs:
           allowed_bots: "github-actions"
           prompt: >
             Run the deep-dive skill (.claude/skills/deep-dive/SKILL.md).
-            ${{ github.event.inputs.topic && format('Topic: {0}.', github.event.inputs.topic) || 'No topic given — pick the top deep-dive candidate from editorial/MEMORY.md.' }}
+            ${{ steps.topic.outputs.topic && format('Topic: {0}.', steps.topic.outputs.topic) || 'No topic given — you are the editor: pick this week''s subject yourself, trendy or evergreen, per Step 1 of the skill. This run must produce a dive.' }}
             Write the essay to src/content/deep-dives/ and update
             editorial/MEMORY.md. Write files only — do not commit or push.
           show_full_output: true

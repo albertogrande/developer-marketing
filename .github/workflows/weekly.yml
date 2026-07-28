@@ -3,10 +3,10 @@ name: Weekly
 # Weekly digest. Claude Code runs the weekly-digest skill: it reads the week's
 # signals and editorial memory, writes one short "The Week" issue to
 # src/content/weekly/, does a full guide-accuracy pass, distills practices,
-# and updates memory. If the editor commissions a deep dive it writes the
-# topic to editorial/COMMISSION.txt and this workflow dispatches the Deep Dive
-# workflow — its own job, its own timeout — instead of cramming the dive into
-# this session. A fresh-context verification pass and deterministic gates
+# and updates memory. The Deep Dive runs on its own weekly schedule now, so
+# this workflow no longer dispatches it; if a thread clearly earns the depth
+# the editor leaves the topic in editorial/COMMISSION.txt and Thursday's dive
+# picks it up as a hint. A fresh-context verification pass and deterministic gates
 # (site build + source liveness) run before the commit. Failures open/comment
 # a pipeline-failure issue — never silent.
 #
@@ -23,7 +23,6 @@ permissions:
   contents: write
   id-token: write
   issues: write
-  actions: write # to dispatch the commissioned Deep Dive
 
 concurrency:
   group: main-writers
@@ -49,10 +48,11 @@ jobs:
             Run the weekly-digest skill (.claude/skills/weekly-digest/SKILL.md)
             for the last completed Monday–Sunday week. Write the issue to
             src/content/weekly/<WEEK_ID>.md, do the full guide-accuracy pass,
-            distill practices, and update editorial/MEMORY.md. If — and only
-            if — you commission a deep dive, write its topic as the single
-            line of editorial/COMMISSION.txt and record the commission in
-            MEMORY; the workflow dispatches the dive as its own run. Do NOT
+            distill practices, and update editorial/MEMORY.md. The deep dive
+            runs on its own Thursday schedule — you do not trigger it. Only if
+            a thread clearly earned the depth, leave its topic as the single
+            line of editorial/COMMISSION.txt as a hint for that run; if
+            nothing is ripe, write no such file (the normal case). Do NOT
             write the dive in this session. Write files only — do not commit
             or push.
           show_full_output: true
@@ -70,16 +70,6 @@ jobs:
         with:
           execution_file: ${{ steps.claude.outputs.execution_file }}
           expect_changes: src/content/weekly/
-
-      - name: Read deep-dive commission
-        id: commission
-        run: |
-          topic=""
-          if [ -f editorial/COMMISSION.txt ]; then
-            topic=$(head -1 editorial/COMMISSION.txt | tr -d '\n')
-            rm editorial/COMMISSION.txt
-          fi
-          echo "topic=$topic" >> "$GITHUB_OUTPUT"
 
       - name: Detect content changes
         id: changes
@@ -143,19 +133,6 @@ jobs:
       # continue-on-error: the digest is already pushed by now — a failed
       # dispatch must not fail the run, or Deploy's success gate would leave
       # the published content unbuilt. The next step raises the alarm instead.
-      - name: Dispatch commissioned deep dive
-        id: dispatch
-        if: steps.commission.outputs.topic != ''
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TOPIC: ${{ steps.commission.outputs.topic }}
-        run: gh workflow run deep-dive.yml -f topic="$TOPIC"
-
-      - name: Notify on dispatch failure
-        if: steps.dispatch.outcome == 'failure'
-        uses: ./.github/actions/notify-failure
-
       # A failed gate must cost a retry, not the written work — the 07-17
       # backfill run lost a full written digest when the verify pass died.
       - name: Rescue uncommitted content on failure
