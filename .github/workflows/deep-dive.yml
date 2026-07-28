@@ -1,11 +1,13 @@
 name: Deep Dive
 
-# Deep dive. Claude Code runs the deep-dive skill on a topic you name (or,
-# with no topic, the top deep-dive candidate in editorial memory). Writes a
-# researched essay to src/content/deep-dives/ and updates memory. A
-# fresh-context verification pass and deterministic gates run before the
-# commit; Deploy publishes on completion. Dispatched manually or by the
-# Weekly workflow when the editor commissions a dive.
+# Deep dive. One researched essay a week, every week — Claude Code runs the
+# deep-dive skill on a topic you name or, with none given, the subject the
+# editor picks: a ripe thread from editorial memory, else an evergreen one off
+# the shelf. A quiet news week is never a reason for silence here. Writes to
+# src/content/deep-dives/ and updates memory. A fresh-context verification pass
+# and deterministic gates run before the commit; Deploy publishes on
+# completion. Runs on its own Thursday schedule — the Weekly does not dispatch
+# it, it only leaves an optional topic hint in editorial/COMMISSION.txt.
 #
 # Requires repo secret CLAUDE_CODE_OAUTH_TOKEN.
 
