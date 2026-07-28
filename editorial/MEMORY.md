@@ -73,7 +73,16 @@ candidate (flag below).
   guardrail entrant posts real adoption vs. a launch spike; where pre-action
   authz consolidates (MCP layer / cloud gateway / OAP); a second incumbent
   after GoDaddy shipping an agent-safe flow and saying so on the pricing
-  page. Guide: §02, §06.
+  page. W31: Google made the retrieval/ranking split explicit and citable —
+  Search Central's optimization guide now tells sites to skip llms.txt for
+  AI-features ranking (confirmed by Illyes/Taboul at Search Central Live
+  APAC, 07-28 signal), while Chrome Lighthouse 13.3 shipped an "Agentic
+  Browsing" audit category that checks llms.txt, WebMCP, and agent
+  accessibility — corroborates rather than disproves the guide's existing
+  hedge (§02, §06 already frame llms.txt as agent-retrieval, not SEO).
+  Kastra (07-28 Show HN, 13 pts) extends the agent-safe-by-design roster with
+  a cross-tool policy layer (Claude Code/Cursor/Codex at once) rather than a
+  single-tool guardrail. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a discovery
   metric. Signal layer consolidating into GTM stacks: Zoom+Common Room
