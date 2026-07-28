@@ -62,8 +62,16 @@ const weekly = defineCollection({
     title: z.string(),
     // ISO week id, e.g. "2026-W28" — also the filename/slug.
     week: z.string(),
-    // Publish date (the week's Monday), drives ordering and the feed.
+    // The Monday that opens the week this issue COVERS. Display only — it is
+    // the stamp under the title ("2026-W30 · 20 July 2026"), not a publish
+    // date: the digest ships the Monday *after* the week closes.
     date: z.coerce.date(),
+    // When the issue actually shipped — `date` + 7. This is what drives feed
+    // ordering and schema.org datePublished. The two are separate because a
+    // weekly is written about a window that closed before it: stamping the
+    // feed with `date` published every digest a week stale, sinking it below
+    // articles it is newer than.
+    published: z.coerce.date(),
     summary: z.string(),
     // Optional revision stamp when a digest is corrected after publication.
     updated: z.coerce.date().optional(),

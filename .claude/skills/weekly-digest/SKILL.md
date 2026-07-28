@@ -23,7 +23,13 @@ The issue covers the **last completed Monday→Sunday week** (UTC):
 END=$(date -u -d "last sunday" +%Y-%m-%d)              # Sunday (end)
 START=$(date -u -d "last sunday - 6 days" +%Y-%m-%d)   # Monday (start)
 WEEK_ID=$(date -u -d "last sunday" +%G-W%V)            # e.g. 2026-W28
+TODAY=$(date -u +%Y-%m-%d)                             # ship date (frontmatter `published`)
 ```
+
+`START` and `TODAY` are a week apart and must not be conflated: `START` stamps
+the window the issue covers, `TODAY` is what the feed syndicates under. Using
+`START` for both published every digest a week stale, sinking it in the feed
+below articles it was newer than.
 
 Output: `src/content/weekly/<WEEK_ID>.md`. If it already exists, stop and say so
 — don't overwrite a published issue unless explicitly asked.
@@ -72,7 +78,8 @@ Write `src/content/weekly/<WEEK_ID>.md`. Frontmatter schema is strict (see
 ---
 title: Sharp, thesis-bearing headline
 week: <WEEK_ID>          # e.g. 2026-W28
-date: <START>            # the week's Monday, YYYY-MM-DD
+date: <START>            # the week's Monday (the window covered), YYYY-MM-DD
+published: <TODAY>       # the day this issue ships — drives the feed, not `date`
 summary: One or two sentences — the week's thesis, plainly.
 tags: [devrel, metrics]  # 2–4 from: positioning, content, docs, devrel, community, dx, activation, distribution, channels, metrics, launches, pricing, plg, org, meta
 related:                 # optional — guide sections / earlier issues / dives

@@ -176,7 +176,7 @@ export const getGuideGraph = memo(async () => {
       addRef(r.href, { kind: 'article', title: a.data.title, href: `/articles/${a.id}`, date: a.data.date });
   for (const w of weekly)
     for (const r of w.data.related)
-      addRef(r.href, { kind: 'weekly', title: w.data.title, href: `/weekly/${w.id}`, date: w.data.date });
+      addRef(r.href, { kind: 'weekly', title: w.data.title, href: `/weekly/${w.id}`, date: w.data.published });
   for (const v of dives)
     for (const r of v.data.related)
       addRef(r.href, { kind: 'dive', title: v.data.title, href: `/deep-dives/${v.id}`, date: v.data.date });
@@ -211,10 +211,13 @@ export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
     getRadarSorted(),
   ]);
   const items: FeedItem[] = [
+    // A weekly syndicates under the day it SHIPPED, not the Monday it covers —
+    // `date` is a week behind by construction, which sank each new digest
+    // below the articles it is newer than.
     ...weekly.map((e) => ({
       title: e.data.title,
       summary: e.data.summary,
-      date: e.data.date,
+      date: e.data.published,
       updated: e.data.updated,
       tags: e.data.tags,
       path: `/weekly/${e.id}`,

@@ -30,7 +30,7 @@ const d = entry.data;
   description={d.summary}
   deskLabel="The Week"
   stamp={`${d.week} · ${fmtLong(d.date)}`}
-  published={d.date}
+  published={d.published}
   updated={d.updated}
   jsonLd={[
     articleNode({
@@ -38,7 +38,7 @@ const d = entry.data;
       title: d.title,
       description: d.summary,
       url: absUrl(`/weekly/${entry.id}`),
-      published: d.date,
+      published: d.published,
       updated: d.updated,
       section: 'The Week',
       tags: d.tags,

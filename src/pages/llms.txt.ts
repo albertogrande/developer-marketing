@@ -112,7 +112,7 @@ export const GET: APIRoute = async () => {
     lines.push('One short digest per ISO week of what actually changed.');
     for (const w of weekly) {
       lines.push(
-        `- [${w.data.title}](${abs(`/weekly/${w.id}.md`)}): ${w.data.summary} (${isoDate(w.data.date)})`
+        `- [${w.data.title}](${abs(`/weekly/${w.id}.md`)}): ${w.data.summary} (${isoDate(w.data.published)})`
       );
     }
   }
