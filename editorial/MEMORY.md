@@ -82,7 +82,19 @@ candidate (flag below).
   hedge (§02, §06 already frame llms.txt as agent-retrieval, not SEO).
   Kastra (07-28 Show HN, 13 pts) extends the agent-safe-by-design roster with
   a cross-tool policy layer (Claude Code/Cursor/Codex at once) rather than a
-  single-tool guardrail. Guide: §02, §06.
+  single-tool guardrail. W31: the protocol underneath this whole thread moved —
+  MCP's 2026-07-28 spec (fifth release, largest revision since launch) goes
+  stateless core, hardens auth (RFC 9207, Client ID Metadata Documents), and
+  ships day one across all Tier-1 SDKs with AWS/Cloudflare/Figma/Google
+  Cloud/Microsoft/Netlify committed — a maturity signal, not a new claim, but
+  raises the bar for anything the agent-safe-by-design roster builds against.
+  Tines 3B (07-28 Show HN, 27 pts) reframes the category from tool-call
+  guardrails to citizen-builder governance: "you told everyone to use AI, now
+  give them a secure place to do it" — visibility over AI-built
+  workflows/dashboards, not gating who can build. Open loop (new): whether the
+  MCP stateless cutover produces a practitioner-visible migration bill-shock
+  or outage story to watch for, same pattern as the seat+meter thread's
+  Copilot-credit watch. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a discovery
   metric. Signal layer consolidating into GTM stacks: Zoom+Common Room

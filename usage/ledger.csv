@@ -51,3 +51,5 @@ date,workflow,run_id,step,model,cost_usd,duration_ms,turns
 2026-07-27,Weekly,30258470370,verify,claude-fable-5,1.6008081999999992,398154,52
 2026-07-28,Scout,30339411450,writer,claude-sonnet-5,0.8619231999999999,226165,22
 2026-07-28,Scout,30339411450,verify,claude-sonnet-5,0.8619231999999999,226165,22
+2026-07-29,Scout,30432959427,writer,claude-sonnet-5,0.2709043,66251,8
+2026-07-29,Scout,30432959427,verify,claude-sonnet-5,0.2709043,66251,8
