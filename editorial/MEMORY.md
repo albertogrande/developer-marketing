@@ -88,6 +88,17 @@ candidate (flag below).
   ships day one across all Tier-1 SDKs with AWS/Cloudflare/Figma/Google
   Cloud/Microsoft/Netlify committed — a maturity signal, not a new claim, but
   raises the bar for anything the agent-safe-by-design roster builds against.
+  Now a technology article (2026-07-29 mcp-goes-stateless): reframes the
+  maturity for the practitioner — "MCP support" is converging on table stakes
+  (differentiator moves up to *what* the server exposes safely), the auth/
+  integration page is now agent-facing (CIMD registration, identity per
+  request), and the deprecation of HTTP+SSE/DCR/Roots-Sampling-Logging on a
+  ~12-month offramp (removal window opens 2027-07-28) is a customer-facing
+  trust event (§04 discipline). Honest caveat carried: the ~500M downloads/mo
+  and 1B TS/Python figures are self-reported SDK pulls (supply-side), vendor
+  commitments are statements not shipped integrations, Anthropic's Claude
+  rollout is "soon." Guide gap noted: guide has zero MCP mentions — §02/§06
+  distillation is a weekly-editor job, not a contradiction to patch.
   Tines 3B (07-28 Show HN, 27 pts) reframes the category from tool-call
   guardrails to citizen-builder governance: "you told everyone to use AI, now
   give them a secure place to do it" — visibility over AI-built
@@ -228,6 +239,7 @@ about *where* a fact belongs.
 Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 <tags>`. The newsroom appends one line per published article.
 
+- 2026-07-29 · technology · *MCP just became infrastructure — and put a 12-month clock on the server you already shipped* · ai, agents, mcp, docs
 - 2026-07-26 · technology · *A checkpoint before the tool call: 'agent-safe by design' is becoming a category* · ai, agents, positioning, docs
 - 2026-07-23 · news · *GitHub's Copilot dashboard now counts the seats nobody uses* · metrics, ai, github, devrel
 - 2026-07-22 · money · *GitHub Code Quality shipped the default AI price: a seat, plus a meter* · pricing, ai, github, monetization
