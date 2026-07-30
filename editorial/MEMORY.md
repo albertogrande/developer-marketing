@@ -105,7 +105,18 @@ candidate (flag below).
   workflows/dashboards, not gating who can build. Open loop (new): whether the
   MCP stateless cutover produces a practitioner-visible migration bill-shock
   or outage story to watch for, same pattern as the seat+meter thread's
-  Copilot-credit watch. Guide: §02, §06.
+  Copilot-credit watch. W31: two same-week follow-throughs. GitHub moved
+  Copilot code review's agent skills (`SKILL.md` under `.github/skills`) and
+  MCP support (read-only tool calls) from 06-02 preview to GA (07-29,
+  07-30 signal) — the skill-as-a-file pattern hardens into a shipped
+  enterprise feature, not just an agent-harness convention. Anthropic's own
+  "Bringing MCP 2026-07-28 to Claude" post (07-30 signal) puts detail under
+  the "soon" hedge — MCP Apps live, enterprise-managed auth, connector
+  observability dashboards, tunnels in research preview, 950+ servers in the
+  directory — but still no firm completion date. Counter-texture: a thin (8
+  pt) HN post argues raw MCP connectors don't replace a curated context
+  layer — a dissent worth tracking as "MCP support" keeps consolidating into
+  table stakes. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a discovery
   metric. Signal layer consolidating into GTM stacks: Zoom+Common Room
