@@ -43,6 +43,7 @@ a news-pegged piece instead — that's fine.
 - Embedded and vector databases: the quiet stack shift under AI features
 - llms.txt one year in: measured adoption, not vibes
 - Local models in dev workflows: what changes for cloud-devtool positioning
+- Skills-as-a-file escapes the harness: `SKILL.md` becomes a cross-vendor product surface — GitHub Copilot code-review GA (07-30, `.github/skills/`), Anthropic's Claude skills, this site's own newsroom. The docs/positioning angle: package your product's expertise as a portable skill the way vendors packaged an MCP server. Write when a third *independent* surface ships it with adoption evidence (per MEMORY AI-assistants sub-thread).
 
 ## Used
 

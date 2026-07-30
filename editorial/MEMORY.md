@@ -116,7 +116,13 @@ candidate (flag below).
   directory — but still no firm completion date. Counter-texture: a thin (8
   pt) HN post argues raw MCP connectors don't replace a curated context
   layer — a dissent worth tracking as "MCP support" keeps consolidating into
-  table stakes. Guide: §02, §06.
+  table stakes. Emerging sub-thread (07-30, newsroom-skipped): the `SKILL.md`
+  convention is escaping the agent harness — GitHub's Copilot code-review GA
+  ships `.github/skills/SKILL.md` as a product surface with per-comment
+  attribution; Anthropic ships skills in Claude; this site's own newsroom runs
+  on it. Not yet article-grade (one preview→GA + one vendor convention, no
+  independent adoption proof). Promote when a third *independent* surface ships
+  skills-as-a-file with usage evidence. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a discovery
   metric. Signal layer consolidating into GTM stacks: Zoom+Common Room
