@@ -141,9 +141,20 @@ candidate (flag below).
   hiring-bar claim (07-17 teaser) is still single-sourced — DevRelCon NYC
   wrapped 07-23 and **no recaps published through 07-26**; carried to W31
   with a deadline (no recaps by mid-August → it was one person's job search).
-  Open loops: fourth signal-tool deal / first disclosed price; the W30 watch —
-  a second AI devtool shipping phase-cohort/passive-seat reporting, or a
-  public renewal story citing a passive-seat count, by end of Q3; the recaps.
+  W31: **the CFO dive shipped** (2026-07-30, from the evergreen shelf) — house
+  position now on record: report the *program* in four auditable numbers (cost
+  per activated developer, activated→revenue conversion by cohort, influenced
+  pipeline under a finance-co-signed touch rule with sourced separated, NRR
+  split by developer engagement), manage the *people* on craft — the
+  program/person split is the synthesis of the quota objection. Costs named
+  per number (identity join is the tax on #2/#4; #3 is political not
+  technical). Reported detail worth keeping: the DevRel Foundation's Metrics &
+  Reporting WG was archived 2025-11-08 ("no longer active") while its other
+  WGs carried on; survey record 11th wave = 62% report to C-level / 18% link
+  revenue / 61% can't demonstrate impact. Open loops: fourth signal-tool deal
+  / first disclosed price; the W30 watch — a second AI devtool shipping
+  phase-cohort/passive-seat reporting, or a public renewal story citing a
+  passive-seat count, by end of Q3; the recaps.
   Guide: §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData: ~47M
   developers, growth decelerating to ~10% y/y, aging, shifting to South Asia /
@@ -232,9 +243,12 @@ week, not a fallback.
 - **The deprecation that didn't burn anyone** — migration windows, codemods,
   and the comms cadence that separates a clean deprecation from a churn event.
   §04 owns "deprecation trust" in a single bullet. (`04`)
-- **What to report to a CFO** — the DevRel measurement question underneath the
-  influence-vs-attribution argument: which four numbers survive contact with
-  finance, and what each one costs to collect. (`03`, `08`)
+- **What a launch actually buys you** — the measured anatomy of a Show HN /
+  Product Hunt spike: traffic half-life, signup quality vs. baseline, what's
+  still there at day 30, and when deferring a launch beats taking it. §07 is
+  the only guide section no dive has touched; the earned-distribution thread
+  keeps supplying cases (Juggler 276 pts, Buzz 304 pts + skeptical verdict).
+  (`07`, `06`)
 
 ## Guide coverage index
 
@@ -268,6 +282,7 @@ Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 Weeklies and dives, newest first. Append one line each time. (Radar archive:
 5 entries, 2026-07-05 → 2026-07-08 — closed.)
 
+- 2026-07-30 · dive · *Four numbers that survive the CFO: what a developer motion should actually report* · devrel, metrics, measurement
 - 2026-W30 · weekly · *The AI seat gets a price — and the empty ones get counted* · pricing, metrics, docs, launches
 - 2026-W29 · weekly · *Incumbents start shipping for the agent-as-buyer* · docs, positioning, dx, launches
 - 2026-07-17 · dive · *GEO for devtools: what to do when the reader is a model* · docs, channels, distribution
