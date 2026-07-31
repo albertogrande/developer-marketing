@@ -171,8 +171,16 @@ candidate (flag below).
   sunsets its free tier 2026-08-17 ($5 credits behind a payment method) after
   quietly pruning its model catalog — the cost is quiet re-anchoring, not a
   firestorm (HN thread drew 4 pts); §04 carries the
-  deprecation-as-trust-event paragraph. Open loop: how the 08-17 sunset
-  actually lands. Guide: §01, §04, §05, §07.
+  deprecation-as-trust-event paragraph. W31: GitHub Models' full retirement
+  (07-30, six weeks from new-customer cutoff to shutdown, no like-for-like
+  replacement — pointed to Foundry or Copilot instead) is a second
+  deprecation data point to weigh against the "deprecation that didn't burn
+  anyone" evergreen candidate — short window, one-way migration. Cloudflare's
+  cdnjs dogfooding post (07-30: rebuilt a 9B-req/day CDN on its own Developer
+  Platform, raised a public subrequest ceiling in the process) is the proof
+  side of verification-first — a named, high-traffic workload instead of a
+  synthetic benchmark. Open loop: how the 08-17 Cerebras sunset actually
+  lands. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL) is the cleanest proof that reputation + a
   runnable artifact out-distributes launch budget (→ example). Launch HN is
