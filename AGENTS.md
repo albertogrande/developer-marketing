@@ -40,7 +40,11 @@ Notes for retrieval:
   and a mandatory `source` — the tier below an article, so quiet news days and
   small companies still get covered. Deliberately **not** in `/feed.xml` or
   `/feed.json`, which stay long-form; read `/briefs.json` for the full set.
-  `llms-full.txt` carries the 30 most recent inline.
+  `llms-full.txt` carries the 30 most recent inline. `kind: podcast` items are
+  summarised from an episode page, never from listening — treat any figure in
+  one as attributed to the show notes, not verified by this site.
+- Each weekly issue renders **The week in links**: every brief filed in that
+  ISO week, derived from `briefs` at build time rather than written twice.
 - Freshness fields: `date` (published), `updated` (revised),
   `verified` (skills: repo alive, install line current). The sitemap's
   `lastmod` and `api.json`'s `updated` derive from these, never from build

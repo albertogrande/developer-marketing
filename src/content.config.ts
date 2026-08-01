@@ -438,7 +438,12 @@ const briefs = defineCollection({
     summary: z.string(),
     // What kind of item this is. Controlled vocab — the chips and any future
     // filter read it, so extend the enum deliberately.
-    kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion']),
+    //
+    // `podcast` is a deliberately weaker claim than the rest: the scout reads
+    // the feed's title, show notes and guest, it does not listen. A podcast
+    // brief says what an episode covers, never asserts a fact stated in audio
+    // nobody verified. For a podcast item `company` is the show.
+    kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion', 'podcast']),
     // The proof: a link to the primary source. Mandatory.
     source: z.object({ label: z.string(), url: z.string().url() }),
     // Supporting links — a teardown, the HN thread, the counter-argument.

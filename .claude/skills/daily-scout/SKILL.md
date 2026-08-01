@@ -61,6 +61,34 @@ paywalls.
   Sentry, Auth0, Algolia, Supabase, PlanetScale, Resend** — for how they
   actually run docs, DX, and community.
 
+**Podcast feeds — sweep these every run, they are the most reliable channel
+you have:**
+
+RSS is fetchable on days when Reddit and Bluesky are not, and each feed carries
+`<pubDate>`, so "what shipped in the last ~24h" is an exact question here rather
+than a guess. Fetch the feed, read the newest `<item>`, and capture any episode
+dated to the window. One fetch per feed — do not go hunting for audio.
+
+| Show | Feed |
+|---|---|
+| Scaling DevTools (Jack Bridger) | `https://feeds.transistor.fm/scaling-devtools` |
+| Latent Space (swyx & Alessio) | `https://api.substack.com/feed/podcast/1084089.rss` |
+| The Pragmatic Engineer (Gergely Orosz) | `https://newsletter.pragmaticengineer.com/feed` |
+| devtools.fm | `https://www.devtools.fm/rss.xml` (irregular — gaps of a month are normal) |
+
+Candidates to verify and add if their feeds resolve: **Community Pulse**,
+**Fireside with Voxgig**, **The Art of Developer Experience**, **Developer
+Marketing Stories**, **Markepear**, **Everything Outside Code**.
+
+**You cannot listen to the audio, so never write as if you did.** You have the
+title, the show notes, the guest and the links — that is all. A podcast brief
+says *what the episode covers*; it does not assert a figure stated in audio
+nobody has verified. If a number in the show notes is load-bearing, attribute
+it to the show notes explicitly ("the episode notes say…") or leave it out.
+Being on a good podcast is not itself news: an episode earns a brief when its
+subject matters to a developer-marketing practitioner, and a strong engineering
+episode on a general show often does not.
+
 **Research & data:**
 
 - **SlashData** developer economics, **State of Developer Relations** surveys,
@@ -184,7 +212,7 @@ One file per item, `src/content/briefs/YYYY-MM-DD-company-slug.md`:
 title: <the headline — what happened, no company prefix>
 company: <as they write it>
 date: <today, or the capture date for something surfaced late>
-kind: news | release | funding | launch | campaign | discussion
+kind: news | release | funding | launch | campaign | discussion | podcast
 summary: '<exactly two sentences — the brief itself>'
 tags: [<reuse existing tags where they fit>]
 source:
@@ -205,6 +233,11 @@ when the two sentences are the whole story — the body is not a quota.>
 `date` is when the item entered the wire. If something shipped weeks ago and
 only cleared today's sweep, use today and say so in the summary or the note —
 don't backdate, and don't imply it is fresher than it is.
+
+For `kind: podcast`, `company` is **the show**, not the guest's employer, and
+the note should state plainly that the item was summarised from the episode
+page rather than from listening. The guest and their company belong in the
+summary.
 
 Several briefs a day is normal and correct; zero is fine on a genuinely quiet
 day. `check-refs.mjs` fails the build on a brief missing `company`, `summary`,
