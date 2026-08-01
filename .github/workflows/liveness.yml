@@ -5,7 +5,9 @@ name: Liveness
 # write time and then rots silently) and the shelf freshness stamps the weekly
 # rotation is supposed to keep current. Rot is a correction task for the
 # desks, not a build failure, so this files one report issue instead of
-# failing anything.
+# failing anything. Also runs the mention watch (public citations of the
+# site's own pages → editorial/MENTIONS.md — watches the output, never the
+# readers) and commits it for Monday's Weekly to read.
 
 on:
   schedule:
@@ -15,7 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -36,6 +38,15 @@ jobs:
 
       - name: Check shelf freshness
         run: node scripts/check-freshness.mjs --days 60 --report freshness.md
+
+      - name: Watch public mentions
+        run: node scripts/mention-watch.mjs
+
+      - name: Commit new mentions
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: editorial/MENTIONS.md
+          message: "Liveness: mention watch"
 
       - name: File the report
         env:

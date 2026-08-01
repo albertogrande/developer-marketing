@@ -1,0 +1,32 @@
+name: Correction
+description: >-
+  Report a factual error in a published piece. Corrections are processed by
+  the weekly editorial run: the claim gets re-verified, the piece fixed with
+  a visible revision stamp, and this issue answered.
+title: "Correction: "
+labels: ["correction"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: URL of the piece
+      description: The page (or .md sibling) containing the claim.
+      placeholder: https://…/articles/2026-07-22-seat-plus-meter-pricing/
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: The claim as published
+      description: Quote the sentence or figure you believe is wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Why it's wrong, with a source
+      description: >-
+        A public source we can check beats an assertion — the same standard
+        the site holds itself to.
+    validations:
+      required: true

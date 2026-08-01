@@ -91,6 +91,13 @@ function runNewsroomCase(dir) {
     const skillDest = join(scratch, '.claude', 'skills', 'newsroom');
     mkdirSync(skillDest, { recursive: true });
     cpSync(join(ROOT, '.claude', 'skills', 'newsroom', 'SKILL.md'), join(skillDest, 'SKILL.md'));
+    // The gates regenerate editorial/COVERAGE.md from content frontmatter;
+    // do the same over the frozen state so the skill's novelty grep works in
+    // cases mined from before the index existed.
+    spawnSync('node', [join(ROOT, 'scripts', 'build-coverage-index.mjs')], {
+      cwd: scratch,
+      encoding: 'utf8',
+    });
 
     const prompt = [
       `Today is ${expected.date}. You are the editor making the newsroom's`,

@@ -1,0 +1,7 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Reader feedback
+    url: https://github.com/albertogrande/developer-marketing/issues/new?labels=reader-feedback&title=Feedback%3A%20
+    about: >-
+      Anything short of a factual error — what's useful, what's boring, what
+      you want covered. Taste signals feed the weekly editorial run.

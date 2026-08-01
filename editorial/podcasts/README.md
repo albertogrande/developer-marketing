@@ -27,6 +27,12 @@ practitioner, and searchable with grep. At this scale — under a couple of
 hundred episodes — plain files beat any embedding store, and there is nothing
 to keep in sync.
 
+Revisit trigger (so this decision has an expiry, not just a rationale):
+reconsider retrieval infrastructure when `editorial/COVERAGE.md` passes ~500
+entries or episode notes pass ~300 files, **or** the first documented
+duplicate publish happens because a grep-based novelty check missed prior
+coverage. Until one of those occurs, plain files stand.
+
 ## Working the queue
 
 ```bash
