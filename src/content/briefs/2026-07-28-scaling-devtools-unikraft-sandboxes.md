@@ -7,7 +7,7 @@ summary: 'Recorded at Heavybit DevGuild, the episode traces how Unikraft went fr
 tags: [agents, dx, positioning]
 source:
   label: 'Scaling DevTools — AI agents need cheaper sandboxes | Alex Jung from Unikraft'
-  url: https://podcast.scalingdevtools.com/episodes/alex-jung-from-unikraft-unikernels-agent-sandboxes-and-cheaper-cl
+  url: https://podcast.scalingdevtools.com/episodes/alex-jung-from-unikraft-unikernels-agent-sandboxes-and-cheaper-cloud-compute
 related:
   - label: Guide — Positioning for developers
     href: /guide/01-positioning-for-developers
