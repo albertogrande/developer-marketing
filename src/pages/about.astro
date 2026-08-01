@@ -29,7 +29,10 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
     <h1 class="page-title">The masthead</h1>
   </div>
 
-  <div class="prose">
+  {/* Unique prose — indexed. Collection indexes and home stay out of the
+      search index deliberately: they only list entries that are already
+      indexed at their source, so indexing them would duplicate every hit. */}
+  <div class="prose" data-pagefind-body>
     <p>
       This is a technical newspaper about <strong>developer marketing</strong>
       and the devtools industry, built on a living field guide — how you earn
@@ -118,6 +121,21 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
       no click tracking: we cannot tell whether you read an issue, which is
       deliberate. A publication that tells people to respect developers should
       not surveil its own readers.
+    </p>
+
+    <h2 class="kicker">Spotted an error?</h2>
+    <p>
+      Every load-bearing claim here carries a public source, and the same
+      standard applies in reverse: if something published is wrong, say so and
+      it gets fixed, visibly. File a
+      <a href="https://github.com/albertogrande/developer-marketing/issues/new?template=correction.yml">correction</a>
+      with the claim and a source we can check — the weekly editorial pass
+      re-verifies it, patches the piece with a revision stamp, and answers the
+      report. Anything short of an error — what's useful, what's boring, what
+      you want covered — is
+      <a href="https://github.com/albertogrande/developer-marketing/issues/new?labels=reader-feedback&title=Feedback%3A%20">reader
+      feedback</a>, and it feeds the same weekly run. No account-walled forms,
+      no feedback widget phoning home: a public issue, answered in public.
     </p>
 
     <h2 class="kicker">For agents</h2>

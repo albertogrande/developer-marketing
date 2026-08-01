@@ -2,7 +2,10 @@
 
 The weekly digest, delivered by email. Self-hosted end to end: our list, our
 templates, our sender, no Mailchimp, Substack or beehiiv anywhere in the path.
-Zero runtime dependencies — everything here is Node's standard library.
+Almost zero runtime dependencies — everything here is Node's standard library,
+except `lib/issues.mjs`, which reads weekly frontmatter with the repo's `yaml`
+parser (so the newsletter tests run from the repo root, where `node_modules`
+lives). The optional Postgres store lazily imports `pg` on serverless only.
 
 The one part worth outsourcing is the pipe, and at this size it is free. See
 [Transports: do we need Resend?](#transports-do-we-need-resend) and
@@ -33,8 +36,8 @@ newsletter/
     markdown.mjs    the markdown subset the digests use → HTML + plain text
     templates.mjs   the two emails: confirmation, issue
     issues.mjs      reads src/content/weekly/<YYYY-Www>.md
-  test/             142 tests: node --test newsletter/test/*.test.mjs
-                    (124 without a database; the Postgres contract skips)
+  test/             134 tests: node --test newsletter/test/*.test.mjs
+                    (133 without a database; the Postgres contract skips)
 ```
 
 ## How it fits together
@@ -308,6 +311,12 @@ Two things to know before you do that:
    `node:net`, so the SMTP client cannot run there; and even on the Node runtime,
    an SMTP handshake inside a short-lived function is a worse bet than one
    HTTPS call.
+3. **Set `CRON_SECRET`.** `vercel.json` schedules a daily `/api/cron-prune`
+   call that drops unconfirmed addresses past the confirmation window — the
+   privacy page's promise. Vercel authenticates its cron requests with
+   `Authorization: Bearer $CRON_SECRET` once the variable exists; without it
+   the route answers 404 and nothing prunes. (The long-lived `server.mjs`
+   deployment needs none of this — it prunes itself daily.)
 
 Keep the weekly send in GitHub Actions regardless. A send to a real list takes
 minutes of wall-clock at a polite rate — longer than a serverless function

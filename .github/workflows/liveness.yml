@@ -1,0 +1,85 @@
+name: Liveness
+
+# Weekly archive health: re-checks every published source link (not just the
+# changed ones the editorial gates cover — an archive link is verified once at
+# write time and then rots silently) and the shelf freshness stamps the weekly
+# rotation is supposed to keep current. Rot is a correction task for the
+# desks, not a build failure, so this files one report issue instead of
+# failing anything. Also runs the mention watch (public citations of the
+# site's own pages → editorial/MENTIONS.md — watches the output, never the
+# readers) and commits it for Monday's Weekly to read.
+
+on:
+  schedule:
+    # Sunday 14:00 UTC — quiet slot, after the week's writing is done and
+    # before Monday's Weekly reads the report.
+    - cron: "0 14 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  liveness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check all archive sources
+        run: node scripts/check-sources.mjs --all --report link-rot.md
+
+      - name: Check shelf freshness
+        run: node scripts/check-freshness.mjs --days 60 --report freshness.md
+
+      - name: Check community-source outages
+        run: node scripts/check-source-outages.mjs --report outages.md
+
+      - name: Watch public mentions
+        run: node scripts/mention-watch.mjs
+
+      - name: Commit new mentions
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: editorial/MENTIONS.md
+          message: "Liveness: mention watch"
+
+      - name: File the report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cat link-rot.md freshness.md outages.md > report.md
+          if [ ! -s report.md ]; then
+            echo "Archive healthy — no issue to file."
+            exit 0
+          fi
+          title="Archive health report"
+          url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          {
+            printf '## Archive health — %s\n\n' "$(date -u +%Y-%m-%d)"
+            cat report.md
+            printf '\nRun: %s\n' "$url"
+          } > issue-body.md
+          gh label create link-rot --color D93F0B \
+            --description "Dead or stale links in the published archive" --force 2>/dev/null || true
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label link-rot \
+            --state open --json number,title \
+            --jq "[.[] | select(.title == \"$title\")][0].number // empty")
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body-file issue-body.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \
+              --label link-rot --body-file issue-body.md
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

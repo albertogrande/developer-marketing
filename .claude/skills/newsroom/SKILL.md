@@ -20,15 +20,16 @@ Read before deciding anything:
 
 1. `MASTHEAD.md` — the charter. `AUTHORS.md` — the desks and their methods.
 2. `editorial/TASTE.md` — the reader. `editorial/MEMORY.md` — running
-   threads, coverage indexes.
+   threads and the guide coverage index.
 3. `editorial/NEWSROOM.md` — the last ~2 weeks of publish/skip decisions
    (don't repeat yesterday's story; notice what's been quiet).
 4. This week's and last week's `signals/<week>.md` — the scout's capture,
    including the desk flags (` · news-candidate`, ` · analysis-candidate`,
    ` · campaign-candidate`, ` · tech-candidate`) and the rest.
 5. `editorial/BACKLOG.md` — the evergreen pool.
-6. `ls src/content/articles/` — what already ran; never re-run a story in
-   new clothes.
+6. `editorial/COVERAGE.md` — everything ever published (articles, briefs,
+   dives, weeklies), generated from content frontmatter. Grep it before
+   picking; never re-run a story in new clothes.
 
 Write files only — the workflow verifies, gates, and commits.
 
@@ -45,8 +46,8 @@ Build the candidate list (usually 3–6):
 Score each candidate: **importance to the reader today** (highest weight) ×
 **verifiability** (are there primary sources you can actually check?) ×
 **durability** (worth reading in three months?) × **desk fit** (which byline
-owns it, per `AUTHORS.md`) × **novelty** (MEMORY's coverage indexes — not a
-rehash of an article, weekly, or dive).
+owns it, per `AUTHORS.md`) × **novelty** (grep `editorial/COVERAGE.md` — not
+a rehash of an article, brief, weekly, or dive).
 
 **Decision:**
 - One clear winner → assign it to its desk and go to Step 2.
@@ -122,8 +123,8 @@ one-clause why, or `skip` with the reason. Trim the log to roughly the last
 40 lines. **This happens on every run, publish or skip** — the log is how a
 silent editor is distinguished from a dead pipeline.
 
-Then append one line to the **Coverage index (articles)** in
-`editorial/MEMORY.md`: `- YYYY-MM-DD · <desk> · *<title>* · <tags>`.
+Do not hand-append coverage lines anywhere: `editorial/COVERAGE.md` is
+regenerated from content frontmatter by the editorial gates.
 
 ## Step 5 — Report
 

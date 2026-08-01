@@ -267,6 +267,33 @@ test('the sender can report a permanent rejection it saw for itself', async () =
   assert.equal((await store.get('rejected@example.com')).bounceReason, '550 5.1.1 unknown');
 });
 
+test('prune drops stale pending records and keeps everyone else', async () => {
+  // Two pending records aged past any TTL, one confirmed reader, one fresh
+  // pending — only the stale pending pair may go.
+  const old = new Date(Date.now() - 30 * 86_400_000);
+  await store.subscribe('stale-a@example.com', { now: old });
+  await store.subscribe('stale-b@example.com', { now: old });
+  const { record: keeper } = await store.subscribe('keeper@example.com', { now: old });
+  await store.confirm(keeper.id);
+  await store.subscribe('fresh@example.com');
+
+  const anon = await fetch(`${base}/admin/prune`, { method: 'POST' });
+  assert.equal(anon.status, 404, 'no token, no prune — and no hint the route exists');
+
+  const res = await fetch(`${base}/admin/prune`, {
+    method: 'POST',
+    headers: { authorization: 'Bearer admin-token-for-tests' },
+  });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.ok, true);
+  assert.ok(body.pruned >= 2, `at least the two stale records go (got ${body.pruned})`);
+  assert.equal(await store.get('stale-a@example.com'), undefined);
+  assert.equal(await store.get('stale-b@example.com'), undefined);
+  assert.equal((await store.get('keeper@example.com')).status, 'confirmed');
+  assert.equal((await store.get('fresh@example.com')).status, 'pending');
+});
+
 test('unknown routes and wrong methods are refused', async () => {
   assert.equal((await fetch(`${base}/nope`)).status, 404);
   assert.equal((await fetch(`${base}/subscribe`)).status, 405);

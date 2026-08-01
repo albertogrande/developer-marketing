@@ -27,6 +27,15 @@ inputs:
       past its first response (the auth-failure signature)
     required: false
     default: "2"
+  allow_existing:
+    description: >-
+      A file path (not a pathspec). When set and the file already exists in
+      HEAD, an empty expect_changes is fine: the desk legitimately declined
+      to rewrite work that is already committed — the Weekly's "this week's
+      digest exists" stop on a re-dispatch, which used to trip the guard and
+      open a failure issue for a healthy refusal.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -36,6 +45,7 @@ runs:
         FILE: ${{ inputs.execution_file }}
         EXPECT: ${{ inputs.expect_changes }}
         MIN_TURNS: ${{ inputs.min_turns }}
+        ALLOW_EXISTING: ${{ inputs.allow_existing }}
       run: |
         set -euo pipefail
         fail() { echo "::error::Writer guard: $1"; exit 1; }
@@ -54,9 +64,13 @@ runs:
 
         if [ -n "$EXPECT" ]; then
           # shellcheck disable=SC2086 — EXPECT is intentionally word-split
-          [ -n "$(git status --porcelain -- $EXPECT)" ] \
-            || fail "no changes under '$EXPECT' — this desk always writes there on a healthy run"
-          echo "Writer guard OK: $turns turns, changes present under '$EXPECT'."
+          if [ -n "$(git status --porcelain -- $EXPECT)" ]; then
+            echo "Writer guard OK: $turns turns, changes present under '$EXPECT'."
+          elif [ -n "$ALLOW_EXISTING" ] && git cat-file -e "HEAD:$ALLOW_EXISTING" 2>/dev/null; then
+            echo "Writer guard OK: $turns turns, no new changes but '$ALLOW_EXISTING' already committed — healthy refusal to rewrite."
+          else
+            fail "no changes under '$EXPECT' — this desk always writes there on a healthy run"
+          fi
         else
           echo "Writer guard OK: $turns turns."
         fi

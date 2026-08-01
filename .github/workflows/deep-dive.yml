@@ -47,19 +47,18 @@ jobs:
 
       # Topic precedence: an explicit dispatch input, else a hint Monday's
       # digest left in editorial/COMMISSION.txt, else nothing — the editor
-      # picks. The hint is consumed here (and committed as removed below) so a
-      # stale one can never steer a second dive.
+      # picks. Read-only here: the hint is consumed (removed and committed as
+      # removed) only after the gates pass, so a run that writes the dive and
+      # then dies in verify doesn't eat the commission with it — the retry
+      # still sees the topic.
       - name: Resolve the topic
         id: topic
         env:
           INPUT_TOPIC: ${{ github.event.inputs.topic }}
         run: |
           topic="$INPUT_TOPIC"
-          if [ -f editorial/COMMISSION.txt ]; then
-            if [ -z "$topic" ]; then
-              topic=$(head -1 editorial/COMMISSION.txt | tr -d '\n')
-            fi
-            rm editorial/COMMISSION.txt
+          if [ -z "$topic" ] && [ -f editorial/COMMISSION.txt ]; then
+            topic=$(head -1 editorial/COMMISSION.txt | tr -d '\n')
           fi
           echo "topic=$topic" >> "$GITHUB_OUTPUT"
           echo "Topic: ${topic:-(none — editor picks)}"
@@ -85,6 +84,20 @@ jobs:
             --model claude-fable-5
             --max-turns 60
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+
+      # claude-code-action reuses one execution-file path across invocations,
+      # so the verify step would overwrite the writer's record and the ledger
+      # would write two identical rows. Snapshot the writer's file first.
+      - name: Snapshot writer execution file
+        id: exec-writer
+        run: |
+          f="${{ steps.claude.outputs.execution_file }}"
+          out=""
+          if [ -n "$f" ] && [ -f "$f" ]; then
+            cp "$f" "$RUNNER_TEMP/exec-writer.json"
+            out="$RUNNER_TEMP/exec-writer.json"
+          fi
+          echo "file=$out" >> "$GITHUB_OUTPUT"
 
       # A dive run exists to produce an essay — no essay, no success.
       - name: Guard — writer ran and wrote the dive
@@ -132,12 +145,19 @@ jobs:
         if: steps.changes.outputs.n != '0'
         uses: ./.github/actions/editorial-gates
 
+      # The gates passed — NOW consume the commission, so the removal is
+      # committed with the dive it produced and a stale hint can never steer
+      # a second run.
+      - name: Consume the commission
+        run: rm -f editorial/COMMISSION.txt
+
       - name: Append usage ledger
         id: ledger
         env:
-          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_WRITER: ${{ steps.exec-writer.outputs.file }}
           EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
-          MODEL: claude-fable-5
+          MODEL_WRITER: claude-fable-5
+          MODEL_VERIFY: claude-sonnet-5
         run: |
           bash scripts/append-ledger.sh
           echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"

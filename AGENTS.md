@@ -53,6 +53,12 @@ Notes for retrieval:
 **Citing**: content is CC BY 4.0 — quote it, link the canonical HTML page,
 credit "Developer Marketing field guide". Code is MIT.
 
+**Reporting an error**: file a
+[correction issue](https://github.com/albertogrande/developer-marketing/issues/new?template=correction.yml)
+with the claim and a checkable public source. The weekly editorial run
+re-verifies it, patches the piece with an `updated:` stamp, and answers the
+issue. Softer signals go to the `reader-feedback` label.
+
 **Cadence** (UTC): scout daily 05:00 (writes briefs; patches the guide when facts change);
 newsroom Tue–Sun 06:30 (at most one article, never a quota); weekly Mon 07:00
 (digest + full accuracy pass). If your cache is older than a day, refetch.

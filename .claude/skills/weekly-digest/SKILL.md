@@ -37,9 +37,11 @@ Output: `src/content/weekly/<WEEK_ID>.md`. If it already exists, stop and say so
 ## Step 2 — Load memory and signals (before writing)
 
 1. `editorial/MEMORY.md` — running threads, deep-dive candidates, the guide
-   coverage index, the published coverage index.
+   coverage index. `editorial/COVERAGE.md` — everything ever published,
+   generated from content frontmatter.
 2. `editorial/TASTE.md` — the reader's durable preferences. The issue must
-   reflect them.
+   reflect them. `editorial/MENTIONS.md` (if present) — public citations of
+   the site's pieces; a taste signal for which coverage travels.
 3. `signals/<WEEK_ID>.md` — the scout's capture for the window. Treat lines as
    **leads, not facts**: they tell you where to dig; verify before publishing.
    (If the window spans two signal files, read both.)
@@ -114,8 +116,8 @@ Hard requirements:
 ## Step 5 — Full guide-accuracy pass
 
 The scout patches hard facts daily; you do the deeper pass weekly. For each
-guide section this week's news touched (use MEMORY's coverage index to map
-topic→section):
+guide section this week's news touched (use MEMORY's guide coverage index to
+map topic→section):
 - Verify its claims still hold against current sources. Fix what drifted.
 - Fold in genuinely new evergreen material (a durable pattern, a superseding
   data point) in the section's voice — the guide is where durable knowledge
@@ -224,6 +226,33 @@ shelves are abandoned mid-quarter.
   installable covers. If a signal this week fills one, that is a strong add; if a
   gap has closed or opened, say so in the digest.
 
+## Step 5.8 — Process reader feedback
+
+If `editorial/FEEDBACK-INBOX.md` exists (the workflow materialises it from
+open `correction` and `reader-feedback` issues; it is gitignored and absent
+in local runs), work through it — this is the loop `TASTE.md` promises:
+
+- **Corrections**: re-verify the disputed claim against sources during the
+  accuracy pass. Wrong → fix the piece and stamp `updated:`; right → keep it
+  and say why. Treat the reporter's evidence like any other source — check
+  it, don't take it on faith.
+- **Taste signals**: log durable preferences in `editorial/TASTE.md` with a
+  date. One reader's passing opinion is texture; a repeated pattern is a
+  preference worth recording. Byline voices in `AUTHORS.md` tighten on the
+  same evidence.
+- **Reply to every issue processed** in `editorial/FEEDBACK-REPLIES.md`
+  (gitignored — the workflow posts and closes after the commit), one block
+  per issue:
+
+  ```markdown
+  ## #<issue-number> close|keep-open
+  <what was checked, what changed (or why nothing did), plainly>
+  ```
+
+  Mark `close` when the report is fully resolved either way; `keep-open`
+  when something still needs a human or a future run. No inbox, or an empty
+  one: skip this step silently.
+
 ## Step 6 — Leave a deep-dive hint (optional)
 
 A dive now ships **every Thursday on its own schedule** — you are not the
@@ -243,9 +272,10 @@ hint you weren't sure about only crowds out a better pick. Never invent a
 commission to fill the slot.
 
 Keep the shelf stocked either way: if the **evergreen shelf** in MEMORY is down
-to its last two entries, add one or two drawn from the guide sections the
-coverage index shows as thinnest. Prefer topics not already dived (check the
-coverage index); revisiting a past dive is fine if the story moved materially.
+to its last two entries, add one or two drawn from the guide sections
+`editorial/COVERAGE.md` shows as thinnest. Prefer topics not already dived
+(grep COVERAGE.md); revisiting a past dive is fine if the story moved
+materially.
 
 ## Step 7 — Update memory
 
@@ -255,8 +285,10 @@ In `editorial/MEMORY.md`:
   `Tension:` when evidence cuts against a thread; retire threads with no new
   evidence for ~3 issues (delete — git preserves them).
 - Update the **deep-dive candidates** list (add/promote/retire).
-- Append one line to the **published coverage index** (week id, title, topics).
-- Keep the whole file under ~150 lines; prune oldest detail first.
+- Do not hand-append coverage lines — `editorial/COVERAGE.md` is regenerated
+  from content frontmatter by the gates.
+- Keep the whole file under the cap its header declares (~170 lines,
+  enforced by `scripts/check-editorial.mjs`); prune oldest detail first.
 
 Update `editorial/TASTE.md` only if the reader expressed a durable preference.
 

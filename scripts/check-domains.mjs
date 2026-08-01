@@ -49,7 +49,7 @@ const MIN_HOST_INTERVAL_MS = 250;
 // How far a 429 pushes that host's queue back, on top of the interval.
 const THROTTLE_PENALTY_MS = 2_000;
 const UA =
-  'Mozilla/5.0 (compatible; developer-marketing-domaincheck/1.0; +https://albertogrande.github.io/developer-marketing/)';
+  'Mozilla/5.0 (compatible; developer-marketing-domaincheck/1.0; +https://developer-marketing.vercel.app/)';
 
 // A label is 1–63 chars of a-z, 0-9 and inner hyphens (RFC 1035 + RFC 3696).
 const LABEL_RE = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;

@@ -175,9 +175,11 @@ const articles = defineCollection({
     related: z
       .array(z.object({ label: z.string(), href: z.string() }))
       .default([]),
+    // The masthead's floor made structural: an article carries at least two
+    // sources (check-refs additionally requires two independent publishers).
     sources: z
       .array(z.object({ label: z.string(), url: z.string().url() }))
-      .default([]),
+      .min(2, 'an article needs at least two sources'),
   }),
 });
 
@@ -195,9 +197,11 @@ const deepDives = defineCollection({
     related: z
       .array(z.object({ label: z.string(), href: z.string() }))
       .default([]),
+    // A dive's argument stands on its research: at least three sources
+    // (check-refs additionally requires two independent publishers).
     sources: z
       .array(z.object({ label: z.string(), url: z.string().url() }))
-      .default([]),
+      .min(3, 'a deep dive needs at least three sources'),
   }),
 });
 

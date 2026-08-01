@@ -14,6 +14,14 @@ runs:
         npm ci
         npm run build
 
+    - name: Gate — editorial state within bounds
+      shell: bash
+      run: node scripts/check-editorial.mjs
+
+    - name: Regenerate the published coverage index
+      shell: bash
+      run: node scripts/build-coverage-index.mjs
+
     - name: Gate — changed sources resolve
       shell: bash
       run: node scripts/check-sources.mjs --changed

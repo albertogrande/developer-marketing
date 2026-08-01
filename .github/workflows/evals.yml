@@ -1,0 +1,58 @@
+name: Evals
+
+# Gate on prompt changes: any PR that touches a writer skill (or the eval
+# harness itself) replays the frozen editorial decision points through the
+# changed prompt and fails if the pass rate drops below evals/baseline.yml.
+# Deliberately NOT on the daily writer path — evals gate prompt changes, not
+# content, and each full run costs real model calls (see evals/README.md).
+
+on:
+  pull_request:
+    paths:
+      - ".claude/skills/**"
+      - "evals/**"
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Suite to run (newsroom | scout | all)"
+        required: false
+        default: "all"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run evals
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          node evals/run.mjs --suite "${{ github.event.inputs.suite || 'all' }}" | tee eval-output.txt
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Eval scoreboard"
+            echo
+            echo '```'
+            cat eval-output.txt 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

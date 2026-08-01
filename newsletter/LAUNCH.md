@@ -19,12 +19,11 @@ environment variable, and the site degrades honestly at every stage.
 
 Steps 2, 3 and 4 are independent — do them in whatever order suits.
 
-## 1. Merge — 5 minutes
+## 1. Merge — done
 
-Nothing ships from a branch. `claude/resources-newsletter-setup-xequ9n` is green:
-build, 142 tests, no dead links. Merging publishes `/resources` immediately —
-that half has no external dependency at all. The newsletter call-to-action ships
-in its honest "not wired up yet" state until step 4.
+This work is on `main`: build green, the full test suite passing, no dead
+links. `/resources` is live, and the newsletter call-to-action ships in its
+honest "not wired up yet" state until step 4.
 
 ## 2. A domain — 10 minutes, then DNS propagation
 
@@ -171,12 +170,15 @@ Stated plainly, because discovering it later is worse.
   real `Request` objects through them. No framework conversion needed.
 - ~~Serving at the root.~~ Two build-time variables; content is base-less now.
 
+- ~~A cron for `prunePending`.~~ Wired: the long-lived server prunes at
+  startup and daily; serverless prunes via the `vercel.json` daily cron
+  hitting `/admin/prune` (authenticated with `CRON_SECRET`).
+- ~~List export.~~ `npm run newsletter:export` prints the list as NDJSON from
+  whichever store is configured (`--confirmed` for deliverable addresses
+  only); for the file store, `data/subscribers.ndjson` is also its own export.
+
 **Still outstanding:**
 
-- **A cron for `prunePending`.** The privacy note promises unconfirmed addresses
-  are dropped; the function exists, nothing calls it yet.
-- **List export.** `data/subscribers.ndjson` *is* the export for the file store;
-  Postgres needs a `newsletter:export` command, or `psql -c "copy … to csv"`.
 - **No welcome email.** Confirming lands on `/newsletter/confirmed` and the next
   issue is the first thing that arrives. A choice, not an omission.
 

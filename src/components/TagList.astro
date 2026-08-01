@@ -12,7 +12,7 @@ const { tags, style } = Astro.props;
 {tags.length > 0 && (
   <ul class="tags" style={style}>
     {tags.map((t) => (
-      <li><a class="tag" href={withBase(`/tags/${t}`)}>{t}</a></li>
+      <li><a class="tag" href={withBase(`/tags/${t}`)} data-pagefind-filter="tag">{t}</a></li>
     ))}
   </ul>
 )}

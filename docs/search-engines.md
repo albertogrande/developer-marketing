@@ -34,6 +34,18 @@ The property to verify is the live origin: **https://developer-marketing.vercel.
    deploy workflow submits changed URLs after every publish. The URL
    Submission panel in Bing Webmaster Tools will show them arriving.
 
+## The readership signal (why this is charter-compatible)
+
+Charter rule 9 forbids analytics, pixels, and click tracking — the site
+deliberately cannot tell whether anyone reads it. Search-console impression
+and query data is the one readership signal that costs the reader nothing:
+it is aggregated at the search engine's end, involves no script, cookie, or
+beacon on any page, and identifies nobody. It answers "which pieces surface
+for which queries, and do people click" — enough to steer coverage — without
+observing a single reader on the site. The same goes for
+`editorial/MENTIONS.md` (the weekly mention watch): it queries public APIs
+about the site's *own output*, never its readers.
+
 ## Why this matters (the short version)
 
 - **Bing → ChatGPT**: ChatGPT Search retrieval is Bing-index-backed; a page

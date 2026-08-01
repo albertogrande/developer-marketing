@@ -35,7 +35,9 @@ const countsFor = (id: string) => {
     }),
   ]}
 >
-  <div class="page-head">
+  {/* The guide map's dek and section summaries are unique prose — indexed
+      (the sections' own pages are indexed separately via ReadingLayout). */}
+  <div class="page-head" data-pagefind-body>
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> guide</div>
     <h1 class="page-title">The field guide</h1>
     <p class="dek">

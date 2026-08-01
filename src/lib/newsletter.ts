@@ -2,15 +2,15 @@
 // talks to Mailchimp, Substack or beehiiv, and no third-party script runs on
 // the page — the form is a form.
 //
-// The capture endpoint is the one piece a static site on GitHub Pages cannot
-// host itself, so it is configured at build time:
+// The capture endpoint is the one piece a static site cannot host itself, so
+// it is configured at build time:
 //
 //   PUBLIC_NEWSLETTER_API=https://list.example.com   npm run build
 //
 // (Astro only exposes env vars prefixed PUBLIC_ to the client bundle.) Point it
-// at the subscribe service in `service/` — see service/README.md. Unset, the
-// call-to-action degrades honestly: it says the sign-up is not wired up yet and
-// offers the feed instead of a form that would silently fail.
+// at the subscribe service in `newsletter/` — see newsletter/README.md. Unset,
+// the call-to-action degrades honestly: it says the sign-up is not wired up yet
+// and offers the feed instead of a form that would silently fail.
 
 const RAW_API = (import.meta.env.PUBLIC_NEWSLETTER_API ?? '').trim();
 

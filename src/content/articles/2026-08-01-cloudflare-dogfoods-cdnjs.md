@@ -16,6 +16,8 @@ sources:
     url: https://blog.cloudflare.com/cdnjs-dev-platform-migration/
   - label: Cloudflare Workers — Limits (subrequests per invocation)
     url: https://developers.cloudflare.com/workers/platform/limits/
+  - label: W3Techs — usage statistics of cdnjs among websites (independent measurement)
+    url: https://w3techs.com/technologies/details/cd-cdnjs
 ---
 
 Cloudflare rebuilt cdnjs — one of the internet's busiest open-source CDNs — entirely on its own Developer Platform, and then [wrote it up](https://blog.cloudflare.com/cdnjs-dev-platform-migration/). Read it as what it is: content marketing for Workers, R2, and the rest of the stack, published by the company that sells them. "We run our own busiest thing on our own product" is the oldest proof move in developer marketing, and every platform vendor makes some version of it. That claim, on its own, is worth almost nothing — of course you run on your own stuff.

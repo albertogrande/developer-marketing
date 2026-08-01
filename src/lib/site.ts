@@ -1,9 +1,9 @@
-// Small shared helpers: base-path prefixing (GitHub Pages serves under
-// /developer-marketing), absolute/canonical URL construction, and UTC-stable
-// date formatting.
+// Small shared helpers: base-path prefixing (empty when served at the root,
+// as on Vercel; "/developer-marketing" on a project-site host), absolute/
+// canonical URL construction, and UTC-stable date formatting.
 
 const RAW_BASE = import.meta.env.BASE_URL ?? '/';
-const BASE = RAW_BASE.replace(/\/$/, ''); // "/developer-marketing"
+const BASE = RAW_BASE.replace(/\/$/, ''); // '' at the root
 
 export const SITE_ORIGIN = import.meta.env.SITE ?? 'https://developer-marketing.vercel.app';
 
@@ -15,19 +15,10 @@ export const CONTENT_LICENSE_URL = 'https://creativecommons.org/licenses/by/4.0/
 // emit nothing; fill in after verifying the site in each console.
 export const VERIFICATION = { google: '', bing: '' };
 
-// The one URL convention: page routes carry a trailing slash — that is the URL
-// GitHub Pages actually serves for a directory build, so linking it directly
-// saves a 301 hop on every navigation and keeps cited URLs identical to
-// canonical ones. File-ish routes (.md, .json, .xml, .txt, .svg, …) never do.
-// A #hash or ?query survives normalization.
-const normalize = (p: string): string => {
-  const m = p.match(/^([^#?]*)([#?][\s\S]*)?$/)!;
-  let path = m[1];
-  const tail = m[2] ?? '';
-  const last = path.split('/').pop() ?? '';
-  if (path && !last.includes('.') && !path.endsWith('/')) path += '/';
-  return `${path || '/'}${tail}`;
-};
+// The one URL convention lives in ./url-core.mjs (a pure module so
+// `node --test` can pin it — see scripts/url-core.test.mjs): page routes
+// carry a trailing slash, file-ish routes never do, #hash/?query survive.
+import { normalizePath as normalize } from './url-core.mjs';
 
 export function withBase(p: string): string {
   const n = normalize(p);
