@@ -7,6 +7,9 @@ guests:
   - Kim Maida (Keycard) — DevRel and identity; author of the DevRel flywheel
 host: Jack Bridger
 topics: [devrel, metrics, activation, docs, community]
+# Same convention as the scout's signal flags, in frontmatter so the weekly
+# editor can grep for them instead of reading every note's prose.
+candidates: [practice, deep-dive]
 distilled: 2026-08-01
 ---
 

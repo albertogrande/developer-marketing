@@ -7,6 +7,7 @@ guests:
   - Robby Russell — creator of Oh My Zsh; Planet Argon
 host: Jack Bridger
 topics: [community, dx, distribution, positioning]
+candidates: [practice]
 distilled: 2026-08-01
 ---
 

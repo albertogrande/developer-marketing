@@ -106,7 +106,10 @@ npm run podcast:transcripts -- --pending    # transcript available, no note yet
 Write notes into `editorial/podcasts/` following the format in that directory's
 `README.md` — topics, claims with timestamps and an honest label (measured /
 self-reported / anecdotal), a couple of short attributed quotes, and what the
-episode is *not* evidence for. Filename must match what `--pending` expects
+episode is *not* evidence for. Set `candidates:` in the frontmatter when the
+episode could earn a practice or a deep dive; the weekly editor greps that field
+and never sees a note you leave unflagged. Omit it when the episode promotes
+nothing, which is most of them. Filename must match what `--pending` expects
 (same stem as the cached transcript, `.md` instead of `.txt`), because a note
 existing is the only record that an episode is done.
 

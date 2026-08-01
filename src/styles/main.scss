@@ -866,6 +866,41 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .fm-date-sp { flex: 1; }
 .fm-date a { color: var(--muted); text-decoration: none; }
 .fm-date a:hover { color: var(--accent); }
+/* ---- the wire ticker ----
+   A view over /briefs, not a home for content: every item is a real anchor in
+   the DOM, so agents, search and no-JS readers get the same links whether or
+   not the marquee ever animates. The animation is pure CSS, pauses on hover and
+   on keyboard focus, and is replaced by a plain scrollable strip under
+   prefers-reduced-motion. The viewport clips its own overflow so the page body
+   never scrolls sideways. */
+.tick { border-bottom: 1px solid var(--rule); margin: -8px 0 18px; padding-bottom: 10px; }
+.tick-h { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; font-weight: 600; }
+.tick-h a { color: inherit; text-decoration: none; }
+.tick-h a:hover { color: var(--accent); }
+.tick-vp { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+.tick-vp::-webkit-scrollbar { display: none; }
+/* No animation until JS has duplicated the run — animating a single copy would
+   scroll the items off-screen and leave the strip empty. Without JS this stays
+   a plain horizontally scrollable list, which is a fine ticker. */
+.tick-run { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; width: max-content; }
+.tick-run.is-looping { animation: tick-scroll 90s linear infinite; }
+.tick-vp:hover .tick-run.is-looping,
+.tick-run.is-looping:focus-within { animation-play-state: paused; }
+.tick-i { flex: 0 0 auto; font-size: 12.5px; white-space: nowrap; }
+.tick-i a { text-decoration: none; color: var(--muted); display: inline-flex; align-items: baseline; gap: 7px; }
+.tick-i a:hover .tick-t, .tick-i a:focus-visible .tick-t { color: var(--accent); text-decoration: underline; }
+.tick-co { color: var(--fg); font-weight: 700; }
+.tick-k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; }
+@keyframes tick-scroll {
+  from { transform: translateX(0); }
+  /* Half the run, because the list is duplicated at runtime for a seamless
+     loop. Without the duplicate this would snap back visibly. */
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tick-run.is-looping { animation: none; }
+}
+
 .fm2-grid { display: grid; grid-template-columns: 1fr; gap: 26px; }
 @media (min-width: 880px) { .fm2-grid { grid-template-columns: minmax(0, 1fr) 288px; } }
 .fm2-main { min-width: 0; }

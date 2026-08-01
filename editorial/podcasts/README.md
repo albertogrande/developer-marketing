@@ -46,11 +46,32 @@ error; it only means that episode has not been reached yet.
 ## Note format
 
 Frontmatter carries `show`, `episode`, `date`, `url`, `guests`, `host`,
-`topics`, and `distilled` (when the note was written). The body runs four
-sections: **What it covers**, **Claims worth checking** (each with a timestamp
-and an honest label — measured, self-reported, or anecdotal), **Quotes**, and
-**Why it matters here**, which ties the episode to a guide section and says
-plainly where it is weak.
+`topics`, `candidates`, and `distilled` (when the note was written). The body
+runs four sections: **What it covers**, **Claims worth checking** (each with a
+timestamp and an honest label — measured, self-reported, or anecdotal),
+**Quotes**, and **Why it matters here**, which ties the episode to a guide
+section and says plainly where it is weak.
+
+`candidates` is the promotion flag, mirroring the scout's ` · practice-candidate`
+convention on signals — it lives in frontmatter so the weekly editor can grep
+for it rather than read every note. Valid values:
+
+- `practice` — the episode supports a `when X → do Y (because Z)` unit.
+- `deep-dive` — a thread worth a long piece, especially if it recurs across
+  several episodes.
+- `example` — **rare**. Only when the episode points at an openable artifact,
+  and then the artifact is the example and the episode is a supporting source.
+- `skill` — an installable agent skill with a real install line.
+
+Omit `candidates` entirely when an episode is worth remembering but promotes
+nothing. Most episodes are that, and a note with no flag is still doing its job.
+
+## What a note may not do
+
+An episode note never patches the guide as fact. The guide records hard,
+verified facts; a practitioner's experience is a position, however credible the
+practitioner. It reaches the guide through a practice that names who said it, or
+not at all.
 
 Say what the episode is *not* evidence for. A practitioner's experience is worth
 recording and is not a data point, and a note that blurs the two will eventually
