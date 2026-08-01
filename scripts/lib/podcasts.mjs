@@ -52,10 +52,13 @@ export const PODCASTS = [
 
 const PODCAST_NS = 'podcast:transcript';
 
-// Transcript formats worth having, best first. Plain text needs no conversion;
-// vtt and srt are timestamped but carry speaker labels, which are what make a
-// quote attributable to a person rather than to "the episode".
-const TYPE_RANK = ['text/plain', 'text/vtt', 'application/x-subrip'];
+// Transcript formats worth having, best first.
+//
+// vtt wins over plain text even though plain text needs no conversion: the
+// publisher's .txt carries speaker labels but no timestamps, and a claim
+// without a timestamp is one a reader cannot go check against the audio.
+// Converting vtt is cheap; recovering a lost timestamp is impossible.
+const TYPE_RANK = ['text/vtt', 'application/x-subrip', 'text/plain'];
 
 const unwrap = (s) =>
   s
@@ -114,30 +117,52 @@ export function withinDays(items, days, now = new Date()) {
   return items.filter((i) => i.date && i.date.getTime() >= cutoff);
 }
 
-// WebVTT → readable text. Drops the header, cue numbers and timestamps, and
-// turns `<v Speaker>` voice spans into a `Speaker:` prefix so a quote can be
+// `00:14:20.480` / `00:14:20,480` → `14:20`, dropping a leading zero hour so
+// the common case reads like a player's position indicator.
+export const shortStamp = (raw) => {
+  const m = String(raw).match(/(\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  const [, h, mm, ss] = m;
+  return h === '00' ? `${mm}:${ss}` : `${h}:${mm}:${ss}`;
+};
+
+// WebVTT → readable text. Drops the header and cue numbers, and turns
+// `<v Speaker>` voice spans into a `Speaker:` prefix so a quote can be
 // attributed to whoever actually said it. Consecutive lines from one speaker
-// are joined into a paragraph.
-export function vttToText(vtt) {
+// join into a paragraph.
+//
+// Timestamps are kept by default and prefixed to each speaker turn. They are
+// the whole point of caching a transcript: "the guest says X" is hearsay,
+// "the guest says X at 14:20" is a claim a reader can go check against the
+// audio. Pass { timestamps: false } for prose-only output.
+export function vttToText(vtt, { timestamps = true } = {}) {
   const lines = String(vtt).split(/\r?\n/);
   const out = [];
   let speaker = null;
+  let pending = null; // start time of the cue currently being read
   for (const line of lines) {
     const t = line.trim();
     if (!t || t === 'WEBVTT' || t.startsWith('NOTE ')) continue;
-    if (t.includes('-->')) continue;
+    if (t.includes('-->')) {
+      pending = shortStamp(t.split('-->')[0]);
+      continue;
+    }
     if (/^\d+$/.test(t)) continue; // cue number
     const voice = t.match(/^<v\s+([^>]+)>([\s\S]*)$/);
     const text = (voice ? voice[2] : t).replace(/<\/?[^>]+>/g, '').trim();
     if (!text) continue;
     const who = voice ? voice[1].trim() : null;
+    const stamp = timestamps && pending ? `[${pending}] ` : '';
     if (who && who !== speaker) {
       speaker = who;
-      out.push(`\n${who}: ${text}`);
-    } else if (out.length) {
+      out.push(`\n${stamp}${who}: ${text}`);
+    } else if (!out.length) {
+      out.push(`${stamp}${text}`);
+    } else if (who) {
       out[out.length - 1] += ` ${text}`;
     } else {
-      out.push(text);
+      // No voice span: keep turns separate so a stamped line stays findable.
+      out.push(`${stamp}${text}`);
     }
   }
   return out.join('\n').trim();
@@ -145,20 +170,27 @@ export function vttToText(vtt) {
 
 // SubRip → readable text. Same shape as WebVTT minus the header and voice
 // spans, so it reuses the same pass.
-export function srtToText(srt) {
-  return vttToText(String(srt));
+export function srtToText(srt, opts) {
+  return vttToText(String(srt), opts);
 }
 
-export function transcriptToText(body, type) {
-  if (type === 'text/vtt') return vttToText(body);
-  if (type === 'application/x-subrip') return srtToText(body);
+export function transcriptToText(body, type, opts) {
+  if (type === 'text/vtt') return vttToText(body, opts);
+  if (type === 'application/x-subrip') return srtToText(body, opts);
   return String(body).trim();
 }
 
-// A stable, filesystem-safe cache name for one episode.
-export const cacheName = (podcastId, date, title) =>
+const stem = (podcastId, date, title) =>
   `${date.toISOString().slice(0, 10)}-${podcastId}-${String(title ?? '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
-    .slice(0, 60)}.txt`;
+    .slice(0, 60)}`;
+
+// A stable, filesystem-safe cache name for one episode's raw transcript.
+export const cacheName = (podcastId, date, title) => `${stem(podcastId, date, title)}.txt`;
+
+// The distilled note for the same episode. Same stem, different extension and
+// directory, so "does this episode already have a note?" is a file-exists check
+// with no index to keep in sync.
+export const noteName = (podcastId, date, title) => `${stem(podcastId, date, title)}.md`;

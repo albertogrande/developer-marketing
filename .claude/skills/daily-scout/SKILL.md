@@ -96,6 +96,26 @@ the newest one or two), and shows marked `on-page` in
 `scripts/lib/podcasts.mjs` put the transcript on the episode page instead of in
 the feed — for those, fetch the episode URL the tool prints.
 
+**Distil what you fetch, then drain a little of the backlog.** A transcript is
+disposable; the note written from it is the lasting asset. After the sweep:
+
+```bash
+npm run podcast:transcripts -- --pending    # transcript available, no note yet
+```
+
+Write notes into `editorial/podcasts/` following the format in that directory's
+`README.md` — topics, claims with timestamps and an honest label (measured /
+self-reported / anecdotal), a couple of short attributed quotes, and what the
+episode is *not* evidence for. Filename must match what `--pending` expects
+(same stem as the cached transcript, `.md` instead of `.txt`), because a note
+existing is the only record that an episode is done.
+
+Then take **up to three** backlog episodes per run, newest first. The back
+catalogue is ~190 episodes and drains in a couple of months at that rate; do
+not try to clear it in one sitting, and never let backlog work crowd out
+today's sweep — the day's news is the job, the archive is the surplus. If the
+sweep ran long, skip the backlog entirely and say so in the report.
+
 **With a transcript you may quote; without one you may not.** A transcript is a
 real, checkable source: quote a sentence or two, name the speaker, link the
 episode. Everything else still applies — do not paste long passages into a
@@ -297,6 +317,10 @@ pass. When in doubt, capture the signal and don't touch the guide. Don't bump
 `updated` for cosmetic edits.
 
 ## Step 5 — Update memory (light)
+
+Episode notes in `editorial/podcasts/` are part of memory now: before flagging a
+deep-dive candidate, grep them — a thread that keeps recurring across episodes
+is stronger evidence than one that surfaced once on HN.
 
 In `editorial/MEMORY.md`, only if today changed something:
 - Attach a notable signal to an existing **running thread** (or note a

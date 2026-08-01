@@ -41,6 +41,18 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+      # Runners are ephemeral, so without this the transcript cache is empty on
+      # every run and each sweep re-downloads what the last one already had.
+      # Keyed by day so a run reuses the same day's fetches on retry, and falls
+      # back to the most recent cache otherwise. Transcripts are third-party
+      # copyrighted work: they live here and in .cache/ only, never in a commit.
+      - name: Cache podcast transcripts
+        uses: actions/cache@v4
+        with:
+          path: .cache/transcripts
+          key: podcast-transcripts-${{ github.run_id }}
+          restore-keys: |
+            podcast-transcripts-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -61,15 +73,18 @@ jobs:
             a brief under src/content/briefs/ (something happened + a primary
             source + two sentences — traction is not a criterion), patch any
             guide section under src/content/guide/ whose facts a change
-            disproved, and update editorial/MEMORY.md lightly. Write files only
-            — do not commit or push.
+            disproved, and update editorial/MEMORY.md lightly. Fetch podcast
+            transcripts with `npm run podcast:transcripts -- --days 2`, distil
+            what you fetch into editorial/podcasts/, and drain up to three
+            backlog episodes from `--pending` — never at the cost of today's
+            sweep. Write files only — do not commit or push.
           show_full_output: true
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
           claude_args: >-
             --model claude-sonnet-5
             --max-turns 40
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(npm run podcast:transcripts*)"
 
       # Even a quiet day appends "- (quiet day)" to signals/, so a healthy
       # scout run always leaves changes there.

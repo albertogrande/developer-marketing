@@ -7,6 +7,8 @@
 //   npm run podcast:transcripts -- --days 7
 //   npm run podcast:transcripts -- --show scaling-devtools
 //   npm run podcast:transcripts -- --list     # report only, download nothing
+//   npm run podcast:transcripts -- --all      # whole back catalogue, no window
+//   npm run podcast:transcripts -- --pending  # episodes still lacking a note
 //
 // Exits 0 even when nothing is found: "no new episodes" and "episode published
 // but its transcript isn't ready yet" are both normal days, not failures.
@@ -26,9 +28,13 @@ import {
   withinDays,
   transcriptToText,
   cacheName,
+  noteName,
 } from './lib/podcasts.mjs';
 
 const CACHE_DIR = '.cache/transcripts';
+// Distilled episode notes — the site's own work product, committed. See
+// editorial/podcasts/README.md for why the raw transcript is not.
+const NOTES_DIR = 'editorial/podcasts';
 const argv = process.argv.slice(2);
 const flag = (name, fallback) => {
   const i = argv.indexOf(`--${name}`);
@@ -39,6 +45,11 @@ const has = (name) => argv.includes(`--${name}`);
 const days = Number(flag('days', 2));
 const only = flag('show', null);
 const listOnly = has('list');
+const all = has('all');
+// --pending answers "what is left to distil?" — every episode with a transcript
+// available that has no note yet. It downloads nothing and is the queue the
+// scout drains a few at a time.
+const pendingOnly = has('pending');
 
 if (!Number.isFinite(days) || days <= 0) {
   console.error('podcast-transcripts: --days must be a positive number');
@@ -62,18 +73,21 @@ const get = async (url, label) => {
   return res.text();
 };
 
-if (!listOnly) mkdirSync(CACHE_DIR, { recursive: true });
+if (!listOnly && !pendingOnly) mkdirSync(CACHE_DIR, { recursive: true });
 
 const now = new Date();
 const found = [];
 const missing = [];
 const failed = [];
+const pending = [];
 
 for (const show of shows) {
   let items;
   try {
     const { items: parsed } = parseFeed(await get(show.feed, show.id));
-    items = withinDays(parsed, days, now);
+    // --all and --pending walk the whole back catalogue; everything else asks
+    // the scout's real question, "what shipped in the last ~24h".
+    items = all || pendingOnly ? parsed.filter((i) => i.date) : withinDays(parsed, days, now);
   } catch (e) {
     failed.push({ show: show.name, why: e.message });
     continue;
@@ -83,6 +97,16 @@ for (const show of shows) {
 
   for (const ep of items) {
     const pick = pickTranscript(ep.transcripts);
+
+    if (pendingOnly) {
+      // An episode is pending when a transcript exists to distil from and no
+      // note has been written yet. No transcript means nothing to queue.
+      if (!pick) continue;
+      if (existsSync(join(NOTES_DIR, noteName(show.id, ep.date, ep.title)))) continue;
+      pending.push({ show: show.name, title: ep.title, date: ep.date, link: ep.link });
+      continue;
+    }
+
     if (!pick) {
       // Expected, not an error: Transistor publishes the transcript a few days
       // after the episode, and some shows never publish one at all.
@@ -125,8 +149,20 @@ for (const show of shows) {
 }
 
 const day = (d) => d.toISOString().slice(0, 10);
+
+if (pendingOnly) {
+  pending.sort((a, b) => b.date - a.date);
+  console.log(
+    `podcast-transcripts: ${pending.length} episode(s) with a transcript and no note in ${NOTES_DIR}/ (newest first).`
+  );
+  for (const p of pending) console.log(`  · ${day(p.date)} ${p.show} — ${p.title}\n      ${p.link ?? ''}`);
+  for (const f of failed) console.log(`  ! ${f.show}: ${f.why}`);
+  process.exit(0);
+}
+
+const window = all ? 'whole back catalogue' : `last ${days} day(s)`;
 console.log(
-  `podcast-transcripts: ${shows.length} feed(s), last ${days} day(s) — ${found.length} transcript(s), ${missing.length} episode(s) without one.`
+  `podcast-transcripts: ${shows.length} feed(s), ${window} — ${found.length} transcript(s), ${missing.length} episode(s) without one.`
 );
 for (const f of found) {
   console.log(`  ✓ ${day(f.date)} ${f.show} — ${f.title}`);

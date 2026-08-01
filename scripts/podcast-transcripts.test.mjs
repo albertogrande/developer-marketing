@@ -7,7 +7,9 @@ import {
   withinDays,
   vttToText,
   transcriptToText,
+  shortStamp,
   cacheName,
+  noteName,
 } from './lib/podcasts.mjs';
 
 // A feed shaped like the real ones: one episode with transcripts in several
@@ -52,14 +54,12 @@ test('parseFeed survives a feed with no items', () => {
   assert.deepEqual(items, []);
 });
 
-test('pickTranscript prefers plain text, then vtt, then srt', () => {
+test('pickTranscript prefers vtt over plain text, because plain text has no timestamps', () => {
   const all = parseFeed(FEED).items[1].transcripts;
-  assert.equal(pickTranscript(all).type, 'text/plain');
-  assert.equal(pickTranscript(all.filter((t) => t.type !== 'text/plain')).type, 'text/vtt');
-  assert.equal(
-    pickTranscript(all.filter((t) => t.type === 'application/x-subrip')).type,
-    'application/x-subrip'
-  );
+  assert.equal(pickTranscript(all).type, 'text/vtt');
+  assert.equal(pickTranscript(all.filter((t) => t.type !== 'text/vtt')).type, 'application/x-subrip');
+  // Plain text is still better than nothing when it is all the publisher ships.
+  assert.equal(pickTranscript(all.filter((t) => t.type === 'text/plain')).type, 'text/plain');
   assert.equal(pickTranscript([]), undefined);
 });
 
@@ -79,7 +79,31 @@ test('withinDays ignores items with an unparseable date', () => {
   assert.equal(withinDays(items, 365, new Date('2026-07-29T00:00:00Z')).length, 0);
 });
 
-test('vttToText strips timestamps and attributes lines to the speaker', () => {
+test('vttToText keeps a timestamp per speaker turn by default', () => {
+  const vtt = [
+    'WEBVTT',
+    '',
+    '00:14:20.480 --> 00:14:25.000',
+    '<v Kim>Awareness is the wrong single metric.',
+    '',
+    '01:02:03.000 --> 01:02:09.000',
+    '<v Jack>Say more about that.',
+    '',
+  ].join('\n');
+  const text = vttToText(vtt);
+  // A quote is only checkable if the reader can find it in the audio.
+  assert.match(text, /\[14:20\] Kim: Awareness is the wrong single metric\./);
+  // Past an hour the hour component has to survive.
+  assert.match(text, /\[01:02:03\] Jack: Say more about that\./);
+  assert.doesNotMatch(text, /-->/);
+});
+
+test('vttToText omits timestamps when asked for prose only', () => {
+  const vtt = ['WEBVTT', '', '00:14:20.480 --> 00:14:25.000', '<v Kim>Awareness is the wrong metric.', ''].join('\n');
+  assert.equal(vttToText(vtt, { timestamps: false }), 'Kim: Awareness is the wrong metric.');
+});
+
+test('vttToText attributes lines to the speaker and joins their turn', () => {
   const vtt = [
     'WEBVTT',
     '',
@@ -93,7 +117,7 @@ test('vttToText strips timestamps and attributes lines to the speaker', () => {
     '<v Jack>She breaks down her flywheel.',
     '',
   ].join('\n');
-  const text = vttToText(vtt);
+  const text = vttToText(vtt, { timestamps: false });
   assert.match(text, /^Kim: Thinking about it/);
   // Consecutive lines from one speaker join into a paragraph, so a quote is
   // not split mid-sentence by a cue boundary.
@@ -104,8 +128,20 @@ test('vttToText strips timestamps and attributes lines to the speaker', () => {
 
 test('vttToText drops cue numbers, NOTE blocks and inline markup', () => {
   const vtt = ['WEBVTT', '', 'NOTE recorded live', '', '1', '00:00:01.000 --> 00:00:02.000', 'Plain <b>line</b>', ''].join('\n');
-  const text = vttToText(vtt);
-  assert.equal(text, 'Plain line');
+  assert.equal(vttToText(vtt, { timestamps: false }), 'Plain line');
+  assert.equal(vttToText(vtt), '[00:01] Plain line');
+});
+
+test('shortStamp drops a zero hour and keeps a real one', () => {
+  assert.equal(shortStamp('00:14:20.480'), '14:20');
+  assert.equal(shortStamp('01:02:03,000'), '01:02:03');
+  assert.equal(shortStamp('nonsense'), null);
+});
+
+test('noteName mirrors cacheName so "has a note?" is a file-exists check', () => {
+  const args = ['scaling-devtools', new Date('2026-07-10T14:04:00Z'), 'Kim Maida on the DevRel Flywheel'];
+  assert.equal(cacheName(...args).replace(/\.txt$/, ''), noteName(...args).replace(/\.md$/, ''));
+  assert.match(noteName(...args), /\.md$/);
 });
 
 test('transcriptToText dispatches by declared type and leaves plain text alone', () => {
