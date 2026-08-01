@@ -80,14 +80,50 @@ Candidates to verify and add if their feeds resolve: **Community Pulse**,
 **Fireside with Voxgig**, **The Art of Developer Experience**, **Developer
 Marketing Stories**, **Markepear**, **Everything Outside Code**.
 
-**You cannot listen to the audio, so never write as if you did.** You have the
-title, the show notes, the guest and the links — that is all. A podcast brief
-says *what the episode covers*; it does not assert a figure stated in audio
-nobody has verified. If a number in the show notes is load-bearing, attribute
-it to the show notes explicitly ("the episode notes say…") or leave it out.
+**Transcripts, when the publisher provides one.** Run:
+
+```bash
+npm run podcast:transcripts -- --days 2      # every feed; --show <id> for one
+```
+
+It reads each feed's `<podcast:transcript>` tag, downloads the best format,
+converts it to speaker-labelled text and writes it to `.cache/transcripts/`.
+It prints one line per episode it could *not* transcribe, with the reason.
+
+Two things to expect rather than treat as breakage: transcription **lags
+publication** (Transistor covers 193 of 195 Scaling DevTools episodes, but not
+the newest one or two), and shows marked `on-page` in
+`scripts/lib/podcasts.mjs` put the transcript on the episode page instead of in
+the feed — for those, fetch the episode URL the tool prints.
+
+**With a transcript you may quote; without one you may not.** A transcript is a
+real, checkable source: quote a sentence or two, name the speaker, link the
+episode. Everything else still applies — do not paste long passages into a
+brief, do not commit a cached transcript, and do not treat a transcript as
+site content. It is someone else's copyrighted work; `.cache/` is gitignored
+for exactly that reason. Short attributed quotation is normal journalism;
+reproducing the episode is not.
+
+**Without a transcript you cannot listen, so never write as if you did.** You
+have the title, the show notes, the guest and the links — that is all. The
+brief says *what the episode covers*; it does not assert a figure stated in
+audio nobody verified. If a number in the show notes is load-bearing, attribute
+it inline ("the episode notes say…") or leave it out, and say in the body that
+the item was summarised from the episode page.
+
 Being on a good podcast is not itself news: an episode earns a brief when its
 subject matters to a developer-marketing practitioner, and a strong engineering
 episode on a general show often does not.
+
+**If a show publishes no transcript at all** and an episode genuinely matters,
+local speech-to-text is the fallback — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+(MIT) or [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (MIT) run
+offline against the `<enclosure>` audio URL the tool already parses. It is
+deliberately **not** wired into this skill or CI: a full episode costs real
+CPU-minutes per run, and the shows that matter most here already give
+transcripts away. Reach for it by hand for a specific episode, under the same
+quoting rules, or propose adding it if a show becomes important enough to
+justify the bill.
 
 **Research & data:**
 

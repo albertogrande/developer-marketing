@@ -10,6 +10,11 @@ newsletter/data/
 /data/
 *.eml
 .env
+# podcast transcripts fetched by scripts/podcast-transcripts.mjs. Cached for
+# verification only and deliberately never committed: a transcript is the
+# publisher's copyrighted work, and this repo's own CC BY 4.0 licence cannot be
+# applied to a third party's words. Quote briefly with attribution instead.
+.cache/
 # os / editor
 .DS_Store
 *.log

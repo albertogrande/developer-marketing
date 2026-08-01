@@ -17,6 +17,13 @@ npm run preview             # serve the built dist/
 npm test                    # node --test over newsletter/test/*.test.mjs and scripts/*.test.mjs
 ```
 
+Podcast transcripts for the scout, cached locally and never committed:
+
+```bash
+npm run podcast:transcripts -- --days 2     # publisher transcripts → .cache/
+npm run podcast:transcripts -- --list       # report only, download nothing
+```
+
 One test file, or one test:
 
 ```bash
@@ -113,6 +120,11 @@ Prefer editing these over inlining a second copy of the same knowledge:
 
 - `scripts/lib/routes.mjs` — the route table, frontmatter parsing and date map,
   shared by both gates, the sitemap hook, and the IndexNow ping.
+- `scripts/lib/podcasts.mjs` — the podcast watch list plus the feed/transcript
+  parsers, shared by the fetch tool and its tests so the scout's source set
+  lives in one place. Transcripts are cached to gitignored `.cache/` and are
+  never content: they are a third party's copyrighted work, so they are used to
+  verify or briefly quote with attribution, then discarded.
 - `site.config.mjs` — the only place that knows where the site is served from;
   read by the Astro build, the gates, and every newsletter URL.
 - `src/lib/content.ts` — every collection query and sort order, plus
