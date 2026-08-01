@@ -10,6 +10,10 @@
 //   3. body links: internal markdown links must carry the site base
 //      (/developer-marketing/...) and resolve; relative ./x.md links are
 //      errors (they 404 on the built site)
+//   4. sourcing floors the skills promise, made deterministic: articles carry
+//      ≥2 sources, deep dives ≥3, and in both cases the sources span ≥2
+//      independent publishers (registrable domains) — a vendor's blog
+//      corroborating the vendor's docs corroborates nothing
 //
 // Frontmatter is parsed with a real YAML parser (same family Astro/zod
 // accepts — block lists, quoted scalars, the lot), and static routes are
@@ -17,6 +21,8 @@
 
 import { readdirSync, existsSync } from 'node:fs';
 import { frontmatterOf, pageRoutes, siteConfig } from './lib/routes.mjs';
+import { independentHostCount } from './lib/sources.mjs';
+import { makeResolver, sourcingProblems } from './lib/refs.mjs';
 
 // Same source as the build (site.config.mjs, via routes.mjs), so the gate
 // cannot drift from what Astro emits. base is '' when served at the root.
@@ -57,42 +63,25 @@ for (const e of entries) {
   for (const t of e.fm?.tags ?? []) if (typeof t === 'string') tags.add(t);
 }
 
-const MD_SIBLING_IDS = {
-  guide: () => guideIds,
-  weekly: () => weeklyIds,
-  articles: () => articleIds,
-  'deep-dives': () => diveIds,
-  briefs: () => briefIds,
-  radar: () => radarIds,
-  practices: () => practiceIds,
-  examples: () => exampleIds,
-  skills: () => skillIds,
-  resources: () => resourceIds,
-};
-
 // href is a base-less site path (the `related` convention) — resolve it.
-function resolves(href) {
-  const [path, hash] = href.split('#');
-  const clean = path.replace(/\/$/, '') || '/';
-  if (clean === '/practices' && hash) return practiceIds.has(hash);
-  if (clean === '/examples' && hash) return exampleIds.has(hash);
-  if (clean === '/skills' && hash) return skillIds.has(hash);
-  if (clean === '/resources' && hash) return resourceIds.has(hash);
-  if (clean === '/briefs' && hash) return briefIds.has(hash);
-  if (STATIC_ROUTES.has(clean)) return true;
-  let m;
-  // Markdown siblings: every entry serves a raw /<collection>/<id>.md variant.
-  if ((m = clean.match(/^\/([a-z-]+)\/([^/]+)\.md$/)) && MD_SIBLING_IDS[m[1]]) {
-    return MD_SIBLING_IDS[m[1]]().has(m[2]);
-  }
-  if ((m = clean.match(/^\/guide\/([^/]+)$/))) return guideIds.has(m[1]);
-  if ((m = clean.match(/^\/weekly\/([^/]+)$/))) return weeklyIds.has(m[1]);
-  if ((m = clean.match(/^\/articles\/([^/]+)$/))) return articleIds.has(m[1]);
-  if ((m = clean.match(/^\/deep-dives\/([^/]+)$/))) return diveIds.has(m[1]);
-  if ((m = clean.match(/^\/radar\/([^/]+)$/))) return radarIds.has(m[1]);
-  if ((m = clean.match(/^\/tags\/([^/]+)$/))) return tags.has(m[1]);
-  return false;
-}
+// The resolution rules live in ./lib/refs.mjs so they're testable against
+// fixture id sets.
+const resolves = makeResolver({
+  ids: {
+    guide: guideIds,
+    weekly: weeklyIds,
+    articles: articleIds,
+    'deep-dives': diveIds,
+    briefs: briefIds,
+    radar: radarIds,
+    practices: practiceIds,
+    examples: exampleIds,
+    skills: skillIds,
+    resources: resourceIds,
+  },
+  tags,
+  staticRoutes: STATIC_ROUTES,
+});
 
 const problems = [];
 
@@ -130,6 +119,12 @@ for (const { dir, file, fm, body, err } of entries) {
     if (!fm.summary) problems.push(`${file}: missing summary — the brief is the summary`);
     if (!fm.source?.url) problems.push(`${file}: missing source.url — an unverifiable brief is a rumour`);
   }
+  // 4. Sourcing floors. The newsroom and deep-dive skills promise these
+  // minimums; until here nothing enforced them, so a zero-source article
+  // built clean. The zod schema carries the same counts — this mirror runs
+  // pre-build with a clearer message, and adds the independence check zod
+  // can't express.
+  problems.push(...sourcingProblems(dir, fm, file, independentHostCount));
 
   // 2. related hrefs (frontmatter): base-less site paths or external URLs
   for (const r of fm.related ?? []) {

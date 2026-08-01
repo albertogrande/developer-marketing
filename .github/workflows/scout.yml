@@ -86,6 +86,20 @@ jobs:
             --max-turns 40
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(npm run podcast:transcripts*)"
 
+      # claude-code-action reuses one execution-file path across invocations,
+      # so the verify step would overwrite the writer's record and the ledger
+      # would write two identical rows. Snapshot the writer's file first.
+      - name: Snapshot writer execution file
+        id: exec-writer
+        run: |
+          f="${{ steps.claude.outputs.execution_file }}"
+          out=""
+          if [ -n "$f" ] && [ -f "$f" ]; then
+            cp "$f" "$RUNNER_TEMP/exec-writer.json"
+            out="$RUNNER_TEMP/exec-writer.json"
+          fi
+          echo "file=$out" >> "$GITHUB_OUTPUT"
+
       # Even a quiet day appends "- (quiet day)" to signals/, so a healthy
       # scout run always leaves changes there.
       - name: Guard — writer ran and captured
@@ -118,10 +132,12 @@ jobs:
             stories and do not restyle prose. Write files only — do not
             commit or push.
           show_full_output: true
-          # A separate, fresh-context model checks the writer's claims — the
-          # writer never grades its own homework.
+          # A separate model in a fresh context checks the writer's claims —
+          # the writer never grades its own homework. Opus 4.8 rather than the
+          # writer's Sonnet so the check is genuinely cross-model, matching
+          # the writer/verifier split every other desk already has.
           claude_args: >-
-            --model claude-sonnet-5
+            --model claude-opus-4-8
             --max-turns 50
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
 
@@ -139,9 +155,10 @@ jobs:
       - name: Append usage ledger
         id: ledger
         env:
-          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_WRITER: ${{ steps.exec-writer.outputs.file }}
           EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
-          MODEL: claude-sonnet-5
+          MODEL_WRITER: claude-sonnet-5
+          MODEL_VERIFY: claude-opus-4-8
         run: |
           bash scripts/append-ledger.sh
           echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"

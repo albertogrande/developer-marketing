@@ -8,13 +8,18 @@
 // Usage:
 //   node scripts/check-sources.mjs --changed   # changed files only (default)
 //   node scripts/check-sources.mjs --all       # every content file
+//   node scripts/check-sources.mjs --all --report [path]
+//     # report mode: never exits 1 — writes a markdown summary of dead/warned
+//     # links (default link-rot-report.md) for the weekly liveness workflow to
+//     # file as an issue. Archive rot is a correction task, not a build failure.
 //
 // "Changed" means uncommitted working-tree changes (the writer workflows run
 // this before committing); with a clean tree it falls back to HEAD~1..HEAD
 // (CI on push/PR-merge commits). If neither yields files, it exits 0.
 
 import { execSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { extractUrls } from './lib/sources.mjs';
 
 const CONTENT_PATHS = ['src/content', 'signals'];
 const TIMEOUT_MS = 10_000;
@@ -54,25 +59,6 @@ function allFiles() {
     .filter(Boolean);
 }
 
-function extractUrls(text) {
-  const urls = new Set();
-  // frontmatter/source lists: url: https://…
-  for (const m of text.matchAll(/\burl:\s*(https?:\/\/\S+)/g)) urls.add(m[1]);
-  // markdown links: [label](https://…) — one level of balanced parens allowed
-  // (Wikipedia-style /Foo_(bar) URLs must not be truncated at the first ')').
-  for (const m of text.matchAll(/\]\((https?:\/\/(?:[^()\s]|\([^()\s]*\))+)\)/g)) urls.add(m[1]);
-  // bare links in signals one-liners
-  for (const m of text.matchAll(/(?<![("\]])\bhttps?:\/\/[^\s)"'<>\]]+/g)) urls.add(m[0]);
-  return [...urls].map((u) => {
-    u = u.replace(/[.,;:!?'"]+$/, '');
-    // Trailing ')' is only cruft when unbalanced — /Foo_(bar) keeps its paren.
-    while (u.endsWith(')') && (u.match(/\(/g) || []).length < (u.match(/\)/g) || []).length) {
-      u = u.slice(0, -1);
-    }
-    return u;
-  });
-}
-
 async function attempt(url, method) {
   try {
     const res = await fetch(url, {
@@ -104,13 +90,23 @@ async function check(url) {
   return { url, verdict: 'warn', detail: `${get.status}` };
 }
 
-const mode = process.argv.includes('--all') ? 'all' : 'changed';
+const argv = process.argv.slice(2);
+const mode = argv.includes('--all') ? 'all' : 'changed';
+const reportIdx = argv.indexOf('--report');
+const reportPath =
+  reportIdx === -1
+    ? null
+    : argv[reportIdx + 1] && !argv[reportIdx + 1].startsWith('--')
+      ? argv[reportIdx + 1]
+      : 'link-rot-report.md';
+
 const files = (mode === 'all' ? allFiles() : changedFiles()).filter(
   (f) => f.endsWith('.md') && existsSync(f)
 );
 
 if (!files.length) {
   console.log(`check-sources: no ${mode === 'all' ? '' : 'changed '}content files — nothing to check.`);
+  if (reportPath) writeFileSync(reportPath, '');
   process.exit(0);
 }
 
@@ -140,6 +136,32 @@ for (const r of results) {
   } else {
     console.warn(`warn (${r.detail}) ${r.url}\n  in: ${where}`);
   }
+}
+
+if (reportPath) {
+  // Report mode: the summary is the deliverable; rot never fails the run.
+  const section = (verdict, title) => {
+    const rs = results.filter((r) => r.verdict === verdict);
+    if (!rs.length) return [];
+    return [
+      `### ${title} (${rs.length})`,
+      '',
+      ...rs.flatMap((r) => [
+        `- \`${r.url}\` — ${r.detail}`,
+        ...urlToFiles.get(r.url).map((f) => `  - in \`${f}\``),
+      ]),
+      '',
+    ];
+  };
+  const body = [
+    ...section('dead', 'Dead links (404/410/DNS — fix or remove)'),
+    ...section('warn', 'Unreachable (403/429/5xx/timeout — usually bot-blocking, re-check by hand)'),
+  ].join('\n');
+  writeFileSync(reportPath, body);
+  console.log(
+    `check-sources: report written to ${reportPath} (${dead} dead, ${results.filter((r) => r.verdict === 'warn').length} warned).`
+  );
+  process.exit(0);
 }
 
 if (dead) {

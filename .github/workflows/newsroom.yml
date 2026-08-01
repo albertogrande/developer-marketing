@@ -67,6 +67,20 @@ jobs:
             --max-turns 60
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
 
+      # claude-code-action reuses one execution-file path across invocations,
+      # so the verify step would overwrite the writer's record and the ledger
+      # would write two identical rows. Snapshot the writer's file first.
+      - name: Snapshot writer execution file
+        id: exec-writer
+        run: |
+          f="${{ steps.claude.outputs.execution_file }}"
+          out=""
+          if [ -n "$f" ] && [ -f "$f" ]; then
+            cp "$f" "$RUNNER_TEMP/exec-writer.json"
+            out="$RUNNER_TEMP/exec-writer.json"
+          fi
+          echo "file=$out" >> "$GITHUB_OUTPUT"
+
       # Publish or skip, the editor always appends its decision line — a run
       # that wrote nothing under editorial/ is a dead run, not a quiet day.
       - name: Guard — editor ran and decided
@@ -120,9 +134,10 @@ jobs:
       - name: Append usage ledger
         id: ledger
         env:
-          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          EXEC_WRITER: ${{ steps.exec-writer.outputs.file }}
           EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
-          MODEL: claude-opus-4-8
+          MODEL_WRITER: claude-opus-4-8
+          MODEL_VERIFY: claude-sonnet-5
         run: |
           bash scripts/append-ledger.sh
           echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"

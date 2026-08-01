@@ -12,6 +12,8 @@ related:
 sources:
   - label: 'DevEx: What Actually Drives Productivity (Noda, Storey, Forsgren, Greiler — ACM Queue)'
     url: https://queue.acm.org/detail.cfm?id=3595878
+  - label: 'DevEx in Action: A study of its tangible impacts (Forsgren et al. — ACM Queue)'
+    url: https://queue.acm.org/detail.cfm?id=3639443
   - label: Draft.dev — Developer content as the cornerstone of product-led growth
     url: https://draft.dev/learn/developer-content-the-cornerstone-of-product-led-growth
 ---
