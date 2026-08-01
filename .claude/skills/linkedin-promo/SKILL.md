@@ -50,13 +50,18 @@ These sections are dropped when empty — never padded.
   name + role + URL each. Note authors to tag when posting.
 - **Jobs** (3–5): open developer-marketing / DevRel roles with location, and
   salary only when the listing states it publicly.
-  - **Preferred source: the `albertogrande/devmarketingjobs` repo**, which
-    already does this search. Attach it with `add_repo` (read) and use its
-    output/search. Its exact interface was not reachable when this skill was
-    written — on first successful attach, inspect it, use it, and update this
-    step with the concrete commands.
-  - Fallback: WebSearch + fetch each listing page to confirm it is open. No
-    fetched page, no bullet.
+  - **Preferred source: the dev-marketing-jobs board** (the
+    `albertogrande/dev-marketing-jobs` repo's public deployment). Fetch its
+    server-rendered tabs — no auth or JS needed:
+    `https://dev-marketing-jobs.vercel.app/` (marketing),
+    `/product-marketing`, `/devrel`. Each row's payload has title, company,
+    location, salary, posted date, and the external listing URL. Use the
+    board's location gate as-is (EU-remote + Spain-based — it matches the
+    audience), prefer roles posted in or near the issue's window, and fix the
+    payload's occasional `$$` salary prefix to a single `$`. See
+    "Jobs source" in `editorial/LINKEDIN.md`.
+  - Fallback if the board is down: WebSearch + fetch each listing page to
+    confirm it is open. No fetched page, no bullet.
 - **People worth following** (occasional): only when the week's voices
   naturally build to it; verify each person's current role.
 

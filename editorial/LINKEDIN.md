@@ -26,7 +26,7 @@ reader to expect the next issue.
 | His section | Our status |
 |---|---|
 | Hot takes with tagged authors | No voices section anywhere; we cite companies, not people |
-| Jobs (salary + location) | Nothing. Intended source: the `devmarketingjobs` repo (see below) |
+| Jobs (salary + location) | Fed by the `dev-marketing-jobs` board (see below) |
 | Favourite MCP of the week | Raw material exists (skills shelf, swipe file) but no weekly single pick |
 | Top people to follow | Nothing |
 | PS selling a course | Deliberately never — nothing is for sale (MASTHEAD rule 8) |
@@ -72,7 +72,7 @@ Voices (when the week produced any worth quoting):
 
 Jobs (when we have verified listings):
 • <Title — Company | salary if public | location — link.
-  Source: devmarketingjobs (preferred) or a verified listing page.>
+  Source: the dev-marketing-jobs board (preferred) or a verified listing page.>
 
 People worth following:
 • <Occasional, not weekly. 3–5 names with role + why.>
@@ -103,14 +103,25 @@ Section rules:
   links, no paid placement in jobs or resources, and the PS promotes only our
   own free material.
 
-## Jobs source: devmarketingjobs
+## Jobs source: dev-marketing-jobs
 
-The jobs section should be fed by the `albertogrande/devmarketingjobs` repo,
-which already does the search — call it, don't absorb its code into this repo.
-The repo was not reachable from the session that wrote this playbook, so the
-concrete mechanism (run its search in-session vs. read its published output)
-is still to be pinned down; until then the fallback is a manual web search
-with the listing page fetched and verified. See `.claude/skills/linkedin-promo/`.
+The jobs section is fed by the `albertogrande/dev-marketing-jobs` repo's
+**public deployment at https://dev-marketing-jobs.vercel.app** — call it,
+don't absorb its code into this repo. The board is server-rendered, so its
+tabs are readable with a plain fetch (no auth, no JS needed):
+
+- `/` — marketing, growth, content and marketing-leadership roles
+- `/product-marketing` — PMM roles
+- `/devrel` — DevRel / advocacy / developer-community roles
+
+Each job row carries title, company, location, salary (when public), posted
+date, and the external listing URL (Greenhouse/Ashby/Workable) in the page
+payload. The board's own location gate — fully-remote EU-eligible plus
+anything Spain-based — is also the post's gate: it matches the audience.
+Quirk: the payload sometimes double-prefixes salary (`$$150,000`); write a
+single `$`. Prefer roles posted within the issue's window or shortly before.
+Fallback if the board is down: manual web search with each listing page
+fetched and verified. See `.claude/skills/linkedin-promo/`.
 
 ## Producing a post
 
