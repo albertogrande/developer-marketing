@@ -1,6 +1,6 @@
 ---
 name: daily-scout
-description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
+description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, publish qualifying items as briefs, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
 argument-hint: [optional focus, e.g. "DevRel metrics" or "docs-led growth"]
 ---
 
@@ -60,6 +60,93 @@ paywalls.
   **Stripe, Twilio, Vercel, Netlify, Postman, MongoDB, DigitalOcean, GitHub,
   Sentry, Auth0, Algolia, Supabase, PlanetScale, Resend** — for how they
   actually run docs, DX, and community.
+
+**Podcast feeds — sweep these every run, they are the most reliable channel
+you have:**
+
+RSS is fetchable on days when Reddit and Bluesky are not, and each feed carries
+`<pubDate>`, so "what shipped in the last ~24h" is an exact question here rather
+than a guess. Fetch the feed, read the newest `<item>`, and capture any episode
+dated to the window. One fetch per feed — do not go hunting for audio.
+
+| Show | Feed |
+|---|---|
+| Scaling DevTools (Jack Bridger) | `https://feeds.transistor.fm/scaling-devtools` |
+| Latent Space (swyx & Alessio) | `https://api.substack.com/feed/podcast/1084089.rss` |
+| The Pragmatic Engineer (Gergely Orosz) | `https://newsletter.pragmaticengineer.com/feed` |
+| devtools.fm | `https://www.devtools.fm/rss.xml` (irregular — gaps of a month are normal) |
+
+Candidates to verify and add if their feeds resolve: **Community Pulse**,
+**Fireside with Voxgig**, **The Art of Developer Experience**, **Developer
+Marketing Stories**, **Markepear**, **Everything Outside Code**.
+
+**Transcripts, when the publisher provides one.** Run:
+
+```bash
+npm run podcast:transcripts -- --days 2      # every feed; --show <id> for one
+```
+
+It reads each feed's `<podcast:transcript>` tag, downloads the best format,
+converts it to speaker-labelled text and writes it to `.cache/transcripts/`.
+It prints one line per episode it could *not* transcribe, with the reason.
+
+Two things to expect rather than treat as breakage: transcription **lags
+publication** (Transistor covers 193 of 195 Scaling DevTools episodes, but not
+the newest one or two), and shows marked `on-page` in
+`scripts/lib/podcasts.mjs` put the transcript on the episode page instead of in
+the feed — for those, fetch the episode URL the tool prints.
+
+**Distil what you fetch, then drain a little of the backlog.** A transcript is
+disposable; the note written from it is the lasting asset. After the sweep:
+
+```bash
+npm run podcast:transcripts -- --pending    # transcript available, no note yet
+```
+
+Write notes into `editorial/podcasts/` following the format in that directory's
+`README.md` — topics, claims with timestamps and an honest label (measured /
+self-reported / anecdotal), a couple of short attributed quotes, and what the
+episode is *not* evidence for. Set `candidates:` in the frontmatter when the
+episode could earn a practice or a deep dive; the weekly editor greps that field
+and never sees a note you leave unflagged. Omit it when the episode promotes
+nothing, which is most of them. Filename must match what `--pending` expects
+(same stem as the cached transcript, `.md` instead of `.txt`), because a note
+existing is the only record that an episode is done.
+
+Then take **up to three** backlog episodes per run, newest first. The back
+catalogue is ~190 episodes and drains in a couple of months at that rate; do
+not try to clear it in one sitting, and never let backlog work crowd out
+today's sweep — the day's news is the job, the archive is the surplus. If the
+sweep ran long, skip the backlog entirely and say so in the report.
+
+**With a transcript you may quote; without one you may not.** A transcript is a
+real, checkable source: quote a sentence or two, name the speaker, link the
+episode. Everything else still applies — do not paste long passages into a
+brief, do not commit a cached transcript, and do not treat a transcript as
+site content. It is someone else's copyrighted work; `.cache/` is gitignored
+for exactly that reason. Short attributed quotation is normal journalism;
+reproducing the episode is not.
+
+**Without a transcript you cannot listen, so never write as if you did.** You
+have the title, the show notes, the guest and the links — that is all. The
+brief says *what the episode covers*; it does not assert a figure stated in
+audio nobody verified. If a number in the show notes is load-bearing, attribute
+it inline ("the episode notes say…") or leave it out, and say in the body that
+the item was summarised from the episode page.
+
+Being on a good podcast is not itself news: an episode earns a brief when its
+subject matters to a developer-marketing practitioner, and a strong engineering
+episode on a general show often does not.
+
+**If a show publishes no transcript at all** and an episode genuinely matters,
+local speech-to-text is the fallback — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+(MIT) or [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (MIT) run
+offline against the `<enclosure>` audio URL the tool already parses. It is
+deliberately **not** wired into this skill or CI: a full episode costs real
+CPU-minutes per run, and the shows that matter most here already give
+transcripts away. Reach for it by hand for a specific episode, under the same
+quoting rules, or propose adding it if a show becomes important enough to
+justify the bill.
 
 **Research & data:**
 
@@ -152,7 +239,71 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   new: append `## <TODAY>` with `- (quiet day)` so the editor knows you ran.
 - No takes beyond a clause. The weekly editor verifies and opines.
 
-## Step 3 — Patch the guide (only for hard, unambiguous facts)
+## Step 3 — Promote what qualifies to briefs
+
+Signals are internal; `src/content/briefs/` is the published wire. This is the
+tier below a newsroom article, and it exists for two reasons: a day the
+newsroom logs a skip should still reach a reader, and a small company whose
+news can't carry 900 words should still get covered.
+
+Promote a signal when **all** of these hold:
+
+- Something **happened** — a company shipped, launched, raised, renamed,
+  deprecated, or published something. A think-piece with no event behind it is
+  a signal, not a brief.
+- There is a **primary source** you opened: the changelog, the blog post, the
+  Show HN thread, the filing. Not a write-up about a write-up.
+- You can say what happened in **two sentences** without hedging into vagueness.
+
+Do **not** promote: unverified claims (a signal flagged "reportedly" stays a
+signal), sourcing notes, thread-carryover lines, or anything whose only source
+is a vendor's own marketing page making an unverifiable claim.
+
+Traction is **not** a criterion. A 2-point Show HN from a company nobody has
+heard of clears this bar if something real happened and the link proves it —
+that is the point of the tier. Ranking by reach is what pushes the small-company
+tail out of coverage entirely.
+
+One file per item, `src/content/briefs/YYYY-MM-DD-company-slug.md`:
+
+```markdown
+---
+title: <the headline — what happened, no company prefix>
+company: <as they write it>
+date: <today, or the capture date for something surfaced late>
+kind: news | release | funding | launch | campaign | discussion | podcast
+summary: '<exactly two sentences — the brief itself>'
+tags: [<reuse existing tags where they fit>]
+source:
+  label: <publisher — headline>
+  url: <the primary source>
+sources:          # optional supporting links
+  - label: ...
+    url: ...
+related:          # optional; base-less guide paths
+  - label: Guide — <section title>
+    href: /guide/<section-id>
+---
+
+<Optional: one short paragraph on why it matters or what to watch. Skip it
+when the two sentences are the whole story — the body is not a quota.>
+```
+
+`date` is when the item entered the wire. If something shipped weeks ago and
+only cleared today's sweep, use today and say so in the summary or the note —
+don't backdate, and don't imply it is fresher than it is.
+
+For `kind: podcast`, `company` is **the show**, not the guest's employer, and
+the note should state plainly that the item was summarised from the episode
+page rather than from listening. The guest and their company belong in the
+summary.
+
+Several briefs a day is normal and correct; zero is fine on a genuinely quiet
+day. `check-refs.mjs` fails the build on a brief missing `company`, `summary`,
+or `source.url` — an unverifiable one-line news claim is a rumour with a
+company name attached.
+
+## Step 4 — Patch the guide (only for hard, unambiguous facts)
 
 The guide is the product; it must never state something the data just
 disproved. If a signal is an **unambiguous factual change** to a guide section
@@ -168,7 +319,11 @@ Leave interpretation, framing, and anything you couldn't verify to the weekly
 pass. When in doubt, capture the signal and don't touch the guide. Don't bump
 `updated` for cosmetic edits.
 
-## Step 4 — Update memory (light)
+## Step 5 — Update memory (light)
+
+Episode notes in `editorial/podcasts/` are part of memory now: before flagging a
+deep-dive candidate, grep them — a thread that keeps recurring across episodes
+is stronger evidence than one that surfaced once on HN.
 
 In `editorial/MEMORY.md`, only if today changed something:
 - Attach a notable signal to an existing **running thread** (or note a
@@ -177,8 +332,9 @@ In `editorial/MEMORY.md`, only if today changed something:
   bump a **deep-dive candidate**.
 Keep it terse; the weekly editor does the full maintenance pass.
 
-## Step 5 — Report
+## Step 6 — Report
 
 End with a short plain-text summary: how many signals you captured (filename),
-which guide sections you patched and why, and anything you left out because you
+how many briefs you published and which signals you left unpromoted, which
+guide sections you patched and why, and anything you left out because you
 couldn't confirm it. Do **not** run git — the workflow commits and deploys.

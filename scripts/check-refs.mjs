@@ -35,6 +35,7 @@ const practiceIds = ids('src/content/practices');
 const exampleIds = ids('src/content/examples');
 const skillIds = ids('src/content/skills');
 const resourceIds = ids('src/content/resources');
+const briefIds = ids('src/content/briefs');
 const radarIds = ids('src/content/radar');
 
 // Frontmatter parsing and the src/pages route table live in ./lib/routes.mjs,
@@ -46,7 +47,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'practices', 'examples', 'skills', 'resources', 'radar']) {
+for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'briefs', 'practices', 'examples', 'skills', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -61,6 +62,7 @@ const MD_SIBLING_IDS = {
   weekly: () => weeklyIds,
   articles: () => articleIds,
   'deep-dives': () => diveIds,
+  briefs: () => briefIds,
   radar: () => radarIds,
   practices: () => practiceIds,
   examples: () => exampleIds,
@@ -76,6 +78,7 @@ function resolves(href) {
   if (clean === '/examples' && hash) return exampleIds.has(hash);
   if (clean === '/skills' && hash) return skillIds.has(hash);
   if (clean === '/resources' && hash) return resourceIds.has(hash);
+  if (clean === '/briefs' && hash) return briefIds.has(hash);
   if (STATIC_ROUTES.has(clean)) return true;
   let m;
   // Markdown siblings: every entry serves a raw /<collection>/<id>.md variant.
@@ -119,6 +122,14 @@ for (const { dir, file, fm, body, err } of entries) {
     if (!fm.source?.url) problems.push(`${file}: missing source.url`);
     if (!fm.verified) problems.push(`${file}: missing verified date`);
   }
+  // A brief is a one-line news claim with no byline and no desk behind it, so
+  // the primary source is the only thing making it checkable. Missing it, the
+  // item is a rumour with a company name attached — fail the build.
+  if (dir === 'briefs') {
+    if (!fm.company) problems.push(`${file}: missing company`);
+    if (!fm.summary) problems.push(`${file}: missing summary — the brief is the summary`);
+    if (!fm.source?.url) problems.push(`${file}: missing source.url — an unverifiable brief is a rumour`);
+  }
 
   // 2. related hrefs (frontmatter): base-less site paths or external URLs
   for (const r of fm.related ?? []) {
@@ -155,5 +166,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${briefIds.size} briefs, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

@@ -3,8 +3,8 @@ import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { absUrl, fmtLong } from '../../lib/site';
-import { entryByDateDesc } from '../../lib/content';
+import { absUrl, fmtLong, withBase, isoDate } from '../../lib/site';
+import { entryByDateDesc, getBriefsByWeek, BRIEF_KIND_LABELS } from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
@@ -24,6 +24,13 @@ export async function getStaticPaths() {
 const { entry, later, earlier } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+
+// "The week in links" — derived, not written. The briefs filed in this issue's
+// ISO week already carry company, two sentences and a source, so the roundup
+// costs one lookup instead of a second pass by the editor. The digest above is
+// the opinion; this is the record of what happened. Empty for any week that
+// closed before the wire existed, and the section simply doesn't render.
+const briefsThisWeek = (await getBriefsByWeek()).get(d.week) ?? [];
 ---
 <ReadingLayout
   title={d.title}
@@ -53,6 +60,31 @@ const d = entry.data;
 
   <Content />
 
+  {briefsThisWeek.length > 0 && (
+    <section class="wil">
+      <h2 class="wil-h">The week in links</h2>
+      <p class="wil-dek">
+        Everything the wire filed in {d.week} — {briefsThisWeek.length} item{briefsThisWeek.length === 1 ? '' : 's'},
+        newest first. The full stream lives at <a href={withBase('/briefs')}>briefs</a>.
+      </p>
+      <ul class="wil-list">
+        {briefsThisWeek.map((b) => (
+          <li class="wil-row">
+            <span class="wil-date">{isoDate(b.data.date).slice(5)}</span>
+            <div class="wil-main">
+              <a href={withBase(`/briefs#${b.id}`)} class="wil-t">
+                <b>{b.data.company}</b> — {b.data.title}
+              </a>
+              <span class="wil-chip">{BRIEF_KIND_LABELS[b.data.kind]}</span>
+              <p class="wil-sum">{b.data.summary}</p>
+              <a class="wil-src" href={b.data.source.url} rel="noopener">{b.data.source.label}</a>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <ArticleFoot
     slot="foot"
     updated={d.updated}
@@ -64,3 +96,64 @@ const d = entry.data;
     forwardLabel={later ? `${later.data.week}` : 'the guide'}
   />
 </ReadingLayout>
+
+<style>
+  .wil {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .wil-h {
+    font-size: 1.15rem;
+    margin: 0 0 0.3rem;
+  }
+  .wil-dek {
+    font-size: 0.88rem;
+    opacity: 0.75;
+    margin: 0 0 1rem;
+  }
+  .wil-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .wil-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .wil-date {
+    font-family: var(--mono, monospace);
+    font-size: 0.78rem;
+    opacity: 0.6;
+    padding-top: 0.15rem;
+    flex: 0 0 2.6rem;
+  }
+  .wil-main { min-width: 0; }
+  .wil-t {
+    text-decoration: none;
+    line-height: 1.4;
+  }
+  .wil-t:hover { text-decoration: underline; }
+  .wil-chip {
+    font-size: 0.68rem;
+    font-family: var(--mono, monospace);
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    color: var(--amber, #d08b1e);
+    white-space: nowrap;
+  }
+  .wil-sum {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0.3rem 0 0.25rem;
+    opacity: 0.85;
+  }
+  .wil-src {
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+</style>

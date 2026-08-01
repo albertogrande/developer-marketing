@@ -11,22 +11,32 @@ import {
   getSkillsSorted,
   getArticlesSorted,
   getResourcesSorted,
+  getBriefsSorted,
+  BRIEF_KIND_LABELS,
   DESK_LABELS,
 } from '../lib/content';
 
 // The edition. One merged, dated stream of published pieces decides the
 // hierarchy: the freshest piece leads (an article most days, The Week on
 // Mondays), the next two get the secondary boxes, the rest run on the wire.
-const [guide, weekly, dives, examples, practices, skills, articles, resources] = await Promise.all([
-  getGuideSorted(),
-  getWeeklySorted(),
-  getDivesSorted(),
-  getExamplesSorted(),
-  getPracticesSorted(),
-  getSkillsSorted(),
-  getArticlesSorted(),
-  getResourcesSorted(),
-]);
+const [guide, weekly, dives, examples, practices, skills, articles, resources, allBriefs] =
+  await Promise.all([
+    getGuideSorted(),
+    getWeeklySorted(),
+    getDivesSorted(),
+    getExamplesSorted(),
+    getPracticesSorted(),
+    getSkillsSorted(),
+    getArticlesSorted(),
+    getResourcesSorted(),
+    getBriefsSorted(),
+  ]);
+
+// The ticker is a *view* over /briefs, never the home of the content: every
+// item is a real link present in the DOM, so agents, search and no-JS readers
+// lose nothing by ignoring the animation. Capped because a ticker is a teaser —
+// the full wire is one click away.
+const ticker = allBriefs.slice(0, 12);
 
 type Piece = {
   kind: 'article' | 'weekly' | 'dive';
@@ -101,6 +111,27 @@ const deskCounts = (['news', 'money', 'campaigns', 'research', 'technology'] as 
       <span class="fm-date-sp"></span>
       <a href={withBase('/feed.xml')}>≋ feed</a>
     </div>
+
+    {ticker.length > 0 && (
+      <section class="tick" aria-labelledby="tick-h">
+        <h2 class="tick-h" id="tick-h">
+          <a href={withBase('/briefs')}>the wire</a>
+        </h2>
+        <div class="tick-vp">
+          <ul class="tick-run">
+            {ticker.map((b) => (
+              <li class="tick-i">
+                <a href={withBase(`/briefs#${b.id}`)}>
+                  <span class="tick-co">{b.data.company}</span>
+                  <span class="tick-k">{BRIEF_KIND_LABELS[b.data.kind]}</span>
+                  <span class="tick-t">{b.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
 
     <div class="fm2-grid">
       <div class="fm2-main">
@@ -267,6 +298,32 @@ const deskCounts = (['news', 'money', 'campaigns', 'research', 'technology'] as 
           if (prev && d > prev) el.classList.add('is-new');
         });
         localStorage.setItem(KEY, max);
+      } catch (e) {}
+    })();
+  </script>
+
+  <script is:inline>
+    // Seamless wire ticker. The markup ships one copy of the run — enough on
+    // its own as a scrollable strip — and this duplicates it so the CSS
+    // translateX(-50%) loop has something to loop through. The copy is
+    // aria-hidden and its links are removed from the tab order, so assistive
+    // tech and keyboard users see each brief exactly once.
+    (function () {
+      try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var run = document.querySelector('.tick-run');
+        if (!run || run.children.length === 0) return;
+        // Snapshot before appending: children is a *live* collection, and
+        // moving a node out of it while iterating shifts every later index,
+        // which silently duplicates only half the run.
+        var copy = Array.prototype.slice.call(run.cloneNode(true).children);
+        copy.forEach(function (li) {
+          li.setAttribute('aria-hidden', 'true');
+          var a = li.querySelector('a');
+          if (a) a.setAttribute('tabindex', '-1');
+          run.appendChild(li);
+        });
+        run.classList.add('is-looping');
       } catch (e) {}
     })();
   </script>

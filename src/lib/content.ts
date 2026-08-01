@@ -45,6 +45,53 @@ export const DESK_LABELS: Record<CollectionEntry<'articles'>['data']['desk'], st
   technology: 'Technology',
 };
 
+// The wire — short dated news snippets, newest first. Same tie-break as every
+// other dated collection, which matters here: briefs land several to a day.
+export const getBriefsSorted = memo(async () =>
+  (await getCollection('briefs')).sort(entryByDateDesc)
+);
+
+// Brief kind → display label, in one place so the card chip, the JSON endpoint
+// and llms.txt describe an item identically.
+export const BRIEF_KIND_LABELS: Record<CollectionEntry<'briefs'>['data']['kind'], string> = {
+  news: 'News',
+  release: 'Release',
+  funding: 'Funding',
+  launch: 'Launch',
+  campaign: 'Campaign',
+  discussion: 'Discussion',
+  podcast: 'Podcast',
+};
+
+// ISO-8601 week id for a date — 'YYYY-Www', the same string the weekly
+// collection uses as its id and the scout uses for signals/<week>.md. Matches
+// `date -u +%G-W%V` exactly, year boundaries included (2027-01-03 → 2026-W53),
+// which is what lets a weekly issue find its own briefs by id alone.
+export function isoWeekId(d: Date): string {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  // Shift to the Thursday of this week: ISO weeks belong to the year holding
+  // their Thursday, so this single hop resolves every boundary case.
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const year = t.getUTCFullYear();
+  const jan1 = Date.UTC(year, 0, 1);
+  const week = Math.ceil(((t.getTime() - jan1) / 86400000 + 1) / 7);
+  return `${year}-W${String(week).padStart(2, '0')}`;
+}
+
+// ISO week id → the briefs published in it, newest first. The weekly digest
+// reads this to render "The week in links" without anyone writing the roundup
+// a second time: the briefs already carry company, two sentences and a source.
+export const getBriefsByWeek = memo(async (): Promise<Map<string, CollectionEntry<'briefs'>[]>> => {
+  const map = new Map<string, CollectionEntry<'briefs'>[]>();
+  for (const entry of await getBriefsSorted()) {
+    const key = isoWeekId(entry.data.date);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(entry);
+  }
+  return map;
+});
+
 export const getPracticesSorted = memo(async () =>
   (await getCollection('practices')).sort(
     (a, b) => a.data.section.localeCompare(b.data.section) || a.id.localeCompare(b.id)
@@ -262,21 +309,24 @@ export type TaggedEntry =
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
   | { kind: 'resource'; entry: CollectionEntry<'resources'> }
   | { kind: 'skill'; entry: CollectionEntry<'skills'> }
+  | { kind: 'brief'; entry: CollectionEntry<'briefs'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, articles, dives, practices, examples, resources, skills, radar] = await Promise.all([
-    getWeeklySorted(),
-    getArticlesSorted(),
-    getDivesSorted(),
-    getPracticesSorted(),
-    getExamplesSorted(),
-    getResourcesSorted(),
-    getSkillsSorted(),
-    getRadarSorted(),
-  ]);
+  const [weekly, articles, dives, practices, examples, resources, skills, briefs, radar] =
+    await Promise.all([
+      getWeeklySorted(),
+      getArticlesSorted(),
+      getDivesSorted(),
+      getPracticesSorted(),
+      getExamplesSorted(),
+      getResourcesSorted(),
+      getSkillsSorted(),
+      getBriefsSorted(),
+      getRadarSorted(),
+    ]);
   const map = new Map<string, TaggedEntry[]>();
   const add = (tag: string, item: TaggedEntry) => {
     if (!map.has(tag)) map.set(tag, []);
@@ -289,6 +339,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
   for (const entry of resources) for (const t of entry.data.tags) add(t, { kind: 'resource', entry });
   for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
+  for (const entry of briefs) for (const t of entry.data.tags) add(t, { kind: 'brief', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

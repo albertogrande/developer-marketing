@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate } from '../lib/site';
 import {
   getArticlesSorted,
+  getBriefsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
@@ -19,7 +20,12 @@ import {
 // engines actually cite (weekly 8, articles 12, dives 4) and as dated links
 // to their .md siblings beyond it; the radar archive links-only.
 
-const RECENT = { weekly: 8, articles: 12, dives: 4 };
+// Briefs are the exception to the "recent in full, older as links" treatment:
+// each is already two sentences, so the recent window carries them inline and
+// older ones are left to /briefs.json and llms.txt rather than link-listed here
+// — a wire grows faster than any other strand and would crowd out the corpus
+// this file exists to serve.
+const RECENT = { weekly: 8, articles: 12, dives: 4, briefs: 30 };
 
 export const GET: APIRoute = async () => {
   const abs = absUrl;
@@ -33,6 +39,7 @@ export const GET: APIRoute = async () => {
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
+  const briefs = await getBriefsSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -209,6 +216,32 @@ export const GET: APIRoute = async () => {
     (id) => `/articles/${id}`,
     RECENT.articles
   );
+  if (briefs.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Briefs');
+    out.push('');
+    out.push(
+      `The wire — short dated news items, newest first (most recent ${Math.min(briefs.length, RECENT.briefs)} of ${briefs.length}). Full set: ${abs('/briefs.json')}.`
+    );
+    for (const b of briefs.slice(0, RECENT.briefs)) {
+      out.push('');
+      out.push(`## ${b.data.company}: ${b.data.title}`);
+      out.push(
+        `*${isoDate(b.data.date)}${b.data.updated ? ` · updated ${isoDate(b.data.updated)}` : ''} · ${b.data.kind} · ${abs(`/briefs`)}#${b.id}*`
+      );
+      out.push('');
+      out.push(b.data.summary);
+      out.push(`- **Source:** ${b.data.source.label} (${b.data.source.url})`);
+      const note = (b.body ?? '').trim();
+      if (note) {
+        out.push('');
+        out.push(note);
+      }
+    }
+  }
+
   datedSection(
     'Deep dives',
     'Long-form researched pieces, commissioned when a thread earns it.',

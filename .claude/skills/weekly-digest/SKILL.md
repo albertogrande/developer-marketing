@@ -43,9 +43,16 @@ Output: `src/content/weekly/<WEEK_ID>.md`. If it already exists, stop and say so
 3. `signals/<WEEK_ID>.md` — the scout's capture for the window. Treat lines as
    **leads, not facts**: they tell you where to dig; verify before publishing.
    (If the window spans two signal files, read both.)
-4. Skim the 1–2 most recent issues in `src/content/weekly/` so you extend the
+4. `editorial/podcasts/` — episode notes whose `date` falls in the window.
+   Same standing as signals: leads, not facts. Each note labels its claims
+   *measured*, *self-reported* or *anecdotal*; a practitioner's experience is
+   worth citing with attribution and is never a data point.
+5. Skim the 1–2 most recent issues in `src/content/weekly/` so you extend the
    story instead of repeating it. An issue that reads like the author has
    amnesia is a failed issue.
+
+For the digest itself, read only the window — the issue is about what moved
+this week. Step 5.5 is the exception and deliberately reads wider.
 
 ## Step 3 — Verify and fill gaps
 
@@ -123,7 +130,27 @@ deep-dive/guide candidate in MEMORY rather than forcing it in.
 `src/content/practices/` is what agents read via `/practices.json` and
 `/llms.txt` — it only grows if you grow it. Sweep the week's signals for
 ` · practice-candidate` flags (plus anything that made the digest and changes a
-decision the reader makes):
+decision the reader makes).
+
+**This step reads the whole podcast corpus, not the window.** Practices are
+evergreen: an episode from two years ago is as good a source for one as an
+episode from Tuesday, and a windowed read would mean the ~190-episode back
+catalogue never produces anything. Grep `editorial/podcasts/` for notes whose
+frontmatter carries `candidates: [practice]`, and work the ones not yet
+reflected in `src/content/practices/`. A handful per week is the right pace —
+this is surplus, and the week's own signals come first.
+
+Two limits specific to episode-derived practices:
+
+- **Attribute the claim, don't launder it.** "Kim Maida argues X" is a
+  practice's `why`; "X is true" is not, unless the note labelled it *measured*
+  and you verified the underlying source. A note that says *self-reported* or
+  *anecdotal* can still earn a practice — as a named practitioner's position,
+  with `since:` naming the episode and date.
+- **Episodes rarely earn an example.** `src/content/examples/` needs an
+  artifact a reader can open. An episode is not one. If an episode *points at*
+  an artifact — a pricing page, a launch, a docs site — then the artifact is
+  the example and the episode is supporting `sources`, never the `source`.
 
 - **Create or update** a practice per qualifying change: one
   `when / do / why` unit tied to a guide section, with `since:` (the dated

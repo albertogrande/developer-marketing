@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { render } from 'astro:content';
+import { withBase, absUrl, isoDate, fmtMed } from '../../lib/site';
+import { getBriefsSorted, BRIEF_KIND_LABELS } from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
+
+// The wire — short dated news snippets, newest first, grouped by day. Each is
+// a company, what it did, two sentences, and the link that proves it. This is
+// the tier between the internal signals capture and a full desk article: a day
+// the newsroom logs a skip still reaches a reader here, and a small company
+// whose news can't carry 900 words still gets covered. Machines read the same
+// set at /briefs.json.
+
+const briefs = await getBriefsSorted();
+
+const cards = await Promise.all(
+  briefs.map(async (b) => ({ b, Content: (await render(b)).Content }))
+);
+
+// Group into days, preserving the sorted order.
+const days: { date: Date; items: typeof cards }[] = [];
+for (const card of cards) {
+  const key = isoDate(card.b.data.date);
+  const last = days[days.length - 1];
+  if (last && isoDate(last.date) === key) last.items.push(card);
+  else days.push({ date: card.b.data.date, items: [card] });
+}
+
+const DESCRIPTION =
+  'The wire — short dated developer-marketing, DevRel and devtools news. One company, one thing that happened, two sentences, and the link that proves it.';
+---
+<BaseLayout
+  title="Briefs"
+  description={DESCRIPTION}
+  jsonLd={[
+    collectionPageNode({
+      name: 'Briefs',
+      description: DESCRIPTION,
+      url: absUrl('/briefs'),
+      items: briefs.map((b) => ({
+        name: `${b.data.company}: ${b.data.title}`,
+        url: `${absUrl('/briefs')}#${b.id}`,
+      })),
+    }),
+  ]}
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> briefs</div>
+    <h1 class="page-title">Briefs</h1>
+    <p class="dek">
+      The wire. One company, one thing that happened, two sentences, and the
+      link that proves it — the tier below a full
+      <a href={withBase('/articles')}>newsroom piece</a>, so a quiet news day
+      still reaches you and a small company still gets covered. Nothing here is
+      paid for or placed; see <a href={withBase('/about')}>about</a>. Machines
+      read the set at <a href={withBase('/briefs.json')}><code>/briefs.json</code></a>.
+    </p>
+  </div>
+
+  {days.length > 0 ? (
+    <div class="wire" data-pagefind-body>
+      {days.map(({ date, items }) => (
+        <section class="wire-day">
+          <h2 class="wire-date"><span class="amber" aria-hidden="true">·</span> {fmtMed(date)}</h2>
+          {items.map(({ b, Content }) => (
+            <article class="brief" id={b.id} data-date={isoDate(b.data.date)}>
+              <div class="brief-top">
+                <span class="brief-co">{b.data.company}</span>
+                <span class="brief-chip">{BRIEF_KIND_LABELS[b.data.kind]}</span>
+              </div>
+              <h3 class="brief-h"><a href={`#${b.id}`}>{b.data.title}</a></h3>
+              <p class="brief-sum">{b.data.summary}</p>
+              <div class="brief-note"><Content /></div>
+              <div class="brief-meta">
+                <TagList tags={b.data.tags} />
+                <span class="brief-src">
+                  <a href={b.data.source.url} rel="noopener">{b.data.source.label}</a>
+                  {b.data.sources.map((s) => (
+                    <Fragment>
+                      <span class="dim"> · </span>
+                      <a href={s.url} rel="noopener">{s.label}</a>
+                    </Fragment>
+                  ))}
+                </span>
+              </div>
+            </article>
+          ))}
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="dek">The wire is quiet. Check back shortly.</p>
+  )}
+</BaseLayout>
+
+<style>
+  .wire {
+    margin-top: 1.5rem;
+  }
+  .wire-day + .wire-day {
+    margin-top: 2rem;
+  }
+  .wire-date {
+    font-family: var(--mono, monospace);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 0.85rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .brief {
+    border-left: 2px solid var(--rule);
+    padding: 0 0 0 1rem;
+    margin-bottom: 1.4rem;
+  }
+  .brief:hover {
+    border-left-color: var(--amber, #d08b1e);
+  }
+  .brief-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .brief-co {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .brief-chip {
+    font-size: 0.72rem;
+    font-family: var(--mono, monospace);
+    padding: 0.08rem 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    line-height: 1.5;
+    color: var(--amber, #d08b1e);
+  }
+  .brief-h {
+    font-size: 1.05rem;
+    margin: 0 0 0.4rem;
+    line-height: 1.35;
+  }
+  .brief-h a { text-decoration: none; }
+  .brief-h a:hover { text-decoration: underline; }
+  .brief-sum {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .brief-note {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    opacity: 0.82;
+  }
+  .brief-note :global(p) { margin: 0.5rem 0 0; }
+  .brief-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.7rem;
+    font-size: 0.82rem;
+  }
+  .brief-src { margin-left: auto; }
+</style>
