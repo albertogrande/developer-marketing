@@ -179,8 +179,17 @@ candidate (flag below).
   cdnjs dogfooding post (07-30: rebuilt a 9B-req/day CDN on its own Developer
   Platform, raised a public subrequest ceiling in the process) is the proof
   side of verification-first — a named, high-traffic workload instead of a
-  synthetic benchmark. Open loop: how the 08-17 Cerebras sunset actually
-  lands. Guide: §01, §04, §05, §07.
+  synthetic benchmark. → campaigns article 2026-08-01
+  (cloudflare-dogfoods-cdnjs): copyable mechanic is **dogfooding-as-proof
+  measured by the public limits it raised** (subrequests 1,000→10,000/up-to-10M,
+  confirmed live in the Workers limits docs; Workflow steps 1,024→10,000,
+  self-reported), *not* the self-reported throughput — the second
+  verification-first campaigns example after HeimWall (07-21), distinct mechanic
+  (real-workload receipt vs. rerunnable honest benchmark). §05 patched (Teardowns
+  bullet, updated 08-01); flagged example-candidate for the weekly. Open loops:
+  how the 08-17 Cerebras sunset actually lands; whether a second vendor frames a
+  platform case study around limits-raised rather than throughput-hit.
+  Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL) is the cleanest proof that reputation + a
   runnable artifact out-distributes launch budget (→ example). Launch HN is
@@ -278,6 +287,7 @@ about *where* a fact belongs.
 Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
 <tags>`. The newsroom appends one line per published article.
 
+- 2026-08-01 · campaigns · *Cloudflare's dogfooding proof isn't that cdnjs runs on Workers — it's the limits it raised* · content, trust, dogfooding, cloudflare
 - 2026-07-29 · technology · *MCP just became infrastructure — and put a 12-month clock on the server you already shipped* · ai, agents, mcp, docs
 - 2026-07-26 · technology · *A checkpoint before the tool call: 'agent-safe by design' is becoming a category* · ai, agents, positioning, docs
 - 2026-07-23 · news · *GitHub's Copilot dashboard now counts the seats nobody uses* · metrics, ai, github, devrel
