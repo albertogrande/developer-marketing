@@ -104,7 +104,7 @@ const lastChecked = resources.reduce<Date | null>(
               <h3 class="rs-h">
                 <a href={r.data.url} rel="noopener nofollow">{r.data.name}</a>
               </h3>
-              <span class="rs-chip-s rs-kind">{r.data.kind}</span>
+              <span class="rs-chip-s rs-kind" data-pagefind-filter="kind">{r.data.kind}</span>
               {r.data.focus === 'devtools' ? (
                 <span class="rs-chip-s rs-focus">devtools</span>
               ) : (

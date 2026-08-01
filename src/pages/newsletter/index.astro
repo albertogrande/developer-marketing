@@ -16,7 +16,8 @@ const recent = weekly.slice(0, 6);
   title="Newsletter"
   description="The Week by email: one short issue every Monday on what moved in developer marketing, each claim sourced. Self-hosted, double opt-in, no tracking pixels, one-click unsubscribe."
 >
-  <div class="page-head">
+  {/* The newsletter's promise and list-handling prose are unique — indexed. */}
+  <div class="page-head" data-pagefind-body>
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsletter</div>
     <h1 class="page-title">{NEWSLETTER.name}, in your inbox</h1>
     <p class="dek">
@@ -48,7 +49,7 @@ const recent = weekly.slice(0, 6);
     <span class="amber">##</span><span class="fm-sec-l">how the list is run</span>
     <span class="fm-rule" aria-hidden="true"></span>
   </div>
-  <div class="nlp-prose">
+  <div class="nlp-prose" data-pagefind-body>
     <p>
       There is no Mailchimp account behind this, no Substack, no beehiiv. The
       subscribe form posts to a small service we wrote, the list is an

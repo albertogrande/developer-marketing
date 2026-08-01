@@ -51,8 +51,8 @@ const cards = await Promise.all(
         <article class="ex" id={e.id} data-date={isoDate(e.data.date)}>
           <div class="ex-top">
             <span class="ex-co">{e.data.company}</span>
-            <span class="ex-chip ex-artifact">{e.data.artifact}</span>
-            {e.data.channel.map((c) => <span class="ex-chip dim">{c}</span>)}
+            <span class="ex-chip ex-artifact" data-pagefind-filter="artifact">{e.data.artifact}</span>
+            {e.data.channel.map((c) => <span class="ex-chip dim" data-pagefind-filter="channel">{c}</span>)}
           </div>
           <h2 class="ex-h"><a href={`#${e.id}`}>{e.data.title}</a></h2>
           <div class="ex-why"><Content /></div>

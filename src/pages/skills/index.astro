@@ -71,7 +71,7 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
               <article class="sk" id={s.id} data-date={isoDate(s.data.date)}>
                 <div class="sk-top">
                   <code class="sk-name">{s.data.name}</code>
-                  <span class="sk-chip sk-job">{s.data.job}</span>
+                  <span class="sk-chip sk-job" data-pagefind-filter="job">{s.data.job}</span>
                   {s.data.agents.map((a) => <span class="sk-chip dim">{a}</span>)}
                   <span class="sk-by dim">{s.data.author}</span>
                 </div>

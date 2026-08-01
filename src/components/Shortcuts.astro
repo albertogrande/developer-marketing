@@ -8,10 +8,10 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
 ---
 <div id="kbd-search" class="kbd-modal" data-base={base} hidden>
   <div class="kbd-backdrop" data-close></div>
-  <div class="kbd-panel" role="dialog" aria-label="Command palette">
+  <div class="kbd-panel" role="dialog" aria-modal="true" aria-label="Command palette">
     <div class="kbd-bar">
       <span class="amber" aria-hidden="true">$</span>
-      <input id="kbd-input" type="search" placeholder="type a command or search…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="kbd-results" aria-label="Command palette" />
+      <input id="kbd-input" type="search" placeholder="type a command or search…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="kbd-results" aria-label="Command palette" />
       <kbd>esc</kbd>
     </div>
     <div id="kbd-results" class="kbd-results" role="listbox" aria-label="Results"></div>
@@ -27,7 +27,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
 
 <div id="kbd-help" class="kbd-modal" hidden>
   <div class="kbd-backdrop" data-close></div>
-  <div class="kbd-panel kbd-help" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="kbd-panel kbd-help" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" tabindex="-1">
     <div class="kbd-help-h"><span class="amber">$</span> keyboard shortcuts</div>
     <ul class="kbd-help-list">
       <li><span><kbd>⌘</kbd><kbd>K</kbd></span> command palette</li>
@@ -101,9 +101,22 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
     var cmdById = {};
     commands.forEach(function (c) { cmdById[c.id] = c; });
 
-    function closeAll() { search.hidden = true; help.hidden = true; document.body.style.overflow = ''; }
-    function open(m) { closeAll(); m.hidden = false; document.body.style.overflow = 'hidden'; }
-    function openPalette() { open(search); input.value = ''; render(''); input.focus(); }
+    var lastFocus = null;
+    function closeAll() {
+      var wasOpen = !search.hidden || !help.hidden;
+      search.hidden = true; help.hidden = true; document.body.style.overflow = '';
+      input.setAttribute('aria-expanded', 'false');
+      // Hand focus back to wherever the dialog was invoked from.
+      if (wasOpen && lastFocus && document.contains(lastFocus)) { lastFocus.focus(); lastFocus = null; }
+    }
+    function open(m) {
+      var wasOpen = !search.hidden || !help.hidden;
+      if (!wasOpen) lastFocus = document.activeElement;
+      search.hidden = true; help.hidden = true;
+      m.hidden = false; document.body.style.overflow = 'hidden';
+      if (m === help) m.querySelector('.kbd-panel').focus();
+    }
+    function openPalette() { open(search); input.setAttribute('aria-expanded', 'true'); input.value = ''; render(''); input.focus(); }
     function typing(e) { var t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 
     async function ensurePF() {
@@ -154,13 +167,22 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
         + '<span class="kbd-r-top"><span class="kbd-r-title">' + title + '</span></span>'
         + '<span class="kbd-r-ex">' + it.excerpt + '</span></a>';
     }
-    function collect() { rows = Array.prototype.slice.call(list.querySelectorAll('.kbd-result')); }
+    function collect() {
+      rows = Array.prototype.slice.call(list.querySelectorAll('.kbd-result'));
+      // Stable per-render ids so aria-activedescendant can point at the
+      // selection for screen readers.
+      for (var n = 0; n < rows.length; n++) rows[n].id = 'kbd-opt-' + n;
+    }
     function highlight(i) {
-      if (!rows.length) { sel = -1; return; }
+      if (!rows.length) { sel = -1; input.removeAttribute('aria-activedescendant'); return; }
       i = Math.max(0, Math.min(i, rows.length - 1));
-      for (var n = 0; n < rows.length; n++) rows[n].classList.remove('is-sel');
+      for (var n = 0; n < rows.length; n++) {
+        rows[n].classList.remove('is-sel');
+        rows[n].setAttribute('aria-selected', 'false');
+      }
       rows[i].classList.add('is-sel');
       rows[i].setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', rows[i].id);
       rows[i].scrollIntoView({ block: 'nearest' });
       sel = i;
     }
@@ -220,6 +242,12 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
     document.addEventListener('keydown', function (e) {
       if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openPalette(); return; }
       if (e.key === 'Escape') { closeAll(); return; }
+      // Focus trap while a dialog is open: the palette's only tab stop is its
+      // input (arrows move the selection); the help panel has none.
+      if (e.key === 'Tab') {
+        if (!search.hidden && e.target !== input) { e.preventDefault(); input.focus(); return; }
+        if (!help.hidden) { e.preventDefault(); return; }
+      }
       if (typing(e)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {

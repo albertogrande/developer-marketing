@@ -33,6 +33,16 @@ const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
 
+// Self-hosted JetBrains Mono (variable weight axis, latin + latin-ext
+// subsets from public/fonts/) — the site's "no third-party request, no
+// tracking" claim has to hold for the font too, and dropping the Google
+// Fonts round-trip removes the one render-blocking external request.
+// Inline @font-face (not main.scss) so the file URLs go through withBase.
+const fontCss = [
+  `@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400 700;font-display:swap;src:url(${withBase('/fonts/jetbrains-mono-latin.woff2')}) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}`,
+  `@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400 700;font-display:swap;src:url(${withBase('/fonts/jetbrains-mono-latin-ext.woff2')}) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}`,
+].join('');
+
 // Machine-readable alternates, derived from the canonical path: every entry
 // page has a raw-markdown sibling (/<coll>/<id>.md), every collection index a
 // JSON endpoint (/<coll>.json). The agent-surface gate verifies the targets.
@@ -152,12 +162,14 @@ const graph = {
       can't close the element early (broken page / injection). */}
   <script type="application/ld+json" set:html={JSON.stringify(graph).replace(/</g, '\\u003c')} />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="preload"
+    href={withBase('/fonts/jetbrains-mono-latin.woff2')}
+    as="font"
+    type="font/woff2"
+    crossorigin
   />
+  <style set:html={fontCss} />
   <link rel="alternate" type="application/atom+xml" title={SITE_TITLE} href={feed} />
   <link rel="alternate" type="application/feed+json" title={SITE_TITLE} href={withBase('/feed.json')} />
   {mdPath && <link rel="alternate" type="text/markdown" title="Markdown" href={withBase(mdPath)} />}
