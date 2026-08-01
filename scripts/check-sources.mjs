@@ -20,12 +20,14 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { extractUrls } from './lib/sources.mjs';
+import { SITE_ORIGIN } from '../site.config.mjs';
 
 const CONTENT_PATHS = ['src/content', 'signals'];
 const TIMEOUT_MS = 10_000;
 const CONCURRENCY = 8;
-const UA =
-  'Mozilla/5.0 (compatible; developer-marketing-linkcheck/1.0; +https://albertogrande.github.io/developer-marketing/)';
+// The +url identifies the crawler to site operators — read from the live
+// origin so it can't rot when the site moves again.
+const UA = `Mozilla/5.0 (compatible; developer-marketing-linkcheck/1.0; +${SITE_ORIGIN})`;
 
 function sh(cmd) {
   try {

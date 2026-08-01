@@ -35,15 +35,16 @@ Signals in, paper out. Four desks, each a [skill](.claude/skills/) an agent runs
 
 - **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, sweeps blogs, communities, and research into `signals/<week>.md` and patches `src/content/guide/` on hard-fact changes.
 - **Newsroom** ([`newsroom`](.claude/skills/newsroom/)): Tue–Sun, the owning desk ([AUTHORS.md](AUTHORS.md)) publishes at most one article to `src/content/articles/`, logging each decision to `editorial/NEWSROOM.md`.
-- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)): weekly, writes the digest, distills `src/content/practices/` and `src/content/examples/`, keeps the skills shelf verified, and commissions a **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) when a thread earns it.
-- **Memory**: `editorial/MEMORY.md` tracks threads and guide coverage; `editorial/TASTE.md` is the reader profile. Both internal.
+- **Weekly editor** ([`weekly-digest`](.claude/skills/weekly-digest/)): weekly, writes the digest, distills `src/content/practices/` and `src/content/examples/`, keeps the skills shelf verified, and processes reader feedback. A **deep dive** ([`deep-dive`](.claude/skills/deep-dive/)) ships every Thursday on its own schedule — trendy when a thread earned it, evergreen otherwise; the weekly can leave a topic hint in `editorial/COMMISSION.txt`.
+- **Memory**: `editorial/MEMORY.md` tracks threads and guide coverage (capped, gate-enforced); `editorial/COVERAGE.md` is the generated index of everything published; `editorial/TASTE.md` is the reader profile. All internal.
 
 Each desk is a [GitHub Actions workflow](.github/workflows/) that runs the skill via [claude-code-action](https://github.com/anthropics/claude-code-action). Every writer run gets a fresh-context fact-integrity pass, then deterministic gates before a rebase-safe commit.
 
-- **Gates**: a writer guard fails empty or errored runs; `scripts/check-refs.mjs` and `scripts/check-sources.mjs` enforce referential integrity and source liveness.
-- **Health watchdog** (`health.yml`): alarms if the scout or weekly stops committing on schedule.
+- **Gates**: a writer guard fails empty or errored runs; `scripts/check-refs.mjs`, `scripts/check-editorial.mjs`, and `scripts/check-sources.mjs` enforce referential integrity (including sourcing floors), editorial-state bounds, and source liveness.
+- **Evals** (`evals/`): frozen editorial decision points replayed through the current skill text — a prompt change that drops the pass rate below `evals/baseline.yml` fails its PR.
+- **Health watchdog** (`health.yml`): alarms if any desk stops committing on schedule, the capture service dies, or the OAuth token nears expiry. **Liveness** (`liveness.yml`): weekly archive-wide link-rot, shelf-freshness, and source-outage report.
 - **Rescue**: a failed run uploads its uncommitted work as a `rescue-patch` artifact (14-day retention).
-- **Deploy** (`deploy.yml`): builds and publishes to GitHub Pages; failures open a `pipeline-failure` issue.
+- **Deploy** (`deploy.yml`): Vercel builds the site from main on its own webhook; this workflow publishes the GitHub Pages **redirect layer** for the old URLs, pings IndexNow, and smoke-tests the live origin. Failures open a `pipeline-failure` issue.
 - **Content**: frontmatter-driven (see `src/content.config.ts`) so agents write it deterministically.
 
 ## Local development
@@ -108,9 +109,11 @@ scripts/             # check-refs.mjs, check-agent-surface.mjs, check-sources.mj
                      #  + remark-base-paths.mjs (adds the site base to markdown links at build) + indexnow-ping.mjs + append-ledger.sh
                      #  + check-domains.mjs (RDAP availability) + domain-candidates.txt
 .claude/skills/      # daily-scout, newsroom, weekly-digest, deep-dive: the autonomous desks
-.github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (on demand), newsletter (Mondays),
-                     #  deploy (Pages + IndexNow ping), ci (build + tests), health (watchdog)
-.github/actions/     # commit-and-push, editorial-gates, writer-guard, notify-failure (shared composite steps)
+evals/               # frozen decision points + runner: prompt changes gate on measured judgment
+.github/workflows/   # scout (daily), newsroom (Tue–Sun), weekly (Mondays), deep-dive (Thursdays), newsletter (Mondays),
+                     #  deploy (redirect layer + IndexNow + smoke), ci (build + tests), health (watchdog),
+                     #  liveness (weekly archive health), evals (on skill-prompt PRs)
+.github/actions/     # commit-and-push, editorial-gates, writer-guard, rescue-content, notify-failure (shared composite steps)
 ```
 
 ## Running it yourself
@@ -121,9 +124,10 @@ The autonomous desks need a Claude Code OAuth token:
 2. Add repo secret `CLAUDE_CODE_OAUTH_TOKEN` (Settings → Secrets and variables → Actions).
 3. Enable Pages: Settings → Pages → Source → **GitHub Actions**.
 4. The Scout runs daily at 05:00 UTC, the Newsroom Tue–Sun at 06:30 UTC,
-   and the Weekly on Mondays at 07:00 UTC;
-   both can be triggered manually (Actions → Scout / Weekly → Run workflow).
-   Deep Dive is manual-only, or the Weekly commissions one when a thread earns it.
+   the Weekly on Mondays at 07:00 UTC, and the Deep Dive on Thursdays at
+   13:00 UTC; all can be triggered manually (Actions → workflow → Run
+   workflow). The Weekly can leave a topic hint for Thursday's dive in
+   `editorial/COMMISSION.txt`.
 
 Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/weekly-digest`,
 `/deep-dive [topic]`. Interactive runs write files without committing. You decide.

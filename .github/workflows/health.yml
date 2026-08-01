@@ -69,6 +69,39 @@ jobs:
 
           exit "$stale"
 
+      # Desk freshness says nothing about the newsletter capture service —
+      # the list could be down for weeks with content still publishing. When
+      # the endpoint is configured (repo variable NEWSLETTER_HEALTH_URL, e.g.
+      # https://…/api/health), a dead list service pages the issue like a
+      # dead desk. Unset — forks, and this repo pre-launch — it skips.
+      - name: Check newsletter capture service
+        if: vars.NEWSLETTER_HEALTH_URL != ''
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o health.json -w "%{http_code}" --max-time 20 "${{ vars.NEWSLETTER_HEALTH_URL }}")
+          cat health.json 2>/dev/null || true
+          if [ "$code" != "200" ]; then
+            echo "::error::newsletter health endpoint returned $code"
+            exit 1
+          fi
+
+      # The 2026-07-12 outage was an expired OAuth token the writer guards
+      # could only detect after the fact. With CLAUDE_TOKEN_ISSUED set (repo
+      # variable, YYYY-MM-DD, updated whenever the secret is rotated), this
+      # warns at ~80% of the ~1-year token lifetime — before the expiry, not
+      # five days into the silence.
+      - name: Check OAuth token age
+        if: vars.CLAUDE_TOKEN_ISSUED != ''
+        run: |
+          set -euo pipefail
+          issued=$(date -u -d "${{ vars.CLAUDE_TOKEN_ISSUED }}" +%s)
+          age_days=$(( ( $(date -u +%s) - issued ) / 86400 ))
+          if [ "$age_days" -ge 292 ]; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN is ${age_days} days old — regenerate with 'claude setup-token', update the secret and CLAUDE_TOKEN_ISSUED"
+            exit 1
+          fi
+          echo "token age OK: ${age_days} day(s)."
+
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure

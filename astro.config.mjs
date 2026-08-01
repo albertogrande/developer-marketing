@@ -14,13 +14,13 @@ const BASE_PREFIX = SITE_BASE === '/' ? '' : SITE_BASE.replace(/\/+$/, '');
 // what changed when. Computed once at config load.
 const LASTMOD = routeLastmod();
 
-// A GitHub Pages project site: a living field guide to the state of the art in
-// developer marketing. Content is frontmatter-driven (see src/content.config.ts)
-// so the autonomous editorial agents (scout, weekly, deep-dive) can write
-// entries reliably.
-// `site` and `base` come from site.config.mjs, which defaults to the GitHub
-// Pages deployment. Serving from a custom domain or Vercel is SITE_ORIGIN and
-// SITE_BASE at build time — no source changes.
+// A living field guide to the state of the art in developer marketing, served
+// from Vercel (GitHub Pages carries only the redirect layer for the old
+// project-site URLs). Content is frontmatter-driven (see src/content.config.ts)
+// so the autonomous editorial agents (scout, newsroom, weekly, deep-dive) can
+// write entries reliably.
+// `site` and `base` come from site.config.mjs. Serving from anywhere else is
+// SITE_ORIGIN and SITE_BASE at build time — no source changes.
 export default defineConfig({
   site: SITE_ORIGIN,
   base: SITE_BASE,

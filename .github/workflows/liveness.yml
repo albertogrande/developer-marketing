@@ -39,6 +39,9 @@ jobs:
       - name: Check shelf freshness
         run: node scripts/check-freshness.mjs --days 60 --report freshness.md
 
+      - name: Check community-source outages
+        run: node scripts/check-source-outages.mjs --report outages.md
+
       - name: Watch public mentions
         run: node scripts/mention-watch.mjs
 
@@ -53,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cat link-rot.md freshness.md > report.md
+          cat link-rot.md freshness.md outages.md > report.md
           if [ ! -s report.md ]; then
             echo "Archive healthy — no issue to file."
             exit 0

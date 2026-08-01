@@ -104,3 +104,35 @@ jobs:
         env:
           BASE_SHA: ${{ steps.prev.outputs.sha }}
         run: node scripts/indexnow-ping.mjs
+
+  # Post-deploy smoke test against the live origin: Vercel builds main on its
+  # own webhook, and nothing ever confirmed the deploy actually serves. One
+  # cheap probe of the machine manifest catches a dead or misconfigured
+  # deployment the day it happens instead of whenever a human next looks.
+  # Retries because this races Vercel's build; failure opens the issue.
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe the live origin
+        run: |
+          set -euo pipefail
+          origin=$(node -e "import('./site.config.mjs').then(m => console.log(m.SITE_ORIGIN.replace(/\/+$/, '')))")
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o api.json -w "%{http_code}" --max-time 20 "$origin/api.json") || code=000
+            if [ "$code" = "200" ] && node -e "JSON.parse(require('fs').readFileSync('api.json','utf8'))"; then
+              echo "smoke OK: $origin/api.json serves parseable JSON."
+              exit 0
+            fi
+            echo "attempt $i: $origin/api.json → $code; retrying in 60s (Vercel may still be building)"
+            sleep 60
+          done
+          echo "::error::live origin failed the smoke test: $origin/api.json → $code"
+          exit 1
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure

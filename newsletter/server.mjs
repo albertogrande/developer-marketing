@@ -8,6 +8,9 @@
 //   GET  /health               counts and which transport, for a monitor
 //   GET  /admin/subscribers    the list, for the sender (bearer token)
 //   POST /admin/suppress       the sender reporting a permanent rejection
+//   GET|POST /admin/prune      drop unconfirmed addresses past the window
+//                              (bearer: admin token, or CRON_SECRET for the
+//                              serverless daily cron)
 //
 // A static site cannot accept a POST, so this is the one piece that needs a host
 // — a box, a container, or a serverless function with a database behind it. It is
@@ -336,6 +339,23 @@ async function handleSuppress(req, res, store) {
   return json(res, 200, { ok: true, status: record?.status ?? null });
 }
 
+// The privacy page says an unconfirmed address is dropped, not kept warm —
+// prunePending is what makes that literally true, and this route is how the
+// serverless deployment runs it (a daily cron in vercel.json; Vercel sends
+// `Authorization: Bearer $CRON_SECRET`). The admin token works too, so an
+// operator can prune by hand. 404 when unauthenticated, same as /admin/*.
+async function handlePrune(req, res, store) {
+  const auth = String(req.headers.authorization || '');
+  const cronSecret = process.env.CRON_SECRET || '';
+  const authorized =
+    (config.adminToken && auth === `Bearer ${config.adminToken}`) ||
+    (cronSecret && auth === `Bearer ${cronSecret}`);
+  if (!authorized) return json(res, 404, { ok: false });
+  const pruned = await store.prunePending(config.confirmTtlDays);
+  if (pruned) log(`prune: dropped ${pruned} unconfirmed address(es) past ${config.confirmTtlDays}d`);
+  return json(res, 200, { ok: true, pruned, ttlDays: config.confirmTtlDays });
+}
+
 // The externally reachable base for links we mint. Behind a reverse proxy the
 // service listens on 127.0.0.1 but is published somewhere else entirely.
 const publicBase = () => (process.env.PUBLIC_BASE_URL || `http://${config.host}:${config.port}`).replace(/\/+$/, '');
@@ -384,6 +404,10 @@ export function createRouter({ store, limit, transport: mail }) {
       if (path === '/webhooks/resend' && req.method === 'POST') return await handleWebhook(req, res, store);
       if (path === '/admin/suppress' && req.method === 'POST') return await handleSuppress(req, res, store);
 
+      // GET as well as POST: Vercel's cron invokes with GET.
+      if (path === '/admin/prune' && (req.method === 'GET' || req.method === 'POST'))
+        return await handlePrune(req, res, store);
+
       return json(res, 404, { ok: false, error: 'not found' });
     } catch (err) {
       log(`error ${req.method} ${path}: ${err.stack || err.message}`);
@@ -414,6 +438,20 @@ export async function createServer({ transport } = {}) {
 // Run directly (`node newsletter/server.mjs`), not when imported by a test.
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { server, store, transport } = await createServer();
+
+  // The long-lived process prunes for itself: once at startup, then daily.
+  // (Serverless relies on the vercel.json cron hitting /admin/prune instead.)
+  const prune = async () => {
+    try {
+      const n = await store.prunePending(config.confirmTtlDays);
+      if (n) log(`pruned ${n} unconfirmed address(es) older than ${config.confirmTtlDays}d`);
+    } catch (err) {
+      log(`prune failed: ${err.message}`);
+    }
+  };
+  await prune();
+  setInterval(prune, 86_400_000).unref();
+
   server.listen(config.port, config.host, () => {
     log(`newsletter service on http://${config.host}:${config.port}`);
     log(`  links minted as ${publicBase()}/confirm?t=…`);
