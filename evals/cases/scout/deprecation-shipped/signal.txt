@@ -1,0 +1,1 @@
+- [LegacyDB sunsets its free tier effective October 1](https://legacydb.com/blog/free-tier-sunset) — company blog announces the free tier ends Oct 1 with a migration path to a $9 hobby plan (metrics · play · news-candidate)

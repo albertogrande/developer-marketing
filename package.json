@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "check": "node scripts/check-refs.mjs && node scripts/check-sources.mjs --changed",
     "test": "node --test newsletter/test/*.test.mjs scripts/*.test.mjs",
+    "evals": "node evals/run.mjs",
     "podcast:transcripts": "node scripts/podcast-transcripts.mjs",
     "newsletter:serve": "node newsletter/server.mjs",
     "newsletter:doctor": "node newsletter/doctor.mjs",

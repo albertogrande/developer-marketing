@@ -1,0 +1,1 @@
+- [Acme Deploy adds per-branch preview URLs](https://acmedeploy.dev/changelog/preview-urls) — tiny CI vendor ships preview environments with a public changelog entry; Show HN sits at 2 points (launches · play · example-candidate)

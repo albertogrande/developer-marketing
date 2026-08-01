@@ -1,0 +1,174 @@
+# Editorial Memory
+
+Agent-maintained. Read before running any desk (scout, newsroom, weekly,
+deep-dive); update after. Keep under ~170 lines — retire dead threads by
+deleting them (git history preserves everything).
+
+This is the brain that keeps the **guide** current, decides when a thread
+has earned a **deep dive**, and gives the **newsroom** its sense of what's
+already been said. It is internal (not rendered).
+
+## Standing editorial findings
+
+- **2026-07-11, the practices bar** (inherited from the sibling Claude Code
+  guide's measured evals): a corpus's edge over a bare model is current, dated,
+  sourced facts — not timeless judgment the model already has. Write practices
+  for dated survey waves, channel shifts, and measured patterns first.
+  Practices that decay to "model already knows this" get retired or refreshed.
+- **2026-07-11, the examples swipe file** (new format, borrowed from
+  markepear's Examples Gallery): `src/content/examples/` catalogs real, sourced
+  dev-marketing artifacts — the *evidence* layer under the practices (rule) and
+  the guide (judgment). Each ties to a guide section via `demonstrates` and
+  carries a mandatory `source` link. **Cadence: promoted by the weekly editor,
+  0–3 a week and often zero — never a quota** (same discipline as the deep
+  dive); fed by the scout's ` · example-candidate` signal flag. No new
+  workflow/cron — it rides the existing scout→weekly pipeline. Seeded with
+  Stripe (§02), Supabase (§01), Tailscale (§05), Cloudflare (§07).
+- **2026-07-11, desk transition**: the site's first phase (2026-07-05 →
+  2026-07-08) published one radar post per day. That cadence forced a daily
+  pick even on quiet days; the desks moved to signals (internal, daily) + The
+  Week (published, Mondays). The radar entries remain rendered at /radar as an
+  archive — never add new ones.
+- **2026-07-17, the newsroom** (architecture from the sibling The Wire): the
+  site becomes a technical newspaper on top of the field guide. Five writing
+  desks (`AUTHORS.md`: news, money, campaigns, research, technology) publish
+  to `src/content/articles/` — **at most one article a day, Tue–Sun, editor's
+  call, never a quota** (the anti-padding lesson above is load-bearing). The
+  editor's publish/skip decisions live in `editorial/NEWSROOM.md`; the
+  evergreen idea pool in `editorial/BACKLOG.md`. Articles feed the product:
+  guide patches, practice/example candidates, deep-dive flags. The radar
+  lesson stands — if the newsroom starts padding, cut cadence, not quality.
+
+## Running threads
+
+Each thread carries a momentum tag (`↑` gaining / `→` steady / `↓` stalling)
+and, when evidence cuts against it, a `Tension:` note inline. A thread that
+keeps recurring in signals and isn't well covered by the guide is a
+**deep-dive candidate** (flag it below).
+
+- **AI assistants as a primary reader of your docs** `↑` — machine-mediated
+  discovery, from docs restructuring to agents selecting (and now buying from)
+  vendors. House position = the GEO dive (published 2026-07-17): reading = act
+  now, selection = design for, measurement = don't buy yet. Hard numbers on
+  record: Ahrefs (2026-06-15, 137K domains) — 97% of llms.txt files get zero
+  requests, AI retrieval bots ~1.1% of that traffic; pro side: Vercel ~10% of
+  new signups from ChatGPT (Rauch, 2025-04), ChatGPT referral conversion 7.1%
+  (Similarweb, 2026-05). **W29 turned the corner: incumbents shipped.**
+  GoDaddy's Developer Platform (07-14 — markdown docs, hand-the-spec-to-your-
+  LLM quickstart, quote-token + idempotency + consent purchase flow) promoted
+  to example (godaddy-builds-the-checkout-for-the-agent), practice
+  (make-your-purchase-flow-agent-safe), and a new §02 "actionable by agents"
+  bullet; Atlassian repositioned Jira as the human+agent orchestration hub
+  (07-15; their pitch stat: engineer AI usage +65%, velocity gains ~10%).
+  Open loop: the falsifiable call — a devtool company reporting attributed
+  AI-referral signups with a number by end of Q3 2026.
+  Note: Crawlie moved domains crawlie.dev → crawlie.co mid-July — use .co.
+  Guide: §02 (docs), §06 (channels).
+- **DevRel measurement: influence, not attribution** `↑` — consensus on
+  influenced pipeline + activation over sourced leads; AI-answer presence
+  entering as a discovery metric. The signal layer is consolidating into GTM
+  stacks: Zoom+Common Room (announced 07-02) is the third roll-up in eight
+  months (Clari+Salesloft 12-2025, Apollo+Pocus 03-2026), all terms
+  undisclosed — newsroom ran it 2026-07-18 (money · Mara Kessler ·
+  [article](../src/content/articles/2026-07-18-community-signal-rollup.md)).
+  House take: own the first-party signal (raw events in your own warehouse),
+  measure community as influence not attribution. W29 distilled the Otter
+  case study (07-17: 2x outbound pipeline, ~80% behavioral scoring, 10–12
+  play cap) into practice (score-outbound-on-first-party-usage) and a new §08
+  paragraph. Hiring side: one practitioner claims postings silently screen
+  for measurable-ROI skills (07-17 teaser) — W29's watch item; DevRelCon NYC
+  (07-22/23) recaps are the corroboration test. Open loops: the fourth deal /
+  first disclosed price; the DevRelCon recaps. Guide: §08, §03.
+- **Developer population plateau → segment depth** `→` — SlashData puts the
+  population at ~47M with growth decelerating to ~10% y/y, aging, shifting to
+  South Asia / Greater China (07-06 radar). Direction durable, figures move
+  each wave — re-check on new waves. Guide: §01 (positioning), §06 (channels).
+- **Verification-first marketing** `↑` — developers fact-check claims in
+  public, so ship proof, not adjectives: live verifiable metrics, real prices
+  with caps, runnable launches (07-08 radar); connects to time-to-value
+  (07-06 dive). Named counter-case: Cerebras sunsets its free tier 2026-08-17
+  ($5 credits behind a payment method) after quietly pruning its model
+  catalog earlier this year — silent 404s on hardcoded integrations
+  (single-sourced practitioner account). Tension / W29 correction: the
+  "backlash" was smaller than the signals implied — the HN thread drew 4
+  points and resignation, not outrage; the real cost is quiet re-anchoring,
+  not a firestorm. §04 gained the deprecation-as-trust-event paragraph.
+  Newsroom ran the HeimWall honest-benchmark post 2026-07-21 (campaigns ·
+  Nico Ferrant · [article](../src/content/articles/2026-07-21-honest-benchmark-noise.md)):
+  the copyable play is publishing the noise next to the signal — false-positive
+  rate, which rule fired most (one UUID rule = 48% of alerts), and your own
+  weak public-benchmark scores (CredData F1 0.449). Verified reproducible: the
+  scan runs on the public DevGPT dataset (MSR 2024) anyone can rerun, so it's
+  no longer single-sourced. §05's honest-benchmarks bullet gained the
+  publish-the-noise sharpening (updated 07-21). Still ` · example-candidate`
+  for the weekly swipe file (runnable honest-benchmark template). Guide: §01,
+  §04, §05, §07.
+- **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
+  (276 points, solo, unfunded, AGPL) is the cleanest recent proof that
+  reputation + a runnable open-source artifact out-distributes launch budget;
+  promoted to examples (juggler-launches-on-reputation-and-a-runnable-repo).
+  W29 channel-side read: Launch HN is the default GTM for agent-infra
+  startups (Agnost YC S26, 85 pts 07-14; Coasty YC S26, 44 pts 07-15 — same
+  batch, same channel, same week). Slop-era texture (Ask HN 07-15): forum
+  answering 20 min/day before pitching; exact-match + negative keywords over
+  abandoning paid search. First counter-evidence (07-21): Jack Dorsey's Block
+  launched Buzz (open-source Slack+GitHub rival, agents get Nostr identity) on
+  pure founder credibility — 304 HN pts but a skeptical verdict ("LLM slop") —
+  reputation buys attention, not the verdict. Still watching for a paid push
+  developers reward. Guide: §06, §07.
+
+W29 orphan triage: Frhog (AI growth advisor for solo founders, 07-17) dropped
+as a one-off; Atlassian's Jira repositioning folded into the AI-assistants
+thread; Agnost/Coasty and the Ask HN slop thread folded into earned
+distribution. (W28 triage: Shopify plan-testing dropped; Crawlie/
+OpenBenchmarks folded into AI-assistants.)
+
+## Deep-dive candidates
+
+Promote here when a thread is recurring in signals AND the guide only covers
+it thinly. The weekly desk commissions from this list.
+
+- **What a developer segment is actually worth** — if the population plateau
+  holds across the next SlashData wave, the "pick a segment and go deep" claim
+  deserves numbers: how operators size and choose segments. Not yet — watching.
+- **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17
+  DevRelCon teaser) that postings silently screen for quantified-impact
+  skills. Commission only if the DevRelCon NYC recaps (conference 07-22/23)
+  corroborate it across multiple talks — would pair the influence-not-
+  attribution thread with the org/hiring angle the guide barely covers. W29
+  skipped commissioning on this basis: single-sourced until the recaps land.
+
+## Guide coverage index
+
+The nine evergreen sections and what each owns. Keep the scout/weekly honest
+about *where* a fact belongs.
+
+- `00-start-here` — orientation, the mental model, how the site updates
+- `01-positioning-for-developers` — positioning, segments, trust, proof
+- `02-docs-as-front-door` — docs-led growth, quickstarts, machine-readable docs
+- `03-devrel-and-community` — DevRel programs, community, advocacy
+- `04-developer-experience-and-activation` — DX, onboarding, time-to-value
+- `05-content-that-earns-trust` — technical content, honest benchmarks
+- `06-channels-and-distribution` — where developers are, GEO/AI answers
+- `07-launches` — launches developers amplify, HN/PH dynamics
+- `08-measurement-and-metrics` — DevRel/marketing measurement, funnels
+
+## Coverage index (articles)
+
+Newsroom articles, newest first — `- YYYY-MM-DD · <desk> · *<title>* ·
+<tags>`. The newsroom appends one line per published article; the editor
+scans this (plus the index below) before assigning, so the paper never
+re-runs a story in new clothes.
+
+- 2026-07-21 · campaigns · *The security benchmark that published its own false-positive rate* · content, benchmarks, trust, security
+- 2026-07-18 · money · *The community-signal category just got its third acquirer in eight months* · m&a, community, devrel, measurement
+
+## Coverage index (published)
+
+Weeklies and dives, newest first. Append one line each time. (Radar archive:
+5 entries, 2026-07-05 → 2026-07-08 — closed.)
+
+- 2026-W29 · weekly · *Incumbents start shipping for the agent-as-buyer* · docs, positioning, dx, launches
+- 2026-07-17 · dive · *GEO for devtools: what to do when the reader is a model* · docs, channels, distribution
+- 2026-W28 · weekly · *The agent reading your docs is starting to shop* · docs, channels, distribution, launches
+- 2026-07-06 · dive · *Time-to-value: the growth engine hiding in your onboarding* · dx, activation, metrics
