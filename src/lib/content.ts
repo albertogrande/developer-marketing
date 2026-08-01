@@ -45,6 +45,23 @@ export const DESK_LABELS: Record<CollectionEntry<'articles'>['data']['desk'], st
   technology: 'Technology',
 };
 
+// The wire — short dated news snippets, newest first. Same tie-break as every
+// other dated collection, which matters here: briefs land several to a day.
+export const getBriefsSorted = memo(async () =>
+  (await getCollection('briefs')).sort(entryByDateDesc)
+);
+
+// Brief kind → display label, in one place so the card chip, the JSON endpoint
+// and llms.txt describe an item identically.
+export const BRIEF_KIND_LABELS: Record<CollectionEntry<'briefs'>['data']['kind'], string> = {
+  news: 'News',
+  release: 'Release',
+  funding: 'Funding',
+  launch: 'Launch',
+  campaign: 'Campaign',
+  discussion: 'Discussion',
+};
+
 export const getPracticesSorted = memo(async () =>
   (await getCollection('practices')).sort(
     (a, b) => a.data.section.localeCompare(b.data.section) || a.id.localeCompare(b.id)
@@ -262,21 +279,24 @@ export type TaggedEntry =
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
   | { kind: 'resource'; entry: CollectionEntry<'resources'> }
   | { kind: 'skill'; entry: CollectionEntry<'skills'> }
+  | { kind: 'brief'; entry: CollectionEntry<'briefs'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, articles, dives, practices, examples, resources, skills, radar] = await Promise.all([
-    getWeeklySorted(),
-    getArticlesSorted(),
-    getDivesSorted(),
-    getPracticesSorted(),
-    getExamplesSorted(),
-    getResourcesSorted(),
-    getSkillsSorted(),
-    getRadarSorted(),
-  ]);
+  const [weekly, articles, dives, practices, examples, resources, skills, briefs, radar] =
+    await Promise.all([
+      getWeeklySorted(),
+      getArticlesSorted(),
+      getDivesSorted(),
+      getPracticesSorted(),
+      getExamplesSorted(),
+      getResourcesSorted(),
+      getSkillsSorted(),
+      getBriefsSorted(),
+      getRadarSorted(),
+    ]);
   const map = new Map<string, TaggedEntry[]>();
   const add = (tag: string, item: TaggedEntry) => {
     if (!map.has(tag)) map.set(tag, []);
@@ -289,6 +309,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
   for (const entry of resources) for (const t of entry.data.tags) add(t, { kind: 'resource', entry });
   for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
+  for (const entry of briefs) for (const t of entry.data.tags) add(t, { kind: 'brief', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

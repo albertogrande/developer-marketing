@@ -35,6 +35,12 @@ const glob = (opts: Parameters<typeof globLoader>[0]) =>
 //              real provider with a live site, one verifiable proof point, and
 //              the date we last checked it. Rendered at /resources, served to
 //              machines at /resources.json.
+//  briefs/   — the wire. Short dated news snippets: one company, one thing
+//              that happened, two sentences, a link. The publication tier
+//              between the internal signals capture and a full article — a
+//              day the newsroom logs a skip still reaches a reader here, and
+//              a small company whose news can't carry 900 words still gets
+//              covered. One file per item: YYYY-MM-DD-company-slug.md.
 //  radar/    — ARCHIVE. The dated daily posts from the site's first phase
 //              (2026-07-05 → 2026-07-08), kept rendered so URLs don't break.
 //              No new entries: daily capture now goes to signals/ (internal)
@@ -409,6 +415,43 @@ const skills = defineCollection({
   }),
 });
 
+// briefs/ — the wire. The smallest publishable unit: a company, what it did,
+// two sentences, and the link that proves it. Deliberately not an article —
+// no byline, no desk, no take. `source` is mandatory for the same reason it is
+// on examples/: a one-line news claim nobody can go check is a rumour. The
+// stream is where the small-company tail lands, so the bar is "it happened and
+// here is where to verify it", not "it cleared the article threshold".
+const briefs = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/briefs' }),
+  schema: z.object({
+    // The headline — what happened, in the site's voice, no company prefix
+    // (the company renders as its own field on the card).
+    title: z.string(),
+    // The company the news is about, written as they write it.
+    company: z.string(),
+    // The day the item entered the wire. For something surfaced late, this is
+    // the capture date and the body says when it originally shipped.
+    date: z.coerce.date(),
+    // Optional revision stamp when a brief is corrected after publication.
+    updated: z.coerce.date().optional(),
+    // The two sentences. Rendered on the card, in JSON, and in llms.txt.
+    summary: z.string(),
+    // What kind of item this is. Controlled vocab — the chips and any future
+    // filter read it, so extend the enum deliberately.
+    kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion']),
+    // The proof: a link to the primary source. Mandatory.
+    source: z.object({ label: z.string(), url: z.string().url() }),
+    // Supporting links — a teardown, the HN thread, the counter-argument.
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+    tags: z.array(z.string()).default([]),
+    related: z
+      .array(z.object({ label: z.string(), href: z.string() }))
+      .default([]),
+  }),
+});
+
 // radar/ — archived. Schema unchanged from the site's first phase so the
 // existing entries render exactly as published.
 const radar = defineCollection({
@@ -437,6 +480,7 @@ export const collections = {
   guide,
   weekly,
   articles,
+  briefs,
   practices,
   'deep-dives': deepDives,
   examples,

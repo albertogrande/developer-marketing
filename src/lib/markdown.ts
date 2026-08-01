@@ -25,6 +25,7 @@ type Kind =
   | 'articles'
   | 'weekly'
   | 'deep-dives'
+  | 'briefs'
   | 'radar'
   | 'practices'
   | 'examples'
@@ -36,6 +37,7 @@ type AnyEntry =
   | CollectionEntry<'articles'>
   | CollectionEntry<'weekly'>
   | CollectionEntry<'deep-dives'>
+  | CollectionEntry<'briefs'>
   | CollectionEntry<'radar'>
   | CollectionEntry<'practices'>
   | CollectionEntry<'examples'>
@@ -49,6 +51,7 @@ const GALLERY: Partial<Record<Kind, true>> = {
   examples: true,
   skills: true,
   resources: true,
+  briefs: true,
 };
 
 const linkList = (items: { label: string; url: string }[]) =>
@@ -78,6 +81,10 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     if (d.verified) fm.verified = isoDate(d.verified);
   }
   if (kind === 'examples') fm.company = d.company;
+  if (kind === 'briefs') {
+    fm.company = d.company;
+    fm.kind = d.kind;
+  }
   if (kind === 'resources') {
     fm.provider_url = d.url;
     fm.kind = d.kind;
@@ -111,6 +118,14 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
       ...(d.channel?.length ? [`- **Channels**: ${d.channel.join(', ')}`] : []),
       `- **Demonstrates**: ${absUrl(`/guide/${d.demonstrates}`)}`,
       `- **The artifact**: [${d.source.label}](${d.source.url})`,
+      ''
+    );
+  }
+  if (kind === 'briefs') {
+    parts.push(
+      `- **Company**: ${d.company}`,
+      `- **Kind**: ${d.kind}`,
+      `- **Source**: [${d.source.label}](${d.source.url})`,
       ''
     );
   }

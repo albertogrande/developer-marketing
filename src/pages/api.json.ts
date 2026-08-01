@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate, CONTENT_LICENSE_URL } from '../lib/site';
 import {
   getArticlesSorted,
+  getBriefsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
@@ -20,12 +21,13 @@ import {
 const REPO = 'https://github.com/albertogrande/developer-marketing';
 
 export const GET: APIRoute = async () => {
-  const [guide, articles, weekly, dives, radar, practices, examples, skills, resources] =
+  const [guide, articles, weekly, dives, briefs, radar, practices, examples, skills, resources] =
     await Promise.all([
       getGuideSorted(),
       getArticlesSorted(),
       getWeeklySorted(),
       getDivesSorted(),
+      getBriefsSorted(),
       getRadarSorted(),
       getPracticesSorted(),
       getExamplesSorted(),
@@ -70,7 +72,7 @@ export const GET: APIRoute = async () => {
     attribution:
       'Content is CC BY 4.0: quote it, link the canonical page, credit "Developer Marketing field guide".',
     cadence: {
-      scout: 'daily 05:00 UTC (internal signals; patches the guide when a fact changes)',
+      scout: 'daily 05:00 UTC (internal signals; promotes qualifying items to briefs; patches the guide when a fact changes)',
       newsroom: 'Tue–Sun 06:30 UTC (at most one article, never a quota)',
       weekly: 'Mon 07:00 UTC (the digest; full guide-accuracy pass)',
     },
@@ -80,6 +82,7 @@ export const GET: APIRoute = async () => {
         ...articles,
         ...weekly,
         ...dives,
+        ...briefs,
         ...radar,
         ...practices,
         ...examples,
@@ -120,6 +123,11 @@ export const GET: APIRoute = async () => {
       'deep-dives': collection('deep-dives', dives, {
         pages: true,
         description: 'Long-form researched pieces, commissioned when a thread earns it.',
+      }),
+      briefs: collection('briefs', briefs, {
+        pages: false,
+        description:
+          'The wire — short dated news items: one company, one thing that happened, two sentences, and a mandatory primary source. No paid placements.',
       }),
       practices: collection('practices', practices, {
         pages: false,

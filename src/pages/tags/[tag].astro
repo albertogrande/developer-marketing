@@ -22,6 +22,7 @@ const practices = items.filter((i) => i.kind === 'practice');
 const examples = items.filter((i) => i.kind === 'example');
 const resources = items.filter((i) => i.kind === 'resource');
 const skills = items.filter((i) => i.kind === 'skill');
+const briefs = items.filter((i) => i.kind === 'brief');
 const radar = items.filter((i) => i.kind === 'radar');
 
 // Every tagged thing, at its page or gallery-anchor URL.
@@ -34,6 +35,7 @@ const taggedUrl = (i: (typeof items)[number]) =>
     example: `${absUrl('/examples')}#${i.entry.id}`,
     skill: `${absUrl('/skills')}#${i.entry.id}`,
     resource: `${absUrl('/resources')}#${i.entry.id}`,
+    brief: `${absUrl('/briefs')}#${i.entry.id}`,
     radar: absUrl(`/radar/${i.entry.id}`),
   })[i.kind];
 
@@ -159,6 +161,27 @@ const taggedName = (i: (typeof items)[number]) =>
             <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
             <div class="fm-rowmain">
               <a href={withBase(`/articles/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {briefs.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">briefs</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(briefs.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {briefs.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/briefs#${entry.id}`)} class="fm-row-t">{entry.data.company}: {entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
             </div>
           </li>

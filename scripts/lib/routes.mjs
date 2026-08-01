@@ -56,6 +56,7 @@ export const COLLECTIONS = {
   articles: { dir: 'src/content/articles', index: '/articles', page: true },
   weekly: { dir: 'src/content/weekly', index: '/weekly', page: true },
   'deep-dives': { dir: 'src/content/deep-dives', index: '/deep-dives', page: true },
+  briefs: { dir: 'src/content/briefs', index: '/briefs', page: false },
   radar: { dir: 'src/content/radar', index: '/radar', page: true },
   practices: { dir: 'src/content/practices', index: '/practices', page: false },
   examples: { dir: 'src/content/examples', index: '/examples', page: false },

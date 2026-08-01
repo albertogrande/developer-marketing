@@ -55,10 +55,12 @@ jobs:
             Run the daily-scout skill (.claude/skills/daily-scout/SKILL.md).
             ${{ github.event.inputs.focus && format('Focus this sweep on: {0}.', github.event.inputs.focus) || '' }}
             Sweep the last ~24h of developer-marketing sources, append dated
-            one-liners to signals/<week>.md, patch any guide section under
-            src/content/guide/ whose facts a change disproved, and update
-            editorial/MEMORY.md lightly. Write files only — do not commit or
-            push.
+            one-liners to signals/<week>.md, promote every qualifying signal to
+            a brief under src/content/briefs/ (something happened + a primary
+            source + two sentences — traction is not a criterion), patch any
+            guide section under src/content/guide/ whose facts a change
+            disproved, and update editorial/MEMORY.md lightly. Write files only
+            — do not commit or push.
           show_full_output: true
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.

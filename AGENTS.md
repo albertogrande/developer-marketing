@@ -20,8 +20,8 @@ https://developer-marketing.vercel.app/api.json
 | Curated index | `/llms.txt` | llmstxt.org-style index of all entries, linking raw markdown |
 | One-fetch corpus | `/llms-full.txt` | Evergreen collections in full + recent dated pieces |
 | Raw markdown | `/<collection>/<id>.md` | Self-contained sibling of every entry (canonical, dates, license, sources inside) |
-| Structured JSON | `/guide.json` `/practices.json` `/examples.json` `/skills.json` `/articles.json` `/weekly.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
-| Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Dated pieces, full content, honest updated stamps |
+| Structured JSON | `/guide.json` `/practices.json` `/examples.json` `/skills.json` `/articles.json` `/briefs.json` `/weekly.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
+| Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Long-form dated pieces (articles, weeklies, dives, radar), full content, honest updated stamps |
 | Sitemap | `/sitemap-index.xml` | Every page, trailing-slash canonical form, per-page lastmod |
 
 Notes for retrieval:
@@ -33,8 +33,14 @@ Notes for retrieval:
   citations, license).
 - The `.md` siblings are the cheap form: same content, a fraction of the
   tokens, canonical URL in the frontmatter.
-- `practices`, `examples`, and `skills` have no standalone pages — cite them
-  as `/practices/#<id>` (etc.) anchors; their `.md` siblings say so.
+- `practices`, `examples`, `skills`, `resources`, and `briefs` have no
+  standalone pages — cite them as `/practices/#<id>` (etc.) anchors; their
+  `.md` siblings say so.
+- `briefs` is the wire: one company, one thing that happened, two sentences,
+  and a mandatory `source` — the tier below an article, so quiet news days and
+  small companies still get covered. Deliberately **not** in `/feed.xml` or
+  `/feed.json`, which stay long-form; read `/briefs.json` for the full set.
+  `llms-full.txt` carries the 30 most recent inline.
 - Freshness fields: `date` (published), `updated` (revised),
   `verified` (skills: repo alive, install line current). The sitemap's
   `lastmod` and `api.json`'s `updated` derive from these, never from build
@@ -43,7 +49,7 @@ Notes for retrieval:
 **Citing**: content is CC BY 4.0 — quote it, link the canonical HTML page,
 credit "Developer Marketing field guide". Code is MIT.
 
-**Cadence** (UTC): scout daily 05:00 (patches the guide when facts change);
+**Cadence** (UTC): scout daily 05:00 (writes briefs; patches the guide when facts change);
 newsroom Tue–Sun 06:30 (at most one article, never a quota); weekly Mon 07:00
 (digest + full accuracy pass). If your cache is older than a day, refetch.
 

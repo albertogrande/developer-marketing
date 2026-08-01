@@ -1,6 +1,6 @@
 ---
 name: daily-scout
-description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
+description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, publish qualifying items as briefs, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
 argument-hint: [optional focus, e.g. "DevRel metrics" or "docs-led growth"]
 ---
 
@@ -152,7 +152,66 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   new: append `## <TODAY>` with `- (quiet day)` so the editor knows you ran.
 - No takes beyond a clause. The weekly editor verifies and opines.
 
-## Step 3 — Patch the guide (only for hard, unambiguous facts)
+## Step 3 — Promote what qualifies to briefs
+
+Signals are internal; `src/content/briefs/` is the published wire. This is the
+tier below a newsroom article, and it exists for two reasons: a day the
+newsroom logs a skip should still reach a reader, and a small company whose
+news can't carry 900 words should still get covered.
+
+Promote a signal when **all** of these hold:
+
+- Something **happened** — a company shipped, launched, raised, renamed,
+  deprecated, or published something. A think-piece with no event behind it is
+  a signal, not a brief.
+- There is a **primary source** you opened: the changelog, the blog post, the
+  Show HN thread, the filing. Not a write-up about a write-up.
+- You can say what happened in **two sentences** without hedging into vagueness.
+
+Do **not** promote: unverified claims (a signal flagged "reportedly" stays a
+signal), sourcing notes, thread-carryover lines, or anything whose only source
+is a vendor's own marketing page making an unverifiable claim.
+
+Traction is **not** a criterion. A 2-point Show HN from a company nobody has
+heard of clears this bar if something real happened and the link proves it —
+that is the point of the tier. Ranking by reach is what pushes the small-company
+tail out of coverage entirely.
+
+One file per item, `src/content/briefs/YYYY-MM-DD-company-slug.md`:
+
+```markdown
+---
+title: <the headline — what happened, no company prefix>
+company: <as they write it>
+date: <today, or the capture date for something surfaced late>
+kind: news | release | funding | launch | campaign | discussion
+summary: '<exactly two sentences — the brief itself>'
+tags: [<reuse existing tags where they fit>]
+source:
+  label: <publisher — headline>
+  url: <the primary source>
+sources:          # optional supporting links
+  - label: ...
+    url: ...
+related:          # optional; base-less guide paths
+  - label: Guide — <section title>
+    href: /guide/<section-id>
+---
+
+<Optional: one short paragraph on why it matters or what to watch. Skip it
+when the two sentences are the whole story — the body is not a quota.>
+```
+
+`date` is when the item entered the wire. If something shipped weeks ago and
+only cleared today's sweep, use today and say so in the summary or the note —
+don't backdate, and don't imply it is fresher than it is.
+
+Several briefs a day is normal and correct; zero is fine on a genuinely quiet
+day. `check-refs.mjs` fails the build on a brief missing `company`, `summary`,
+or `source.url` — an unverifiable one-line news claim is a rumour with a
+company name attached.
+
+## Step 4 — Patch the guide (only for hard, unambiguous facts)
 
 The guide is the product; it must never state something the data just
 disproved. If a signal is an **unambiguous factual change** to a guide section
@@ -168,7 +227,7 @@ Leave interpretation, framing, and anything you couldn't verify to the weekly
 pass. When in doubt, capture the signal and don't touch the guide. Don't bump
 `updated` for cosmetic edits.
 
-## Step 4 — Update memory (light)
+## Step 5 — Update memory (light)
 
 In `editorial/MEMORY.md`, only if today changed something:
 - Attach a notable signal to an existing **running thread** (or note a
@@ -177,8 +236,9 @@ In `editorial/MEMORY.md`, only if today changed something:
   bump a **deep-dive candidate**.
 Keep it terse; the weekly editor does the full maintenance pass.
 
-## Step 5 — Report
+## Step 6 — Report
 
 End with a short plain-text summary: how many signals you captured (filename),
-which guide sections you patched and why, and anything you left out because you
+how many briefs you published and which signals you left unpromoted, which
+guide sections you patched and why, and anything you left out because you
 couldn't confirm it. Do **not** run git — the workflow commits and deploys.

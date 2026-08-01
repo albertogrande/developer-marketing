@@ -39,7 +39,7 @@ Serving from somewhere else is two variables, never a content migration:
 
 ## Three systems in one repo
 
-**1. The site** — Astro 5, static, nine content collections under `src/content/`,
+**1. The site** — Astro 5, static, ten content collections under `src/content/`,
 schemas in `src/content.config.ts`. Every collection has a human page *and* a
 machine twin (`/<collection>.json`, `/<collection>/<id>.md`, feeds, `llms.txt`,
 `api.json`). The machine surface is house-rolled in `src/pages/*.ts` — extend
@@ -55,6 +55,14 @@ model re-verifies every load-bearing claim → `editorial-gates` (full build +
 source liveness) → `commit-and-push`. A failed gate uploads a `rescue-patch`
 artifact so a retry costs the run, not the writing. Composite steps live in
 `.github/actions/` precisely so they can't drift per workflow.
+
+Published output runs at three lengths, and the shortest is load-bearing: the
+scout promotes qualifying signals to `src/content/briefs/` (the wire — one
+company, two sentences, a mandatory `source`), the newsroom writes at most one
+article a day, and the weekly digests. Briefs exist so a logged skip still
+reaches a reader and so a small company whose news can't carry 900 words still
+gets covered — **traction is explicitly not a promotion criterion**, because
+ranking by reach is what silently drops the indie tail.
 
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
 capture), `editorial/MEMORY.md` (running threads, coverage), `editorial/TASTE.md`

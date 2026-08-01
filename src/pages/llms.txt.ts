@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate } from '../lib/site';
 import {
   getArticlesSorted,
+  getBriefsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
@@ -28,6 +29,7 @@ export const GET: APIRoute = async () => {
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
+  const briefs = await getBriefsSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -106,6 +108,19 @@ export const GET: APIRoute = async () => {
     }
   }
 
+  if (briefs.length) {
+    lines.push('');
+    lines.push('## Briefs');
+    lines.push(
+      'The wire — short dated news items. One company, one thing that happened, two sentences, and the primary source that proves it.'
+    );
+    for (const b of briefs) {
+      lines.push(
+        `- [${b.data.company}: ${b.data.title}](${abs(`/briefs/${b.id}.md`)}): ${b.data.summary} (${b.data.kind}, ${isoDate(b.data.date)}; source: ${b.data.source.url})`
+      );
+    }
+  }
+
   if (weekly.length) {
     lines.push('');
     lines.push('## Weekly');
@@ -138,6 +153,7 @@ export const GET: APIRoute = async () => {
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
   lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
+  lines.push(`- [briefs.json](${abs('/briefs.json')}): the wire — dated news items with company, kind and primary source`);
   lines.push(`- [weekly.json](${abs('/weekly.json')}): weekly digests with bodies`);
   lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): deep dives with bodies`);
   lines.push(`- [radar.json](${abs('/radar.json')}): the archived radar posts`);
