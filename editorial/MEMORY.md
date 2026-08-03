@@ -90,12 +90,12 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
   (08-01 article; flagged example-candidate). Deprecation counter-cases feed
-  the evergreen dive: Cerebras free-tier sunset 2026-08-17 (quiet
-  re-anchoring, §04); GitHub Models' full retirement (07-30, six-week
-  window, no like-for-like replacement) is the second data point. Open
-  loops: how the 08-17 Cerebras sunset lands; whether a second vendor frames
-  a case study around limits-raised rather than throughput-hit. Guide: §01,
-  §04, §05, §07.
+  the evergreen dive: Cerebras free-tier sunset 2026-08-17 (quiet re-anchoring,
+  §04); GitHub Models' full retirement (07-30, six weeks, no like-for-like
+  replacement) is the second data point, against a practitioner's months-to-a-year
+  rule of thumb (podcast note, 06-10). Open loops: how the 08-17 Cerebras sunset
+  lands; whether a second vendor frames a case study around limits-raised rather
+  than throughput-hit. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact
   out-distributes launch budget (→ example). Launch HN is the default GTM
