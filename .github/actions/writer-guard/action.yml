@@ -69,7 +69,17 @@ runs:
         TOLERATE_MAX_TURNS: ${{ inputs.tolerate_max_turns }}
       run: |
         set -euo pipefail
-        fail() { echo "::error::Writer guard: $1"; exit 1; }
+        # Leave the reason where notify-failure can find it, so the alert that
+        # reaches a human says what broke instead of only that something did.
+        # Flattened to one line: $GITHUB_ENV is line-oriented and `result` can
+        # carry newlines.
+        fail() {
+          if [ -n "${GITHUB_ENV:-}" ]; then
+            printf 'ALERT_DETAIL=%s\n' "$(printf 'writer-guard: %s' "$1" | tr '\n' ' ' | cut -c1-400)" >> "$GITHUB_ENV"
+          fi
+          echo "::error::Writer guard: $1"
+          exit 1
+        }
 
         [ -n "$FILE" ] && [ -s "$FILE" ] \
           || fail "no execution log at '${FILE:-<empty>}' — the step produced nothing"
@@ -86,6 +96,9 @@ runs:
           if [ "$subtype" = "error_max_turns" ] && [ "$TOLERATE_MAX_TURNS" = "true" ]; then
             truncated=1
             echo "::warning::Writer guard: the run stopped at its --max-turns cap after $turns turns. Keeping what it finished — the fact-integrity pass and the editorial gates still vet every claim. If this recurs, raise --max-turns rather than letting the desk publish partial work."
+          elif [ "$subtype" = "error_max_turns" ]; then
+            # Verifier steps land here by design (they never tolerate a cap).
+            fail "run exhausted its --max-turns cap after $turns turns — raise --max-turns for this step. On a verifier this is deliberately fatal: claims may be left unchecked."
           else
             fail "run reported is_error:true (${subtype:-unknown stop}) — likely an expired CLAUDE_CODE_OAUTH_TOKEN. Result: $result"
           fi
