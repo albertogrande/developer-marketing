@@ -38,7 +38,9 @@ concurrency:
 jobs:
   scout:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # Raised with the turn caps below — a job timeout kills the run mid-write
+    # with no rescue and no guard, which is strictly worse than a turn cap.
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       # Runners are ephemeral, so without this the transcript cache is empty on
@@ -60,6 +62,10 @@ jobs:
 
       - name: Capture today's signals
         id: claude
+        # A max-turns stop exits non-zero. Without this the guard below never
+        # runs and a sweep's finished signals and briefs are thrown away — how
+        # 08-02 lost five written files one turn from done. The guard decides.
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -81,10 +87,24 @@ jobs:
           show_full_output: true
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
+          #
+          # 70 turns, not 40: the 2026-08-01 merge put brief promotion, the
+          # podcast fetch, distilling into editorial/podcasts/ and draining
+          # three backlog episodes on the same budget the sweep alone used to
+          # have, and 08-02 and 08-03 both died at the cap. A cap is a
+          # ceiling, not a quota — a sweep that finishes in 30 turns still
+          # costs 30.
+          #
+          # The allowlist is deliberately wide across read-only shell: every
+          # denial costs a turn, and a denied command tends to get retried. On
+          # 08-02 four identical denied `node scripts/podcast-transcripts.mjs
+          # --help` calls plus one denied `date`+`ls` chain burned an eighth of
+          # the budget before the sweep had written anything. Nothing here can
+          # mutate the tree; the skill still writes through Write/Edit.
           claude_args: >-
             --model claude-sonnet-5
-            --max-turns 40
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(npm run podcast:transcripts*)"
+            --max-turns 70
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run podcast:transcripts*),Bash(node scripts/podcast-transcripts.mjs*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
       # so the verify step would overwrite the writer's record and the ledger
@@ -107,6 +127,7 @@ jobs:
         with:
           execution_file: ${{ steps.claude.outputs.execution_file }}
           expect_changes: signals/
+          tolerate_max_turns: "true"
 
       - name: Detect content changes
         id: changes
@@ -136,10 +157,14 @@ jobs:
           # the writer never grades its own homework. Opus 4.8 rather than the
           # writer's Sonnet so the check is genuinely cross-model, matching
           # the writer/verifier split every other desk already has.
+          # No continue-on-error and no tolerate_max_turns on the verifier:
+          # a fact-integrity pass that ran out of turns may have left claims
+          # unchecked, and unchecked claims are the one thing that must never
+          # reach a commit. 60 turns because there are more briefs to verify.
           claude_args: >-
             --model claude-opus-4-8
-            --max-turns 50
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *)"
 
       # A clean verify may change nothing — only require that it really ran.
       - name: Guard — verifier ran
