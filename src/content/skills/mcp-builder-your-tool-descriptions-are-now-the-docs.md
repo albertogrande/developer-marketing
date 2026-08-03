@@ -14,7 +14,7 @@ license: Apache-2.0
 caveat: An engineering skill, engineering-owned in most teams. Bring it to whoever ships the server rather than running it alone.
 section: 04-developer-experience-and-activation
 tags: [dx, mcp, agents, activation]
-verified: 2026-07-26
+verified: 2026-08-03
 source:
   label: 'anthropics/skills: mcp-builder'
   url: https://github.com/anthropics/skills/tree/main/skills/mcp-builder

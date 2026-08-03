@@ -8,6 +8,12 @@ description: >-
   moment a run errored, never got past its first response, or didn't write
   what its desk always writes.
 
+  The mirror-image failure showed up on 2026-08-02/03: a writer that ran out
+  of turns exits non-zero, so every downstream step is skipped and finished
+  writing is discarded into a rescue-patch artifact nobody reads. See
+  tolerate_max_turns — the desks pair it with continue-on-error so this guard,
+  not the turn counter, decides whether a truncated run is salvageable.
+
 inputs:
   execution_file:
     description: >-
@@ -36,6 +42,20 @@ inputs:
       open a failure issue for a healthy refusal.
     required: false
     default: ""
+  tolerate_max_turns:
+    description: >-
+      Set on WRITER steps only. A run that exhausts --max-turns exits
+      non-zero with is_error:true, which used to skip every downstream step
+      and throw finished writing into a rescue-patch nobody reads — the
+      2026-08-02/03 scout and weekly losses. When "true", a max-turns stop
+      is downgraded to a warning *provided the desk still wrote what
+      expect_changes demands*; the fact-integrity pass and the editorial
+      gates then vet the work exactly as they would on a clean run. Leave
+      false on VERIFIER steps: a verifier that ran out of turns may have
+      left claims unchecked, which is the one thing this pipeline cannot
+      wave through.
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -46,9 +66,20 @@ runs:
         EXPECT: ${{ inputs.expect_changes }}
         MIN_TURNS: ${{ inputs.min_turns }}
         ALLOW_EXISTING: ${{ inputs.allow_existing }}
+        TOLERATE_MAX_TURNS: ${{ inputs.tolerate_max_turns }}
       run: |
         set -euo pipefail
-        fail() { echo "::error::Writer guard: $1"; exit 1; }
+        # Leave the reason where notify-failure can find it, so the alert that
+        # reaches a human says what broke instead of only that something did.
+        # Flattened to one line: $GITHUB_ENV is line-oriented and `result` can
+        # carry newlines.
+        fail() {
+          if [ -n "${GITHUB_ENV:-}" ]; then
+            printf 'ALERT_DETAIL=%s\n' "$(printf 'writer-guard: %s' "$1" | tr '\n' ' ' | cut -c1-400)" >> "$GITHUB_ENV"
+          fi
+          echo "::error::Writer guard: $1"
+          exit 1
+        }
 
         [ -n "$FILE" ] && [ -s "$FILE" ] \
           || fail "no execution log at '${FILE:-<empty>}' — the step produced nothing"
@@ -56,9 +87,22 @@ runs:
         is_error=$(jq -r '[.. | objects | select(has("is_error")) | .is_error] | last // false' "$FILE")
         turns=$(jq -r '[.. | objects | select(has("num_turns")) | .num_turns] | last // 0' "$FILE")
         result=$(jq -r '[.. | objects | select(has("result")) | .result] | last // ""' "$FILE" | head -c 300)
+        # Only the terminal result object carries a stop subtype; tool results
+        # further up the log also have is_error, so read the reason from there.
+        subtype=$(jq -r '[.. | objects | select(.type == "result") | .subtype // ""] | last // ""' "$FILE")
 
-        [ "$is_error" != "true" ] \
-          || fail "run reported is_error:true — likely an expired CLAUDE_CODE_OAUTH_TOKEN. Result: $result"
+        truncated=""
+        if [ "$is_error" = "true" ]; then
+          if [ "$subtype" = "error_max_turns" ] && [ "$TOLERATE_MAX_TURNS" = "true" ]; then
+            truncated=1
+            echo "::warning::Writer guard: the run stopped at its --max-turns cap after $turns turns. Keeping what it finished — the fact-integrity pass and the editorial gates still vet every claim. If this recurs, raise --max-turns rather than letting the desk publish partial work."
+          elif [ "$subtype" = "error_max_turns" ]; then
+            # Verifier steps land here by design (they never tolerate a cap).
+            fail "run exhausted its --max-turns cap after $turns turns — raise --max-turns for this step. On a verifier this is deliberately fatal: claims may be left unchecked."
+          else
+            fail "run reported is_error:true (${subtype:-unknown stop}) — likely an expired CLAUDE_CODE_OAUTH_TOKEN. Result: $result"
+          fi
+        fi
         [ "$turns" -ge "$MIN_TURNS" ] \
           || fail "run took $turns turn(s) (< $MIN_TURNS) — the model never got past its first response. Result: $result"
 
@@ -66,11 +110,19 @@ runs:
           # shellcheck disable=SC2086 — EXPECT is intentionally word-split
           if [ -n "$(git status --porcelain -- $EXPECT)" ]; then
             echo "Writer guard OK: $turns turns, changes present under '$EXPECT'."
+          elif [ -n "$truncated" ]; then
+            # A truncated run gets no benefit of the doubt: out of turns AND
+            # nothing written is a dead run, not a desk declining to rewrite.
+            fail "run hit its --max-turns cap after $turns turns and wrote nothing under '$EXPECT' — raise --max-turns"
           elif [ -n "$ALLOW_EXISTING" ] && git cat-file -e "HEAD:$ALLOW_EXISTING" 2>/dev/null; then
             echo "Writer guard OK: $turns turns, no new changes but '$ALLOW_EXISTING' already committed — healthy refusal to rewrite."
           else
             fail "no changes under '$EXPECT' — this desk always writes there on a healthy run"
           fi
+        elif [ -n "$truncated" ]; then
+          # No expect_changes means nothing proves this run got anywhere, so a
+          # max-turns stop can't be distinguished from a dead one. Fail.
+          fail "run hit its --max-turns cap after $turns turns and this step has no expect_changes to prove it got anywhere — raise --max-turns"
         else
           echo "Writer guard OK: $turns turns."
         fi

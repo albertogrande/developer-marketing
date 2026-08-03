@@ -31,7 +31,9 @@ concurrency:
 jobs:
   weekly:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    # Raised with the turn caps below — a job timeout kills the run mid-write
+    # with no rescue and no guard, which is strictly worse than a turn cap.
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -74,6 +76,10 @@ jobs:
 
       - name: Write the week
         id: claude
+        # See the scout: a max-turns stop exits non-zero and would skip the
+        # guard. 2026-08-03 wrote fourteen files — the whole digest — and
+        # rescued all of them into an artifact instead of publishing.
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -90,10 +96,17 @@ jobs:
             or push.
           show_full_output: true
           # Fable: this is a long, unattended writing run.
+          #
+          # 90 turns, not 60: this desk does the most per run of any — the
+          # digest, the full guide-accuracy pass, practice distillation, the
+          # skills shelf, the feedback inbox and memory — and 2026-08-03 hit
+          # the cap with the digest written but uncommitted. Its own accuracy
+          # pass is what `Bash(node scripts/check-*)` is for; that was a
+          # denial on 08-03, and denials cost turns.
           claude_args: >-
             --model claude-fable-5
-            --max-turns 60
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *)"
+            --max-turns 90
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run check*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
       # so the verify step would overwrite the writer's record and the ledger
@@ -119,6 +132,7 @@ jobs:
           execution_file: ${{ steps.claude.outputs.execution_file }}
           expect_changes: src/content/weekly/
           allow_existing: src/content/weekly/${{ steps.week.outputs.id }}.md
+          tolerate_max_turns: "true"
 
       - name: Detect content changes
         id: changes
@@ -144,11 +158,13 @@ jobs:
             stories and do not restyle prose. Write files only — do not
             commit or push.
           show_full_output: true
-          # A different, fresh-context model checks the writer's claims.
+          # A different, fresh-context model checks the writer's claims. No
+          # continue-on-error and no tolerate_max_turns here — a verifier that
+          # ran out of turns may have left claims unchecked.
           claude_args: >-
             --model claude-sonnet-5
-            --max-turns 50
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *)"
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *)"
 
       # A clean verify may change nothing — only require that it really ran.
       - name: Guard — verifier ran
@@ -201,3 +217,9 @@ jobs:
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure
+        with:
+          detail: ${{ env.ALERT_DETAIL }}
+          alert_email_to: ${{ secrets.ALERT_EMAIL_TO }}
+          alert_api_key: ${{ secrets.RESEND_API_KEY }}
+          alert_from: ${{ vars.ALERT_FROM_EMAIL }}
+          alert_mention: ${{ vars.ALERT_MENTION }}

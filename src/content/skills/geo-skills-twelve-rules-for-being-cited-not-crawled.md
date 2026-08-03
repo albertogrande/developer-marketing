@@ -12,7 +12,7 @@ license: MIT
 caveat: No citations behind the rules — it descends from a curated awesome-list. A well-organised checklist, not evidence.
 section: 06-channels-and-distribution
 tags: [geo, seo, distribution, content]
-verified: 2026-07-26
+verified: 2026-08-03
 source:
   label: luka2chat/geo-skills
   url: https://github.com/luka2chat/geo-skills

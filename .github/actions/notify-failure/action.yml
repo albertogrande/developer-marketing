@@ -1,20 +1,73 @@
 name: Notify failure
 description: >-
-  Open (or comment on) a pipeline-failure issue so an autonomous job never
-  fails silently. One open issue per workflow; repeat failures comment on it.
+  Raise the alarm when an autonomous job fails, on two channels so a missed one
+  is not silence. The pipeline-failure issue is the durable record (one open
+  issue per workflow; repeat failures comment on it) and it @mentions the alert
+  handle, so GitHub's own "participating and @mentions" notification fires with
+  nothing configured at all. Given an alert address, the same alert is emailed
+  through the newsletter's own transport.
+
+  This exists because on 2026-08-02/03 detection worked perfectly — three runs
+  failed, the guards caught them, issues #15 and #17 were open the whole time —
+  and a human still found out by loading the site three days later. An alert
+  nobody reads is not an alert.
+
+  Credentials arrive as inputs rather than workflow-level env on purpose: a
+  composite action cannot read `secrets`, and hoisting the relay key to the
+  workflow would hand it to every other step in the job, the unattended writer
+  steps included.
+
+inputs:
+  detail:
+    description: >-
+      Optional one-line reason, when the caller knows it (e.g. "writer hit its
+      --max-turns cap"). Goes in the issue and the email, so triage can start
+      from the notification instead of the run log.
+    required: false
+    default: ""
+  alert_email_to:
+    description: >-
+      Comma-separated inboxes to email. Empty (the default, and the case on
+      every fork) sends no mail — the issue is still opened.
+    required: false
+    default: ""
+  alert_api_key:
+    description: "Resend API key for the alert email. Empty falls back to SMTP_* if the job has them."
+    required: false
+    default: ""
+  alert_from:
+    description: "From: address on the alert. Must be on a domain the relay has verified."
+    required: false
+    default: ""
+  alert_mention:
+    description: "GitHub handle to @mention in the issue. Defaults to the repo owner."
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
-    - shell: bash
+    - id: issue
+      shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        DETAIL: ${{ inputs.detail }}
+        MENTION: ${{ inputs.alert_mention }}
       run: |
         set -euo pipefail
         title="Pipeline failure: ${GITHUB_WORKFLOW}"
         url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-        body=$(printf 'The `%s` workflow failed at %s.\n\nRun: %s\n\nOpened automatically by the failure notifier. Close after diagnosing — the next failure of this workflow comments here instead of opening a duplicate.' \
-          "$GITHUB_WORKFLOW" "$(date -u +%Y-%m-%dT%H:%MZ)" "$url")
+        when="$(date -u +%Y-%m-%dT%H:%MZ)"
+
+        # Who to wake. The repo owner is right for a single-maintainer repo and
+        # harmless on a fork, where the owner is whoever forked it.
+        mention="${MENTION:-${GITHUB_REPOSITORY%%/*}}"
+
+        detail_line="Reason: ${DETAIL:-not reported by the failing step}"
+
+        body=$(printf '@%s — the `%s` workflow failed at %s.\n\n%s\n\nRun: %s\n\nOpened automatically by the failure notifier. Close after diagnosing — the next failure of this workflow comments here instead of opening a duplicate.' \
+          "$mention" "$GITHUB_WORKFLOW" "$when" "$detail_line" "$url")
+
         gh label create pipeline-failure --color B60205 \
           --description "An autonomous pipeline job failed" --force 2>/dev/null || true
         existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label pipeline-failure \
@@ -22,8 +75,36 @@ runs:
           --jq "[.[] | select(.title == \"$title\")][0].number // empty")
         if [ -n "$existing" ]; then
           gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" \
-            --body "Failed again: $url"
+            --body "$(printf '@%s failed again at %s.\n\n%s\n\nRun: %s' "$mention" "$when" "$detail_line" "$url")"
+          issue_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${existing}"
         else
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \
-            --label pipeline-failure --body "$body"
+          issue_url=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \
+            --label pipeline-failure --body "$body")
         fi
+        {
+          echo "title=$title"
+          echo "url=$url"
+          echo "issue_url=$issue_url"
+          echo "when=$when"
+        } >> "$GITHUB_OUTPUT"
+
+    # Best-effort second channel. `|| true` on purpose: the run is already red
+    # and the issue above is the record, so a dead relay must never turn one
+    # red workflow into two. send-alert.mjs is a no-op with no address set.
+    - shell: bash
+      env:
+        ALERT_EMAIL_TO: ${{ inputs.alert_email_to }}
+        RESEND_API_KEY: ${{ inputs.alert_api_key }}
+        FROM_EMAIL: ${{ inputs.alert_from }}
+        ALERT_SUBJECT: "[developer-marketing] ${{ steps.issue.outputs.title }}"
+        ALERT_BODY: |
+          The ${{ github.workflow }} workflow failed at ${{ steps.issue.outputs.when }}.
+
+          Reason: ${{ inputs.detail }}
+
+          Run:   ${{ steps.issue.outputs.url }}
+          Issue: ${{ steps.issue.outputs.issue_url }}
+
+          A failed writer uploads a "rescue-patch" artifact to the run — the
+          writing is usually recoverable, so a retry costs the run, not the work.
+      run: node scripts/send-alert.mjs || true

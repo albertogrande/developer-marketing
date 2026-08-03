@@ -114,3 +114,9 @@ jobs:
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure
+        with:
+          detail: ${{ env.ALERT_DETAIL }}
+          alert_email_to: ${{ secrets.ALERT_EMAIL_TO }}
+          alert_api_key: ${{ secrets.RESEND_API_KEY }}
+          alert_from: ${{ vars.ALERT_FROM_EMAIL }}
+          alert_mention: ${{ vars.ALERT_MENTION }}

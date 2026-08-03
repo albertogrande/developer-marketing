@@ -132,6 +132,29 @@ The autonomous desks need a Claude Code OAuth token:
 Run the desks in an interactive session too: `/daily-scout`, `/newsroom`, `/weekly-digest`,
 `/deep-dive [topic]`. Interactive runs write files without committing. You decide.
 
+### Getting told when a desk breaks
+
+Every failure already opens (or comments on) a `pipeline-failure` issue, and
+`Health` catches the class of failure a single run can't see — the schedule
+itself going quiet. Both of those end up *in GitHub*, which is no help if
+GitHub isn't where you look: on 2026-08-02/03 three runs failed, two issues
+were open the whole time, and the silence was noticed by loading the site.
+
+So the notifier has a second channel. Neither of these is required — with
+nothing set you still get the issue.
+
+| Setting | Kind | Effect |
+| --- | --- | --- |
+| `ALERT_MENTION` | variable | Handle @mentioned in the issue, so GitHub's own *participating and @mentions* notification fires. **Defaults to the repo owner — this one works with zero setup.** |
+| `ALERT_EMAIL_TO` | secret | Comma-separated inboxes that get the alert by email. |
+| `RESEND_API_KEY` | secret | Relay for that email. The newsletter's `SMTP_*` variables work instead if you'd rather use SMTP. |
+| `ALERT_FROM_EMAIL` | variable | `From:` on the alert — must be a domain the relay has verified. |
+
+The email carries the reason, a link to the run, a link to the issue, and the
+reminder that a failed writer leaves its work in a `rescue-patch` artifact.
+Delivery is best-effort by design: a dead relay must never turn one red
+workflow into two, so `scripts/send-alert.mjs` warns and exits 0.
+
 ## The newsletter
 
 The weekly digest goes out by email from this repository — our list, our
