@@ -35,31 +35,33 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
 
 - **AI assistants as a primary reader of your docs** `↑` — machine-mediated
   discovery: reading → selection → transaction. House position = the GEO dive
-  (2026-07-17): reading = act now, selection = design for, measurement =
-  don't buy yet (numbers on record live in the dive + the llms.txt
-  practice). **"Agent-safe by design" is a category** — canonical
-  detail in the 07-26 technology article; roster keeps growing (OneCLI,
-  Common Room `cr`, Axtary, ActionRail, Kastra cross-tool policy; Tines 3B
-  reframes toward citizen-builder governance). **MCP became infrastructure** —
+  (2026-07-17): reading = act now, selection = design for, measurement = don't
+  buy yet. **"Agent-safe by design" is a category** — canonical
+  detail in the 07-26 technology article; roster keeps growing (OneCLI, Common
+  Room `cr`, Axtary, ActionRail, Kastra; Tines 3B = citizen-builder governance).
+  **MCP became infrastructure** —
   the 2026-07-28 spec (stateless core, CIMD auth, ~12-month deprecation
   offramp, all Tier-1 SDKs day one, six hyperscalers committed) is canonical
-  in the 07-29 technology article; download figures are self-reported SDK
-  pulls, vendor commitments ≠ shipped integrations. Follow-through was fast:
-  Copilot code review skills+MCP GA 07-29 (MCP read-only — an incumbent
-  applying agent-safe-by-design); Anthropic rollout same day. W31 digest +
-  guide (§02 MCP bullet, §06) + practice now carry MCP-as-table-stakes and
-  the Google retrieval/ranking split (Search doesn't use llms.txt; Lighthouse
-  audits it unscored). `SKILL.md` sub-thread: Copilot GA makes GitHub a
-  second vendor shipping skills-as-a-file; promote on a third + usage
-  evidence. **Stranded-integrator open loop hit 08-04** (brief): one
-  developer's dated account of a 4-month Anthropic MCP-directory review,
-  silently discarded, vs. OpenAI's 29 days — single-sourced, watch for
-  corroboration. New texture: "agent experience" analytics is now a category,
-  not one tool (Armature, YC, 08-04, joins AgentCat reconstructing agent
-  sessions from MCP/Claude Connectors). Open loops: a devtool reporting
-  attributed AI-referral signups with a number by end of Q3 2026; a major MCP
-  host publishing a dated migration plan by end of Sept; where pre-action
-  authz consolidates. Guide: §02, §06.
+  in the 07-29 technology article; download figures = self-reported SDK pulls,
+  vendor commitments ≠ shipped integrations. Follow-through fast: Copilot code
+  review skills+MCP GA + Anthropic rollout 07-29. W31 digest + guide (§02 MCP
+  bullet, §06) + practice carry MCP-as-table-stakes and the Google retrieval/
+  ranking split (Search ignores llms.txt; Lighthouse audits it unscored).
+  `SKILL.md` sub-thread: Copilot GA = GitHub as second skills-as-a-file vendor;
+  promote on a third + usage evidence. **Stranded-integrator open loop → news article 08-04**
+  (`2026-08-04-mcp-directory-review`, Rio): the directory is a *gated distribution
+  channel*, not a formality — reframed off Symonds's single-sourced 4-month vs
+  OpenAI-29-day peg onto multiply-sourced review mechanics (Anthropic docs+policy:
+  Team/Enterprise portal, no SLA, missing privacy policy = instant reject; Tallyfy +
+  sunpeak: "plan in weeks not days," a missing item resets queue place, functional
+  test on every tool). Nuance on record: intake migrated Google Form → portal, likely
+  why the old queue was discarded. House move → guide §06 (build ≠ distribute; treat
+  submission like App Store review, never make one directory your only path). Watching:
+  corroboration of *other* stranded Google-Form-era submitters; a review SLA/appeals path.
+  "Agent experience" analytics is now a category not one tool (Armature YC 08-04 +
+  AgentCat, both MCP-session reconstruction). Open loops: a devtool reporting attributed
+  AI-referral signups with a number by end of Q3 2026; a major MCP host publishing a dated
+  migration plan by end of Sept; where pre-action authz consolidates. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common
@@ -93,18 +95,15 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   Cerebras sunset lands; whether a second vendor frames a case study around
   limits-raised rather than throughput-hit. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
-  (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact
-  out-distributes launch budget (→ example); Launch HN is the default GTM for
-  agent-infra startups. Tension: Block's Buzz (07-21, 304 pts, skeptical "LLM
-  slop" verdict) — founder credibility buys attention, not the verdict. New
-  paid-channel texture: AI devtool OOH ads at LaGuardia (07-28, no spend
-  data) — still watching for a paid push developers reward. Guide: §06, §07.
+  (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact out-distributes
+  launch budget (→ example); Launch HN is the default GTM for agent-infra startups.
+  Tension: Block's Buzz (07-21, 304 pts, "LLM slop" verdict) — founder credibility
+  buys attention, not the verdict. Guide: §06, §07.
 - **AI features priced as seat + meter** `→` — the devtools default: per-seat
-  license + metered model consumption; GitHub Code Quality GA extended the
-  shape from generation to review (money article 07-22; §01 carries the
-  shape; practice distilled). Quiet since. Open loops: first *non-generative*
-  feature on a metered AI line; whether Copilot's promo credits lapsing
-  (~Sept 2026) produces bill-shock backlash. Guide: §01, §04.
+  license + metered model consumption; GitHub Code Quality GA extended it from
+  generation to review (money article 07-22; §01 + practice carry the shape).
+  Quiet since. Open loops: first *non-generative* feature on a metered AI line;
+  whether Copilot promo-credit lapse (~Sept 2026) → bill-shock. Guide: §01, §04.
 
 ## Deep-dive candidates
 
