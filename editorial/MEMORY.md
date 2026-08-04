@@ -15,7 +15,7 @@ gives the **newsroom** its sense of what's already been said.
   to "model already knows this" get retired or refreshed.
 - **2026-07-11, the examples swipe file**: `src/content/examples/` catalogs
   real, sourced artifacts — the evidence layer under practices and guide.
-  **Weekly-editor promotion, 0–3 a week and often zero — never a quota.**
+  **Weekly-editor promotion, 0–3/week, often zero — never a quota.**
 - **2026-07-11, desk transition**: daily radar quota retired; now signals
   (internal, daily) + The Week (Mondays). Radar is closed — never add.
 - **2026-07-17, the newsroom**: five desks (`AUTHORS.md`) publish to
@@ -49,13 +49,17 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   applying agent-safe-by-design); Anthropic rollout same day. W31 digest +
   guide (§02 MCP bullet, §06) + practice now carry MCP-as-table-stakes and
   the Google retrieval/ranking split (Search doesn't use llms.txt; Lighthouse
-  audits it unscored — ship dates unconfirmed at source). `SKILL.md` sub-thread
-  advanced: Copilot GA makes GitHub a second independent vendor shipping
-  skills-as-a-file; promote on a third + usage evidence. Open loops: a
-  devtool reporting attributed AI-referral signups with a number by end of
-  Q3 2026 (standing call); W31 call — a major MCP host publishes a dated
-  migration plan by end of Sept, or the first stranded-integrator thread
-  lands; where pre-action authz consolidates. Guide: §02, §06.
+  audits it unscored). `SKILL.md` sub-thread: Copilot GA makes GitHub a
+  second vendor shipping skills-as-a-file; promote on a third + usage
+  evidence. **Stranded-integrator open loop hit 08-04** (brief): one
+  developer's dated account of a 4-month Anthropic MCP-directory review,
+  silently discarded, vs. OpenAI's 29 days — single-sourced, watch for
+  corroboration. New texture: "agent experience" analytics is now a category,
+  not one tool (Armature, YC, 08-04, joins AgentCat reconstructing agent
+  sessions from MCP/Claude Connectors). Open loops: a devtool reporting
+  attributed AI-referral signups with a number by end of Q3 2026; a major MCP
+  host publishing a dated migration plan by end of Sept; where pre-action
+  authz consolidates. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common
@@ -68,14 +72,14 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   manage the *people* on craft. Kept detail: DevRel Foundation Metrics WG
   archived 2025-11-08; 11th survey wave = 62% report to C-level / 18% link
   revenue / 61% can't demonstrate impact. Hiring-bar claim (07-17) still
-  single-sourced; DevRelCon recaps absent through 08-03 (11 days post-wrap,
-  re-searched for the W31 digest) — the W32 weekly decides retirement at the
-  mid-August deadline. Open loops: fourth signal-tool deal / first disclosed
-  price; a second AI devtool shipping passive-seat reporting, or a public
-  renewal story citing one, by end of Q3; the recaps. Guide: §08, §03.
+  single-sourced; DevRelCon recaps absent through 08-04 (12 days post-wrap) —
+  the W32 weekly decides retirement at the mid-August deadline. Open loops:
+  fourth signal-tool deal / first disclosed price; a second AI devtool
+  shipping passive-seat reporting, or a public renewal story citing one, by
+  end of Q3; the recaps. Guide: §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData: ~47M
   developers, ~10% y/y and decelerating, shifting to South Asia / Greater
-  China (07-06 radar). Re-check each wave (none since April). Guide: §01, §06.
+  China. Re-check each wave (none since April). Guide: §01, §06.
 - **Verification-first marketing** `↑` — developers fact-check in public;
   ship proof, not adjectives. Two campaigns examples on record, distinct
   mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
@@ -83,26 +87,24 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   (08-01 article; example + practice promoted 08-03). Deprecation cases now
   commissioned as Thursday's dive (see candidates): Cerebras free-tier
   sunset 2026-08-17; GitHub Models retired 07-30 (six weeks, no
-  like-for-like — verified against the changelog); §04 now carries the
-  window-length-as-signal point with MCP's 12 months as the benchmark. Open
-  loops: how the 08-17 Cerebras sunset lands; whether a second vendor frames
-  a case study around limits-raised rather than throughput-hit. Guide: §01,
-  §04, §05, §07.
+  like-for-like); HCP Vagrant Registry EOL 08-04 (brief) is the longest
+  window on record — ~21 months, phased, S3-export path, OSS edition kept
+  alive — ahead of MCP's 12-month benchmark. Open loops: how the 08-17
+  Cerebras sunset lands; whether a second vendor frames a case study around
+  limits-raised rather than throughput-hit. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact
-  out-distributes launch budget (→ example). Launch HN is the default GTM
-  for agent-infra startups. Tension: Block's Buzz (07-21, 304 pts, skeptical
-  "LLM slop" verdict) — founder credibility buys attention, not the verdict.
-  New paid-channel texture: AI devtool OOH ads at LaGuardia (07-28, one
-  practitioner's photos — Codex ×2, Devin — no spend data). Still watching
-  for a paid push developers reward. Guide: §06, §07.
+  out-distributes launch budget (→ example); Launch HN is the default GTM for
+  agent-infra startups. Tension: Block's Buzz (07-21, 304 pts, skeptical "LLM
+  slop" verdict) — founder credibility buys attention, not the verdict. New
+  paid-channel texture: AI devtool OOH ads at LaGuardia (07-28, no spend
+  data) — still watching for a paid push developers reward. Guide: §06, §07.
 - **AI features priced as seat + meter** `→` — the devtools default: per-seat
   license + metered model consumption; GitHub Code Quality GA extended the
   shape from generation to review (money article 07-22; §01 carries the
-  shape; practice distilled; comparables in the article). Quiet in W31. Open
-  loops: first *non-generative* feature on a metered AI line; whether
-  Copilot's promo credits lapsing (~Sept 2026) produces bill-shock backlash.
-  Guide: §01, §04.
+  shape; practice distilled). Quiet since. Open loops: first *non-generative*
+  feature on a metered AI line; whether Copilot's promo credits lapsing
+  (~Sept 2026) produces bill-shock backlash. Guide: §01, §04.
 
 ## Deep-dive candidates
 
@@ -140,10 +142,8 @@ takes one replaces it, drawn from the thinnest guide sections.
 - **Pricing pages developers trust** — the free tier's shape as a promise,
   what a published limit signals, what a tier move does to trust. Cerebras'
   07-16 sunset is a live case; the subject outlives it. (`01`)
-- **The deprecation that didn't burn anyone** — migration windows, codemods,
-  and the comms cadence separating a clean deprecation from a churn event.
-  GitHub Models (07-30) is the second live case; MCP's 12-month offramp the
-  counterpoint. **Commissioned 08-03** — replace this entry if written. (`04`)
+- **The deprecation that didn't burn anyone** — migration windows as the
+  trust surface. **Commissioned 08-03** — replace this entry once written. (`04`)
 - **What a launch actually buys you** — the measured anatomy of a Show HN /
   Product Hunt spike: traffic half-life, signup quality vs. baseline, day-30
   retention, when deferring beats taking it. §07 is the only guide section
