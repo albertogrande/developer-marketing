@@ -86,14 +86,14 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   ship proof, not adjectives. Two campaigns examples on record, distinct
   mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
-  (08-01 article; example + practice promoted 08-03). Deprecation cases now
-  commissioned as Thursday's dive (see candidates): Cerebras free-tier
-  sunset 2026-08-17; GitHub Models retired 07-30 (six weeks, no
-  like-for-like); HCP Vagrant Registry EOL 08-04 (brief) is the longest
-  window on record — ~21 months, phased, S3-export path, OSS edition kept
-  alive — ahead of MCP's 12-month benchmark. Open loops: how the 08-17
-  Cerebras sunset lands; whether a second vendor frames a case study around
-  limits-raised rather than throughput-hit. Guide: §01, §04, §05, §07.
+  (08-01 article; example + practice promoted 08-03). Deprecation cases feed
+  Thursday's dive — four dated windows now: HCP Vagrant EOL 08-04 (~21mo,
+  longest on record), MCP's 12-month offramp, GitHub Models 07-30 (six weeks,
+  no like-for-like), GitHub Spark 08-05 brief (~27-day export, shortest yet);
+  Cerebras free-tier sunset lands 08-17. Dive nuance: Spark's `llm()` calls
+  broke 07-30 with Models, so a clean window still burned its AI apps. Open
+  loops: how Cerebras lands; a second vendor framing a case study around
+  limits-raised. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact out-distributes
   launch budget (→ example); Launch HN is the default GTM for agent-infra startups.
