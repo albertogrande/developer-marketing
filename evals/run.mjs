@@ -1,22 +1,23 @@
 #!/usr/bin/env node
-// Editorial-judgment eval harness. The four writer skills are prompts, and
-// until now a prompt change shipped unmeasured. This replays frozen decision
-// points — real repo states mined from git history for the newsroom, synthetic
-// promotion calls for the scout — through the *current* skill text with a
-// headless `claude -p`, grades the decision lines deterministically (regex,
-// no judge model), and compares the pass rate against evals/baseline.yml.
+// Editorial-judgment eval harness. The writer skills are prompts, and a
+// prompt change should not ship unmeasured. This replays frozen decision
+// points — synthetic promotion calls for the scout — through the *current*
+// skill text with a headless `claude -p`, grades the decision lines
+// deterministically (regex, no judge model), and compares the pass rate
+// against evals/baseline.yml. (The newsroom suite retired with the newsroom
+// itself in the 2026-08 two-writer refactor; editor cases over the
+// wire/claims model are the natural next additions.)
 //
 // Usage:
 //   node evals/run.mjs                       # all suites
-//   node evals/run.mjs --suite newsroom      # one suite
-//   node evals/run.mjs --case 2026-07-30     # one case (substring match)
+//   node evals/run.mjs --suite scout         # one suite
+//   node evals/run.mjs --case small-company  # one case (substring match)
 //   node evals/run.mjs --record              # also write usage/evals/<date>.md
 //   node evals/run.mjs --model <id>          # override the model
 //
-// Cost note: each newsroom case is a real model run over ~40 files of frozen
-// editorial state (a few minutes, tens of cents at Opus-class pricing); the
-// full suite is ~11 runs. That is why CI only triggers this on changes to
-// .claude/skills/** or evals/** — evals gate prompt changes, not content.
+// Cost note: each case is a real model run (minutes, cents). That is why CI
+// only triggers this on changes to .claude/skills/** or evals/** — evals
+// gate prompt changes, not content.
 
 import {
   readdirSync,
@@ -42,8 +43,8 @@ const flag = (name, fallback) => {
 };
 const SUITE = flag('--suite', 'all');
 const ONLY = flag('--case', null);
-// Default to the production newsroom writer's model: the eval must measure
-// the prompt at the model that will run it.
+// Default to an Opus-class model: the eval must measure the prompt at the
+// class of model that will run it.
 const MODEL = flag('--model', process.env.EVAL_MODEL || 'claude-opus-4-8');
 const RECORD = argv.includes('--record');
 const CASE_TIMEOUT_MS = 10 * 60 * 1000;
@@ -80,94 +81,32 @@ function loadExpected(dir) {
   return parseYaml(readFileSync(join(dir, 'expected.yml'), 'utf8'));
 }
 
-// --- newsroom: frozen repo state → publish/skip decision line ---------------
-
-function runNewsroomCase(dir) {
-  const expected = loadExpected(dir);
-  const scratch = mkdtempSync(join(tmpdir(), 'eval-newsroom-'));
-  try {
-    cpSync(join(dir, 'state'), scratch, { recursive: true });
-    // The skill under test is always the CURRENT one — that is the point.
-    const skillDest = join(scratch, '.claude', 'skills', 'newsroom');
-    mkdirSync(skillDest, { recursive: true });
-    cpSync(join(ROOT, '.claude', 'skills', 'newsroom', 'SKILL.md'), join(skillDest, 'SKILL.md'));
-    // The gates regenerate editorial/COVERAGE.md from content frontmatter;
-    // do the same over the frozen state so the skill's novelty grep works in
-    // cases mined from before the index existed.
-    spawnSync('node', [join(ROOT, 'scripts', 'build-coverage-index.mjs')], {
-      cwd: scratch,
-      encoding: 'utf8',
-    });
-
-    const prompt = [
-      `Today is ${expected.date}. You are the editor making the newsroom's`,
-      `publish/skip decision (the decision phase of .claude/skills/newsroom/SKILL.md —`,
-      `read it first). Read MASTHEAD.md, AUTHORS.md, editorial/TASTE.md,`,
-      `editorial/MEMORY.md, editorial/NEWSROOM.md, editorial/BACKLOG.md, the`,
-      `signal files under signals/, and the published articles under`,
-      `src/content/articles/. Decide from these written inputs only — you have`,
-      `no web access in this session; treat claims the inputs mark as verified`,
-      `as verified. Do not write or edit any files, and do not write the`,
-      `article. End your reply with exactly one decision line in the`,
-      `NEWSROOM.md log format, as the last line:`,
-      `- ${expected.date} · ran · <desk> · <slug> — <one-clause why>`,
-      `or`,
-      `- ${expected.date} · skip — <one-clause why>`,
-    ].join(' ');
-
-    const out = claude(prompt, {
-      cwd: scratch,
-      allowedTools: 'Read,Glob,Grep,Bash(ls *)',
-      maxTurns: 30,
-    });
-
-    const lines = [...out.matchAll(/^- \d{4}-\d{2}-\d{2} · (ran|skip)(?: · ([a-z]+))?.*$/gm)];
-    const last = lines.at(-1);
-    if (!last) return { pass: false, detail: 'no decision line in output' };
-    const [, decision, desk] = last;
-    const problems = [];
-    if (decision !== expected.decision)
-      problems.push(`decision ${decision}, expected ${expected.decision}`);
-    if (expected.desk && desk !== expected.desk)
-      problems.push(`desk ${desk ?? '(none)'}, expected ${expected.desk}`);
-    for (const re of expected.must_mention ?? []) {
-      if (!new RegExp(re, 'i').test(out)) problems.push(`missing mention /${re}/`);
-    }
-    for (const re of expected.must_not ?? []) {
-      if (new RegExp(re, 'i').test(out)) problems.push(`forbidden mention /${re}/`);
-    }
-    return { pass: problems.length === 0, detail: problems.join('; ') || last[0] };
-  } finally {
-    rmSync(scratch, { recursive: true, force: true });
-  }
-}
-
-// --- scout: one signal line → promote-to-brief yes/no -----------------------
+// --- scout: one signal line → promote-to-wire yes/no ------------------------
 
 function runScoutCase(dir) {
   const expected = loadExpected(dir);
   const signal = readFileSync(join(dir, 'signal.txt'), 'utf8').trim();
   const prompt = [
     `Read the promotion criteria in Step 3 of .claude/skills/daily-scout/SKILL.md`,
-    `("Promote what qualifies to briefs"). Then judge this single captured`,
+    `("Promote what qualifies to the wire"). Then judge this single captured`,
     `signal against those criteria exactly as written:`,
     `\n\n${signal}\n\n`,
-    `Would the scout promote this signal to a brief under src/content/briefs/?`,
+    `Would the scout promote this signal to the wire under src/content/wire/?`,
     `Judge only from the criteria and the signal — do not fetch anything.`,
-    `End your reply with exactly one line, as the last line: "BRIEF: yes" or "BRIEF: no".`,
+    `End your reply with exactly one line, as the last line: "WIRE: yes" or "WIRE: no".`,
   ].join(' ');
 
   const out = claude(prompt, { cwd: ROOT, allowedTools: 'Read,Grep', maxTurns: 10 });
-  const m = [...out.matchAll(/^BRIEF:\s*(yes|no)\s*$/gim)].at(-1);
-  if (!m) return { pass: false, detail: 'no BRIEF line in output' };
+  const m = [...out.matchAll(/^WIRE:\s*(yes|no)\s*$/gim)].at(-1);
+  if (!m) return { pass: false, detail: 'no WIRE line in output' };
   const got = m[1].toLowerCase();
-  const want = expected.brief === true || expected.brief === 'yes' ? 'yes' : 'no';
-  return { pass: got === want, detail: `BRIEF: ${got}, expected ${want}` };
+  const want = expected.wire === true || expected.wire === 'yes' ? 'yes' : 'no';
+  return { pass: got === want, detail: `WIRE: ${got}, expected ${want}` };
 }
 
 // --- scoreboard -------------------------------------------------------------
 
-const RUNNERS = { newsroom: runNewsroomCase, scout: runScoutCase };
+const RUNNERS = { scout: runScoutCase };
 const suites = SUITE === 'all' ? Object.keys(RUNNERS) : [SUITE];
 const baselinePath = join(ROOT, 'evals', 'baseline.yml');
 const baseline = existsSync(baselinePath)

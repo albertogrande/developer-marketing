@@ -63,7 +63,7 @@ jobs:
       - name: Capture today's signals
         id: claude
         # A max-turns stop exits non-zero. Without this the guard below never
-        # runs and a sweep's finished signals and briefs are thrown away — how
+        # runs and a sweep's finished signals and wire items are thrown away — how
         # 08-02 lost five written files one turn from done. The guard decides.
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
@@ -76,7 +76,7 @@ jobs:
             fixed podcast RSS feeds listed in the skill, which are the most
             reliable channel available — append dated one-liners to
             signals/<week>.md, promote every qualifying signal to
-            a brief under src/content/briefs/ (something happened + a primary
+            the wire under src/content/wire/ (something happened + a primary
             source + two sentences — traction is not a criterion), patch any
             guide section under src/content/guide/ whose facts a change
             disproved, and update editorial/MEMORY.md lightly. Fetch podcast
@@ -88,7 +88,7 @@ jobs:
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
           #
-          # 70 turns, not 40: the 2026-08-01 merge put brief promotion, the
+          # 70 turns, not 40: the 2026-08-01 merge put wire promotion, the
           # podcast fetch, distilling into editorial/podcasts/ and draining
           # three backlog episodes on the same budget the sweep alone used to
           # have, and 08-02 and 08-03 both died at the cap. A cap is a
@@ -160,7 +160,7 @@ jobs:
           # No continue-on-error and no tolerate_max_turns on the verifier:
           # a fact-integrity pass that ran out of turns may have left claims
           # unchecked, and unchecked claims are the one thing that must never
-          # reach a commit. 60 turns because there are more briefs to verify.
+          # reach a commit. 60 turns because there are more wire items to verify.
           claude_args: >-
             --model claude-opus-4-8
             --max-turns 60

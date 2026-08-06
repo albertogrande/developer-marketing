@@ -1,12 +1,11 @@
 # Editorial Memory
 
-Agent-maintained; internal. Read before running any desk; update after. Keep
-under ~170 lines (`scripts/check-editorial.mjs` enforces it) — retire dead
-threads by deleting them; git history preserves everything. Detail that
+Agent-maintained; internal. Read before running either writer; update after.
+Keep under ~170 lines (`scripts/check-editorial.mjs` enforces it) — retire
+dead threads by deleting them; git history preserves everything. Detail that
 shipped in a published piece lives in that piece — keep the pointer and the
 open loops here, not the narrative. This is the brain that keeps the
-**guide** current, decides when a thread has earned a **deep dive**, and
-gives the **newsroom** its sense of what's already been said.
+**guide** current and decides when a thread has earned a **special issue**.
 
 ## Standing editorial findings
 
@@ -18,10 +17,12 @@ gives the **newsroom** its sense of what's already been said.
   **Weekly-editor promotion, 0–3/week, often zero — never a quota.**
 - **2026-07-11, desk transition**: daily radar quota retired; now signals
   (internal, daily) + The Week (Mondays). Radar is closed — never add.
-- **2026-07-17, the newsroom**: five desks (`AUTHORS.md`) publish to
-  `src/content/articles/` — **≤1/day, Tue–Sun, editor's call, never a
-  quota**. Decisions → `editorial/NEWSROOM.md`; ideas → `BACKLOG.md`. If the
-  newsroom starts padding, cut cadence, not quality.
+- **2026-08-06, two writers**: the newsroom (daily articles) and the deep
+  dive retired; `src/content/articles/` and `src/content/deep-dives/` are
+  archives. Events → the wire (scout, daily); analysis → the weekly issue
+  (editor, Mondays), which runs long as a **special issue** when a thread
+  earned depth. Claims carry `status`/`checked`; the editor reconciles ~3 of
+  the stalest each week.
 - **2026-07-26, the directory + the newsletter** (charter rules 8 and 9).
   `src/content/resources/` = who to hire (live site, verifiable `signal`,
   `checked` date, **nothing for sale**; maintenance on demand). Newsletter =
@@ -31,7 +32,7 @@ gives the **newsroom** its sense of what's already been said.
 ## Running threads
 
 Momentum tags `↑`/`→`/`↓`; `Tension:` when evidence cuts against a thread.
-Recurring + thinly covered by the guide = deep-dive candidate (flag below).
+Recurring + thinly covered by the guide = special-issue candidate (flag below).
 
 - **AI assistants as a primary reader of your docs** `↑` — machine-mediated
   discovery: reading → selection → transaction. House position = the GEO dive
@@ -88,10 +89,10 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
   (08-01 article; example + practice promoted 08-03). Deprecation cases feed
-  Thursday's dive — four dated windows now: HCP Vagrant EOL 08-04 (~21mo,
+  the special-issue candidate — four dated windows now: HCP Vagrant EOL 08-04 (~21mo,
   longest on record), MCP's 12-month offramp, GitHub Models 07-30 (six weeks,
   no like-for-like), GitHub Spark 08-05 brief (~27-day export, shortest yet);
-  Cerebras free-tier sunset lands 08-17. Dive nuance: Spark's `llm()` calls
+  Cerebras free-tier sunset lands 08-17. Nuance: Spark's `llm()` calls
   broke 07-30 with Models, so a clean window still burned its AI apps. Open
   loops: how Cerebras lands; a second vendor framing a case study around
   limits-raised. Guide: §01, §04, §05, §07.
@@ -106,17 +107,16 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   Quiet since. Open loops: first *non-generative* feature on a metered AI line;
   whether Copilot promo-credit lapse (~Sept 2026) → bill-shock. Guide: §01, §04.
 
-## Deep-dive candidates
+## Special-issue candidates
 
 Promote here when a thread recurs in signals AND the guide covers it thinly.
-A dive ships **every Thursday**; these are the trendy half of what it picks
-from, gated on outside events — often not ripe. A dive never skips for want
-of a hot thread; it goes evergreen instead.
+The Monday editor checks this list before deciding the issue's shape; most
+weeks none is ripe and the issue stays normal — never force a special.
 
-- **COMMISSIONED 2026-08-03 → editorial/COMMISSION.txt**: *The deprecation that
-  didn't burn anyone* — migration windows as the trust surface; MCP's twelve-month
-  offramp vs GitHub Models' six weeks vs Cerebras landing 08-17. Taken from the
-  evergreen shelf; Thursday's run replaces the shelf entry if it writes it.
+- ***The deprecation that didn't burn anyone*** — migration windows as the
+  trust surface; MCP's twelve-month offramp vs GitHub Models' six weeks vs
+  Cerebras landing 08-17. Ripe: four dated comparables. Strongest candidate
+  for the next special issue.
 - **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17)
   that postings silently screen for quantified-impact skills. Commission only
   if DevRelCon NYC recaps corroborate it across multiple talks; zero recaps
@@ -132,9 +132,9 @@ of a hot thread; it goes evergreen instead.
 ## Evergreen shelf
 
 Durable subjects a practitioner will still need in a year — always ripe.
-Thursday's dive takes from here whenever no trendy thread has earned the
-depth, which is most weeks. **Keep at least three on the shelf**: whoever
-takes one replaces it, drawn from the thinnest guide sections.
+A special issue may take from here when no trendy thread has earned the
+depth. **Keep at least three on the shelf**: whoever takes one replaces it,
+drawn from the thinnest guide sections.
 
 - **What a quickstart owes the reader** — the anatomy of a first five
   minutes: what to cut, what to hard-code, when a sandbox key beats a

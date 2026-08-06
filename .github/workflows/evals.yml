@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       suite:
-        description: "Suite to run (newsroom | scout | all)"
+        description: "Suite to run (scout | all)"
         required: false
         default: "all"
 

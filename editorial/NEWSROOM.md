@@ -1,9 +1,12 @@
-# Newsroom decision log
+# Newsroom decision log — ARCHIVED 2026-08-06
 
-One line per day, newest first — what ran (desk · slug) or why nothing did.
-The editor appends; keep roughly the last 40 lines and delete older ones
-(git history preserves everything). Internal, not rendered. A skip is a
-decision, not a failure — this log is what makes silence auditable.
+The daily newsroom retired with the two-writer pipeline (Scout + Editor);
+analysis now ships in the weekly issue and events land on the wire. This log
+is read-only history — nothing appends here anymore.
+
+The log was one line per day, newest first — what ran (desk · slug) or why
+nothing did. Internal, not rendered. A skip was a decision, not a failure —
+this log is what made silence auditable.
 
 Format:
 `- YYYY-MM-DD · ran · <desk> · <slug> — <one-clause why this story won>`

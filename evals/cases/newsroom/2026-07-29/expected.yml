@@ -1,8 +1,0 @@
-# Historical clear call: the 2026-07-28 MCP spec release — protocol goes
-# stateless, four Tier-1 SDKs day one, six hyperscalers committed. Ran on
-# technology.
-date: 2026-07-29
-decision: ran
-desk: technology
-must_mention:
-  - "MCP|Model Context Protocol"

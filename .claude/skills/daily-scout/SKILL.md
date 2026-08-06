@@ -1,6 +1,6 @@
 ---
 name: daily-scout
-description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, publish qualifying items as briefs, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
+description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, publish qualifying items to the wire, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
 argument-hint: [optional focus, e.g. "DevRel metrics" or "docs-led growth"]
 ---
 
@@ -27,7 +27,7 @@ WEEK_FILE="signals/$(date -u +%G-W%V).md"  # current ISO week (UTC)
 
 - Read the current `$WEEK_FILE` if it exists — **never duplicate** a signal
   already captured this week. Create it if missing (header below).
-- Skim `editorial/MEMORY.md`: the running threads, the deep-dive candidates,
+- Skim `editorial/MEMORY.md`: the running threads, the special-issue candidates,
   and the **guide coverage index** (which section owns which topic). This tells
   you what's already known and where a new fact belongs.
 
@@ -107,7 +107,7 @@ Write notes into `editorial/podcasts/` following the format in that directory's
 `README.md` — topics, claims with timestamps and an honest label (measured /
 self-reported / anecdotal), a couple of short attributed quotes, and what the
 episode is *not* evidence for. Set `candidates:` in the frontmatter when the
-episode could earn a practice or a deep dive; the weekly editor greps that field
+episode could earn a claim or a special issue; the weekly editor greps that field
 and never sees a note you leave unflagged. Omit it when the episode promotes
 nothing, which is most of them. Filename must match what `--pending` expects
 (same stem as the cached transcript, `.md` instead of `.txt`), because a note
@@ -154,7 +154,7 @@ justify the bill.
   **Stack Overflow Developer Survey**, **GitHub Octoverse**, **DX / DevEx
   research** (Forsgren et al.).
 
-**The newsroom beats — money, campaigns, technology (feed the desks):**
+**The money, campaigns and technology beats (feed the editor's angles):**
 
 - **Money:** devtools funding rounds, acquisitions, valuations, and pricing
   changes — TechCrunch/press-release announcements, the company's own post,
@@ -212,7 +212,7 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   reader makes** — a dated data point that shifts a play, a channel that
   stopped/started working, a measurable pattern with numbers — not merely an
   interesting read. These become the weekly editor's queue for distilling
-  `src/content/practices/` entries. When in doubt, flag it; the editor decides.
+  `src/content/claims/` entries. When in doubt, flag it; the editor decides.
 - Append ` · example-candidate` when the signal is a **concrete, still-live
   artifact a reader could open in a new tab and copy** — a specific pricing
   page, a launch page, an API reference, a landing-page hero, a changelog, a
@@ -225,13 +225,14 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   agents. Include the repo link. These feed the weekly editor's shelf
   (`src/content/skills/`), where a mandatory caveat and an install line the
   editor has read are the price of admission.
-- Append a **desk flag** when a signal could carry a newsroom article
-  (`.claude/skills/newsroom/`): ` · news-candidate` (industry news that
-  changes a decision), ` · analysis-candidate` (a money move or pattern —
-  funding, M&A, pricing), ` · campaign-candidate` (a campaign/launch worth a
-  teardown), ` · tech-candidate` (a stack technology shift with adoption
-  evidence). One signal can carry a desk flag *and* practice/example flags —
-  they feed different desks. When in doubt, flag it; the editor decides.
+- Append an **angle flag** when a signal could carry a longer treatment in
+  the weekly issue: ` · news-candidate` (industry news that changes a
+  decision), ` · analysis-candidate` (a money move or pattern — funding, M&A,
+  pricing), ` · campaign-candidate` (a campaign/launch worth a teardown),
+  ` · tech-candidate` (a stack technology shift with adoption evidence). One
+  signal can carry an angle flag *and* practice/example flags — they feed
+  different passes of the editor's run. When in doubt, flag it; the editor
+  decides.
 - Discussions are first-class: an HN thread tearing down a devtool launch is a
   signal even if no outlet wrote it up — link the thread.
 - Note trajectory when visible ("second wave of…", "follow-up to Monday's…").
@@ -239,18 +240,18 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   new: append `## <TODAY>` with `- (quiet day)` so the editor knows you ran.
 - No takes beyond a clause. The weekly editor verifies and opines.
 
-## Step 3 — Promote what qualifies to briefs
+## Step 3 — Promote what qualifies to the wire
 
-Signals are internal; `src/content/briefs/` is the published wire. This is the
-tier below a newsroom article, and it exists for two reasons: a day the
-newsroom logs a skip should still reach a reader, and a small company whose
-news can't carry 900 words should still get covered.
+Signals are internal; `src/content/wire/` is the published wire — the event
+log, and the only place dated news lands. It exists so that a small company
+whose news can't carry long-form prose still gets covered, and so every
+qualifying event reaches a reader the same day.
 
 Promote a signal when **all** of these hold:
 
 - Something **happened** — a company shipped, launched, raised, renamed,
   deprecated, or published something. A think-piece with no event behind it is
-  a signal, not a brief.
+  a signal, not a wire item.
 - There is a **primary source** you opened: the changelog, the blog post, the
   Show HN thread, the filing. Not a write-up about a write-up.
 - You can say what happened in **two sentences** without hedging into vagueness.
@@ -264,7 +265,7 @@ heard of clears this bar if something real happened and the link proves it —
 that is the point of the tier. Ranking by reach is what pushes the small-company
 tail out of coverage entirely.
 
-One file per item, `src/content/briefs/YYYY-MM-DD-company-slug.md`:
+One file per item, `src/content/wire/YYYY-MM-DD-company-slug.md`:
 
 ```markdown
 ---
@@ -272,7 +273,7 @@ title: <the headline — what happened, no company prefix>
 company: <as they write it>
 date: <today, or the capture date for something surfaced late>
 kind: news | release | funding | launch | campaign | discussion | podcast
-summary: '<exactly two sentences — the brief itself>'
+summary: '<exactly two sentences — the item itself>'
 tags: [<reuse existing tags where they fit>]
 source:
   label: <publisher — headline>
@@ -298,10 +299,10 @@ the note should state plainly that the item was summarised from the episode
 page rather than from listening. The guest and their company belong in the
 summary.
 
-Several briefs a day is normal and correct; zero is fine on a genuinely quiet
-day. `check-refs.mjs` fails the build on a brief missing `company`, `summary`,
-or `source.url` — an unverifiable one-line news claim is a rumour with a
-company name attached.
+Several wire items a day is normal and correct; zero is fine on a genuinely
+quiet day. `check-refs.mjs` fails the build on an item missing `company`,
+`summary`, or `source.url` — an unverifiable one-line news claim is a rumour
+with a company name attached.
 
 ## Step 4 — Patch the guide (only for hard, unambiguous facts)
 
@@ -322,19 +323,19 @@ pass. When in doubt, capture the signal and don't touch the guide. Don't bump
 ## Step 5 — Update memory (light)
 
 Episode notes in `editorial/podcasts/` are part of memory now: before flagging a
-deep-dive candidate, grep them — a thread that keeps recurring across episodes
+special-issue candidate, grep them — a thread that keeps recurring across episodes
 is stronger evidence than one that surfaced once on HN.
 
 In `editorial/MEMORY.md`, only if today changed something:
 - Attach a notable signal to an existing **running thread** (or note a
   genuinely new one — don't leave a big story orphaned).
 - If a topic keeps recurring in signals and the guide covers it thinly, add or
-  bump a **deep-dive candidate**.
+  bump a **special-issue candidate**.
 Keep it terse; the weekly editor does the full maintenance pass.
 
 ## Step 6 — Report
 
 End with a short plain-text summary: how many signals you captured (filename),
-how many briefs you published and which signals you left unpromoted, which
+how many wire items you published and which signals you left unpromoted, which
 guide sections you patched and why, and anything you left out because you
 couldn't confirm it. Do **not** run git — the workflow commits and deploys.

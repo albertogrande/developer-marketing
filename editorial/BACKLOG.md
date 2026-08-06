@@ -1,4 +1,8 @@
-# Article backlog
+# Article backlog — ARCHIVED 2026-08-06
+
+The daily article tier retired with the two-writer pipeline. Evergreen ideas
+now live as special-issue candidates in editorial/MEMORY.md. Read-only
+history below.
 
 Evergreen article ideas per desk — the pool the editor draws from on days the
 signals don't earn the slot on their own. Internal, not rendered.

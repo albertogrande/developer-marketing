@@ -2,5 +2,4 @@
 # below its floor fails CI. Model decisions have variance, so the floors sit
 # below 1.0 on purpose — raise them as cases and prompts stabilise, never
 # lower them to make a failing change pass ("fix the change, not the gate").
-newsroom: 0.8
 scout: 0.8

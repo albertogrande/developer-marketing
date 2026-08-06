@@ -1,18 +1,17 @@
 name: Health
 
-# Dead-man's switch for the autonomous desks. The writer guards inside each
+# Dead-man's switch for the two writers. The writer guards inside each
 # workflow catch a run that errors or no-ops; this watchdog catches the
 # failure class those can never see — the schedule itself going quiet (GitHub
 # disabling crons on an inactive repo, a broken workflow file on main, an
 # action's moving tag regressing to silent success). If the scout hasn't
-# committed signals in 2 days, or the weekly hasn't committed a digest in 9, or
-# the Thursday dive has gone 9 days without an essay, something upstream is
-# dead — open/comment the pipeline-failure issue.
+# committed signals in 2 days, or the editor hasn't committed an issue in 9,
+# something upstream is dead — open/comment the pipeline-failure issue.
 
 on:
   schedule:
     # 12:00 UTC daily — hours after the scout's 05:00 run and the Monday
-    # weekly at 07:00, so a healthy day is never mid-flight when checked.
+    # editor at 07:00, so a healthy day is never mid-flight when checked.
     - cron: "0 12 * * *"
   workflow_dispatch: {}
 
@@ -55,17 +54,9 @@ jobs:
 
           # The scout appends signals every day — even quiet days get a line.
           check "Scout" "signals/" 2
-          # The newsroom logs a publish/skip decision every run day (Tue–Sun)
-          # in editorial/NEWSROOM.md — 3 days covers the Monday gap plus one
-          # missed day. Publishing is not a quota; deciding is.
-          check "Newsroom" "editorial/NEWSROOM.md" 3
-          # The weekly commits a digest every Monday; 9 days is one missed
+          # The editor commits an issue every Monday; 9 days is one missed
           # Monday plus slack.
-          check "Weekly" "src/content/weekly/" 9
-          # A dive ships every Thursday — evergreen when no thread is hot, so
-          # a quiet news week is never a reason for silence here. 9 days is one
-          # missed Thursday plus slack.
-          check "Deep Dive" "src/content/deep-dives/" 9
+          check "Editor" "src/content/issues/" 9
 
           exit "$stale"
 
