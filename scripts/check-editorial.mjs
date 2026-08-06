@@ -7,7 +7,10 @@
 // the signal density up. This makes the cap binding.
 //
 // Also sanity-checks signals/ filenames (ISO week form YYYY-Www.md) — a
-// misnamed week file is invisible to every desk that greps by week id.
+// misnamed week file is invisible to every desk that greps by week id — and
+// the scout's event DB under signals/db/ (ISO week .ndjson files whose every
+// line parses and carries an id, ts and url; the query tools replay these
+// blind, so a malformed line is corruption, not style).
 //
 // Runs in `npm run check` and the editorial-gates action. Warns at 90% of
 // cap, fails above cap.
@@ -37,11 +40,38 @@ if (existsSync(MEMORY)) {
 
 // --- signals/ filenames -----------------------------------------------------
 if (existsSync('signals')) {
-  for (const f of readdirSync('signals')) {
-    if (f.startsWith('.')) continue;
-    if (!/^\d{4}-W\d{2}\.md$/.test(f)) {
-      problems.push(`signals/${f}: not an ISO week filename (YYYY-Www.md) — desks grep by week id`);
+  for (const e of readdirSync('signals', { withFileTypes: true })) {
+    if (e.name.startsWith('.')) continue;
+    if (e.isDirectory()) {
+      if (e.name !== 'db') problems.push(`signals/${e.name}/: unexpected directory — only db/ lives here`);
+      continue;
     }
+    if (!/^\d{4}-W\d{2}\.md$/.test(e.name)) {
+      problems.push(`signals/${e.name}: not an ISO week filename (YYYY-Www.md) — desks grep by week id`);
+    }
+  }
+}
+
+// --- signals/db/ event log ---------------------------------------------------
+if (existsSync('signals/db')) {
+  for (const f of readdirSync('signals/db')) {
+    if (f.startsWith('.')) continue;
+    if (!/^\d{4}-W\d{2}\.ndjson$/.test(f)) {
+      problems.push(`signals/db/${f}: not an ISO week event log (YYYY-Www.ndjson)`);
+      continue;
+    }
+    const lines = readFileSync(`signals/db/${f}`, 'utf8').split('\n');
+    lines.forEach((line, i) => {
+      if (!line.trim()) return;
+      try {
+        const rec = JSON.parse(line);
+        if (!rec.id || !rec.ts || !rec.url) {
+          problems.push(`signals/db/${f}:${i + 1}: event missing id/ts/url`);
+        }
+      } catch {
+        problems.push(`signals/db/${f}:${i + 1}: unparsable JSON line`);
+      }
+    });
   }
 }
 
