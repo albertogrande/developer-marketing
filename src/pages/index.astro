@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NewsletterCta from '../components/NewsletterCta.astro';
-import { withBase, fmtMed, isoDate } from '../lib/site';
+import { withBase, fmtWeekRange, isoDate } from '../lib/site';
 import {
   getGuideSorted,
   getIssuesSorted,
@@ -90,7 +90,7 @@ const guideUpdated = guide.reduce<Date | null>(
             <span class="fm-legend">THE WEEK</span>
             <div class="fm-kick">
               <span class="amber"># </span>
-              <span class="kind-inline">{lead.data.week}</span> · {fmtMed(lead.data.date)}
+              <span class="kind-inline">{lead.data.week}</span> · {fmtWeekRange(lead.data.date, 'med')}
             </div>
             <h1 class="fm-h">{lead.data.title}</h1>
             <p class="fm-dek">{lead.data.dek ?? lead.data.summary}</p>
@@ -115,7 +115,7 @@ const guideUpdated = guide.reduce<Date | null>(
           <div class="fm-duo">
             {earlier.slice(0, 2).map((w) => (
               <a href={withBase(`/issues/${w.id}`)} class="fm-box fm-box--sec" data-date={isoDate(w.data.published)}>
-                <div class="fm-kick"><span class="kind-inline">{w.data.week}</span> · {fmtMed(w.data.date)}</div>
+                <div class="fm-kick"><span class="kind-inline">{w.data.week}</span> · {fmtWeekRange(w.data.date, 'med')}</div>
                 <h2 class="fm-h2">{w.data.title}</h2>
                 <p class="fm-dek">{w.data.summary}</p>
               </a>

@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
-import { absUrl, fmtLong, withBase, isoDate } from '../../lib/site';
+import { absUrl, fmtWeekRange, withBase, isoDate } from '../../lib/site';
 import { entryByDateDesc, getWireByWeek, WIRE_KIND_LABELS } from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
@@ -36,7 +36,7 @@ const briefsThisWeek = (await getWireByWeek()).get(d.week) ?? [];
   title={d.title}
   description={d.summary}
   deskLabel="The Week"
-  stamp={`${d.week} · ${fmtLong(d.date)}`}
+  stamp={`${d.week} · ${fmtWeekRange(d.date)}`}
   published={d.published}
   updated={d.updated}
   jsonLd={[

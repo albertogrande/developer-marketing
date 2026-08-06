@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NewsletterCta from '../../components/NewsletterCta.astro';
-import { withBase, fmtMed } from '../../lib/site';
+import { withBase, fmtWeekRange } from '../../lib/site';
 import { getIssuesSorted } from '../../lib/content';
 import { NEWSLETTER, NEWSLETTER_LIVE } from '../../lib/newsletter';
 
@@ -121,7 +121,7 @@ const recent = weekly.slice(0, 6);
             <span class="fm-ln">{w.data.week.slice(5)}</span>
             <div class="fm-rowmain">
               <a href={withBase(`/issues/${w.id}`)} class="fm-row-t">{w.data.title}</a>
-              <p class="fm-row-dek">{w.data.summary} <span class="dim">· {fmtMed(w.data.date)}</span></p>
+              <p class="fm-row-dek">{w.data.summary} <span class="dim">· {fmtWeekRange(w.data.date, 'med')}</span></p>
             </div>
           </li>
         ))}

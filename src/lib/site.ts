@@ -54,4 +54,20 @@ export const fmtMed = (d: Date) =>
 
 export const isoDate = (d: Date) => d.toISOString().slice(0, 10); // 2026-07-04
 
+// The Mon–Sun range a weekly issue covers, from its `date` (the Monday).
+// "20–26 July 2026" within a month, "27 July – 2 August 2026" across one,
+// years spelled out on both sides when the week straddles New Year. This is
+// the reader-facing stamp: the Monday alone read as a publish date and made
+// the newest issue look a week old.
+export const fmtWeekRange = (monday: Date, style: 'long' | 'med' = 'long') => {
+  const month = style === 'long' ? ('long' as const) : ('short' as const);
+  const sunday = new Date(monday.getTime() + 6 * 86400e3);
+  const sameYear = monday.getUTCFullYear() === sunday.getUTCFullYear();
+  if (!sameYear)
+    return `${fmt(monday, { day: 'numeric', month, year: 'numeric' })} – ${fmt(sunday, { day: 'numeric', month, year: 'numeric' })}`;
+  if (monday.getUTCMonth() === sunday.getUTCMonth())
+    return `${monday.getUTCDate()}–${fmt(sunday, { day: 'numeric', month, year: 'numeric' })}`;
+  return `${fmt(monday, { day: 'numeric', month })} – ${fmt(sunday, { day: 'numeric', month, year: 'numeric' })}`;
+};
+
 // Collection ordering lives in ./content.ts (entryByDateDesc & friends).

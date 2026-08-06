@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import NewsletterCta from '../../components/NewsletterCta.astro';
-import { withBase, absUrl } from '../../lib/site';
+import { withBase, absUrl, fmtWeekRange } from '../../lib/site';
 import { getIssuesSorted } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
@@ -42,7 +42,7 @@ const weekly = await getIssuesSorted();
               <span class="kind">the week</span>
               <a href={withBase(`/issues/${w.id}`)} class="ar-title">{w.data.title}</a>
             </div>
-            <span class="ar-meta">{w.data.summary}</span>
+            <span class="ar-meta"><span class="dim">{fmtWeekRange(w.data.date, 'med')}</span> · {w.data.summary}</span>
             <TagList tags={w.data.tags} style="margin-top:8px" />
           </div>
         </li>
