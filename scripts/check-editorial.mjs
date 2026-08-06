@@ -46,9 +46,34 @@ if (existsSync('signals')) {
       if (e.name !== 'db') problems.push(`signals/${e.name}/: unexpected directory — only db/ lives here`);
       continue;
     }
+    if (e.name === 'entities.json') continue; // validated below
     if (!/^\d{4}-W\d{2}\.md$/.test(e.name)) {
       problems.push(`signals/${e.name}: not an ISO week filename (YYYY-Www.md) — desks grep by week id`);
     }
+  }
+}
+
+// --- signals/entities.json ---------------------------------------------------
+// The event graph's nodes. Query and enrichment resolve slugs through it, so
+// a malformed registry silently breaks every entity filter.
+const ENTITIES = 'signals/entities.json';
+if (existsSync(ENTITIES)) {
+  try {
+    const reg = JSON.parse(readFileSync(ENTITIES, 'utf8'));
+    const kinds = new Set(['company', 'tool', 'person', 'protocol', 'show']);
+    const aliases = new Set();
+    for (const [slug, ent] of Object.entries(reg)) {
+      if (slug.startsWith('_')) continue; // _comment
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) problems.push(`${ENTITIES}: bad slug "${slug}"`);
+      if (!ent?.name) problems.push(`${ENTITIES}: ${slug} missing name`);
+      if (!kinds.has(ent?.kind)) problems.push(`${ENTITIES}: ${slug} has bad kind "${ent?.kind}"`);
+      for (const a of ent?.aliases ?? []) {
+        if (aliases.has(a)) problems.push(`${ENTITIES}: alias "${a}" appears twice`);
+        aliases.add(a);
+      }
+    }
+  } catch (e) {
+    problems.push(`${ENTITIES}: does not parse (${e.message})`);
   }
 }
 
@@ -65,8 +90,20 @@ if (existsSync('signals/db')) {
       if (!line.trim()) return;
       try {
         const rec = JSON.parse(line);
-        if (!rec.id || !rec.ts || !rec.url) {
-          problems.push(`signals/db/${f}:${i + 1}: event missing id/ts/url`);
+        // Two valid shapes: a full event (id + ts + url + title) or an
+        // append-only enrichment line (id + only enrichment fields).
+        if (!rec.id) {
+          problems.push(`signals/db/${f}:${i + 1}: line missing id`);
+        } else if (rec.ts || rec.url || rec.title) {
+          if (!rec.ts || !rec.url || !rec.title) {
+            problems.push(`signals/db/${f}:${i + 1}: event missing ts/url/title`);
+          }
+        } else {
+          const allowed = new Set(['id', 'entities', 'event', 'topics']);
+          const extra = Object.keys(rec).filter((k) => !allowed.has(k));
+          if (extra.length) {
+            problems.push(`signals/db/${f}:${i + 1}: enrichment line has unexpected field(s) ${extra.join(', ')}`);
+          }
         }
       } catch {
         problems.push(`signals/db/${f}:${i + 1}: unparsable JSON line`);

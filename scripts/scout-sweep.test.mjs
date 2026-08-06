@@ -199,3 +199,19 @@ test('registry integrity: unique ids, https feeds, valid kind and posture enums'
   assert.ok(CHANNELS.includes('search') && CHANNELS.includes('manual'), 'model write-path channels exist');
   assert.ok(EVENT_KINDS.includes('other'), 'the enum has an honest fallback');
 });
+
+test('entities.json parses and every entry passes the gate rules', async () => {
+  const { readFileSync } = await import('node:fs');
+  const reg = JSON.parse(readFileSync('signals/entities.json', 'utf8'));
+  const aliases = new Set();
+  for (const [slug, ent] of Object.entries(reg)) {
+    if (slug.startsWith('_')) continue;
+    assert.match(slug, /^[a-z0-9][a-z0-9-]*$/, `slug ${slug}`);
+    assert.ok(ent.name, `${slug} has a name`);
+    assert.ok(['company', 'tool', 'person', 'protocol', 'show'].includes(ent.kind), `${slug} kind`);
+    for (const a of ent.aliases ?? []) {
+      assert.ok(!aliases.has(a), `alias "${a}" unique`);
+      aliases.add(a);
+    }
+  }
+});
