@@ -1,0 +1,16 @@
+---
+// Banner for the read-only sections (articles, deep-dives, radar): the pages
+// keep rendering so URLs and feeds stay stable, but no new entries land here.
+import { withBase } from '../lib/site';
+
+interface Props {
+  // What replaced this section, e.g. "analysis now ships in the weekly issue".
+  now: string;
+}
+const { now } = Astro.props;
+---
+<p class="archive-note">
+  <strong>Archive</strong> — this section is closed; {now}. Current coverage:
+  <a href={withBase('/wire')}>the wire</a> ·
+  <a href={withBase('/issues')}>the week</a>.
+</p>

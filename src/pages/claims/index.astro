@@ -6,17 +6,23 @@ import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getGuideSorted, getClaimsSorted } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
-// The agent-facing corpus, human-readable: every practice, grouped by the
+// The agent-facing corpus, human-readable: every claim, grouped by the
 // guide section it belongs to. Agents read this via /claims.json and
 // llms.txt; this page is the same corpus for people (and for site search).
 
 const [guide, practices] = await Promise.all([getGuideSorted(), getClaimsSorted()]);
 
-// One pass to group, renders in parallel — the corpus grows weekly.
+// One pass to group, renders in parallel — the corpus grows weekly. Retired
+// claims stay on the page (their anchors must keep resolving) but render
+// last in their group, dimmed.
+const statusRank = { current: 0, stale: 1, retired: 2 } as const;
 const bySection = new Map<string, typeof practices>();
 for (const p of practices) {
   if (!bySection.has(p.data.section)) bySection.set(p.data.section, []);
   bySection.get(p.data.section)!.push(p);
+}
+for (const list of bySection.values()) {
+  list.sort((a, b) => statusRank[a.data.status] - statusRank[b.data.status]);
 }
 const groups = await Promise.all(
   guide
@@ -68,8 +74,13 @@ const groups = await Promise.all(
           <span class="dim">{String(g.items.length).padStart(2, '0')}</span>
         </div>
         {g.items.map(({ p, Content }) => (
-          <article class="practice" id={p.id}>
-            <h3 class="practice-h"><a href={`#${p.id}`}>{p.data.title}</a></h3>
+          <article class={`practice${p.data.status === 'retired' ? ' is-retired' : ''}`} id={p.id}>
+            <h3 class="practice-h">
+              <a href={`#${p.id}`}>{p.data.title}</a>
+              {p.data.status !== 'current' && (
+                <span class={`claim-status claim-status-${p.data.status}`}>{p.data.status}</span>
+              )}
+            </h3>
             <dl>
               <dt>When</dt><dd>{p.data.when}</dd>
               <dt>Do</dt><dd>{p.data.do}</dd>
@@ -81,6 +92,9 @@ const groups = await Promise.all(
             <div class="practice-meta">
               <TagList tags={p.data.tags} />
               <span class="dim">upd {isoDate(p.data.updated)}</span>
+              <span class="dim" title="When this claim was last re-verified against its sources">
+                checked {isoDate(p.data.checked)}
+              </span>
               {p.data.probe && (
                 <span class="dim" title="Periodic probe: does a bare model already know this?">
                   probe: {p.data.probe.status} ({isoDate(p.data.probe.date)})

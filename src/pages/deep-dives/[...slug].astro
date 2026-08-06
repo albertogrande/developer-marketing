@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { absUrl, fmtLong } from '../../lib/site';
@@ -37,6 +38,7 @@ const d = entry.data;
   ]}
 >
   <div class="entry-lead" slot="lead">
+    <ArchiveNotice now="depth now ships as a long special issue" />
     {d.dek && <p class="dek" style="margin-top:14px">{d.dek}</p>}
     <TagList tags={d.tags} style="margin-top:14px" />
   </div>

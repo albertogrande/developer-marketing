@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import TagList from '../../components/TagList.astro';
 import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getArticlesSorted, DESK_LABELS } from '../../lib/content';
@@ -23,6 +24,7 @@ const desks = (['news', 'money', 'campaigns', 'research', 'technology'] as const
     }),
   ]}
 >
+  <ArchiveNotice now="analysis now ships in the weekly issue" />
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> newsroom</div>
     <h1 class="page-title">The Newsroom</h1>

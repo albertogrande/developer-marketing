@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import TagList from '../../components/TagList.astro';
 import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getRadarSorted } from '../../lib/content';
@@ -20,6 +21,7 @@ const radar = await getRadarSorted();
     }),
   ]}
 >
+  <ArchiveNotice now="daily capture moved to the wire" />
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> radar</div>
     <h1 class="page-title">The radar archive</h1>

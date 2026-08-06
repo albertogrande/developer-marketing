@@ -60,12 +60,16 @@ const KIND_LABEL = { article: 'article', issue: 'the week', dive: 'deep dive', r
     <div class="hub">
       {claims.length > 0 && (
         <div class="hub-sec">
-          <p class="hub-h">In practice <span class="ar-count">{claims.length}</span></p>
+          <p class="hub-h">Claims <span class="ar-count">{claims.length}</span></p>
           <ul class="hub-list">
             {claims.map((p) => (
               <li class="hub-item">
                 <a href={withBase(`/claims#${p.id}`)}>{p.data.title}</a>
+                {p.data.status !== 'current' && (
+                  <span class={`claim-status claim-status-${p.data.status}`}>{p.data.status}</span>
+                )}
                 {p.data.since && <span class="hub-m">since {p.data.since}</span>}
+                <span class="hub-m">checked {isoDate(p.data.checked)}</span>
                 <span class="hub-sub">when {p.data.when} → {p.data.do}</span>
               </li>
             ))}

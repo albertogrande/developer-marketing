@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import TagList from '../../components/TagList.astro';
 import { withBase, absUrl, isoDate } from '../../lib/site';
 import { getDivesSorted } from '../../lib/content';
@@ -20,6 +21,7 @@ const dives = await getDivesSorted();
     }),
   ]}
 >
+  <ArchiveNotice now="depth now ships as a long special issue" />
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> deep dives</div>
     <h1 class="page-title">Deep dives</h1>

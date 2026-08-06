@@ -1,5 +1,6 @@
 ---
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { withBase, fmtLong, isoDate } from '../../lib/site';
@@ -40,6 +41,7 @@ const author = AUTHORS[d.desk];
   jsonLd={[newsArticleNode(entry)]}
 >
   <div class="entry-lead" slot="lead">
+    <ArchiveNotice now="analysis now ships in the weekly issue" />
     <span class="kind">{DESK_LABELS[d.desk].toLowerCase()}</span>
     <TagList tags={d.tags} />
   </div>

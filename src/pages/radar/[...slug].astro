@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import ArchiveNotice from '../../components/ArchiveNotice.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { absUrl, fmtLong } from '../../lib/site';
@@ -35,6 +36,7 @@ const d = entry.data;
   ]}
 >
   <div class="entry-lead" slot="lead">
+    <ArchiveNotice now="daily capture moved to the wire" />
     <span class="kind">{d.kind}</span>
     <TagList tags={d.tags} />
   </div>

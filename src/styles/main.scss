@@ -891,6 +891,17 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .tick-i a:hover .tick-t, .tick-i a:focus-visible .tick-t { color: var(--accent); text-decoration: underline; }
 .tick-co { color: var(--fg); font-weight: 700; }
 .tick-k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; }
+
+/* Claim freshness chips — stamped by the weekly editor's reconciliation pass. */
+.claim-status { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; }
+.claim-status-current { color: var(--c-correct, var(--accent)); }
+.claim-status-stale { color: var(--c-partial, var(--faint)); }
+.claim-status-retired { color: var(--faint); }
+.practice.is-retired { opacity: 0.55; }
+
+/* Archive banner — read-only sections keep rendering, new work ships elsewhere. */
+.archive-note { font-family: var(--font-mono); font-size: 12px; color: var(--faint); border: 1px dashed var(--faint); border-radius: 4px; padding: 8px 12px; margin: 0 0 22px; }
+.archive-note a { color: var(--accent); }
 @keyframes tick-scroll {
   from { transform: translateX(0); }
   /* Half the run, because the list is duplicated at runtime for a seamless
