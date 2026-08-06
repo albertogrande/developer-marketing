@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Editorial-judgment eval harness. The writer skills are prompts, and a
 // prompt change should not ship unmeasured. This replays frozen decision
-// points — synthetic promotion calls for the scout — through the *current*
-// skill text with a headless `claude -p`, grades the decision lines
-// deterministically (regex, no judge model), and compares the pass rate
-// against evals/baseline.yml. (The newsroom suite retired with the newsroom
-// itself in the 2026-08 two-writer refactor; editor cases over the
-// wire/claims model are the natural next additions.)
+// points — synthetic promotion calls for the scout, synthetic shape and
+// claim-status calls for the editor — through the *current* skill text with
+// a headless `claude -p`, grades the decision lines deterministically
+// (regex, no judge model), and compares the pass rate against
+// evals/baseline.yml. (The newsroom suite retired with the newsroom itself
+// in the 2026-08 two-writer refactor.)
 //
 // Usage:
 //   node evals/run.mjs                       # all suites
@@ -81,6 +81,51 @@ function loadExpected(dir) {
   return parseYaml(readFileSync(join(dir, 'expected.yml'), 'utf8'));
 }
 
+// --- editor: frozen context → shape or claim-status decision line -----------
+
+// Two graded judgments, one suite: the normal-vs-special issue call (Step 4
+// of weekly-editor) and the claims reconciliation verdict (Step 5.5). Each
+// case is synthetic-but-realistic frozen context; the grade is the final
+// decision line only — no writing, no web.
+function runEditorCase(dir) {
+  const expected = loadExpected(dir);
+  const context = readFileSync(join(dir, 'context.md'), 'utf8');
+  const isShape = expected.type === 'shape';
+
+  const prompt = isShape
+    ? [
+        `Read Step 4 of .claude/skills/weekly-editor/SKILL.md ("Write the issue`,
+        `(and decide its length)") — the two-shapes rule. Then judge this frozen`,
+        `Monday-morning context against that rule exactly as written:`,
+        `\n\n${context}\n\n`,
+        `Decide only from these written inputs — no web access, no file edits.`,
+        `End your reply with exactly one line, as the last line:`,
+        `"SHAPE: normal" or "SHAPE: special".`,
+      ].join(' ')
+    : [
+        `Read the "Re-verify the stalest" rules in Step 5.5 of`,
+        `.claude/skills/weekly-editor/SKILL.md. Then judge this re-verification`,
+        `outcome against those rules exactly as written:`,
+        `\n\n${context}\n\n`,
+        `Decide only from these written inputs — no web access, no file edits.`,
+        `End your reply with exactly one line, as the last line:`,
+        `"STATUS: current", "STATUS: stale" or "STATUS: retired".`,
+      ].join(' ');
+
+  const out = claude(prompt, { cwd: ROOT, allowedTools: 'Read,Grep', maxTurns: 10 });
+  const re = isShape ? /^SHAPE:\s*(normal|special)\s*$/gim : /^STATUS:\s*(current|stale|retired)\s*$/gim;
+  const m = [...out.matchAll(re)].at(-1);
+  if (!m) return { pass: false, detail: `no ${isShape ? 'SHAPE' : 'STATUS'} line in output` };
+  const got = m[1].toLowerCase();
+  const want = isShape ? expected.shape : expected.status;
+  const problems = [];
+  if (got !== want) problems.push(`${isShape ? 'SHAPE' : 'STATUS'}: ${got}, expected ${want}`);
+  for (const s of expected.must_not ?? []) {
+    if (out.includes(s)) problems.push(`forbidden output "${s}"`);
+  }
+  return { pass: problems.length === 0, detail: problems.join('; ') || `${isShape ? 'SHAPE' : 'STATUS'}: ${got}` };
+}
+
 // --- scout: one signal line → promote-to-wire yes/no ------------------------
 
 function runScoutCase(dir) {
@@ -106,7 +151,7 @@ function runScoutCase(dir) {
 
 // --- scoreboard -------------------------------------------------------------
 
-const RUNNERS = { scout: runScoutCase };
+const RUNNERS = { scout: runScoutCase, editor: runEditorCase };
 const suites = SUITE === 'all' ? Object.keys(RUNNERS) : [SUITE];
 const baselinePath = join(ROOT, 'evals', 'baseline.yml');
 const baseline = existsSync(baselinePath)

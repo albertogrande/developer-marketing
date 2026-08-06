@@ -1,0 +1,7 @@
+# Big but brand-new: one week of vendor-sourced coverage is not an earned
+# thread. The story leads a NORMAL issue; depth waits until it recurs and
+# independent evidence lands.
+type: shape
+shape: normal
+must_not:
+  - "SHAPE: special"

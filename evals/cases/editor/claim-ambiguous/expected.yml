@@ -1,0 +1,5 @@
+# The supporting fact can't be confirmed or refuted right now: stamp STALE
+# (bump checked, note what to look for) — not retired (no refutation), not
+# current (no confirmation).
+type: claim-status
+status: stale

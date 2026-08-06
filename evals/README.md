@@ -10,11 +10,14 @@ judge model.
 - **scout** (`cases/scout/<id>/`) — synthetic promotion calls: one captured
   signal (`signal.txt`) judged against the scout skill's wire-promotion
   criteria; `expected.yml` says whether it clears the bar (`wire: yes|no`).
+- **editor** (`cases/editor/<id>/`) — two graded judgments over frozen
+  context (`context.md`): the normal-vs-special issue call (Step 4 of
+  weekly-editor; `type: shape`, expected `shape: normal|special`) and the
+  claims-reconciliation verdict (Step 5.5; `type: claim-status`, expected
+  `status: current|stale|retired`).
 
 The newsroom suite retired with the newsroom itself in the 2026-08 two-writer
-refactor (its skill no longer exists to test). The natural next additions are
-**editor** cases: frozen weekly states graded on the normal-vs-special-issue
-call and on claims-reconciliation decisions (stamp stale vs retire).
+refactor (its skill no longer exists to test).
 
 ## Running
 
@@ -40,3 +43,8 @@ in `baseline.yml`.
 
 Scout: write `signal.txt` in the signals one-liner format and `expected.yml`
 with a comment naming the criterion that decides it.
+
+Editor: write `context.md` as the frozen inputs (memory excerpt + the week's
+evidence, or a claim + what re-verification found) and `expected.yml` with
+`type:` plus the expected call — make the case a *clear* call; ambiguous
+cases make flaky evals.
