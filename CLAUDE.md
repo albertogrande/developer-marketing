@@ -53,30 +53,35 @@ machine twin (`/<collection>.json`, `/<collection>/<id>.md`, feeds, `llms.txt`,
 those rather than adding an SEO/llms integration that would fight the base path
 and the deterministic-dates rule.
 
-**2. The autonomous newsroom** — four editorial desks, each a skill in
-`.claude/skills/` (`daily-scout`, `newsroom`, `weekly-digest`, `deep-dive`), each
-driven by a GitHub Actions workflow through `claude-code-action`. The pipeline
-per writer run is: skill writes files (never commits) → `writer-guard` fails an
+**2. The two autonomous writers** — each a skill in `.claude/skills/`
+(`daily-scout`, `weekly-editor`), each driven by a GitHub Actions workflow
+(`scout.yml`, `editor.yml`) through `claude-code-action`. The pipeline per
+writer run is: skill writes files (never commits) → `writer-guard` fails an
 empty or errored run → a **fresh-context fact-integrity pass** with a different
 model re-verifies every load-bearing claim → `editorial-gates` (full build +
 source liveness) → `commit-and-push`. A failed gate uploads a `rescue-patch`
 artifact so a retry costs the run, not the writing. Composite steps live in
 `.github/actions/` precisely so they can't drift per workflow.
 
-Published output runs at three lengths, and the shortest is load-bearing: the
-scout promotes qualifying signals to `src/content/briefs/` (the wire — one
-company, two sentences, a mandatory `source`), the newsroom writes at most one
-article a day, and the weekly digests. Briefs exist so a logged skip still
-reaches a reader and so a small company whose news can't carry 900 words still
-gets covered — **traction is explicitly not a promotion criterion**, because
-ranking by reach is what silently drops the indie tail.
+The content model stores knowledge by kind, not prose form. The scout promotes
+qualifying signals to `src/content/wire/` (the event log — one company, two
+sentences, a mandatory `source`; **traction is explicitly not a promotion
+criterion**, because ranking by reach is what silently drops the indie tail).
+The editor writes the weekly issue to `src/content/issues/` — normally short,
+occasionally a **long special issue** when a thread earned depth (the old
+deep-dive tier, absorbed) — and reconciles `src/content/claims/`, the
+reference's atomic units, each carrying `status` (current/stale/retired) and
+`checked`. Claims are never deleted, only retired: their anchors must keep
+resolving. `articles/`, `deep-dives/` and `radar/` are closed archives —
+still rendered and machine-served, never extended.
 
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
-capture), `editorial/MEMORY.md` (running threads, coverage), `editorial/TASTE.md`
-(the reader), `editorial/NEWSROOM.md` (publish/skip decision log),
-`editorial/BACKLOG.md`. `MASTHEAD.md` is the charter; `AUTHORS.md` the five
-writing desks. The desks run interactively too — `/daily-scout`, `/newsroom`,
-`/weekly-digest`, `/deep-dive [topic]` — writing files without committing.
+capture), `editorial/MEMORY.md` (running threads, special-issue candidates),
+`editorial/TASTE.md` (the reader); `editorial/NEWSROOM.md` and
+`editorial/BACKLOG.md` are archived read-only. `MASTHEAD.md` is the charter;
+`AUTHORS.md` documents the retired desks whose bylines the article archive
+still renders. The writers run interactively too — `/daily-scout`,
+`/weekly-editor` — writing files without committing.
 
 **3. The newsletter** (`newsletter/`) — self-hosted end to end: own list, own
 MIME/SMTP/token libraries, no ESP and no tracking of any kind. `server.mjs`
@@ -99,7 +104,7 @@ change, not the gate.**
   `src/lib/site.ts` — never hand-build a URL.
 - **Ids are literal filenames** minus extension. `src/content.config.ts`
   overrides Astro's loader `generateId` because the default lowercases and would
-  silently break `/weekly/2026-W28` on a case-sensitive host.
+  silently break `/issues/2026-W28` on a case-sensitive host.
 - **Content links are base-less.** Markdown bodies and `related[].href` write
   `/guide/02-docs-as-front-door`; `scripts/remark-base-paths.mjs` adds the base
   at build. Content must never encode where the site is deployed.
@@ -109,10 +114,10 @@ change, not the gate.**
 - **Adding a required frontmatter field** means changing four things in the same
   commit: the zod schema, the writing skill that authors it,
   `scripts/check-refs.mjs`, and the machine endpoints that would surface it.
-- **Controlled vocabularies are enums on purpose** (practice `tags`, example
-  `artifact`/`channel`, skill `job`/`agents`, resource `kind`/`category`/
-  `services`). Agents filter on them, so drift breaks the filter silently —
-  extend the enum deliberately.
+- **Controlled vocabularies are enums on purpose** (claim `tags`/`status`,
+  example `artifact`/`channel`, skill `job`/`agents`, resource `kind`/
+  `category`/`services`). Agents filter on them, so drift breaks the filter
+  silently — extend the enum deliberately.
 
 ## Shared modules that exist to prevent drift
 
@@ -128,18 +133,18 @@ Prefer editing these over inlining a second copy of the same knowledge:
 - `site.config.mjs` — the only place that knows where the site is served from;
   read by the Astro build, the gates, and every newsletter URL.
 - `src/lib/content.ts` — every collection query and sort order, plus
-  `getGuideGraph` (the section → practices/examples/skills/coverage inversion)
+  `getGuideGraph` (the section → claims/examples/skills/coverage inversion)
   and `getFeedItems`. Pages and endpoints import these instead of re-sorting.
 - `src/lib/markdown.ts` — the `.md` sibling builder; siblings must stay
   self-contained (canonical URL, dates, license, sources inside).
 
 ## Editorial rules worth knowing before touching content
 
-The charter is in `MASTHEAD.md` and it is load-bearing, not decoration. The three
-that most often catch a change: the daily article slot is **a ceiling, not a
-quota** (a logged skip is a successful run); every load-bearing claim carries a
-public source and single-sourced claims say so inline; **nothing is for sale** —
-no sponsored slots, no affiliate links, no paid placement, including in
-`src/content/resources/`.
+The charter is in `MASTHEAD.md` and it is load-bearing, not decoration. The
+three that most often catch a change: publishing is **criteria, not a quota**
+(a quiet wire day and a normal-length issue are successful runs); every
+load-bearing claim carries a public source and single-sourced claims say so
+inline; **nothing is for sale** — no sponsored slots, no affiliate links, no
+paid placement, including in `src/content/resources/`.
 
 Content under `src/content/` is CC BY 4.0; code is MIT.

@@ -1,35 +1,41 @@
-# Developer Marketing — the newsroom
+# Developer Marketing — the masthead
 
-*A technical newspaper about developer marketing, with a circulation of one.*
+*A technical publication about developer marketing, with a circulation of one.*
 
-This site is two things that feed each other. A **newsroom**: dated articles
-on the news, money, campaigns, research, and technology of the developer-tools
-industry, written by specialized desks under bylines. And a **product**: the
-evergreen guide, the practices, and the examples swipe file — kept continuously
-current by what the newsroom learns. Articles decay; the product compounds.
-Every article must leave the product better than it found it.
+This site is two things that feed each other. A **stream**: the wire's dated,
+sourced events and one weekly issue that says what they meant. And a
+**reference**: the evergreen guide with its claims, examples, skills and
+directory — kept continuously current by what the stream learns. Stream
+pieces decay; the reference compounds. Every issue must leave the reference
+better than it found it.
 
-## The desks
+## The two writers
 
-| Desk | What it produces | When |
+| Writer | What it produces | When |
 |---|---|---|
-| **The Feed** | The scout's raw dated signals in `signals/` — news, money moves, campaigns, research, and stack-technology shifts captured while findable. Internal: feeds the editor, never published. | Daily |
-| **The Newsroom** | At most **one article a day** (`src/content/articles/`), written by the desk that owns the story (see `AUTHORS.md`). The editor decides each day whether anything earned the slot — a quiet day publishes nothing and says so in the decision log. | Tue–Sun, editor's call |
-| **The Week** | One short essay on what actually moved, plus the guide-accuracy pass, practices distilled, examples promoted. `src/content/weekly/` | Monday |
-| **Deep Dives** | One subject taken seriously — commissioned by the weekly editor when a thread earns it, or on demand. `src/content/deep-dives/` | When earned |
-| **The Product** | The nine-section guide, the practices, the examples swipe file — the evergreen reference the articles keep honest. | Continuously |
-| **The Directory** | Vetted outside help: who a practitioner can hire to do this work (`src/content/resources/`). Rendered at `/resources`, served at `/resources.json`. | Reviewed, never sold |
+| **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **the wire** (`src/content/wire/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
+| **The Editor** | **The Week** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
+
+The reference the writers maintain: the nine-section **guide**
+(`src/content/guide/`), its atomic **claims** (`src/content/claims/`, each
+with `status` and `checked`), the **examples** swipe file, the **skills**
+shelf, and the **directory** (`src/content/resources/` — reviewed, never
+sold).
+
+Closed archives, still served: the newsroom's daily articles
+(`src/content/articles/`), the deep dives (`src/content/deep-dives/`), and
+the radar (`src/content/radar/`).
 
 ## Editorial charter
 
 1. **One reader.** A practitioner who markets to developers (see
    `editorial/TASTE.md`). Sophisticated, allergic to fluff, fact-checks in
    public. Always in English.
-2. **No quota.** The daily slot is a ceiling, not a target. An article runs
-   because the story earned it; padding a quiet day is the failure mode that
-   killed this site's first daily format. The decision log
-   (`editorial/NEWSROOM.md`) records the skip days so silence is a choice,
-   never an accident.
+2. **No quota.** Wire promotion is criteria, not volume — a quiet day
+   publishes nothing and that is a successful run. The issue ships weekly,
+   but its *length* is earned: most weeks are short, and a special issue
+   runs only when a thread has genuinely earned the depth. Padding is the
+   failure mode that killed this site's first daily format.
 3. **Technical or it doesn't run.** Every piece rests on something a working
    practitioner could measure, reproduce, or check against a primary source —
    a number, a config, a pricing page, a survey table. Business framing sits
@@ -37,17 +43,20 @@ Every article must leave the product better than it found it.
 4. **Sourced, dated, verified.** Every load-bearing claim carries a public,
    linkable source; vendor marketing is data about the vendor, not evidence.
    Single-sourced claims are flagged inline. A fresh-context fact-integrity
-   pass checks every article before it publishes.
+   pass checks every piece before it publishes. The reference goes further:
+   every claim carries `since` (what made it true), `verify` (how to
+   re-check), and a `status` stamped at `checked` — staleness is visible,
+   never silent.
 5. **Judgment over coverage.** Decide what mattered, cut the rest, take a
    position in one plain sentence. Connect to the running threads in
-   `editorial/MEMORY.md` — an article with amnesia is a failed article.
-6. **Feed the product.** An article that changes a fact patches the guide. A
+   `editorial/MEMORY.md` — an issue with amnesia is a failed issue.
+6. **Feed the reference.** An issue that changes a fact patches the guide. A
    campaign teardown promotes an example. A measured pattern becomes a
-   practice candidate. The newsroom exists to keep the product current.
+   claim. A claim whose fact moved gets stamped stale or retired — never
+   silently deleted. The stream exists to keep the reference current.
 7. **House voice.** Short sentences. Simple words. Depth from specifics —
    figures, company names, dated moves — never rhetorical flourish. What
-   happened → why it matters → what to do about it. Bylines differ in
-   *method*, not in temperature (see `AUTHORS.md`).
+   happened → why it matters → what to do about it.
 8. **Nothing is for sale.** No sponsored slots, no affiliate links, no paid
    placement or ranking anywhere on this site, and the directory
    (`src/content/resources/`) is held to the same bar as the rest: a live site,
@@ -59,11 +68,11 @@ Every article must leave the product better than it found it.
    double opt-in and leaving is one click. Audience numbers we cannot collect
    honestly, we do without.
 
-## The newsroom
+## The desk
 
 Institutional memory lives in `editorial/MEMORY.md` (threads, coverage
-indexes, deep-dive candidates). The reader's standing preferences live in
-`editorial/TASTE.md`. The writing desks are defined in `AUTHORS.md`, the
-evergreen article backlog in `editorial/BACKLOG.md`, and the editor's daily
-publish/skip decisions in `editorial/NEWSROOM.md`. Every agent reads what it
-needs before writing and leaves it better than it found it.
+index, special-issue candidates, the evergreen shelf). The reader's standing
+preferences live in `editorial/TASTE.md`. The retired newsroom's decision
+log (`editorial/NEWSROOM.md`) and backlog (`editorial/BACKLOG.md`) are
+read-only history. Every agent reads what it needs before writing and leaves
+it better than it found it.

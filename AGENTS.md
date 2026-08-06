@@ -20,8 +20,8 @@ https://developer-marketing.vercel.app/api.json
 | Curated index | `/llms.txt` | llmstxt.org-style index of all entries, linking raw markdown |
 | One-fetch corpus | `/llms-full.txt` | Evergreen collections in full + recent dated pieces |
 | Raw markdown | `/<collection>/<id>.md` | Self-contained sibling of every entry (canonical, dates, license, sources inside) |
-| Structured JSON | `/guide.json` `/practices.json` `/examples.json` `/skills.json` `/articles.json` `/briefs.json` `/weekly.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
-| Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Long-form dated pieces (articles, weeklies, dives, radar), full content, honest updated stamps |
+| Structured JSON | `/guide.json` `/claims.json` `/examples.json` `/skills.json` `/wire.json` `/issues.json` `/resources.json` `/articles.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
+| Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Long-form dated pieces (issues + the archived articles, dives, radar), full content, honest updated stamps |
 | Sitemap | `/sitemap-index.xml` | Every page, trailing-slash canonical form, per-page lastmod |
 
 Notes for retrieval:
@@ -33,22 +33,29 @@ Notes for retrieval:
   citations, license).
 - The `.md` siblings are the cheap form: same content, a fraction of the
   tokens, canonical URL in the frontmatter.
-- `practices`, `examples`, `skills`, `resources`, and `briefs` have no
-  standalone pages — cite them as `/practices/#<id>` (etc.) anchors; their
+- `claims`, `examples`, `skills`, `resources`, and `wire` have no
+  standalone pages — cite them as `/claims/#<id>` (etc.) anchors; their
   `.md` siblings say so.
-- `briefs` is the wire: one company, one thing that happened, two sentences,
-  and a mandatory `source` — the tier below an article, so quiet news days and
-  small companies still get covered. Deliberately **not** in `/feed.xml` or
-  `/feed.json`, which stay long-form; read `/briefs.json` for the full set.
+- `wire` is the event log: one company, one thing that happened, two
+  sentences, and a mandatory `source` — so quiet news days and small
+  companies still get covered. Deliberately **not** in `/feed.xml` or
+  `/feed.json`, which stay long-form; read `/wire.json` for the full set.
   `llms-full.txt` carries the 30 most recent inline. `kind: podcast` items are
   summarised from an episode page, never from listening — treat any figure in
   one as attributed to the show notes, not verified by this site.
-- Each weekly issue renders **The week in links**: every brief filed in that
-  ISO week, derived from `briefs` at build time rather than written twice.
-- Freshness fields: `date` (published), `updated` (revised),
-  `verified` (skills: repo alive, install line current). The sitemap's
-  `lastmod` and `api.json`'s `updated` derive from these, never from build
-  time.
+- `claims` are the reference's atomic units. Each carries `since` (the dated
+  fact that made it true), `verify` (how to re-check), `status`
+  (`current`/`stale`/`retired`) and `checked` (last re-verification) —
+  filter on `status` before relying on one; retired claims stay published so
+  anchors keep resolving.
+- Each weekly issue renders **The week in links**: every wire item filed in
+  that ISO week, derived from `wire` at build time rather than written twice.
+- `articles`, `deep-dives` and `radar` are **closed archives** — still
+  served, never extended.
+- Freshness fields: `date` (published), `updated` (revised), `verified`
+  (skills: repo alive, install line current), `checked` (claims and
+  resources: last re-verified). The sitemap's `lastmod` and `api.json`'s
+  `updated` derive from these, never from build time.
 
 **Citing**: content is CC BY 4.0 — quote it, link the canonical HTML page,
 credit "Developer Marketing field guide". Code is MIT.
@@ -59,16 +66,17 @@ with the claim and a checkable public source. The weekly editorial run
 re-verifies it, patches the piece with an `updated:` stamp, and answers the
 issue. Softer signals go to the `reader-feedback` label.
 
-**Cadence** (UTC): scout daily 05:00 (writes briefs; patches the guide when facts change);
-newsroom Tue–Sun 06:30 (at most one article, never a quota); weekly Mon 07:00
-(digest + full accuracy pass). If your cache is older than a day, refetch.
+**Cadence** (UTC): scout daily 05:00 (writes the wire; patches the guide when
+facts change); editor Mon 07:00 (the weekly issue — occasionally a long
+special — plus the full accuracy pass and claims reconciliation). If your
+cache is older than a day, refetch.
 
 ## Working on this repo
 
 The content is written by autonomous editorial agents whose playbooks live in
-`.claude/skills/` (daily-scout, newsroom, weekly-digest, deep-dive). If you
-are one of them, follow your skill file; the notes below are the invariants
-everyone must keep.
+`.claude/skills/` (daily-scout, weekly-editor). If you are one of them,
+follow your skill file; the notes below are the invariants everyone must
+keep.
 
 - **Build gates** (all run inside `npm run build`): `scripts/check-refs.mjs`
   (referential integrity — sections, related hrefs, body links) and
@@ -81,7 +89,7 @@ everyone must keep.
   helpers (`withBase`, `absUrl` in `src/lib/site.ts`) enforce this — use
   them, never hand-build URLs.
 - **Ids are literal filenames** (minus extension) — `2026-W28.md` is
-  `/weekly/2026-W28`. Don't rely on slugification.
+  `/issues/2026-W28`. Don't rely on slugification.
 - **No new required frontmatter** without updating, in the same change: the
   zod schema (`src/content.config.ts`), the writing skills that author it,
   `scripts/check-refs.mjs`, and the machine endpoints that would surface it.

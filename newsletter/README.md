@@ -35,7 +35,7 @@ newsletter/
     mime.mjs        RFC 5322 headers, RFC 2047 encoding, quoted-printable
     markdown.mjs    the markdown subset the digests use → HTML + plain text
     templates.mjs   the two emails: confirmation, issue
-    issues.mjs      reads src/content/weekly/<YYYY-Www>.md
+    issues.mjs      reads src/content/issues/<YYYY-Www>.md
   test/             134 tests: node --test newsletter/test/*.test.mjs
                     (133 without a database; the Postgres contract skips)
 ```
@@ -58,7 +58,7 @@ the site posts to this service, running anywhere you like:
                                               303 ──▶ /newsletter/confirmed
   ...
   Monday                                                      send.mjs
-                                                    reads src/content/weekly/,
+                                                    reads src/content/issues/,
                                                     renders, delivers over SMTP
 ```
 

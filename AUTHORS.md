@@ -1,4 +1,11 @@
-# Developer Marketing — the writing desks
+# Developer Marketing — the writing desks (ARCHIVED 2026-08-06)
+
+The five-desk newsroom retired with the two-writer pipeline (Scout + Editor —
+see `MASTHEAD.md`). The site now publishes in a single editorial voice; the
+desk definitions below are kept because the archived articles under
+`src/content/articles/` carry these bylines and their pages still render the
+byline cards (`src/lib/authors.ts` reads the same roster). Nothing new is
+written under them.
 
 Five desks, five bylines, five **methods** — not five prose temperatures. All
 obey the house voice (`MASTHEAD.md`, `editorial/TASTE.md`): short sentences,
