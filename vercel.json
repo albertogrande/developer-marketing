@@ -4,5 +4,16 @@
       "path": "/api/cron-prune",
       "schedule": "0 3 * * *"
     }
+  ],
+  "redirects": [
+    { "source": "/briefs.json", "destination": "/wire.json", "permanent": true },
+    { "source": "/weekly.json", "destination": "/issues.json", "permanent": true },
+    { "source": "/practices.json", "destination": "/claims.json", "permanent": true },
+    { "source": "/briefs", "destination": "/wire", "permanent": true },
+    { "source": "/briefs/:path*", "destination": "/wire/:path*", "permanent": true },
+    { "source": "/weekly", "destination": "/issues", "permanent": true },
+    { "source": "/weekly/:path*", "destination": "/issues/:path*", "permanent": true },
+    { "source": "/practices", "destination": "/claims", "permanent": true },
+    { "source": "/practices/:path*", "destination": "/claims/:path*", "permanent": true }
   ]
 }
