@@ -1,7 +1,11 @@
 ---
-// Terminal chrome (inherited from The Wire's mono-grid skin). A `$ dev marketing`
+// Terminal chrome (inherited from The Wire's mono-grid skin). A `$ the beat`
 // mark with a blinking cursor and `--flag` nav. Width follows the page: 760 for
 // the front, --wrap for reading.
+//
+// The mark is lower-case on purpose — it reads as a typed command, not a
+// masthead, which is why the prompt here is `$` while page kickers use `>` as
+// a list marker. scripts/build-og.mjs renders the same `$ the beat▌` lockup.
 import { withBase } from '../lib/site';
 
 interface Props {
@@ -30,7 +34,7 @@ const isCurrent = (url: string) => {
 <div class="chrome" style={`max-width:${max}`}>
   <header class="chrome-head">
     <a href={withBase('/')} class="chrome-mark">
-      <span class="amber">$</span> dev&nbsp;marketing<span class="cur" aria-hidden="true">▌</span>
+      <span class="amber">$</span> the&nbsp;beat<span class="cur" aria-hidden="true">▌</span>
     </a>
     <nav class="chrome-nav" aria-label="Primary">
       {nav.map((n) => (

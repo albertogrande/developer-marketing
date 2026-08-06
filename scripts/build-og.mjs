@@ -30,11 +30,13 @@ const TAGLINE = 'developer marketing, on the record';
 const WORDMARK = 'the beat';
 const HOST = SITE_ORIGIN.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 
-// One prompt character for the whole brand: the page kickers render "&gt;"
-// (see the .prompt spans) and so does the favicon, so the card uses it too.
-// The old card used "$", which made the social preview the only surface
-// wearing a different mark.
-const PROMPT = '>';
+// The card is the header wordmark writ large, so it takes the wordmark's
+// prompt: "$", matching src/components/Chrome.astro. The site uses two prompt
+// glyphs by role — "$" for the wordmark, where it reads as a typed command,
+// and "&gt;" for page kickers and the favicon, where it is a list marker. An
+// earlier pass moved this card to "&gt;" on the mistaken belief that "$"
+// appeared nowhere else; it appears in the one place that matters most.
+const PROMPT = '$';
 
 const BG = '#0d1117';
 const AMBER = '#f59e0b';
