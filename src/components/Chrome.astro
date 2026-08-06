@@ -1,11 +1,11 @@
 ---
-// Terminal chrome (inherited from The Wire's mono-grid skin). A `$ the beat`
-// mark with a blinking cursor and `--flag` nav. Width follows the page: 760 for
-// the front, --wrap for reading.
+// Terminal chrome (inherited from The Wire's mono-grid skin). A `$ the-beat`
+// mark with a blinking cursor and `--flag` nav.
 //
-// The mark is lower-case on purpose — it reads as a typed command, not a
-// masthead, which is why the prompt here is `$` while page kickers use `>` as
-// a list marker. scripts/build-og.mjs renders the same `$ the beat▌` lockup.
+// The mark is a typed command, not a masthead — same binary name the
+// newsletter form invokes (`$ the-beat subscribe --weekly`), which is why the
+// prompt is `$` while page kickers use `>` as a list marker.
+// scripts/build-og.mjs renders a `$ the beat▌` lockup — re-run it to match.
 import { withBase } from '../lib/site';
 
 interface Props {
@@ -15,14 +15,13 @@ interface Props {
 // the `wide` prop is accepted for compatibility but no longer changes it.
 const max = 'var(--wrap)';
 
-// Five doors, matching the reader's three jobs (catch up, learn, hire help)
-// plus the masthead. Everything else — claims, examples, skills, the archives
-// — is reached through the guide, the command palette, or footers.
+// Four doors: the two stream forms, the reference, the masthead. Everything
+// else — claims, examples, skills, resources, the archives — is reached
+// through the guide, the command palette, or footers.
 const nav = [
+  { label: 'issues', url: '/issues' },
   { label: 'the-wire', url: '/wire' },
-  { label: 'the-week', url: '/issues' },
-  { label: 'guide', url: '/guide' },
-  { label: 'resources', url: '/resources' },
+  { label: 'the-guide', url: '/guide' },
   { label: 'about', url: '/about' },
 ];
 const here = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -34,7 +33,7 @@ const isCurrent = (url: string) => {
 <div class="chrome" style={`max-width:${max}`}>
   <header class="chrome-head">
     <a href={withBase('/')} class="chrome-mark">
-      <span class="amber">$</span> the&nbsp;beat<span class="cur" aria-hidden="true">▌</span>
+      <span class="amber">$</span> the-beat<span class="cur" aria-hidden="true">▌</span>
     </a>
     <nav class="chrome-nav" aria-label="Primary">
       {nav.map((n) => (

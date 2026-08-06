@@ -1,194 +1,216 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import NewsletterCta from '../components/NewsletterCta.astro';
 import { withBase, fmtWeekRange, isoDate } from '../lib/site';
-import {
-  getGuideSorted,
-  getIssuesSorted,
-  getExamplesSorted,
-  getClaimsSorted,
-  getSkillsSorted,
-  getResourcesSorted,
-  getWireSorted,
-  WIRE_KIND_LABELS,
-} from '../lib/content';
+import { getGuideSorted, getIssuesSorted, getWireSorted, WIRE_KIND_LABELS } from '../lib/content';
+import { NEWSLETTER, NEWSLETTER_LIVE, SUBSCRIBE_URL } from '../lib/newsletter';
 
-// The edition, in the shape of the content model: the latest issue leads
-// (the one written prose form), the wire runs underneath (the event log),
-// and the reference sits in the rail. The archived strands (articles,
-// deep-dives, radar) get no UI entry points at all — they stay served for
-// old links, feeds and machines, but an archive that headlines forever just
-// reads as stale.
-const [guide, issues, examples, claims, skills, resources, allWire] = await Promise.all([
+// Front v3 — one column, three markdown-headed sections: ## The Beat (the
+// week's issue), ## The Wire (the event timeline), ## The Guide (the
+// reference index), then the newsletter form. The previous front (v2) is
+// backed up in design-backups/2026-08-06-front-v2/.
+const [guide, issues, allWire] = await Promise.all([
   getGuideSorted(),
   getIssuesSorted(),
-  getExamplesSorted(),
-  getClaimsSorted(),
-  getSkillsSorted(),
-  getResourcesSorted(),
   getWireSorted(),
 ]);
 
-// The ticker is a *view* over /wire, never the home of the content: every
-// item is a real link present in the DOM, so agents, search and no-JS readers
-// lose nothing by ignoring the animation. Capped because a ticker is a teaser —
-// the full wire is one click away.
-const ticker = allWire.slice(0, 12);
-
 const lead = issues[0];
-const earlier = issues.slice(1, 4);
-const wireList = allWire.slice(0, 8);
 
-// Dateline: the site rebuilds on every editorial commit, so build time ≈ today.
-const now = new Date();
-const dateline = now
-  .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
-  .toUpperCase();
-const weekAgo = now.getTime() - 7 * 86400e3;
-const freshCount =
-  allWire.filter((b) => b.data.date.getTime() >= weekAgo).length +
-  issues.filter((w) => w.data.published.getTime() >= weekAgo).length;
+// The wire, grouped into days for the timeline. Capped — the full wire is one
+// click away, and every item here is a real link (no ticker, no animation).
+const wireDays: { date: Date; items: typeof allWire }[] = [];
+for (const b of allWire.slice(0, 8)) {
+  const last = wireDays[wireDays.length - 1];
+  if (last && isoDate(last.date) === isoDate(b.data.date)) last.items.push(b);
+  else wireDays.push({ date: b.data.date, items: [b] });
+}
 
-const guideUpdated = guide.reduce<Date | null>(
-  (max, g) => (max && max > g.data.updated ? max : g.data.updated),
-  null
+// The source domain is trust furniture: shown on every wire row so "sourced,
+// dated, verified" is visible on the front, not just claimed on /about.
+const srcHost = (url: string) => new URL(url).hostname.replace(/^www\./, '');
+
+// One line per event. The wire's summaries run two full sentences — right on
+// /wire, a wall in a timeline — so the front shows the opening sentence cut to
+// what fits on one line at this width. It closes on a clause boundary and ends
+// in a full stop: a short true sentence, never a trailing "…". 108 chars is
+// the budget at 12px JetBrains Mono inside the 940px wrap.
+const LINE_MAX = 108;
+// Words that leave a cut dangling ("…wrap your MCP server to.") — dropped from
+// the tail until the sentence stands on its own.
+const DANGLING = new Set(
+  ('a an and as at but by for from in into of on or that the to with its it this their there was were is are be' +
+    ' has have had not no so than then when while which who whose over under after before since per via up out about')
+    .split(' ')
 );
+
+function oneLine(summary: string): string {
+  const first = summary.split(/(?<=[.!?])\s+/)[0].trim();
+  if (first.length <= LINE_MAX) return first;
+
+  const head = first.slice(0, LINE_MAX);
+  // Prefer a real clause break; only fall back to a word break if the nearest
+  // one sits in the first half, where cutting would throw away too much.
+  const clause = Math.max(head.lastIndexOf(' — '), head.lastIndexOf('; '), head.lastIndexOf(', '));
+  let body: string;
+  if (clause > LINE_MAX / 2) body = head.slice(0, clause);
+  // The budget may land exactly on a word end; only chop back when it doesn't,
+  // or a whole good word is thrown away.
+  else if (/\s/.test(first.charAt(LINE_MAX))) body = head;
+  else body = head.slice(0, head.lastIndexOf(' '));
+
+  // A cut inside a quotation or parenthetical leaves the mark hanging open;
+  // fall back to the text before it opened.
+  for (const [open, close] of [['"', '"'], ['(', ')'], ['“', '”']] as const) {
+    const opened = body.split(open).length - 1;
+    const closed = open === close ? opened : body.split(close).length - 1;
+    if (open === close ? opened % 2 === 1 : opened > closed) body = body.slice(0, body.lastIndexOf(open));
+  }
+
+  let prev = '';
+  while (body !== prev) {
+    prev = body;
+    body = body.replace(/[\s,;:—-]+$/, '');
+    const tail = body.slice(body.lastIndexOf(' ') + 1).toLowerCase();
+    if (DANGLING.has(tail)) body = body.slice(0, body.lastIndexOf(' '));
+  }
+  return /[.!?]$/.test(body) ? body : body + '.';
+}
+
+// "Fresh" markers key off build time; the site rebuilds on every editorial
+// commit, so build time ≈ today.
+const weekAgo = Date.now() - 7 * 86400e3;
+
+const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
 ---
 <BaseLayout title="The Beat" home>
-  <div class="fm fm--v2">
-    <div class="fm-date">
-      <b>{dateline}</b>
-      {freshCount > 0 && <span>{freshCount} new this week</span>}
-      <span class="fm-date-sp"></span>
-      <a href={withBase('/feed.xml')}>≋ feed</a>
-    </div>
+  <div class="fm fm--v3">
+    {/* No "## The Beat" header — the site name is already the nameplate, and
+        the framed lead announces itself. */}
+    <section aria-label="The latest issue">
+      {lead ? (
+        <article class="v3-lead" data-date={isoDate(lead.data.published)}>
+          <span class="v3-lead-legend" aria-hidden="true">latest issue</span>
+          <p class="v3-kick">
+            <b>issue {lead.data.week}</b> · {fmtWeekRange(lead.data.date, 'med')}
+          </p>
+          <h1 class="fm-h v3-lead-h">
+            <a href={withBase(`/issues/${lead.id}`)}>{lead.data.title}</a>
+          </h1>
+          <p class="fm-dek v3-lead-dek">{lead.data.dek ?? lead.data.summary}</p>
+          <a class="v3-read" href={withBase(`/issues/${lead.id}`)}><span class="amber">→</span> read the issue</a>
+        </article>
+      ) : (
+        <article class="v3-lead">
+          <p class="v3-kick"><span class="amber" aria-hidden="true">###</span><b>the guide</b> · evergreen · {guide.length} sections</p>
+          <h1 class="fm-h v3-lead-h">
+            <a href={withBase('/guide')}>The state of the art in developer marketing</a>
+          </h1>
+          <p class="fm-dek v3-lead-dek">
+            The first issue is in the works — meanwhile the guide is the
+            product: positioning, docs, DevRel, DX, distribution, launches,
+            and measurement, each section stamped with the date it was last
+            checked.
+          </p>
+          <a class="v3-read" href={withBase('/guide')}><span class="amber">→</span> read the guide</a>
+        </article>
+      )}
+    </section>
 
-    {ticker.length > 0 && (
-      <section class="tick" aria-labelledby="tick-h">
-        <h2 class="tick-h" id="tick-h">
-          <a href={withBase('/wire')}>the wire</a>
+    {wireDays.length > 0 && (
+      <section aria-labelledby="v3-wire-h">
+        <h2 class="v3-sec" id="v3-wire-h">
+          <span class="amber" aria-hidden="true">##</span>
+          <span class="v3-sec-l"><a href={withBase('/wire')}>The Wire</a></span>
+          <span class="v3-rule" aria-hidden="true"></span>
         </h2>
-        <div class="tick-vp">
-          <ul class="tick-run">
-            {ticker.map((b) => (
-              <li class="tick-i">
-                <a href={withBase(`/wire#${b.id}`)}>
-                  <span class="tick-co">{b.data.company}</span>
-                  <span class="tick-k">{WIRE_KIND_LABELS[b.data.kind]}</span>
-                  <span class="tick-t">{b.data.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ol class="v3-tl">
+          {wireDays.map((day) => (
+            <li class="v3-day">
+              <p class="v3-day-d">{isoDate(day.date)}</p>
+              <ul class="v3-day-list">
+                {day.items.map((b) => (
+                  <li class="v3-ev" data-date={isoDate(b.data.date)}>
+                    <a class="v3-ev-t" href={withBase(`/wire#${b.id}`)}>
+                      <span class="v3-ev-co">{b.data.company}</span>: {b.data.title}
+                    </a>
+                    <p class="v3-ev-m">
+                      <span class="fd-beatlabel">{WIRE_KIND_LABELS[b.data.kind]}</span>
+                      <span class="dim" aria-hidden="true">·</span>
+                      <a class="v3-ev-src" href={b.data.source.url} rel="noopener">{srcHost(b.data.source.url)} ↗</a>
+                    </p>
+                    <p class="v3-ev-s">{oneLine(b.data.summary)}</p>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
+        <a class="v3-more" href={withBase('/wire')}>the full wire →</a>
       </section>
     )}
 
-    <div class="fm2-grid">
-      <div class="fm2-main">
-        {lead ? (
-          <a href={withBase(`/issues/${lead.id}`)} class="fm-box" data-date={isoDate(lead.data.published)}>
-            <span class="fm-legend">THE WEEK</span>
-            <div class="fm-kick">
-              <span class="amber"># </span>
-              <span class="kind-inline">{lead.data.week}</span> · {fmtWeekRange(lead.data.date, 'med')}
-            </div>
-            <h1 class="fm-h">{lead.data.title}</h1>
-            <p class="fm-dek">{lead.data.dek ?? lead.data.summary}</p>
-            <span class="fm-read"><span class="amber">→</span> read the issue</span>
-          </a>
-        ) : (
-          <a href={withBase('/guide')} class="fm-box">
-            <span class="fm-legend">THE GUIDE</span>
-            <div class="fm-kick"><span class="amber"># </span><span class="kind-inline">evergreen</span> · {guide.length} sections</div>
-            <h1 class="fm-h">The state of the art in developer marketing</h1>
-            <p class="fm-dek">
-              The first issue is in the works — meanwhile the guide is the
-              product: positioning, docs, DevRel, DX, distribution, launches,
-              and measurement, each section stamped with the date it was last
-              checked.
-            </p>
-            <span class="fm-read"><span class="amber">→</span> read the guide</span>
-          </a>
-        )}
+    <section aria-labelledby="v3-guide-h">
+      <h2 class="v3-sec" id="v3-guide-h">
+        <span class="amber" aria-hidden="true">##</span>
+        <span class="v3-sec-l"><a href={withBase('/guide')}>The Guide</a></span>
+        <span class="v3-rule" aria-hidden="true"></span>
+      </h2>
+      <ul class="v3-glist">
+        {guide.map((g) => (
+          <li>
+            <span class="ln">{String(g.data.order).padStart(2, '0')}</span>
+            <a href={withBase(`/guide/${g.id}`)}>{g.data.title}</a>
+            <span class={`v3-upd${freshGuide(g.data.updated) ? ' is-fresh' : ''}`}>
+              {isoDate(g.data.updated).slice(5)}{freshGuide(g.data.updated) && ' ●'}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <a class="v3-more" href={withBase('/guide')}>open the guide →</a>
+    </section>
 
-        {earlier.length > 0 && (
-          <div class="fm-duo">
-            {earlier.slice(0, 2).map((w) => (
-              <a href={withBase(`/issues/${w.id}`)} class="fm-box fm-box--sec" data-date={isoDate(w.data.published)}>
-                <div class="fm-kick"><span class="kind-inline">{w.data.week}</span> · {fmtWeekRange(w.data.date, 'med')}</div>
-                <h2 class="fm-h2">{w.data.title}</h2>
-                <p class="fm-dek">{w.data.summary}</p>
-              </a>
-            ))}
-          </div>
-        )}
-
-        {wireList.length > 0 && (
-          <Fragment>
-            <div class="fm-sec">
-              <span class="amber">##</span><span class="fm-sec-l">the wire</span>
-              <span class="fm-rule" aria-hidden="true"></span>
-              <span class="dim">{String(allWire.length).padStart(2, '0')}</span>
-            </div>
-            <ul class="fd-list">
-              {wireList.map((b) => (
-                <li class="fd-row" data-date={isoDate(b.data.date)}>
-                  <span class="fd-ln">{isoDate(b.data.date).slice(5)}</span>
-                  <div class="fd-main">
-                    <a href={withBase(`/wire#${b.id}`)} class="fd-t"><span class="wire-kind" aria-hidden="true">▸</span>{b.data.company}: {b.data.title}</a>
-                    <div class="fd-m">
-                      <span class="fd-beatlabel">{WIRE_KIND_LABELS[b.data.kind]}</span>
-                      <span>{b.data.summary}</span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div class="fm-keys" style="border-top:0;margin-top:10px;padding-top:0">
-              <a href={withBase('/wire')}>the full wire →</a>
-              <a href={withBase('/issues')}>all issues →</a>
-            </div>
-          </Fragment>
-        )}
+    {/* Newsletter — a terminal window. The form renders whether or not a
+        capture endpoint is configured; unset, submitting says so honestly
+        instead of swallowing the address. */}
+    <section class="v3-nl" aria-labelledby="v3-nl-h">
+      <div class="v3-nl-bar" aria-hidden="true">
+        <span class="v3-nl-dot d1"></span>
+        <span class="v3-nl-dot d2"></span>
+        <span class="v3-nl-dot d3"></span>
+        <span class="v3-nl-title">mail — the beat</span>
       </div>
-
-      <aside class="fm-rail">
-        <NewsletterCta variant="rail" source="/" />
-
-        <div class="rail-box">
-          <span class="rail-legend">THE HANDBOOK</span>
-          <p class="rail-meta">
-            {guide.length} sections, kept current{guideUpdated && ` · upd ${isoDate(guideUpdated)}`}
-          </p>
-          <ul class="rail-list">
-            {guide.map((g) => (
-              <li>
-                <a href={withBase(`/guide/${g.id}`)}><span class="ln">{String(g.data.order).padStart(2, '0')}</span>{g.data.title}</a>
-              </li>
-            ))}
-          </ul>
-          <a href={withBase('/guide')} class="rail-more">open the manual →</a>
-        </div>
-
-        <div class="rail-box">
-          <span class="rail-legend">REFERENCE</span>
-          <p class="rail-counts">
-            <span>claims <b>{claims.length}</b></span>
-            <span>examples <b>{examples.length}</b></span>
-            <span>skills <b>{skills.length}</b></span>
-            <span>resources <b>{resources.length}</b></span>
-          </p>
-          <ul class="rail-list" style="margin-top:8px">
-            <li><a href={withBase('/claims')}><span class="ln">»</span>when X → do Y, dated and sourced</a></li>
-            <li><a href={withBase('/examples')}><span class="ln">❏</span>the swipe file of real artifacts</a></li>
-            <li><a href={withBase('/skills')}><span class="ln">⌗</span>agent skills you can install today</a></li>
-            <li><a href={withBase('/resources')}><span class="ln">⌾</span>who to hire, vetted and unpaid-for</a></li>
-          </ul>
-        </div>
-
-      </aside>
-    </div>
+      <div class="v3-nl-body">
+        <h2 class="v3-nl-cmd" id="v3-nl-h">
+          <span class="amber">$</span> the-beat subscribe <span class="dim">--weekly</span><span class="cur" aria-hidden="true">▌</span>
+        </h2>
+        <p class="v3-nl-p">{NEWSLETTER.promise}</p>
+        <form class="v3-nl-form" method="post" action={SUBSCRIBE_URL || undefined} data-v3-nl novalidate>
+          <label class="sr-only" for="v3-nl-email">Email address</label>
+          <span class="v3-nl-prompt" aria-hidden="true">&gt;</span>
+          <input
+            class="v3-nl-input"
+            id="v3-nl-email"
+            type="email"
+            name="email"
+            inputmode="email"
+            autocomplete="email"
+            spellcheck="false"
+            placeholder="you@company.dev"
+            required
+          />
+          <input type="hidden" name="source" value="/" />
+          <input type="hidden" name="rendered_at" value="" data-v3-ts />
+          {/* Honeypot: a field a person never sees and a bot cannot resist. */}
+          <div class="nl-hp" aria-hidden="true">
+            <label for="v3-nl-website">Leave this field empty</label>
+            <input id="v3-nl-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <button class="v3-nl-btn" type="submit">subscribe</button>
+          <p class="v3-nl-status" role="status" aria-live="polite" data-v3-status></p>
+        </form>
+        <p class="v3-nl-fine"># {NEWSLETTER.cadence.toLowerCase()} · double opt-in · no tracking pixels · one-click unsubscribe</p>
+      </div>
+    </section>
 
     <footer class="fm-keys">
       <a href={withBase('/wire')}><b>g&thinsp;i</b> the wire</a>
@@ -204,6 +226,74 @@ const guideUpdated = guide.reduce<Date | null>(
     </footer>
   </div>
 
+  <script is:inline define:vars={{ live: NEWSLETTER_LIVE }}>
+    // The subscribe form. With an endpoint it posts JSON and answers in place;
+    // without one it says the sign-up is not wired up rather than pretending.
+    (function () {
+      var form = document.querySelector('[data-v3-nl]');
+      if (!form) return;
+      var ts = form.querySelector('[data-v3-ts]');
+      if (ts) ts.value = String(Date.now());
+
+      function say(msg, kind) {
+        var el = form.querySelector('[data-v3-status]');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = 'v3-nl-status' + (kind ? ' is-' + kind : '');
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = (form.elements.email.value || '').trim();
+        if (!email || email.indexOf('@') < 1 || email.length > 254) {
+          say('that does not look like an email address.', 'err');
+          form.elements.email.focus();
+          return;
+        }
+        if (!live) {
+          say('sign-up is not wired up on this build — the feed carries every issue.', 'err');
+          return;
+        }
+
+        var btn = form.querySelector('.v3-nl-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'sending…'; }
+        say('sending…', '');
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            source: form.elements.source ? form.elements.source.value : '/',
+            website: form.elements.website ? form.elements.website.value : '',
+            rendered_at: ts ? Number(ts.value) : 0,
+          }),
+        })
+          .then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (data) {
+              return { ok: res.ok, status: res.status, data: data };
+            });
+          })
+          .then(function (r) {
+            if (btn) { btn.disabled = false; btn.textContent = 'subscribe'; }
+            if (r.ok) {
+              form.reset();
+              if (ts) ts.value = String(Date.now());
+              say('check your inbox — confirm the link and you are on the list.', 'ok');
+            } else if (r.status === 429) {
+              say('too many attempts. try again in a few minutes.', 'err');
+            } else {
+              say((r.data && r.data.error) || 'that did not go through. try again shortly.', 'err');
+            }
+          })
+          .catch(function () {
+            if (btn) { btn.disabled = false; btn.textContent = 'subscribe'; }
+            say('network error — the subscribe service did not answer.', 'err');
+          });
+      });
+    })();
+  </script>
+
   <script is:inline>
     (function () {
       try {
@@ -218,32 +308,6 @@ const guideUpdated = guide.reduce<Date | null>(
           if (prev && d > prev) el.classList.add('is-new');
         });
         localStorage.setItem(KEY, max);
-      } catch (e) {}
-    })();
-  </script>
-
-  <script is:inline>
-    // Seamless wire ticker. The markup ships one copy of the run — enough on
-    // its own as a scrollable strip — and this duplicates it so the CSS
-    // translateX(-50%) loop has something to loop through. The copy is
-    // aria-hidden and its links are removed from the tab order, so assistive
-    // tech and keyboard users see each item exactly once.
-    (function () {
-      try {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        var run = document.querySelector('.tick-run');
-        if (!run || run.children.length === 0) return;
-        // Snapshot before appending: children is a *live* collection, and
-        // moving a node out of it while iterating shifts every later index,
-        // which silently duplicates only half the run.
-        var copy = Array.prototype.slice.call(run.cloneNode(true).children);
-        copy.forEach(function (li) {
-          li.setAttribute('aria-hidden', 'true');
-          var a = li.querySelector('a');
-          if (a) a.setAttribute('tabindex', '-1');
-          run.appendChild(li);
-        });
-        run.classList.add('is-looping');
       } catch (e) {}
     })();
   </script>
