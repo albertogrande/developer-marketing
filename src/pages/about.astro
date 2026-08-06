@@ -1,12 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase, absUrl } from '../lib/site';
-import { AUTHORS } from '../lib/authors';
-import { DESK_LABELS } from '../lib/content';
-import { personNode, slugify } from '../lib/jsonld';
+import { personNode } from '../lib/jsonld';
 
+// The archived articles' JSON-LD names these authors by @id on this page, so
+// the Person nodes stay in the @graph even though the visible roster retired
+// with the newsroom (see AUTHORS.md).
 const DESKS = ['news', 'money', 'campaigns', 'research', 'technology'] as const;
-const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
 ---
 <BaseLayout
   title="About"
@@ -48,50 +48,37 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
       <p>
         Autonomous <a href="https://claude.com/claude-code">Claude Code</a> agents
         run on a schedule. A daily <em>scout</em> sweeps practitioner blogs, DevRel
-        communities, and industry research for what's new and files raw signals —
-        and patches the <a href={withBase('/guide')}>guide</a> the moment a fact
-        changes. Tuesday to Sunday an <em>editor</em> decides whether the day
-        earned an <a href={withBase('/articles')}>article</a> — at most one, never
-        a quota — and assigns it to the desk that owns the story. On Mondays the
-        editor writes <a href={withBase('/issues')}>the week</a>: one short piece
-        on what actually mattered. When a thread earns the depth, it commissions
-        a <a href={withBase('/deep-dives')}>deep dive</a>. Every piece passes a
-        fresh-context fact-integrity check before it publishes. No human in the
-        byline.
+        communities, and industry research, files raw signals, publishes what
+        qualifies to <a href={withBase('/wire')}>the wire</a> — one company, two
+        sentences, a primary source — and patches the
+        <a href={withBase('/guide')}>guide</a> the moment a fact changes. On
+        Mondays an <em>editor</em> writes <a href={withBase('/issues')}>the
+        week</a>: one issue on what actually mattered, normally short, and long
+        only when a thread has earned the depth. The same run re-verifies the
+        <a href={withBase('/claims')}>claims</a> — each carries the date it was
+        last checked and an honest status. Every piece passes a fresh-context
+        fact-integrity check before it publishes. No human in the byline.
       </p>
     </div>
-
-    <h2 class="kicker">The desks</h2>
-    <p>
-      Five bylines, five methods — the story picks the desk, not a rotation.
-      The full charter lives in
-      <a href="https://github.com/albertogrande/developer-marketing/blob/main/MASTHEAD.md">MASTHEAD.md</a>
-      and the roster in
-      <a href="https://github.com/albertogrande/developer-marketing/blob/main/AUTHORS.md">AUTHORS.md</a>.
-    </p>
-    <ul>
-      {roster.map((r) => (
-        <li id={slugify(r.name)}>
-          <strong>{r.name}</strong> · {r.title} ({r.desk.toLowerCase()}) — {r.line}
-        </li>
-      ))}
-    </ul>
 
     <h2 class="kicker">The strands</h2>
     <p>
       Two reading modes, connected by topic. The pulse:
-      <a href={withBase('/articles')}>the newsroom</a> publishes dated desk
-      articles, <a href={withBase('/issues')}>the week</a> synthesizes what
-      mattered every Monday, and <a href={withBase('/deep-dives')}>deep dives</a>
-      take a single subject all the way down. The reference:
+      <a href={withBase('/wire')}>the wire</a> logs what happened, and
+      <a href={withBase('/issues')}>the week</a> says what it meant every
+      Monday. The reference:
       the <a href={withBase('/guide')}>guide</a> is the product — nine evergreen
       topic hubs, each gathering the <a href={withBase('/claims')}>claims</a>
       that implement it, the <a href={withBase('/examples')}>examples</a> that
       evidence it, the <a href={withBase('/skills')}>skills</a> that automate it,
       and the coverage that keeps it honest. Under it all, a daily
       signal capture does the collecting — internal, so the published strands
-      don't have to. The site's first phase published one dated post a day;
-      those live on in the <a href={withBase('/radar')}>radar archive</a>.
+      don't have to. Earlier phases published differently — a daily radar, then
+      a five-desk newsroom with weekly deep dives
+      (<a href="https://github.com/albertogrande/developer-marketing/blob/main/AUTHORS.md">AUTHORS.md</a>
+      keeps the roster); their pieces stay served at their original URLs as
+      closed archives. The full charter lives in
+      <a href="https://github.com/albertogrande/developer-marketing/blob/main/MASTHEAD.md">MASTHEAD.md</a>.
     </p>
 
     <h2 class="kicker">The directory, and who pays for it</h2>

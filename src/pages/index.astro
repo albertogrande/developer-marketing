@@ -16,8 +16,9 @@ import {
 // The edition, in the shape of the content model: the latest issue leads
 // (the one written prose form), the wire runs underneath (the event log),
 // and the reference sits in the rail. The archived strands (articles,
-// deep-dives, radar) are reachable from the footer and the palette, not the
-// front page — an archive that headlines forever just reads as stale.
+// deep-dives, radar) get no UI entry points at all — they stay served for
+// old links, feeds and machines, but an archive that headlines forever just
+// reads as stale.
 const [guide, issues, examples, claims, skills, resources, allWire] = await Promise.all([
   getGuideSorted(),
   getIssuesSorted(),
@@ -186,17 +187,6 @@ const guideUpdated = guide.reduce<Date | null>(
           </ul>
         </div>
 
-        <div class="rail-box">
-          <span class="rail-legend">ARCHIVES</span>
-          <p class="rail-dek">
-            Closed strands from earlier phases — still served, never extended.
-          </p>
-          <ul class="rail-list">
-            <li><a href={withBase('/articles')}><span class="ln">◇</span>the newsroom (daily articles)</a></li>
-            <li><a href={withBase('/deep-dives')}><span class="ln">◈</span>deep dives (long essays)</a></li>
-            <li><a href={withBase('/radar')}><span class="ln">◍</span>the radar (first phase)</a></li>
-          </ul>
-        </div>
       </aside>
     </div>
 
