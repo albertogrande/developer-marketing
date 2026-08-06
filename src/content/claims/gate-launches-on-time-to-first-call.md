@@ -7,6 +7,8 @@ section: 04-developer-experience-and-activation
 tags: [activation, metrics, dx]
 since: DevEx research (Noda, Storey, Forsgren, Greiler — ACM Queue, 2023) and the 2026-07-06 deep dive
 verify: You can state your median time-to-first-success from instrumentation, not guesswork, and the last launch had it as an explicit gate.
+status: current
+checked: 2026-07-11
 updated: 2026-07-11
 sources:
   - label: 'DevEx: What Actually Drives Productivity (ACM Queue)'

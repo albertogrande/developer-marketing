@@ -7,6 +7,8 @@ section: 02-docs-as-front-door
 tags: [docs, distribution]
 since: 2026 — assistants and answer engines mediate developer discovery; Ahrefs (2026-06-15) measured llms.txt going almost entirely unread, and Google made the split official — ignored by Search, audited by Lighthouse's agentic-browsing category
 verify: Ask a coding assistant a task-shaped question about your product and check whether it cites your docs correctly; re-check Google's AI-features guide and the Lighthouse agentic-browsing docs for whether either side of the split has moved.
+status: current
+checked: 2026-08-03
 updated: 2026-08-03
 sources:
   - label: 'Ahrefs — We analyzed 137K sites: 97% of llms.txt files never get read'

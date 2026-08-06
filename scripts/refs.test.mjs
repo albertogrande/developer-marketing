@@ -10,18 +10,18 @@ import { independentHostCount } from './lib/sources.mjs';
 const resolves = makeResolver({
   ids: {
     guide: new Set(['02-docs-as-front-door']),
-    weekly: new Set(['2026-W28']),
+    issues: new Set(['2026-W28']),
     articles: new Set(['2026-07-20-story']),
     'deep-dives': new Set(['2026-07-06-dive']),
-    briefs: new Set(['2026-07-28-acme']),
+    wire: new Set(['2026-07-28-acme']),
     radar: new Set(['old-entry']),
-    practices: new Set(['quickstart-under-five']),
+    claims: new Set(['quickstart-under-five']),
     examples: new Set(['acme-changelog']),
     skills: new Set(['review-skill']),
     resources: new Set(['devrel-book']),
   },
   tags: new Set(['dx', 'metrics']),
-  staticRoutes: new Set(['/', '/about', '/guide', '/practices', '/articles']),
+  staticRoutes: new Set(['/', '/about', '/guide', '/claims', '/articles']),
 });
 
 test('static routes resolve, with and without trailing slash', () => {
@@ -33,26 +33,26 @@ test('static routes resolve, with and without trailing slash', () => {
 
 test('entry pages resolve against their collection ids', () => {
   assert.ok(resolves('/guide/02-docs-as-front-door'));
-  assert.ok(resolves('/weekly/2026-W28'));
+  assert.ok(resolves('/issues/2026-W28'));
   assert.ok(resolves('/articles/2026-07-20-story'));
   assert.ok(resolves('/deep-dives/2026-07-06-dive'));
   assert.ok(resolves('/radar/old-entry'));
   assert.ok(!resolves('/guide/typo-section'));
-  assert.ok(!resolves('/weekly/2026-w28'), 'ids are case-exact');
+  assert.ok(!resolves('/issues/2026-w28'), 'ids are case-exact');
 });
 
 test('gallery anchors resolve against gallery ids', () => {
-  assert.ok(resolves('/practices#quickstart-under-five'));
+  assert.ok(resolves('/claims#quickstart-under-five'));
   assert.ok(resolves('/examples#acme-changelog'));
   assert.ok(resolves('/skills#review-skill'));
   assert.ok(resolves('/resources#devrel-book'));
-  assert.ok(resolves('/briefs#2026-07-28-acme'));
-  assert.ok(!resolves('/practices#nope'));
+  assert.ok(resolves('/wire#2026-07-28-acme'));
+  assert.ok(!resolves('/claims#nope'));
 });
 
 test('markdown siblings resolve per collection', () => {
   assert.ok(resolves('/guide/02-docs-as-front-door.md'));
-  assert.ok(resolves('/practices/quickstart-under-five.md'));
+  assert.ok(resolves('/claims/quickstart-under-five.md'));
   assert.ok(!resolves('/guide/missing.md'));
 });
 
@@ -103,6 +103,6 @@ test('sourcing floor: zero sources reported as a count problem', () => {
 });
 
 test('sourcing floor: other collections are exempt', () => {
-  assert.deepEqual(sourcingProblems('weekly', {}, 'f.md', independentHostCount), []);
-  assert.deepEqual(sourcingProblems('briefs', {}, 'f.md', independentHostCount), []);
+  assert.deepEqual(sourcingProblems('issues', {}, 'f.md', independentHostCount), []);
+  assert.deepEqual(sourcingProblems('wire', {}, 'f.md', independentHostCount), []);
 });

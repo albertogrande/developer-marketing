@@ -1,4 +1,5 @@
 // @ts-check
+import { readdirSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
@@ -25,6 +26,21 @@ export default defineConfig({
   site: SITE_ORIGIN,
   base: SITE_BASE,
   trailingSlash: 'ignore',
+  // The 2026-08 content-model rename (briefs→wire, weekly→issues,
+  // practices→claims) kept every published URL alive as a meta-refresh stub.
+  // The per-issue set is closed — no future issue ever lived under /weekly —
+  // so it is enumerated from disk rather than pattern-matched.
+  redirects: {
+    '/briefs': '/wire',
+    '/weekly': '/issues',
+    '/practices': '/claims',
+    ...Object.fromEntries(
+      readdirSync('src/content/issues')
+        .filter((f) => /\.mdx?$/.test(f))
+        .map((f) => f.replace(/\.mdx?$/, ''))
+        .map((id) => [`/weekly/${id}`, `/issues/${id}`])
+    ),
+  },
   markdown: {
     // Markdown bodies write site links base-less, exactly like frontmatter
     // `related` hrefs; this adds the base at build time so the content does not

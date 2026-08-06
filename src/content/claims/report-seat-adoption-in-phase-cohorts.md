@@ -7,6 +7,8 @@ section: 08-measurement-and-metrics
 tags: [metrics, pricing]
 since: GitHub's Copilot impact dashboard (2026-07-22) — the first major vendor to name a "Passive" seat cohort in its own admin product — landing the same week as HCLTech's 90%-transformation / 18%-revenue-impact survey.
 verify: Open the GitHub changelog entry and confirm the Passive cohort still ships; check whether a second seat-based AI devtool has since adopted phase-cohort reporting (if several have, this is table stakes, not an edge).
+status: current
+checked: 2026-07-27
 updated: 2026-07-27
 sources:
   - label: GitHub changelog — new Copilot usage metrics impact dashboard (2026-07-22)

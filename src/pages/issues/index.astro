@@ -3,10 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import NewsletterCta from '../../components/NewsletterCta.astro';
 import { withBase, absUrl } from '../../lib/site';
-import { getWeeklySorted } from '../../lib/content';
+import { getIssuesSorted } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
-const weekly = await getWeeklySorted();
+const weekly = await getIssuesSorted();
 ---
 <BaseLayout
   title="The Week"
@@ -16,13 +16,13 @@ const weekly = await getWeeklySorted();
       name: 'The Week',
       description:
         'A short weekly digest of what changed in developer marketing — the one read to stay current. Newest first, each week sourced.',
-      url: absUrl('/weekly'),
-      items: weekly.map((w) => ({ name: w.data.title, url: absUrl(`/weekly/${w.id}`) })),
+      url: absUrl('/issues'),
+      items: weekly.map((w) => ({ name: w.data.title, url: absUrl(`/issues/${w.id}`) })),
     }),
   ]}
 >
   <div class="page-head">
-    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> weekly</div>
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> issues</div>
     <h1 class="page-title">The Week</h1>
     <p class="dek">
       One short read a week on what actually moved in developer marketing — and
@@ -40,7 +40,7 @@ const weekly = await getWeeklySorted();
           <div class="ar-main">
             <div class="ar-head">
               <span class="kind">the week</span>
-              <a href={withBase(`/weekly/${w.id}`)} class="ar-title">{w.data.title}</a>
+              <a href={withBase(`/issues/${w.id}`)} class="ar-title">{w.data.title}</a>
             </div>
             <span class="ar-meta">{w.data.summary}</span>
             <TagList tags={w.data.tags} style="margin-top:8px" />
@@ -54,7 +54,7 @@ const weekly = await getWeeklySorted();
 
   <NewsletterCta
     variant="inline"
-    source="/weekly"
+    source="/issues"
     heading="Have it delivered"
     blurb="The same digest, in your inbox on Monday mornings. Self-hosted list, no tracking, one-click unsubscribe."
   />

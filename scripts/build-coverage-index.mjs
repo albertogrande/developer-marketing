@@ -13,8 +13,8 @@
 import { writeFileSync } from 'node:fs';
 import { contentEntries } from './lib/routes.mjs';
 
-const COVERED = ['articles', 'deep-dives', 'weekly', 'briefs'];
-const LABEL = { articles: 'article', 'deep-dives': 'dive', weekly: 'weekly', briefs: 'brief' };
+const COVERED = ['articles', 'deep-dives', 'issues', 'wire'];
+const LABEL = { articles: 'article', 'deep-dives': 'dive', issues: 'issue', wire: 'wire' };
 
 const day = (v) =>
   v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? '').slice(0, 10);

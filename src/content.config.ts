@@ -3,48 +3,51 @@ import { glob as globLoader } from 'astro/loaders';
 
 // Ids are the filename minus extension, literally — not slugified. The
 // default loader lowercases (2026-W28.md → 2026-w28), silently diverging
-// from the filenames the writers link to (/weekly/2026-W28) on a
+// from the filenames the writers link to (/issues/2026-W28) on a
 // case-sensitive host. Every machine surface (routes, .md siblings, llms,
 // sitemap lastmod) assumes id === filename, so make that the loader's
 // contract too.
 const glob = (opts: Parameters<typeof globLoader>[0]) =>
   globLoader({ generateId: ({ entry }) => entry.replace(/\.mdx?$/, ''), ...opts });
 
-// Five collections, all frontmatter-driven so the editorial agents can write
-// them deterministically.
+// The content model stores knowledge by kind, not by prose form. Two
+// primitives, one written prose form, one directory — plus read-only archives.
 //
-//  guide/    — the evergreen reference. One file per section: NN-slug.md.
-//              This is the product: kept continuously current.
-//  weekly/   — the weekly digest ("The Week"). One file per ISO week:
-//              YYYY-Www.md. A short "what changed" read to stay current.
-//  practices/ — atomic best-practices for agent consumption; rendered for
-//              humans at /practices and served to machines via
-//              /practices.json and llms.txt.
-//  deep-dives/ — long-form researched pieces, commissioned when a thread
-//              earns it. One file per piece: YYYY-MM-DD-slug.md.
+//  wire/     — the event log, and the only time-based storage going forward.
+//              One file per dated, sourced fact: one company, one thing that
+//              happened, two sentences, a link. A small company whose news
+//              can't carry 900 words still gets covered here — traction is
+//              not a criterion. One file per item: YYYY-MM-DD-company-slug.md.
+//  claims/   — the living reference's atomic units. Each is a
+//              "when X → do Y (because Z)" claim with a universal provenance
+//              spine: `since` (the dated fact that made it true), `verify`
+//              (how to re-check), `sources`, and a freshness `status`
+//              (current/stale/retired) stamped at `checked`. Guide sections
+//              transclude these; machines read /claims.json and llms.txt.
+//  issues/   — the one written prose form: the weekly issue ("The Week").
+//              One file per ISO week: YYYY-Www.md. Normally short; when a
+//              thread has earned depth the editor writes a long special
+//              issue instead — there is no separate deep-dive tier anymore.
+//  guide/    — the evergreen reference's composed pages. One file per
+//              section: NN-slug.md. Kept continuously current; claims,
+//              examples and skills attach to sections.
 //  skills/   — the shelf. Real, installable agent skills that do the work the
 //              guide describes, each tied to its section, with a verbatim
 //              install line and a mandatory caveat.
-//  examples/ — the swipe file. Real, sourced dev-marketing artifacts (a
-//              pricing page, an API reference, a launch), each with a "why it
-//              works" note, the guide section it demonstrates, and a link to
-//              the real thing. Evidence for the guide's judgment; browsed as a
-//              gallery at /examples and served to machines at /examples.json.
-//  resources/ — the directory. Vetted outside help for developer marketing:
-//              agencies, studios, collectives, independents. Each entry is a
-//              real provider with a live site, one verifiable proof point, and
-//              the date we last checked it. Rendered at /resources, served to
-//              machines at /resources.json.
-//  briefs/   — the wire. Short dated news snippets: one company, one thing
-//              that happened, two sentences, a link. The publication tier
-//              between the internal signals capture and a full article — a
-//              day the newsroom logs a skip still reaches a reader here, and
-//              a small company whose news can't carry 900 words still gets
-//              covered. One file per item: YYYY-MM-DD-company-slug.md.
+//  examples/ — the swipe file. Real, sourced dev-marketing artifacts, each
+//              with a "why it works" note, the guide section it demonstrates,
+//              and a link to the real thing. Evidence for the guide's
+//              judgment.
+//  resources/ — the directory. Vetted outside help for developer marketing.
+//              Each entry is a real provider with a live site, one verifiable
+//              proof point, and the date we last checked it.
+//  articles/  — ARCHIVE. The daily newsroom tier from the site's second phase
+//              (2026-07 → 2026-08). Kept rendered so URLs don't break; no new
+//              entries — analysis now ships in the weekly issue.
+//  deep-dives/ — ARCHIVE. Long-form pieces from the same phase. No new
+//              entries — depth now ships as a long special issue.
 //  radar/    — ARCHIVE. The dated daily posts from the site's first phase
 //              (2026-07-05 → 2026-07-08), kept rendered so URLs don't break.
-//              No new entries: daily capture now goes to signals/ (internal)
-//              and the published cadence is the weekly.
 //
 // Raw daily capture lives in `signals/` (repo root, internal) and editorial
 // memory in `editorial/` — neither is rendered; they feed the collections
@@ -62,8 +65,8 @@ const guide = defineCollection({
   }),
 });
 
-const weekly = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/weekly' }),
+const issues = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/issues' }),
   schema: z.object({
     title: z.string(),
     // ISO week id, e.g. "2026-W28" — also the filename/slug.
@@ -79,7 +82,10 @@ const weekly = defineCollection({
     // articles it is newer than.
     published: z.coerce.date(),
     summary: z.string(),
-    // Optional revision stamp when a digest is corrected after publication.
+    // A longer standfirst rendered under the title — usually only on the
+    // occasional long special issue.
+    dek: z.string().optional(),
+    // Optional revision stamp when an issue is corrected after publication.
     updated: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     // Cross-links to guide sections or deep dives. `href` is a base-less site
@@ -94,11 +100,12 @@ const weekly = defineCollection({
   }),
 });
 
-// practices/ — atomic, retrievable best-practices for agent consumption (and a
-// human-readable page). Each is a "when X → do Y (because Z)" unit tied to a
-// guide section. Surfaced to agents via /practices.json and /llms.txt.
-const practices = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/practices' }),
+// claims/ — the living reference's atomic, retrievable units (and a
+// human-readable gallery). Each is a "when X → do Y (because Z)" claim tied to
+// a guide section, carrying its own provenance and freshness state. Surfaced
+// to agents via /claims.json and /llms.txt.
+const claims = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/claims' }),
   schema: z.object({
     // Short imperative name, e.g. "Report DevRel as influenced pipeline".
     title: z.string(),
@@ -139,13 +146,19 @@ const practices = defineCollection({
     // How to check it still holds (a metric to look at, a source to re-read).
     verify: z.string().optional(),
     // Stamped by a periodic probe: does a bare model already give this
-    // answer? `agree` practices are candidates to retire or refresh.
+    // answer? `agree` claims are candidates to retire or refresh.
     probe: z
       .object({
         status: z.enum(['agree', 'partial', 'diverge']),
         date: z.coerce.date(),
       })
       .optional(),
+    // Freshness state, stamped by the weekly editor's reconciliation pass.
+    // `stale` = the supporting fact may have moved, re-verify; `retired` = no
+    // longer holds — the file stays (anchors must resolve) with a body note.
+    status: z.enum(['current', 'stale', 'retired']).default('current'),
+    // When the claim was last re-verified against its sources.
+    checked: z.coerce.date(),
     sources: z
       .array(z.object({ label: z.string(), url: z.string().url() }))
       .default([]),
@@ -153,10 +166,10 @@ const practices = defineCollection({
   }),
 });
 
-// articles/ — the newsroom. Dated pieces written by the specialized desks
-// (see AUTHORS.md): news, money, campaigns, research, technology. At most one
-// a day, editor's call — the ceiling is not a quota. One file per piece:
-// YYYY-MM-DD-slug.md.
+// articles/ — ARCHIVE. The daily newsroom tier (2026-07 → 2026-08), written
+// by the specialized desks (see AUTHORS.md): news, money, campaigns,
+// research, technology. No new entries — analysis now ships in the weekly
+// issue. Schema unchanged so the archive renders exactly as published.
 const articles = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/articles' }),
   schema: z.object({
@@ -419,14 +432,14 @@ const skills = defineCollection({
   }),
 });
 
-// briefs/ — the wire. The smallest publishable unit: a company, what it did,
-// two sentences, and the link that proves it. Deliberately not an article —
-// no byline, no desk, no take. `source` is mandatory for the same reason it is
-// on examples/: a one-line news claim nobody can go check is a rumour. The
-// stream is where the small-company tail lands, so the bar is "it happened and
-// here is where to verify it", not "it cleared the article threshold".
-const briefs = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/briefs' }),
+// wire/ — the event log. The smallest publishable unit: a company, what it
+// did, two sentences, and the link that proves it. Deliberately not prose —
+// no byline, no take. `source` is mandatory for the same reason it is on
+// examples/: a one-line news claim nobody can go check is a rumour. The
+// stream is where the small-company tail lands, so the bar is "it happened
+// and here is where to verify it" — traction is not a criterion.
+const wire = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/wire' }),
   schema: z.object({
     // The headline — what happened, in the site's voice, no company prefix
     // (the company renders as its own field on the card).
@@ -436,7 +449,7 @@ const briefs = defineCollection({
     // The day the item entered the wire. For something surfaced late, this is
     // the capture date and the body says when it originally shipped.
     date: z.coerce.date(),
-    // Optional revision stamp when a brief is corrected after publication.
+    // Optional revision stamp when an item is corrected after publication.
     updated: z.coerce.date().optional(),
     // The two sentences. Rendered on the card, in JSON, and in llms.txt.
     summary: z.string(),
@@ -445,7 +458,7 @@ const briefs = defineCollection({
     //
     // `podcast` is a deliberately weaker claim than the rest: the scout reads
     // the feed's title, show notes and guest, it does not listen. A podcast
-    // brief says what an episode covers, never asserts a fact stated in audio
+    // wire item says what an episode covers, never asserts a fact stated in audio
     // nobody verified. For a podcast item `company` is the show.
     kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion', 'podcast']),
     // The proof: a link to the primary source. Mandatory.
@@ -487,10 +500,10 @@ const radar = defineCollection({
 
 export const collections = {
   guide,
-  weekly,
+  issues,
+  wire,
+  claims,
   articles,
-  briefs,
-  practices,
   'deep-dives': deepDives,
   examples,
   resources,

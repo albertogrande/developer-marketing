@@ -55,6 +55,11 @@ for (const { file, dirPath } of htmlPages()) {
   if (dirPath === '/404') continue;
   const html = readFileSync(file, 'utf8');
 
+  // Meta-refresh redirect stubs (the pre-rename URL space: /briefs, /weekly/*,
+  // /practices) carry no JSON-LD and canonicalize to their *target* — they are
+  // pointers, not pages, so none of the page checks apply.
+  if (html.includes('http-equiv="refresh"')) continue;
+
   const scripts = html.match(/<script type="application\/ld\+json">/g) ?? [];
   if (scripts.length !== 1) {
     problems.push(`${file}: expected exactly one JSON-LD script, found ${scripts.length}`);
@@ -94,7 +99,7 @@ for (const { collection, id } of entries) {
 // --- 5. feed.xml -----------------------------------------------------------
 const feed = readFileSync(join(DIST, 'feed.xml'), 'utf8');
 const datedCount = entries.filter((e) =>
-  ['weekly', 'articles', 'deep-dives', 'radar'].includes(e.collection)
+  ['issues', 'articles', 'deep-dives', 'radar'].includes(e.collection)
 ).length;
 const feedEntries = (feed.match(/<entry>/g) ?? []).length;
 if (!feed.startsWith('<?xml')) problems.push('feed.xml: missing XML declaration');

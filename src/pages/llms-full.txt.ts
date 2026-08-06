@@ -2,44 +2,44 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate } from '../lib/site';
 import {
   getArticlesSorted,
-  getBriefsSorted,
+  getClaimsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
-  getPracticesSorted,
+  getIssuesSorted,
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWeeklySorted,
+  getWireSorted,
   RESOURCE_CATEGORY_LABELS,
 } from '../lib/content';
 
 // llms-full.txt — the corpus in one fetch, bounded so it never grows without
-// limit: the evergreen product (guide, practices, examples, skills) always in
+// limit: the evergreen product (guide, claims, examples, skills) always in
 // full; the dated strands in full for roughly the freshness window answer
-// engines actually cite (weekly 8, articles 12, dives 4) and as dated links
-// to their .md siblings beyond it; the radar archive links-only.
+// engines actually cite (issues 8, archived articles 12, dives 4) and as
+// dated links to their .md siblings beyond it; the radar archive links-only.
 
-// Briefs are the exception to the "recent in full, older as links" treatment:
-// each is already two sentences, so the recent window carries them inline and
-// older ones are left to /briefs.json and llms.txt rather than link-listed here
-// — a wire grows faster than any other strand and would crowd out the corpus
-// this file exists to serve.
-const RECENT = { weekly: 8, articles: 12, dives: 4, briefs: 30 };
+// Wire items are the exception to the "recent in full, older as links"
+// treatment: each is already two sentences, so the recent window carries them
+// inline and older ones are left to /wire.json and llms.txt rather than
+// link-listed here — the wire grows faster than any other strand and would
+// crowd out the corpus this file exists to serve.
+const RECENT = { issues: 8, articles: 12, dives: 4, wire: 30 };
 
 export const GET: APIRoute = async () => {
   const abs = absUrl;
 
   const guide = await getGuideSorted();
-  const practices = await getPracticesSorted();
+  const claims = await getClaimsSorted();
   const examples = await getExamplesSorted();
   const skills = await getSkillsSorted();
-  const weekly = await getWeeklySorted();
+  const issues = await getIssuesSorted();
   const articles = await getArticlesSorted();
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
-  const briefs = await getBriefsSorted();
+  const wire = await getWireSorted();
 
   const out: string[] = [];
   out.push('# Developer Marketing — a field guide (full text)');
@@ -69,15 +69,16 @@ export const GET: APIRoute = async () => {
   out.push('');
   out.push('---');
   out.push('');
-  out.push('# Practices');
+  out.push('# Claims');
   out.push('');
-  out.push('Atomic best-practices — when to do what, and why.');
-  for (const p of practices) {
+  out.push('The reference, atomized — when to do what, and why. Each claim carries a freshness status.');
+  for (const p of claims) {
     out.push('');
     out.push(`## ${p.data.title}`);
     out.push(`- **When:** ${p.data.when}`);
     out.push(`- **Do:** ${p.data.do}`);
     out.push(`- **Why:** ${p.data.why}`);
+    out.push(`- **Status:** ${p.data.status} (checked ${isoDate(p.data.checked)})`);
     out.push(`- **Section:** ${abs(`/guide/${p.data.section}`)}`);
     if (p.data.sources.length) {
       out.push(`- **Sources:** ${p.data.sources.map((s) => `${s.label} (${s.url})`).join('; ')}`);
@@ -90,7 +91,7 @@ export const GET: APIRoute = async () => {
     out.push('');
     out.push('# Examples');
     out.push('');
-    out.push('Real, sourced dev-marketing artifacts — the evidence behind the practices.');
+    out.push('Real, sourced dev-marketing artifacts — the evidence behind the claims.');
     for (const e of examples) {
       out.push('');
       out.push(`## ${e.data.company}: ${e.data.title}`);
@@ -204,32 +205,25 @@ export const GET: APIRoute = async () => {
 
   datedSection(
     'The Week',
-    'One short digest per ISO week of what actually changed.',
-    weekly,
-    (id) => `/weekly/${id}`,
-    RECENT.weekly
+    'One issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.',
+    issues,
+    (id) => `/issues/${id}`,
+    RECENT.issues
   );
-  datedSection(
-    'Newsroom',
-    'Dated desk articles — news, money, campaigns, research, technology.',
-    articles,
-    (id) => `/articles/${id}`,
-    RECENT.articles
-  );
-  if (briefs.length) {
+  if (wire.length) {
     out.push('');
     out.push('---');
     out.push('');
-    out.push('# Briefs');
+    out.push('# The Wire');
     out.push('');
     out.push(
-      `The wire — short dated news items, newest first (most recent ${Math.min(briefs.length, RECENT.briefs)} of ${briefs.length}). Full set: ${abs('/briefs.json')}.`
+      `The event log — short dated items, newest first (most recent ${Math.min(wire.length, RECENT.wire)} of ${wire.length}). Full set: ${abs('/wire.json')}.`
     );
-    for (const b of briefs.slice(0, RECENT.briefs)) {
+    for (const b of wire.slice(0, RECENT.wire)) {
       out.push('');
       out.push(`## ${b.data.company}: ${b.data.title}`);
       out.push(
-        `*${isoDate(b.data.date)}${b.data.updated ? ` · updated ${isoDate(b.data.updated)}` : ''} · ${b.data.kind} · ${abs(`/briefs`)}#${b.id}*`
+        `*${isoDate(b.data.date)}${b.data.updated ? ` · updated ${isoDate(b.data.updated)}` : ''} · ${b.data.kind} · ${abs(`/wire`)}#${b.id}*`
       );
       out.push('');
       out.push(b.data.summary);
@@ -243,8 +237,15 @@ export const GET: APIRoute = async () => {
   }
 
   datedSection(
-    'Deep dives',
-    'Long-form researched pieces, commissioned when a thread earns it.',
+    'Newsroom archive',
+    'Dated desk articles from the daily tier (2026-07 → 2026-08); no new entries — analysis now ships in the weekly issue.',
+    articles,
+    (id) => `/articles/${id}`,
+    RECENT.articles
+  );
+  datedSection(
+    'Deep dives archive',
+    'Long-form researched pieces; no new entries — depth now ships as a long special issue.',
     dives,
     (id) => `/deep-dives/${id}`,
     RECENT.dives

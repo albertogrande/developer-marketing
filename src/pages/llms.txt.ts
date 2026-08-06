@@ -2,15 +2,15 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate } from '../lib/site';
 import {
   getArticlesSorted,
-  getBriefsSorted,
+  getClaimsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
-  getPracticesSorted,
+  getIssuesSorted,
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWeeklySorted,
+  getWireSorted,
 } from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
@@ -21,15 +21,15 @@ export const GET: APIRoute = async () => {
   const abs = absUrl;
 
   const guide = await getGuideSorted();
-  const practices = await getPracticesSorted();
-  const weekly = await getWeeklySorted();
+  const claims = await getClaimsSorted();
+  const issues = await getIssuesSorted();
   const examples = await getExamplesSorted();
   const skills = await getSkillsSorted();
   const articles = await getArticlesSorted();
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
-  const briefs = await getBriefsSorted();
+  const wire = await getWireSorted();
 
   const lines: string[] = [];
   lines.push('# Developer Marketing — a field guide');
@@ -52,18 +52,21 @@ export const GET: APIRoute = async () => {
   }
 
   lines.push('');
-  lines.push('## Practices');
-  lines.push('Atomic best-practices — when X → do Y (because Z), dated and sourced.');
-  for (const p of practices) {
+  lines.push('## Claims');
+  lines.push(
+    'The reference, atomized — when X → do Y (because Z), dated, sourced, freshness-stamped. Claims marked stale or retired say so.'
+  );
+  for (const p of claims) {
+    const flag = p.data.status === 'current' ? '' : ` [${p.data.status}]`;
     lines.push(
-      `- [${p.data.title}](${abs(`/practices/${p.id}.md`)}): when ${p.data.when} → ${p.data.do}`
+      `- [${p.data.title}](${abs(`/claims/${p.id}.md`)}): when ${p.data.when} → ${p.data.do}${flag}`
     );
   }
 
   if (examples.length) {
     lines.push('');
     lines.push('## Examples');
-    lines.push('Real, sourced dev-marketing artifacts — the evidence behind the practices.');
+    lines.push('Real, sourced dev-marketing artifacts — the evidence behind the claims.');
     for (const e of examples) {
       lines.push(
         `- [${e.data.company}: ${e.data.title}](${abs(`/examples/${e.id}.md`)}): ${e.data.summary} (the artifact: ${e.data.source.url})`
@@ -97,48 +100,28 @@ export const GET: APIRoute = async () => {
     }
   }
 
-  if (articles.length) {
+  if (wire.length) {
     lines.push('');
-    lines.push('## Newsroom');
-    lines.push('Dated desk articles — news, money, campaigns, research, technology.');
-    for (const a of articles) {
-      lines.push(
-        `- [${a.data.title}](${abs(`/articles/${a.id}.md`)}): ${a.data.summary} (${isoDate(a.data.date)})`
-      );
-    }
-  }
-
-  if (briefs.length) {
-    lines.push('');
-    lines.push('## Briefs');
+    lines.push('## The Wire');
     lines.push(
-      'The wire — short dated news items. One company, one thing that happened, two sentences, and the primary source that proves it.'
+      'The event log — one company, one thing that happened, two sentences, and the primary source that proves it.'
     );
-    for (const b of briefs) {
+    for (const b of wire) {
       lines.push(
-        `- [${b.data.company}: ${b.data.title}](${abs(`/briefs/${b.id}.md`)}): ${b.data.summary} (${b.data.kind}, ${isoDate(b.data.date)}; source: ${b.data.source.url})`
+        `- [${b.data.company}: ${b.data.title}](${abs(`/wire/${b.id}.md`)}): ${b.data.summary} (${b.data.kind}, ${isoDate(b.data.date)}; source: ${b.data.source.url})`
       );
     }
   }
 
-  if (weekly.length) {
+  if (issues.length) {
     lines.push('');
-    lines.push('## Weekly');
-    lines.push('One short digest per ISO week of what actually changed.');
-    for (const w of weekly) {
+    lines.push('## Issues');
+    lines.push(
+      'The Week — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.'
+    );
+    for (const w of issues) {
       lines.push(
-        `- [${w.data.title}](${abs(`/weekly/${w.id}.md`)}): ${w.data.summary} (${isoDate(w.data.published)})`
-      );
-    }
-  }
-
-  if (dives.length) {
-    lines.push('');
-    lines.push('## Deep dives');
-    lines.push('Long-form researched pieces, commissioned when a thread earns it.');
-    for (const v of dives) {
-      lines.push(
-        `- [${v.data.title}](${abs(`/deep-dives/${v.id}.md`)}): ${v.data.summary} (${isoDate(v.data.date)})`
+        `- [${w.data.title}](${abs(`/issues/${w.id}.md`)}): ${w.data.summary} (${isoDate(w.data.published)})`
       );
     }
   }
@@ -148,23 +131,45 @@ export const GET: APIRoute = async () => {
   lines.push(`- [api.json](${abs('/api.json')}): the manifest — every endpoint and collection, with counts and updated dates`);
   lines.push(`- [llms-full.txt](${abs('/llms-full.txt')}): the evergreen corpus in full plus recent dated pieces, one fetch`);
   lines.push(`- [guide.json](${abs('/guide.json')}): guide sections with markdown bodies`);
-  lines.push(`- [practices.json](${abs('/practices.json')}): structured best-practices`);
+  lines.push(`- [claims.json](${abs('/claims.json')}): structured claims with status and checked dates`);
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
-  lines.push(`- [articles.json](${abs('/articles.json')}): newsroom articles with bodies`);
-  lines.push(`- [briefs.json](${abs('/briefs.json')}): the wire — dated news items with company, kind and primary source`);
-  lines.push(`- [weekly.json](${abs('/weekly.json')}): weekly digests with bodies`);
-  lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): deep dives with bodies`);
+  lines.push(`- [wire.json](${abs('/wire.json')}): the event log — dated items with company, kind and primary source`);
+  lines.push(`- [issues.json](${abs('/issues.json')}): weekly issues with bodies`);
+  lines.push(`- [articles.json](${abs('/articles.json')}): the archived newsroom articles with bodies`);
+  lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): the archived deep dives with bodies`);
   lines.push(`- [radar.json](${abs('/radar.json')}): the archived radar posts`);
   lines.push(`- [feed.xml](${abs('/feed.xml')}): Atom feed of dated pieces, full content`);
   lines.push(`- [feed.json](${abs('/feed.json')}): JSON Feed 1.1, content_html + content_text`);
   lines.push(`- [sitemap-index.xml](${abs('/sitemap-index.xml')}): sitemap with honest per-page lastmod`);
 
+  lines.push('');
+  lines.push('## Optional — archives (no new entries)');
+  if (articles.length) {
+    lines.push('');
+    lines.push('### Newsroom archive');
+    lines.push('Dated desk articles from the daily tier (2026-07 → 2026-08); analysis now ships in the weekly issue.');
+    for (const a of articles) {
+      lines.push(
+        `- [${a.data.title}](${abs(`/articles/${a.id}.md`)}): ${a.data.summary} (${isoDate(a.data.date)})`
+      );
+    }
+  }
+  if (dives.length) {
+    lines.push('');
+    lines.push('### Deep dives archive');
+    lines.push('Long-form researched pieces; depth now ships as a long special issue.');
+    for (const v of dives) {
+      lines.push(
+        `- [${v.data.title}](${abs(`/deep-dives/${v.id}.md`)}): ${v.data.summary} (${isoDate(v.data.date)})`
+      );
+    }
+  }
   if (radar.length) {
     lines.push('');
-    lines.push('## Optional');
-    lines.push("The archived radar — dated posts from the site's first phase (frozen).");
+    lines.push('### Radar archive');
+    lines.push("Dated posts from the site's first phase (frozen).");
     for (const r of radar) {
       lines.push(
         `- [${r.data.title}](${abs(`/radar/${r.id}.md`)}): ${r.data.summary} (${isoDate(r.data.date)})`

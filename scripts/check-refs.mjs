@@ -4,7 +4,7 @@
 // broken link. This runs in `npm run build`, so it fails the build instead.
 //
 // Checks:
-//   1. every practice's and skill's `section:`, and every example's
+//   1. every claim's and skill's `section:`, and every example's
 //      `demonstrates:`, names a real guide section
 //   2. every internal `related[].href` resolves to a real route
 //   3. body links: internal markdown links must carry the site base
@@ -28,20 +28,20 @@ import { makeResolver, sourcingProblems } from './lib/refs.mjs';
 // cannot drift from what Astro emits. base is '' when served at the root.
 const BASE = siteConfig().base;
 
-// A collection dir may not exist yet (e.g. weekly/ before the first issue).
+// A collection dir may not exist yet (e.g. issues/ before the first issue).
 const mdFiles = (dir) =>
   existsSync(dir) ? readdirSync(dir).filter((f) => /\.mdx?$/.test(f)) : [];
 const ids = (dir) => new Set(mdFiles(dir).map((f) => f.replace(/\.mdx?$/, '')));
 
 const guideIds = ids('src/content/guide');
-const weeklyIds = ids('src/content/weekly');
+const issueIds = ids('src/content/issues');
 const articleIds = ids('src/content/articles');
 const diveIds = ids('src/content/deep-dives');
-const practiceIds = ids('src/content/practices');
+const claimIds = ids('src/content/claims');
 const exampleIds = ids('src/content/examples');
 const skillIds = ids('src/content/skills');
 const resourceIds = ids('src/content/resources');
-const briefIds = ids('src/content/briefs');
+const wireIds = ids('src/content/wire');
 const radarIds = ids('src/content/radar');
 
 // Frontmatter parsing and the src/pages route table live in ./lib/routes.mjs,
@@ -53,7 +53,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'weekly', 'articles', 'deep-dives', 'briefs', 'practices', 'examples', 'skills', 'resources', 'radar']) {
+for (const dir of ['guide', 'issues', 'articles', 'deep-dives', 'wire', 'claims', 'examples', 'skills', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -69,12 +69,12 @@ for (const e of entries) {
 const resolves = makeResolver({
   ids: {
     guide: guideIds,
-    weekly: weeklyIds,
+    issues: issueIds,
     articles: articleIds,
     'deep-dives': diveIds,
-    briefs: briefIds,
+    wire: wireIds,
     radar: radarIds,
-    practices: practiceIds,
+    claims: claimIds,
     examples: exampleIds,
     skills: skillIds,
     resources: resourceIds,
@@ -91,8 +91,8 @@ for (const { dir, file, fm, body, err } of entries) {
     continue;
   }
 
-  // 1. practice.section / example.demonstrates must be a real guide section
-  if (dir === 'practices') {
+  // 1. claim.section / example.demonstrates must be a real guide section
+  if (dir === 'claims') {
     if (!fm.section) problems.push(`${file}: missing section`);
     else if (!guideIds.has(fm.section)) problems.push(`${file}: section "${fm.section}" is not a guide section`);
   }
@@ -111,19 +111,18 @@ for (const { dir, file, fm, body, err } of entries) {
     if (!fm.source?.url) problems.push(`${file}: missing source.url`);
     if (!fm.verified) problems.push(`${file}: missing verified date`);
   }
-  // A brief is a one-line news claim with no byline and no desk behind it, so
-  // the primary source is the only thing making it checkable. Missing it, the
+  // A wire item is a one-line news claim with no byline behind it, so the
+  // primary source is the only thing making it checkable. Missing it, the
   // item is a rumour with a company name attached — fail the build.
-  if (dir === 'briefs') {
+  if (dir === 'wire') {
     if (!fm.company) problems.push(`${file}: missing company`);
-    if (!fm.summary) problems.push(`${file}: missing summary — the brief is the summary`);
-    if (!fm.source?.url) problems.push(`${file}: missing source.url — an unverifiable brief is a rumour`);
+    if (!fm.summary) problems.push(`${file}: missing summary — the item is the summary`);
+    if (!fm.source?.url) problems.push(`${file}: missing source.url — an unverifiable item is a rumour`);
   }
-  // 4. Sourcing floors. The newsroom and deep-dive skills promise these
-  // minimums; until here nothing enforced them, so a zero-source article
-  // built clean. The zod schema carries the same counts — this mirror runs
-  // pre-build with a clearer message, and adds the independence check zod
-  // can't express.
+  // 4. Sourcing floors on the archived articles and deep dives — a corrected
+  // archive entry must still meet the floor it was published under. The zod
+  // schema carries the same counts — this mirror runs pre-build with a
+  // clearer message, and adds the independence check zod can't express.
   problems.push(...sourcingProblems(dir, fm, file, independentHostCount));
 
   // 2. related hrefs (frontmatter): base-less site paths or external URLs
@@ -161,5 +160,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${practiceIds.size} practices, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${weeklyIds.size} weeklies, ${articleIds.size} articles, ${briefIds.size} briefs, ${diveIds.size} dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${claimIds.size} claims, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${issueIds.size} issues, ${wireIds.size} wire items, ${articleIds.size} archived articles, ${diveIds.size} archived dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

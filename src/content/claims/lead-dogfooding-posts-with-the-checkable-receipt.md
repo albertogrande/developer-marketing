@@ -7,6 +7,8 @@ section: 05-content-that-earns-trust
 tags: [content]
 since: "Cloudflare's cdnjs dogfooding write-up (2026-07-30) — proof carried by raised public platform limits rather than self-reported throughput"
 verify: Open Cloudflare's Workers limits docs and confirm the raised subrequest default still stands; watch whether a second vendor frames its dogfooding around limits raised rather than throughput hit.
+status: current
+checked: 2026-08-03
 updated: 2026-08-03
 sources:
   - label: "Cloudflare — Dogfooding at scale: migrating cdnjs to Cloudflare's Developer Platform"

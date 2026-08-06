@@ -15,27 +15,27 @@ export async function getStaticPaths() {
 const { tag } = Astro.params;
 const { items } = Astro.props;
 
-const weekly = items.filter((i) => i.kind === 'weekly');
+const weekly = items.filter((i) => i.kind === 'issue');
 const articles = items.filter((i) => i.kind === 'article');
 const dives = items.filter((i) => i.kind === 'deep-dive');
-const practices = items.filter((i) => i.kind === 'practice');
+const practices = items.filter((i) => i.kind === 'claim');
 const examples = items.filter((i) => i.kind === 'example');
 const resources = items.filter((i) => i.kind === 'resource');
 const skills = items.filter((i) => i.kind === 'skill');
-const briefs = items.filter((i) => i.kind === 'brief');
+const briefs = items.filter((i) => i.kind === 'wire');
 const radar = items.filter((i) => i.kind === 'radar');
 
 // Every tagged thing, at its page or gallery-anchor URL.
 const taggedUrl = (i: (typeof items)[number]) =>
   ({
-    weekly: absUrl(`/weekly/${i.entry.id}`),
+    issue: absUrl(`/issues/${i.entry.id}`),
     article: absUrl(`/articles/${i.entry.id}`),
     'deep-dive': absUrl(`/deep-dives/${i.entry.id}`),
-    practice: `${absUrl('/practices')}#${i.entry.id}`,
+    claim: `${absUrl('/claims')}#${i.entry.id}`,
     example: `${absUrl('/examples')}#${i.entry.id}`,
     skill: `${absUrl('/skills')}#${i.entry.id}`,
     resource: `${absUrl('/resources')}#${i.entry.id}`,
-    brief: `${absUrl('/briefs')}#${i.entry.id}`,
+    wire: `${absUrl('/wire')}#${i.entry.id}`,
     radar: absUrl(`/radar/${i.entry.id}`),
   })[i.kind];
 
@@ -45,7 +45,7 @@ const taggedName = (i: (typeof items)[number]) =>
 ---
 <BaseLayout
   title={`Tagged: ${tag}`}
-  description={`Everything on the field guide tagged "${tag}" — weekly issues, deep dives, practices, examples, skills, and radar entries.`}
+  description={`Everything on the field guide tagged "${tag}" — issues, claims, examples, skills, wire items, and the archives.`}
   jsonLd={[
     collectionPageNode({
       name: `Tagged: ${tag}`,
@@ -67,7 +67,7 @@ const taggedName = (i: (typeof items)[number]) =>
   {practices.length > 0 && (
     <Fragment>
       <div class="fm-sec">
-        <span class="amber">##</span><span class="fm-sec-l">practices</span>
+        <span class="amber">##</span><span class="fm-sec-l">claims</span>
         <span class="fm-rule" aria-hidden="true"></span>
         <span class="dim">{String(practices.length).padStart(2, '0')}</span>
       </div>
@@ -76,7 +76,7 @@ const taggedName = (i: (typeof items)[number]) =>
           <li class="fm-row">
             <span class="fm-ln">pr</span>
             <div class="fm-rowmain">
-              <a href={withBase(`/practices#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <a href={withBase(`/claims#${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.when}</p>
             </div>
           </li>
@@ -172,7 +172,7 @@ const taggedName = (i: (typeof items)[number]) =>
   {briefs.length > 0 && (
     <Fragment>
       <div class="fm-sec">
-        <span class="amber">##</span><span class="fm-sec-l">briefs</span>
+        <span class="amber">##</span><span class="fm-sec-l">wire</span>
         <span class="fm-rule" aria-hidden="true"></span>
         <span class="dim">{String(briefs.length).padStart(2, '0')}</span>
       </div>
@@ -181,7 +181,7 @@ const taggedName = (i: (typeof items)[number]) =>
           <li class="fm-row">
             <span class="fm-ln">{isoDate(entry.data.date).slice(5)}</span>
             <div class="fm-rowmain">
-              <a href={withBase(`/briefs#${entry.id}`)} class="fm-row-t">{entry.data.company}: {entry.data.title}</a>
+              <a href={withBase(`/wire#${entry.id}`)} class="fm-row-t">{entry.data.company}: {entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
             </div>
           </li>
@@ -202,7 +202,7 @@ const taggedName = (i: (typeof items)[number]) =>
           <li class="fm-row">
             <span class="fm-ln">{entry.data.week.slice(5)}</span>
             <div class="fm-rowmain">
-              <a href={withBase(`/weekly/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <a href={withBase(`/issues/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
             </div>
           </li>

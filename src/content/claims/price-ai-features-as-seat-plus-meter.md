@@ -7,6 +7,8 @@ section: 01-positioning-for-developers
 tags: [pricing, positioning]
 since: GitHub Code Quality GA (2026-07-20) extended the seat-plus-meter shape from code generation to code review, making it the category default rather than a Copilot quirk.
 verify: Check the current pricing pages for GitHub Code Quality, Copilot, and CodeRabbit still show seat-plus-meter; if a major entrant has moved to flat per-seat pricing with no meter, the convergence claim is weakening.
+status: current
+checked: 2026-07-27
 updated: 2026-07-27
 sources:
   - label: GitHub changelog — Code Quality is now generally available (2026-07-20)

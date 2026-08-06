@@ -7,6 +7,8 @@ section: 01-positioning-for-developers
 tags: [positioning, dx, activation]
 since: "Scaling DevTools episode with Robby Russell (2026-06-24) — the design-decision account, stated in retrospect"
 verify: The claims are anecdotal and retrospective; treat as a named practitioner's position. Re-check against any measured activation data comparing default-on vs. opt-in configuration for developer tools.
+status: current
+checked: 2026-08-03
 updated: 2026-08-03
 sources:
   - label: Scaling DevTools — Robby Russell on Oh My Zsh, Developer Experience, and Open Source

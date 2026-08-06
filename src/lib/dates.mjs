@@ -1,5 +1,5 @@
 // ISO week arithmetic, as a pure module. The week id is load-bearing — it is
-// the weekly collection's literal filename (/weekly/2026-W28) and the signals
+// the issues collection's literal filename (/issues/2026-W28) and the signals
 // filename — and the year-boundary logic is exactly the kind of thing that
 // breaks silently in late December. Extracted from content.ts so `node --test`
 // can pin it; content.ts re-exports from here.

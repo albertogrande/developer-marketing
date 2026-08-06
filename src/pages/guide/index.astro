@@ -5,13 +5,13 @@ import { getGuideSorted, getGuideGraph } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
 // The handbook home. Each section shows what the site knows about the topic
-// — practices, evidence, coverage — so a reader (and the editor) can see at
+// — claims, evidence, coverage — so a reader (and the editor) can see at
 // a glance which topics are alive and which are thin.
 const [guide, graph] = await Promise.all([getGuideSorted(), getGuideGraph()]);
 
 const countsFor = (id: string) => {
   const parts: string[] = [];
-  const p = graph.practicesBySection.get(id)?.length ?? 0;
+  const p = graph.claimsBySection.get(id)?.length ?? 0;
   const e = graph.examplesBySection.get(id)?.length ?? 0;
   const s = graph.skillsBySection.get(id)?.length ?? 0;
   const c = graph.coverageBySection.get(id)?.length ?? 0;
@@ -43,7 +43,7 @@ const countsFor = (id: string) => {
     <p class="dek">
       A practitioner's reference to marketing to developers — nine sections,
       each a topic hub gathering the evergreen state of the art, the
-      <a href={withBase('/practices')}>practices</a> that implement it, the
+      <a href={withBase('/claims')}>claims</a> that implement it, the
       <a href={withBase('/examples')}>evidence</a> behind it, the
       <a href={withBase('/skills')}>skills</a> that automate it, and the coverage
       that keeps it honest. Each carries the date it was last checked.

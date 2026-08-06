@@ -103,8 +103,8 @@ test('routesForContentFile: page collections invalidate entry, index, home', () 
     '/articles',
     '/',
   ]);
-  assert.deepEqual(routesForContentFile('src/content/practices/quickstart.md'), [
-    '/practices',
+  assert.deepEqual(routesForContentFile('src/content/claims/quickstart.md'), [
+    '/claims',
     '/',
   ]);
   assert.deepEqual(routesForContentFile('newsletter/README.md'), []);

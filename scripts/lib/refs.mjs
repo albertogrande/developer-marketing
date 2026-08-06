@@ -5,15 +5,15 @@
 
 // Gallery collections render as #anchors on their index page.
 const ANCHOR_GALLERIES = {
-  '/practices': 'practices',
+  '/claims': 'claims',
   '/examples': 'examples',
   '/skills': 'skills',
   '/resources': 'resources',
-  '/briefs': 'briefs',
+  '/wire': 'wire',
 };
 
 // Collections whose entries have standalone pages under /<collection>/<id>.
-const PAGE_COLLECTIONS = ['guide', 'weekly', 'articles', 'deep-dives', 'radar'];
+const PAGE_COLLECTIONS = ['guide', 'issues', 'articles', 'deep-dives', 'radar'];
 
 // Build a resolver over the site's id sets. `ids` maps collection name → Set
 // of entry ids; `tags` is the tag vocabulary; `staticRoutes` the src/pages

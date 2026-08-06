@@ -7,6 +7,8 @@ section: 02-docs-as-front-door
 tags: [docs, dx, positioning]
 since: "MCP spec revision 2026-07-28 — stateless core, CIMD auth, twelve-month minimum deprecation window on HTTP+SSE, DCR, and Roots/Sampling/Logging"
 verify: Check the MCP spec blog for the current deprecation status and removal dates; check whether major MCP hosts have published dated migration guides (if most have, the window for looking early has closed).
+status: current
+checked: 2026-08-03
 updated: 2026-08-03
 sources:
   - label: The 2026-07-28 Specification (Model Context Protocol)

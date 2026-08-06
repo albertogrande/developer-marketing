@@ -27,7 +27,7 @@ const reportPath = argv.includes('--report') ? flag('--report', 'freshness-repor
 
 // The freshness stamp per collection: the field that means "a person checked
 // this recently", not the entry's publish date.
-const STAMP = { skills: 'verified', resources: 'checked' };
+const STAMP = { skills: 'verified', resources: 'checked', claims: 'checked' };
 
 const today = new Date();
 const cutoff = new Date(today.getTime() - DAYS * 24 * 60 * 60 * 1000)

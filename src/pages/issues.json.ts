@@ -1,16 +1,16 @@
 import type { APIRoute } from 'astro';
 import { withBase, isoDate } from '../lib/site';
-import { getWeeklySorted } from '../lib/content';
+import { getIssuesSorted } from '../lib/content';
 
-// Recent weekly digests — the structured "what changed lately" source.
+// Recent weekly issues — the structured "what changed lately" source.
 
 export const GET: APIRoute = async (context) => {
   const site = context.site!;
   const abs = (p: string) => new URL(withBase(p), site).href;
 
-  const weekly = await getWeeklySorted();
+  const all = await getIssuesSorted();
 
-  const issues = weekly.map((w) => ({
+  const issues = all.map((w) => ({
     id: w.id,
     title: w.data.title,
     week: w.data.week,
@@ -18,15 +18,16 @@ export const GET: APIRoute = async (context) => {
     date: isoDate(w.data.date),
     published: isoDate(w.data.published),
     summary: w.data.summary,
+    dek: w.data.dek,
     tags: w.data.tags,
-    url: abs(`/weekly/${w.id}`),
+    url: abs(`/issues/${w.id}`),
     body: w.body ?? '',
   }));
 
   const updated = issues.length ? issues[0].published : '1970-01-01';
 
   const body = JSON.stringify(
-    { title: 'Developer Marketing field guide — weekly digests', updated, count: issues.length, issues },
+    { title: 'Developer Marketing field guide — weekly issues', updated, count: issues.length, issues },
     null,
     2
   );

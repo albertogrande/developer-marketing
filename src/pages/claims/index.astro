@@ -3,14 +3,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
 import { withBase, absUrl, isoDate } from '../../lib/site';
-import { getGuideSorted, getPracticesSorted } from '../../lib/content';
+import { getGuideSorted, getClaimsSorted } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
 // The agent-facing corpus, human-readable: every practice, grouped by the
-// guide section it belongs to. Agents read this via /practices.json and
+// guide section it belongs to. Agents read this via /claims.json and
 // llms.txt; this page is the same corpus for people (and for site search).
 
-const [guide, practices] = await Promise.all([getGuideSorted(), getPracticesSorted()]);
+const [guide, practices] = await Promise.all([getGuideSorted(), getClaimsSorted()]);
 
 // One pass to group, renders in parallel — the corpus grows weekly.
 const bySection = new Map<string, typeof practices>();
@@ -31,29 +31,29 @@ const groups = await Promise.all(
 );
 ---
 <BaseLayout
-  title="Practices"
-  description="Atomic best-practices for developer marketing — when X, do Y, because Z. Dated, sourced, and machine-readable at /practices.json."
+  title="Claims"
+  description="The reference's atomic claims — when X, do Y, because Z. Dated, sourced, freshness-stamped, machine-readable at /claims.json."
   jsonLd={[
     collectionPageNode({
-      name: 'Practices',
+      name: 'Claims',
       description:
-        'Atomic best-practices for developer marketing — when X, do Y, because Z. Dated, sourced, and machine-readable at /practices.json.',
-      url: absUrl('/practices'),
+        'The atomic claims of the reference — when X, do Y, because Z. Dated, sourced, freshness-stamped, machine-readable at /claims.json.',
+      url: absUrl('/claims'),
       items: practices.map((p) => ({
         name: p.data.title,
-        url: `${absUrl('/practices')}#${p.id}`,
+        url: `${absUrl('/claims')}#${p.id}`,
       })),
     }),
   ]}
 >
   <div class="page-head">
-    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> practices</div>
-    <h1 class="page-title">Practices</h1>
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> claims</div>
+    <h1 class="page-title">Claims</h1>
     <p class="dek">
-      Atomic, dated best-practices — each a <em>when X → do Y (because Z)</em>
+      The reference's atomic claims — each a <em>when X → do Y (because Z)</em>
       unit tied to a guide section, with how to verify it still holds. Machines
       read the same corpus at
-      <a href={withBase('/practices.json')}><code>/practices.json</code></a> and
+      <a href={withBase('/claims.json')}><code>/claims.json</code></a> and
       <a href={withBase('/llms.txt')}><code>/llms.txt</code></a>.
     </p>
   </div>

@@ -23,8 +23,9 @@ export const getGuideSorted = memo(async () =>
   (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order)
 );
 
-export const getWeeklySorted = memo(async () =>
-  (await getCollection('weekly')).sort(entryByDateDesc)
+// The issues — the weekly prose form, newest first (by the Monday covered).
+export const getIssuesSorted = memo(async () =>
+  (await getCollection('issues')).sort(entryByDateDesc)
 );
 
 export const getDivesSorted = memo(async () =>
@@ -45,15 +46,15 @@ export const DESK_LABELS: Record<CollectionEntry<'articles'>['data']['desk'], st
   technology: 'Technology',
 };
 
-// The wire — short dated news snippets, newest first. Same tie-break as every
-// other dated collection, which matters here: briefs land several to a day.
-export const getBriefsSorted = memo(async () =>
-  (await getCollection('briefs')).sort(entryByDateDesc)
+// The wire — the event log, newest first. Same tie-break as every other
+// dated collection, which matters here: items land several to a day.
+export const getWireSorted = memo(async () =>
+  (await getCollection('wire')).sort(entryByDateDesc)
 );
 
-// Brief kind → display label, in one place so the card chip, the JSON endpoint
+// Wire kind → display label, in one place so the card chip, the JSON endpoint
 // and llms.txt describe an item identically.
-export const BRIEF_KIND_LABELS: Record<CollectionEntry<'briefs'>['data']['kind'], string> = {
+export const WIRE_KIND_LABELS: Record<CollectionEntry<'wire'>['data']['kind'], string> = {
   news: 'News',
   release: 'Release',
   funding: 'Funding',
@@ -63,21 +64,22 @@ export const BRIEF_KIND_LABELS: Record<CollectionEntry<'briefs'>['data']['kind']
   podcast: 'Podcast',
 };
 
-// ISO-8601 week id for a date — 'YYYY-Www', the same string the weekly
+// ISO-8601 week id for a date — 'YYYY-Www', the same string the issues
 // collection uses as its id and the scout uses for signals/<week>.md. Matches
 // `date -u +%G-W%V` exactly, year boundaries included (2027-01-03 → 2026-W53),
-// which is what lets a weekly issue find its own briefs by id alone. The
+// which is what lets an issue find its own wire items by id alone. The
 // implementation lives in ./dates.mjs (pure, `node --test`-pinned); imported
 // (not just re-exported) because this module uses it below.
 import { isoWeekId } from './dates.mjs';
 export { isoWeekId };
 
-// ISO week id → the briefs published in it, newest first. The weekly digest
-// reads this to render "The week in links" without anyone writing the roundup
-// a second time: the briefs already carry company, two sentences and a source.
-export const getBriefsByWeek = memo(async (): Promise<Map<string, CollectionEntry<'briefs'>[]>> => {
-  const map = new Map<string, CollectionEntry<'briefs'>[]>();
-  for (const entry of await getBriefsSorted()) {
+// ISO week id → the wire items published in it, newest first. The weekly
+// issue reads this to render "The week in links" without anyone writing the
+// roundup a second time: the items already carry company, two sentences and a
+// source.
+export const getWireByWeek = memo(async (): Promise<Map<string, CollectionEntry<'wire'>[]>> => {
+  const map = new Map<string, CollectionEntry<'wire'>[]>();
+  for (const entry of await getWireSorted()) {
     const key = isoWeekId(entry.data.date);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(entry);
@@ -85,8 +87,9 @@ export const getBriefsByWeek = memo(async (): Promise<Map<string, CollectionEntr
   return map;
 });
 
-export const getPracticesSorted = memo(async () =>
-  (await getCollection('practices')).sort(
+// The claims — the reference's atomic units, in the guide's own order.
+export const getClaimsSorted = memo(async () =>
+  (await getCollection('claims')).sort(
     (a, b) => a.data.section.localeCompare(b.data.section) || a.id.localeCompare(b.id)
   )
 );
@@ -163,32 +166,32 @@ export const getRadarSorted = memo(async () =>
 );
 
 // The guide's knowledge graph, inverted once per build: for each section,
-// the practices that implement it, the examples that evidence it, the skills
-// that automate it, and the dated coverage (articles, weeklies, dives, radar)
-// whose `related` points at it. The topic-hub pages and the handbook index
-// both read this.
+// the claims that implement it, the examples that evidence it, the skills
+// that automate it, and the dated coverage (issues plus the archives) whose
+// `related` points at it. The topic-hub pages and the handbook index both
+// read this.
 export type CoverageRef = {
-  kind: 'article' | 'weekly' | 'dive' | 'radar';
+  kind: 'article' | 'issue' | 'dive' | 'radar';
   title: string;
   href: string;
   date: Date;
 };
 
 export const getGuideGraph = memo(async () => {
-  const [practices, examples, skills, articles, weekly, dives, radar] = await Promise.all([
-    getPracticesSorted(),
+  const [claims, examples, skills, articles, issues, dives, radar] = await Promise.all([
+    getClaimsSorted(),
     getExamplesSorted(),
     getSkillsSorted(),
     getArticlesSorted(),
-    getWeeklySorted(),
+    getIssuesSorted(),
     getDivesSorted(),
     getRadarSorted(),
   ]);
 
-  const practicesBySection = new Map<string, typeof practices>();
-  for (const p of practices) {
-    if (!practicesBySection.has(p.data.section)) practicesBySection.set(p.data.section, []);
-    practicesBySection.get(p.data.section)!.push(p);
+  const claimsBySection = new Map<string, typeof claims>();
+  for (const p of claims) {
+    if (!claimsBySection.has(p.data.section)) claimsBySection.set(p.data.section, []);
+    claimsBySection.get(p.data.section)!.push(p);
   }
 
   const examplesBySection = new Map<string, typeof examples>();
@@ -214,9 +217,9 @@ export const getGuideGraph = memo(async () => {
   for (const a of articles)
     for (const r of a.data.related)
       addRef(r.href, { kind: 'article', title: a.data.title, href: `/articles/${a.id}`, date: a.data.date });
-  for (const w of weekly)
+  for (const w of issues)
     for (const r of w.data.related)
-      addRef(r.href, { kind: 'weekly', title: w.data.title, href: `/weekly/${w.id}`, date: w.data.published });
+      addRef(r.href, { kind: 'issue', title: w.data.title, href: `/issues/${w.id}`, date: w.data.published });
   for (const v of dives)
     for (const r of v.data.related)
       addRef(r.href, { kind: 'dive', title: v.data.title, href: `/deep-dives/${v.id}`, date: v.data.date });
@@ -225,13 +228,14 @@ export const getGuideGraph = memo(async () => {
       addRef(r.href, { kind: 'radar', title: e.data.title, href: `/radar/${e.id}`, date: e.data.date });
   for (const refs of coverageBySection.values()) refs.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  return { practicesBySection, examplesBySection, skillsBySection, coverageBySection };
+  return { claimsBySection, examplesBySection, skillsBySection, coverageBySection };
 });
 
-// The syndication stream — every dated piece (weekly, newsroom, deep dives,
-// the radar archive), newest first, one shape. Both feeds read this; the
-// guide is deliberately absent (it mutates continuously — its freshness is
-// carried by sitemap lastmod, api.json, and llms.txt dates instead).
+// The syndication stream — every dated prose piece (issues, plus the
+// archived newsroom, deep dives and radar), newest first, one shape. Both
+// feeds read this; the guide is deliberately absent (it mutates continuously
+// — its freshness is carried by sitemap lastmod, api.json, and llms.txt
+// dates instead) and so is the wire (short items would drown the prose).
 export type FeedItem = {
   title: string;
   summary: string;
@@ -244,23 +248,23 @@ export type FeedItem = {
 };
 
 export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
-  const [weekly, articles, dives, radar] = await Promise.all([
-    getWeeklySorted(),
+  const [issues, articles, dives, radar] = await Promise.all([
+    getIssuesSorted(),
     getArticlesSorted(),
     getDivesSorted(),
     getRadarSorted(),
   ]);
   const items: FeedItem[] = [
-    // A weekly syndicates under the day it SHIPPED, not the Monday it covers —
-    // `date` is a week behind by construction, which sank each new digest
+    // An issue syndicates under the day it SHIPPED, not the Monday it covers —
+    // `date` is a week behind by construction, which sank each new issue
     // below the articles it is newer than.
-    ...weekly.map((e) => ({
+    ...issues.map((e) => ({
       title: e.data.title,
       summary: e.data.summary,
       date: e.data.published,
       updated: e.data.updated,
       tags: e.data.tags,
-      path: `/weekly/${e.id}`,
+      path: `/issues/${e.id}`,
       body: e.body ?? '',
     })),
     ...articles.map((e) => ({
@@ -295,29 +299,29 @@ export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
 });
 
 export type TaggedEntry =
-  | { kind: 'weekly'; entry: CollectionEntry<'weekly'> }
+  | { kind: 'issue'; entry: CollectionEntry<'issues'> }
   | { kind: 'article'; entry: CollectionEntry<'articles'> }
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
-  | { kind: 'practice'; entry: CollectionEntry<'practices'> }
+  | { kind: 'claim'; entry: CollectionEntry<'claims'> }
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
   | { kind: 'resource'; entry: CollectionEntry<'resources'> }
   | { kind: 'skill'; entry: CollectionEntry<'skills'> }
-  | { kind: 'brief'; entry: CollectionEntry<'briefs'> }
+  | { kind: 'wire'; entry: CollectionEntry<'wire'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [weekly, articles, dives, practices, examples, resources, skills, briefs, radar] =
+  const [issues, articles, dives, claims, examples, resources, skills, wire, radar] =
     await Promise.all([
-      getWeeklySorted(),
+      getIssuesSorted(),
       getArticlesSorted(),
       getDivesSorted(),
-      getPracticesSorted(),
+      getClaimsSorted(),
       getExamplesSorted(),
       getResourcesSorted(),
       getSkillsSorted(),
-      getBriefsSorted(),
+      getWireSorted(),
       getRadarSorted(),
     ]);
   const map = new Map<string, TaggedEntry[]>();
@@ -325,14 +329,14 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
     if (!map.has(tag)) map.set(tag, []);
     map.get(tag)!.push(item);
   };
-  for (const entry of weekly) for (const t of entry.data.tags) add(t, { kind: 'weekly', entry });
+  for (const entry of issues) for (const t of entry.data.tags) add(t, { kind: 'issue', entry });
   for (const entry of articles) for (const t of entry.data.tags) add(t, { kind: 'article', entry });
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
-  for (const entry of practices) for (const t of entry.data.tags) add(t, { kind: 'practice', entry });
+  for (const entry of claims) for (const t of entry.data.tags) add(t, { kind: 'claim', entry });
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
   for (const entry of resources) for (const t of entry.data.tags) add(t, { kind: 'resource', entry });
   for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
-  for (const entry of briefs) for (const t of entry.data.tags) add(t, { kind: 'brief', entry });
+  for (const entry of wire) for (const t of entry.data.tags) add(t, { kind: 'wire', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

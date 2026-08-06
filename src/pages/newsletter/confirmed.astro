@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { withBase } from '../../lib/site';
-import { getWeeklySorted } from '../../lib/content';
+import { getIssuesSorted } from '../../lib/content';
 import { NEWSLETTER } from '../../lib/newsletter';
 
 // Landing page after a confirmation link is accepted by the subscribe service.
-const [latest] = await getWeeklySorted();
+const [latest] = await getIssuesSorted();
 ---
 <BaseLayout
   title="You're on the list"
@@ -25,7 +25,7 @@ const [latest] = await getWeeklySorted();
     {latest && (
       <p>
         While you wait, the most recent issue is
-        <a href={withBase(`/weekly/${latest.id}`)}>{latest.data.title}</a>.
+        <a href={withBase(`/issues/${latest.id}`)}>{latest.data.title}</a>.
       </p>
     )}
     <p>

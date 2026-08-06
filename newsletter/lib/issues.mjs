@@ -1,5 +1,5 @@
 // Reading an issue out of the site's own content. The newsletter is not a
-// separate publication: it is `src/content/weekly/<YYYY-Www>.md` delivered to
+// separate publication: it is `src/content/issues/<YYYY-Www>.md` delivered to
 // people who asked for it, so there is one text to keep correct and the archive
 // on the web is exactly what landed in the inbox.
 
@@ -7,7 +7,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
-const WEEKLY_DIR = 'src/content/weekly';
+const WEEKLY_DIR = 'src/content/issues';
 
 /** Newest first. Filenames are ISO week ids, so they sort lexicographically. */
 export function listIssues(dir = WEEKLY_DIR) {

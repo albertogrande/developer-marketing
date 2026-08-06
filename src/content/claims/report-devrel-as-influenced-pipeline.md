@@ -7,6 +7,8 @@ section: 08-measurement-and-metrics
 tags: [devrel, metrics]
 since: 2026 practitioner consensus; "presence in AI-generated answers" newly entering as a discovery metric
 verify: Your CRM has a working influenced flag, DevRel reporting uses it, and no advocate carries a monthly sourced-lead number.
+status: current
+checked: 2026-07-11
 updated: 2026-07-11
 sources:
   - label: Jeremy Meiss — Measuring the impact of Developer Relations on Revenue

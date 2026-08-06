@@ -25,7 +25,7 @@ gives the **newsroom** its sense of what's already been said.
 - **2026-07-26, the directory + the newsletter** (charter rules 8 and 9).
   `src/content/resources/` = who to hire (live site, verifiable `signal`,
   `checked` date, **nothing for sale**; maintenance on demand). Newsletter =
-  The Week by email; correct a weekly in `src/content/weekly/` and say so in
+  The Week by email; correct a weekly in `src/content/issues/` and say so in
   the next issue, never silently.
 
 ## Running threads

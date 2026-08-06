@@ -4,13 +4,13 @@ import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { absUrl, fmtLong, withBase, isoDate } from '../../lib/site';
-import { entryByDateDesc, getBriefsByWeek, BRIEF_KIND_LABELS } from '../../lib/content';
+import { entryByDateDesc, getWireByWeek, WIRE_KIND_LABELS } from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
   // Sorted newest-first: issue navigation walks the archive — earlier issue
   // back, later issue forward.
-  const weekly = (await getCollection('weekly')).sort(entryByDateDesc);
+  const weekly = (await getCollection('issues')).sort(entryByDateDesc);
   return weekly.map((entry, i) => ({
     params: { slug: entry.id },
     props: {
@@ -25,12 +25,12 @@ const { entry, later, earlier } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 
-// "The week in links" — derived, not written. The briefs filed in this issue's
+// "The week in links" — derived, not written. The wire items filed in this issue's
 // ISO week already carry company, two sentences and a source, so the roundup
 // costs one lookup instead of a second pass by the editor. The digest above is
 // the opinion; this is the record of what happened. Empty for any week that
 // closed before the wire existed, and the section simply doesn't render.
-const briefsThisWeek = (await getBriefsByWeek()).get(d.week) ?? [];
+const briefsThisWeek = (await getWireByWeek()).get(d.week) ?? [];
 ---
 <ReadingLayout
   title={d.title}
@@ -44,7 +44,7 @@ const briefsThisWeek = (await getBriefsByWeek()).get(d.week) ?? [];
       schemaType: 'Article',
       title: d.title,
       description: d.summary,
-      url: absUrl(`/weekly/${entry.id}`),
+      url: absUrl(`/issues/${entry.id}`),
       published: d.published,
       updated: d.updated,
       section: 'The Week',
@@ -65,17 +65,17 @@ const briefsThisWeek = (await getBriefsByWeek()).get(d.week) ?? [];
       <h2 class="wil-h">The week in links</h2>
       <p class="wil-dek">
         Everything the wire filed in {d.week} — {briefsThisWeek.length} item{briefsThisWeek.length === 1 ? '' : 's'},
-        newest first. The full stream lives at <a href={withBase('/briefs')}>briefs</a>.
+        newest first. The full stream lives at <a href={withBase('/wire')}>the wire</a>.
       </p>
       <ul class="wil-list">
         {briefsThisWeek.map((b) => (
           <li class="wil-row">
             <span class="wil-date">{isoDate(b.data.date).slice(5)}</span>
             <div class="wil-main">
-              <a href={withBase(`/briefs#${b.id}`)} class="wil-t">
+              <a href={withBase(`/wire#${b.id}`)} class="wil-t">
                 <b>{b.data.company}</b> — {b.data.title}
               </a>
-              <span class="wil-chip">{BRIEF_KIND_LABELS[b.data.kind]}</span>
+              <span class="wil-chip">{WIRE_KIND_LABELS[b.data.kind]}</span>
               <p class="wil-sum">{b.data.summary}</p>
               <a class="wil-src" href={b.data.source.url} rel="noopener">{b.data.source.label}</a>
             </div>
@@ -90,9 +90,9 @@ const briefsThisWeek = (await getBriefsByWeek()).get(d.week) ?? [];
     updated={d.updated}
     related={d.related}
     sources={d.sources}
-    backHref={earlier ? `/weekly/${earlier.id}` : '/weekly'}
+    backHref={earlier ? `/issues/${earlier.id}` : '/issues'}
     backLabel={earlier ? `${earlier.data.week}` : 'all issues'}
-    forwardHref={later ? `/weekly/${later.id}` : '/guide'}
+    forwardHref={later ? `/issues/${later.id}` : '/guide'}
     forwardLabel={later ? `${later.data.week}` : 'the guide'}
   />
 </ReadingLayout>

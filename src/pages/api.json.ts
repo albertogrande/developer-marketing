@@ -2,15 +2,15 @@ import type { APIRoute } from 'astro';
 import { absUrl, isoDate, CONTENT_LICENSE_URL } from '../lib/site';
 import {
   getArticlesSorted,
-  getBriefsSorted,
+  getClaimsSorted,
   getDivesSorted,
   getExamplesSorted,
   getGuideSorted,
-  getPracticesSorted,
+  getIssuesSorted,
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWeeklySorted,
+  getWireSorted,
 } from '../lib/content';
 
 // /api.json — the machine front door: one fetch that enumerates every
@@ -21,15 +21,15 @@ import {
 const REPO = 'https://github.com/albertogrande/developer-marketing';
 
 export const GET: APIRoute = async () => {
-  const [guide, articles, weekly, dives, briefs, radar, practices, examples, skills, resources] =
+  const [guide, articles, issues, dives, wire, radar, claims, examples, skills, resources] =
     await Promise.all([
       getGuideSorted(),
       getArticlesSorted(),
-      getWeeklySorted(),
+      getIssuesSorted(),
       getDivesSorted(),
-      getBriefsSorted(),
+      getWireSorted(),
       getRadarSorted(),
-      getPracticesSorted(),
+      getClaimsSorted(),
       getExamplesSorted(),
       getSkillsSorted(),
       getResourcesSorted(),
@@ -72,19 +72,20 @@ export const GET: APIRoute = async () => {
     attribution:
       'Content is CC BY 4.0: quote it, link the canonical page, credit "Developer Marketing field guide".',
     cadence: {
-      scout: 'daily 05:00 UTC (internal signals; promotes qualifying items to briefs; patches the guide when a fact changes)',
-      newsroom: 'Tue–Sun 06:30 UTC (at most one article, never a quota)',
-      weekly: 'Mon 07:00 UTC (the digest; full guide-accuracy pass)',
+      scout:
+        'daily 05:00 UTC (internal signals; promotes qualifying items to the wire; patches the guide when a fact changes)',
+      editor:
+        'Mon 07:00 UTC (writes the weekly issue — occasionally a long special; full guide-accuracy pass; reconciles the claims reference)',
     },
     updated: newest(
       [
         ...guide,
         ...articles,
-        ...weekly,
+        ...issues,
         ...dives,
-        ...briefs,
+        ...wire,
         ...radar,
-        ...practices,
+        ...claims,
         ...examples,
         ...skills,
         ...resources,
@@ -114,24 +115,28 @@ export const GET: APIRoute = async () => {
       }),
       articles: collection('articles', articles, {
         pages: true,
-        description: 'The newsroom — dated desk articles (news, money, campaigns, research, technology).',
+        description:
+          'ARCHIVE — the daily newsroom tier (2026-07 → 2026-08). No new entries; analysis now ships in the weekly issue.',
       }),
-      weekly: collection('weekly', weekly, {
+      issues: collection('issues', issues, {
         pages: true,
-        description: 'The Week — one short digest per ISO week of what actually changed.',
+        description:
+          'The Week — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.',
       }),
       'deep-dives': collection('deep-dives', dives, {
         pages: true,
-        description: 'Long-form researched pieces, commissioned when a thread earns it.',
+        description:
+          'ARCHIVE — long-form researched pieces (2026-07). No new entries; depth now ships as a long special issue.',
       }),
-      briefs: collection('briefs', briefs, {
+      wire: collection('wire', wire, {
         pages: false,
         description:
-          'The wire — short dated news items: one company, one thing that happened, two sentences, and a mandatory primary source. No paid placements.',
+          'The wire — the event log: one company, one thing that happened, two sentences, and a mandatory primary source. No paid placements.',
       }),
-      practices: collection('practices', practices, {
+      claims: collection('claims', claims, {
         pages: false,
-        description: 'Atomic best-practices: when X → do Y (because Z), dated and sourced.',
+        description:
+          'The claims — the reference’s atomic units: when X → do Y (because Z), dated, sourced, with a freshness status (current/stale/retired) and a checked date.',
       }),
       examples: collection('examples', examples, {
         pages: false,

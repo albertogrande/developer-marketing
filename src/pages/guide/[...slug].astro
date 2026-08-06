@@ -6,7 +6,7 @@ import { getGuideSorted, getGuideGraph } from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
 // Topic hub: the evergreen section plus everything the site knows about the
-// topic — the practices that implement it, the examples that evidence it,
+// topic — the claims that implement it, the examples that evidence it,
 // and the dated coverage that mentions it. The graph is inverted once per
 // build in lib/content.ts.
 export async function getStaticPaths() {
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
       entry,
       prev: i > 0 ? guide[i - 1] : null,
       next: i < guide.length - 1 ? guide[i + 1] : null,
-      practices: graph.practicesBySection.get(entry.id) ?? [],
+      claims: graph.claimsBySection.get(entry.id) ?? [],
       examples: graph.examplesBySection.get(entry.id) ?? [],
       skills: graph.skillsBySection.get(entry.id) ?? [],
       coverage: graph.coverageBySection.get(entry.id) ?? [],
@@ -25,11 +25,11 @@ export async function getStaticPaths() {
   }));
 }
 
-const { entry, prev, next, practices, examples, skills, coverage } = Astro.props;
+const { entry, prev, next, claims, examples, skills, coverage } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
-const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', radar: 'radar' };
+const KIND_LABEL = { article: 'article', issue: 'the week', dive: 'deep dive', radar: 'radar' };
 ---
 <ReadingLayout
   title={d.title}
@@ -58,13 +58,13 @@ const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', 
 
   <Fragment slot="foot">
     <div class="hub">
-      {practices.length > 0 && (
+      {claims.length > 0 && (
         <div class="hub-sec">
-          <p class="hub-h">In practice <span class="ar-count">{practices.length}</span></p>
+          <p class="hub-h">In practice <span class="ar-count">{claims.length}</span></p>
           <ul class="hub-list">
-            {practices.map((p) => (
+            {claims.map((p) => (
               <li class="hub-item">
-                <a href={withBase(`/practices#${p.id}`)}>{p.data.title}</a>
+                <a href={withBase(`/claims#${p.id}`)}>{p.data.title}</a>
                 {p.data.since && <span class="hub-m">since {p.data.since}</span>}
                 <span class="hub-sub">when {p.data.when} → {p.data.do}</span>
               </li>
@@ -128,7 +128,7 @@ const KIND_LABEL = { article: 'article', weekly: 'the week', dive: 'deep dive', 
       {next ? (
         <a href={withBase(`/guide/${next.id}`)}>{next.data.title} →</a>
       ) : (
-        <a href={withBase('/weekly')}>the week →</a>
+        <a href={withBase('/issues')}>the week →</a>
       )}
     </nav>
   </Fragment>

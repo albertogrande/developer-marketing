@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The sender. Takes one published weekly digest and delivers it to the
+// The sender. Takes one published weekly issue and delivers it to the
 // confirmed list, one SMTP session, one message per recipient.
 //
 //   node newsletter/send.mjs --dry-run --out /tmp/issue.html   # render, send nothing
@@ -57,7 +57,7 @@ function parseArgs(argv) {
 const USAGE = `
 newsletter/send.mjs — deliver one weekly issue
 
-  --week <YYYY-Www>   issue to send (default: the newest in src/content/weekly)
+  --week <YYYY-Www>   issue to send (default: the newest in src/content/issues)
   --dry-run           render and report, send nothing
   --out <file>        write the rendered HTML (works with --dry-run)
   --test <email>      send one real message to this address only
@@ -145,9 +145,9 @@ async function main() {
   }
 
   const week = args.week || latestIssueId();
-  if (!week) throw new Error('no issues found in src/content/weekly');
+  if (!week) throw new Error('no issues found in src/content/issues');
   const issue = loadIssue(week);
-  const webUrl = `${config.siteUrl}/weekly/${week}`;
+  const webUrl = `${config.siteUrl}/issues/${week}`;
   const base = (process.env.PUBLIC_BASE_URL || '').replace(/\/+$/, '');
   if (!base) throw new Error('PUBLIC_BASE_URL must point at the capture service (it signs the unsubscribe links)');
 
@@ -230,7 +230,7 @@ async function main() {
         // RFC 8058: lets the client's own unsubscribe button work without
         // opening a browser, which mailbox providers now expect from bulk mail.
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        'List-Archive': `<${config.siteUrl}/weekly>`,
+        'List-Archive': `<${config.siteUrl}/issues>`,
         Precedence: 'bulk',
         // One issue, one recipient, one send — even if this run is repeated.
         'X-Idempotency-Key': `${issue.week}:${person.id}`,

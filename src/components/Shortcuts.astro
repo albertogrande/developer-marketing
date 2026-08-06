@@ -83,9 +83,9 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       { id: 'home', ic: '⌂', label: 'Go to home', hint: 'g h', keywords: 'front index latest state', run: function () { go('/'); } },
       { id: 'guide', ic: '▦', label: 'Go to the guide', hint: 'g g', keywords: 'reference manual models effort modes', run: function () { go('/guide'); } },
       { id: 'newsroom', ic: '◫', label: 'Go to the newsroom', hint: 'g n', keywords: 'newsroom articles news money campaigns research technology desks', run: function () { go('/articles'); } },
-      { id: 'weekly', ic: '≋', label: 'Go to the week', hint: 'g w', keywords: 'weekly digest updates changelog news whats new', run: function () { go('/weekly'); } },
+      { id: 'weekly', ic: '≋', label: 'Go to the week', hint: 'g w', keywords: 'weekly digest updates changelog news whats new', run: function () { go('/issues'); } },
       { id: 'dives', ic: '◈', label: 'Go to deep dives', hint: 'g d', keywords: 'deep dive essays long reads analysis', run: function () { go('/deep-dives'); } },
-      { id: 'practices', ic: '»', label: 'Go to practices', hint: 'g p', keywords: 'best practices when do why corpus mcp', run: function () { go('/practices'); } },
+      { id: 'practices', ic: '»', label: 'Go to practices', hint: 'g p', keywords: 'best practices when do why corpus mcp', run: function () { go('/claims'); } },
       { id: 'examples', ic: '❏', label: 'Go to examples', hint: 'g e', keywords: 'examples swipe file gallery teardown artifacts real', run: function () { go('/examples'); } },
       { id: 'skills', ic: '⌗', label: 'Go to skills', hint: 'g s', keywords: 'skills agent claude code install plugin tools shelf automate', run: function () { go('/skills'); } },
       { id: 'resources', ic: '⌾', label: 'Go to resources — who to hire', hint: 'g o', keywords: 'resources directory agencies agency freelancer consultant devrel content studio services hire vendors', run: function () { go('/resources'); } },
@@ -252,7 +252,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {
         gPending = false; clearTimeout(gTimer);
-        var map = { h: '/', g: '/guide', n: '/articles', w: '/weekly', d: '/deep-dives', p: '/practices', e: '/examples', s: '/skills', o: '/resources', m: '/newsletter', r: '/radar', a: '/about' };
+        var map = { h: '/', g: '/guide', n: '/articles', w: '/issues', d: '/deep-dives', p: '/claims', e: '/examples', s: '/skills', o: '/resources', m: '/newsletter', r: '/radar', a: '/about' };
         if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
         return;
       }

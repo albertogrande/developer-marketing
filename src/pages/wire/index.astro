@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
 import { withBase, absUrl, isoDate, fmtMed } from '../../lib/site';
-import { getBriefsSorted, BRIEF_KIND_LABELS } from '../../lib/content';
+import { getWireSorted, WIRE_KIND_LABELS } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
 // The wire — short dated news snippets, newest first, grouped by day. Each is
@@ -11,9 +11,9 @@ import { collectionPageNode } from '../../lib/jsonld';
 // the tier between the internal signals capture and a full desk article: a day
 // the newsroom logs a skip still reaches a reader here, and a small company
 // whose news can't carry 900 words still gets covered. Machines read the same
-// set at /briefs.json.
+// set at /wire.json.
 
-const briefs = await getBriefsSorted();
+const briefs = await getWireSorted();
 
 const cards = await Promise.all(
   briefs.map(async (b) => ({ b, Content: (await render(b)).Content }))
@@ -32,30 +32,30 @@ const DESCRIPTION =
   'The wire — short dated developer-marketing, DevRel and devtools news. One company, one thing that happened, two sentences, and the link that proves it.';
 ---
 <BaseLayout
-  title="Briefs"
+  title="The Wire"
   description={DESCRIPTION}
   jsonLd={[
     collectionPageNode({
-      name: 'Briefs',
+      name: 'The Wire',
       description: DESCRIPTION,
-      url: absUrl('/briefs'),
+      url: absUrl('/wire'),
       items: briefs.map((b) => ({
         name: `${b.data.company}: ${b.data.title}`,
-        url: `${absUrl('/briefs')}#${b.id}`,
+        url: `${absUrl('/wire')}#${b.id}`,
       })),
     }),
   ]}
 >
   <div class="page-head">
-    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> briefs</div>
-    <h1 class="page-title">Briefs</h1>
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> wire</div>
+    <h1 class="page-title">The Wire</h1>
     <p class="dek">
       The wire. One company, one thing that happened, two sentences, and the
       link that proves it — the tier below a full
       <a href={withBase('/articles')}>newsroom piece</a>, so a quiet news day
       still reaches you and a small company still gets covered. Nothing here is
       paid for or placed; see <a href={withBase('/about')}>about</a>. Machines
-      read the set at <a href={withBase('/briefs.json')}><code>/briefs.json</code></a>.
+      read the set at <a href={withBase('/wire.json')}><code>/wire.json</code></a>.
     </p>
   </div>
 
@@ -68,7 +68,7 @@ const DESCRIPTION =
             <article class="brief" id={b.id} data-date={isoDate(b.data.date)}>
               <div class="brief-top">
                 <span class="brief-co">{b.data.company}</span>
-                <span class="brief-chip" data-pagefind-filter="kind">{BRIEF_KIND_LABELS[b.data.kind]}</span>
+                <span class="brief-chip" data-pagefind-filter="kind">{WIRE_KIND_LABELS[b.data.kind]}</span>
               </div>
               <h3 class="brief-h"><a href={`#${b.id}`}>{b.data.title}</a></h3>
               <p class="brief-sum">{b.data.summary}</p>

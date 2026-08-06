@@ -10,7 +10,7 @@ related:
   - label: Guide — Channels & distribution
     href: /guide/06-channels-and-distribution
   - label: 'The Week, 2026-W28 — The agent reading your docs is starting to shop'
-    href: /weekly/2026-W28
+    href: /issues/2026-W28
   - label: Radar — AI assistants are reading your docs
     href: /radar/2026-07-07-ai-assistants-are-reading-your-docs
 sources:

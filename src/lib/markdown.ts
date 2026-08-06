@@ -23,11 +23,11 @@ const SITE_NAME = 'Developer Marketing — a field guide';
 type Kind =
   | 'guide'
   | 'articles'
-  | 'weekly'
+  | 'issues'
   | 'deep-dives'
-  | 'briefs'
+  | 'wire'
   | 'radar'
-  | 'practices'
+  | 'claims'
   | 'examples'
   | 'skills'
   | 'resources';
@@ -35,11 +35,11 @@ type Kind =
 type AnyEntry =
   | CollectionEntry<'guide'>
   | CollectionEntry<'articles'>
-  | CollectionEntry<'weekly'>
+  | CollectionEntry<'issues'>
   | CollectionEntry<'deep-dives'>
-  | CollectionEntry<'briefs'>
+  | CollectionEntry<'wire'>
   | CollectionEntry<'radar'>
-  | CollectionEntry<'practices'>
+  | CollectionEntry<'claims'>
   | CollectionEntry<'examples'>
   | CollectionEntry<'skills'>
   | CollectionEntry<'resources'>;
@@ -47,11 +47,11 @@ type AnyEntry =
 // Collections whose entries render as #anchors on a gallery page rather than
 // standalone pages — their canonical is the anchor.
 const GALLERY: Partial<Record<Kind, true>> = {
-  practices: true,
+  claims: true,
   examples: true,
   skills: true,
   resources: true,
-  briefs: true,
+  wire: true,
 };
 
 const linkList = (items: { label: string; url: string }[]) =>
@@ -72,7 +72,7 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     fm.desk = DESK_LABELS[d.desk as keyof typeof DESK_LABELS];
     fm.byline = d.byline;
   }
-  if (kind === 'weekly') fm.week = d.week;
+  if (kind === 'issues') fm.week = d.week;
   if (kind === 'radar') fm.kind = d.kind;
   if (kind === 'skills') {
     fm.skill = d.name;
@@ -81,9 +81,13 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     if (d.verified) fm.verified = isoDate(d.verified);
   }
   if (kind === 'examples') fm.company = d.company;
-  if (kind === 'briefs') {
+  if (kind === 'wire') {
     fm.company = d.company;
     fm.kind = d.kind;
+  }
+  if (kind === 'claims') {
+    fm.status = d.status;
+    fm.checked = isoDate(d.checked);
   }
   if (kind === 'resources') {
     fm.provider_url = d.url;
@@ -104,11 +108,12 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
 
   // The structured core of the gallery collections lives in frontmatter
   // fields, not the body — synthesize it so the .md is the whole entry.
-  if (kind === 'practices') {
+  if (kind === 'claims') {
     parts.push(`- **When**: ${d.when}`, `- **Do**: ${d.do}`, `- **Why**: ${d.why}`);
     if (d.since) parts.push(`- **Since**: ${d.since}`);
     if (d.verify) parts.push(`- **Verify**: ${d.verify}`);
     if (d.probe) parts.push(`- **Probe**: bare-model answer ${d.probe.status} (${isoDate(d.probe.date)})`);
+    parts.push(`- **Status**: ${d.status} (checked ${isoDate(d.checked)})`);
     parts.push('');
   }
   if (kind === 'examples') {
@@ -121,7 +126,7 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
       ''
     );
   }
-  if (kind === 'briefs') {
+  if (kind === 'wire') {
     parts.push(
       `- **Company**: ${d.company}`,
       `- **Kind**: ${d.kind}`,

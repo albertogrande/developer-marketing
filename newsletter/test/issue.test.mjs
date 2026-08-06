@@ -16,7 +16,7 @@ const hasIssues = Boolean(week);
 
 test('the weekly directory is readable and ordered newest first', () => {
   const issues = listIssues();
-  assert.ok(issues.length > 0, 'no weekly issues found — is the content still at src/content/weekly?');
+  assert.ok(issues.length > 0, 'no weekly issues found — is the content still at src/content/issues?');
   assert.deepEqual(issues, [...issues].sort().reverse());
 });
 
@@ -30,7 +30,7 @@ test('the newest issue renders to a sendable message', { skip: !hasIssues }, () 
   const mail = issueEmail({
     issue,
     siteUrl: SITE,
-    webUrl: `${SITE}/weekly/${week}`,
+    webUrl: `${SITE}/issues/${week}`,
     unsubscribeUrl: UNSUB,
   });
 
@@ -39,7 +39,7 @@ test('the newest issue renders to a sendable message', { skip: !hasIssues }, () 
   assert.ok(mail.html.includes('<!doctype html>'));
   assert.ok(mail.html.includes(UNSUB), 'the HTML carries the unsubscribe link');
   assert.ok(mail.text.includes(UNSUB), 'so does the plain text');
-  assert.ok(mail.html.includes(`${SITE}/weekly/${week}`), 'and a link to the web version');
+  assert.ok(mail.html.includes(`${SITE}/issues/${week}`), 'and a link to the web version');
 
   // The whole point of running the list ourselves.
   assert.ok(!/<img/i.test(mail.html), 'no images means no open tracking');
@@ -49,7 +49,7 @@ test('the newest issue renders to a sendable message', { skip: !hasIssues }, () 
 
 test('site-internal links come out absolute, not root-relative', { skip: !hasIssues }, () => {
   const issue = loadIssue(week);
-  const mail = issueEmail({ issue, siteUrl: SITE, webUrl: `${SITE}/weekly/${week}`, unsubscribeUrl: UNSUB });
+  const mail = issueEmail({ issue, siteUrl: SITE, webUrl: `${SITE}/issues/${week}`, unsubscribeUrl: UNSUB });
 
   const hrefs = [...mail.html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(hrefs.length > 0);
@@ -69,7 +69,7 @@ test('site-internal links come out absolute, not root-relative', { skip: !hasIss
 
 test('the rendered issue survives MIME assembly', { skip: !hasIssues }, () => {
   const issue = loadIssue(week);
-  const mail = issueEmail({ issue, siteUrl: SITE, webUrl: `${SITE}/weekly/${week}`, unsubscribeUrl: UNSUB });
+  const mail = issueEmail({ issue, siteUrl: SITE, webUrl: `${SITE}/issues/${week}`, unsubscribeUrl: UNSUB });
   const raw = buildMessage({
     from: { name: 'The Week', email: 'week@example.com' },
     to: 'reader@example.org',

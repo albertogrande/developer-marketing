@@ -47,10 +47,10 @@ const fontCss = [
 // page has a raw-markdown sibling (/<coll>/<id>.md), every collection index a
 // JSON endpoint (/<coll>.json). The agent-surface gate verifies the targets.
 const sitePath = stripBase(Astro.url.pathname);
-const mdMatch = sitePath.match(/^\/(guide|articles|weekly|deep-dives|radar)\/([^/]+)\/?$/);
+const mdMatch = sitePath.match(/^\/(guide|articles|issues|deep-dives|radar)\/([^/]+)\/?$/);
 const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
 const jsonMatch = sitePath.match(
-  /^\/(guide|articles|weekly|deep-dives|radar|practices|examples|skills|resources)\/?$/
+  /^\/(guide|articles|issues|deep-dives|radar|claims|examples|skills|resources|wire)\/?$/
 );
 const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 
@@ -59,11 +59,12 @@ const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 // from the props (Article for reading pages, WebPage otherwise).
 const SECTION_LABELS: Record<string, string> = {
   guide: 'Guide',
-  articles: 'Newsroom',
-  weekly: 'The Week',
-  'deep-dives': 'Deep Dives',
+  articles: 'Newsroom archive',
+  issues: 'The Week',
+  'deep-dives': 'Deep Dives archive',
   radar: 'Radar archive',
-  practices: 'Practices',
+  claims: 'Claims',
+  wire: 'The Wire',
   examples: 'Examples',
   skills: 'Skills',
   resources: 'Resources',

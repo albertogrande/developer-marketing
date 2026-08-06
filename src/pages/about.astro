@@ -53,7 +53,7 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
         changes. Tuesday to Sunday an <em>editor</em> decides whether the day
         earned an <a href={withBase('/articles')}>article</a> — at most one, never
         a quota — and assigns it to the desk that owns the story. On Mondays the
-        editor writes <a href={withBase('/weekly')}>the week</a>: one short piece
+        editor writes <a href={withBase('/issues')}>the week</a>: one short piece
         on what actually mattered. When a thread earns the depth, it commissions
         a <a href={withBase('/deep-dives')}>deep dive</a>. Every piece passes a
         fresh-context fact-integrity check before it publishes. No human in the
@@ -81,11 +81,11 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
     <p>
       Two reading modes, connected by topic. The pulse:
       <a href={withBase('/articles')}>the newsroom</a> publishes dated desk
-      articles, <a href={withBase('/weekly')}>the week</a> synthesizes what
+      articles, <a href={withBase('/issues')}>the week</a> synthesizes what
       mattered every Monday, and <a href={withBase('/deep-dives')}>deep dives</a>
       take a single subject all the way down. The reference:
       the <a href={withBase('/guide')}>guide</a> is the product — nine evergreen
-      topic hubs, each gathering the <a href={withBase('/practices')}>practices</a>
+      topic hubs, each gathering the <a href={withBase('/claims')}>claims</a>
       that implement it, the <a href={withBase('/examples')}>examples</a> that
       evidence it, the <a href={withBase('/skills')}>skills</a> that automate it,
       and the coverage that keeps it honest. Under it all, a daily
@@ -143,9 +143,9 @@ const roster = DESKS.map((d) => ({ desk: DESK_LABELS[d], ...AUTHORS[d] }));
       The guide is also a product for machines — fitting, for a site that argues
       <a href={withBase('/radar/2026-07-07-ai-assistants-are-reading-your-docs')}>AI
       assistants are now a primary reader of your docs</a>. The
-      <a href={withBase('/practices')}>practices</a> are its atomic form — one
+      <a href={withBase('/claims')}>claims</a> are its atomic form — one
       <em>when X → do Y (because Z)</em> unit each, dated and verifiable — served
-      as <a href={withBase('/practices.json')}><code>practices.json</code></a> and
+      as <a href={withBase('/claims.json')}><code>claims.json</code></a> and
       indexed in <a href={withBase('/llms.txt')}><code>llms.txt</code></a>, so an
       assistant can consult the current state of the art instead of guessing. The
       swipe file rides along at

@@ -7,6 +7,8 @@ section: 08-measurement-and-metrics
 tags: [metrics, plg, community]
 since: Common Room's Otter.ai case study (2026-07-17); Zoom's acquisition of Common Room (announced 2026-07-02) — the third GTM-signal roll-up in eight months, after Clari+Salesloft (2025-12) and Apollo+Pocus (2026-03)
 verify: Re-read the Common Room case study for the weighting and play cap; check that your raw product events are queryable in your own warehouse, not only inside a vendor's UI.
+status: current
+checked: 2026-07-20
 updated: 2026-07-20
 sources:
   - label: Common Room — the usage-based plays behind Otter.ai's 2x outbound pipeline
