@@ -25,22 +25,32 @@ This work is on `main`: build green, the full test suite passing, no dead
 links. `/resources` is live, and the newsletter call-to-action ships in its
 honest "not wired up yet" state until step 4.
 
-## 2. A domain — done
+## 2. A domain — half done
 
-This was the true blocker for email: no relay will send as
-`albertogrande.github.io` or `*.vercel.app`, because neither can be
-DKIM-authenticated. The site now has **thebeat.dev** (Namecheap), so this step
-is closed. The wiring is recorded in `docs/custom-domain.md`; the short version:
+The domain itself is no longer the blocker: no relay will send as
+`albertogrande.github.io` or `*.vercel.app` because neither can be
+DKIM-authenticated, and the site now has **thebeat.dev** (Namecheap). But
+**the mail side of it is not configured** — see the table in
+`docs/custom-domain.md`. Two things are still missing:
 
-- Resend verifies the **`send.thebeat.dev`** subdomain and owns the SPF, DKIM
-  and MX records under it. It has to be a subdomain — a domain may carry only
-  one SPF record, and the apex already has one for Namecheap's forwarding.
-- `_dmarc.thebeat.dev` is `p=none` (monitor only). Tighten to `quarantine`
-  once the reports look clean.
-- `FROM_EMAIL=the-week@thebeat.dev`, `REPLY_TO=hello@thebeat.dev` — replies
-  reach a person through Namecheap's forwarding on the apex.
+1. **A relay that will sign for the domain.** Resend's free plan allows one
+   domain and `orka.sh` already uses it, so this needs a paid Resend plan, a
+   freed slot, or any other SMTP relay (`lib/transport.mjs` is
+   provider-agnostic). Then verify a **`send.thebeat.dev`** subdomain and put
+   its SPF, DKIM and MX under that name — never the apex, which already
+   carries one SPF record for the forwarding, and a domain may only have one.
+2. **A forwarder, so replies land.** `thebeat.dev` currently has *no* email
+   forwarding rules, so `REPLY_TO=hello@thebeat.dev` silently drops. Add the
+   forwarder in Namecheap (Domain → Redirect Email) before announcing the
+   list — a reply-to that black-holes is worse than none.
 
-Confirm the whole chain with `npm run newsletter:doctor`, which sends nothing.
+Then add `_dmarc.thebeat.dev` as `p=none` (monitor only), with `rua` pointing
+at an address on **this** domain — a `rua` elsewhere needs that domain to
+publish an authorisation record. Tighten to `quarantine` once reports look
+clean.
+
+`FROM_EMAIL=the-week@thebeat.dev` and `REPLY_TO=hello@thebeat.dev` are already
+set in `.env.example`, so they will work the moment the two steps above land.
 
 Verify with `npm run newsletter:doctor -- --dkim-selector resend`. It checks all
 three records and the domain's verification status in Resend, and sends nothing.

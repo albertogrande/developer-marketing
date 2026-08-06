@@ -37,19 +37,35 @@ A third, unrelated layer handles the 2026-08 content-model rename
 (`briefs`→`wire`, `weekly`→`issues`, `practices`→`claims`) — see
 `vercel.json` and the `redirects` block in `astro.config.mjs`.
 
-## Mail
+## Mail — NOT set up yet
 
-Mail on the domain is deliberately split so the two uses cannot collide:
+**The newsletter cannot send as `thebeat.dev` today.** The mail identity in
+`newsletter/.env.example` (`FROM_EMAIL`, `REPLY_TO`, `LIST_ID`) describes the
+intended end state, not a working configuration. What is actually true right
+now, as of the move:
 
-- **apex** (`thebeat.dev`) — Namecheap email forwarding. Its `MX` records and
-  the `v=spf1 include:spf.efwd.registrar-servers.com ~all` TXT stay untouched;
-  this is what makes `REPLY_TO` reach a person.
-- **`send.thebeat.dev`** — Resend's sending subdomain, carrying its own SPF,
-  DKIM and MX. Keeping it on a subdomain is the point: a domain may hold only
-  one SPF record, so a second one at the apex would break both.
-- **`_dmarc.thebeat.dev`** — `p=none` to start, monitoring only.
+| Record | State |
+|---|---|
+| apex `MX` + `v=spf1 include:spf.efwd.registrar-servers.com ~all` | **present** — Namecheap's defaults, left untouched by the move |
+| any email **forwarding rule** | **none defined** — so `hello@thebeat.dev` accepts nothing and `REPLY_TO` drops silently |
+| `send.thebeat.dev` SPF/DKIM/MX | **absent** — the domain is not verified with a relay |
+| `_dmarc.thebeat.dev` | **absent** |
 
-`npm run newsletter:doctor` checks all of this and sends nothing.
+Two things block it, in this order:
+
+1. **A relay that will sign for the domain.** Resend's free plan holds one
+   domain and `orka.sh` already occupies it, so `thebeat.dev` needs a paid
+   plan or a different relay. `newsletter/lib/transport.mjs` takes any SMTP
+   provider, so this is not a Resend lock-in.
+2. **A mailbox that receives.** Until a forwarder exists, `REPLY_TO` goes
+   nowhere, and DMARC has no usable `rua`: a `rua` on another domain
+   (a Gmail address, say) requires that domain to publish an authorisation
+   record, which is not ours to add.
+
+When it is set up, keep the two uses on separate names — a domain may carry
+only **one** SPF record, so the relay belongs on a `send.` subdomain and the
+apex SPF stays with the forwarding. Verify with `npm run newsletter:doctor`,
+which checks SPF/DKIM/DMARC and sends nothing.
 
 ## If it moves again
 
