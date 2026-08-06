@@ -8,12 +8,16 @@ import { collectionPageNode } from '../../lib/jsonld';
 
 const weekly = await getIssuesSorted();
 ---
+<!-- The page title is "Issues", not "The Beat": Head.astro treats a title equal
+     to SITE_TITLE as the home page and swaps in the full masthead line, so
+     naming this page after the publication would give it the home page's
+     <title>. The h1 and the JSON-LD name still carry the publication name. -->
 <BaseLayout
-  title="The Week"
+  title="Issues"
   description="A short weekly digest of what changed in developer marketing — the one read to stay current. Newest first, each week sourced."
   jsonLd={[
     collectionPageNode({
-      name: 'The Week',
+      name: 'The Beat',
       description:
         'A short weekly digest of what changed in developer marketing — the one read to stay current. Newest first, each week sourced.',
       url: absUrl('/issues'),
@@ -22,8 +26,8 @@ const weekly = await getIssuesSorted();
   ]}
 >
   <div class="page-head">
-    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the week</div>
-    <h1 class="page-title">The Week</h1>
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> weekly</div>
+    <h1 class="page-title">The Beat</h1>
     <p class="dek">
       One short read a week on what actually moved in developer marketing — and
       what to do about it. The running reference lives in the

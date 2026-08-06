@@ -7,7 +7,7 @@ import { mdToHtml } from '../lib/markdown';
 // archive), newest first, full content included so a reader — human or agent
 // — needs no second fetch. The guide is not syndicated (see getFeedItems).
 
-const SITE_TITLE = 'The Beat — a developer marketing field guide';
+const SITE_TITLE = 'The Beat — developer marketing, on the record';
 const SITE_DESC =
   'The state of the art in developer marketing — kept current by an autonomous agent.';
 const AUTHOR = 'The Beat';

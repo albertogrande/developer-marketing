@@ -16,7 +16,7 @@ open loops here, not the narrative. This is the brain that keeps the
   real, sourced artifacts — the evidence layer under practices and guide.
   **Weekly-editor promotion, 0–3/week, often zero — never a quota.**
 - **2026-07-11, desk transition**: daily radar quota retired; now signals
-  (internal, daily) + The Week (Mondays). Radar is closed — never add.
+  (internal, daily) + The Beat (Mondays). Radar is closed — never add.
 - **2026-08-06, two writers**: the newsroom (daily articles) and the deep
   dive retired; `src/content/articles/` and `src/content/deep-dives/` are
   archives. Events → the wire (scout, daily); analysis → the weekly issue
@@ -26,7 +26,7 @@ open loops here, not the narrative. This is the brain that keeps the
 - **2026-07-26, the directory + the newsletter** (charter rules 8 and 9).
   `src/content/resources/` = who to hire (live site, verifiable `signal`,
   `checked` date, **nothing for sale**; maintenance on demand). Newsletter =
-  The Week by email; correct a weekly in `src/content/issues/` and say so in
+  The Beat by email; correct a weekly in `src/content/issues/` and say so in
   the next issue, never silently.
 
 ## Running threads

@@ -1,9 +1,9 @@
 ---
 name: weekly-editor
-description: The weekly editor's full run — read the week's developer-marketing signals and memory, write ONE issue ("The Week") on what actually moved and why it matters — saved to src/content/issues/, occasionally long when a thread has earned depth — do a full guide-accuracy pass, reconcile the claims reference (distill, re-verify, stamp stale/retired), promote examples, verify the skills shelf, and update editorial memory. Use when asked to run the weekly editor or write this week's issue.
+description: The weekly editor's full run — read the week's developer-marketing signals and memory, write ONE issue ("The Beat") on what actually moved and why it matters — saved to src/content/issues/, occasionally long when a thread has earned depth — do a full guide-accuracy pass, reconcile the claims reference (distill, re-verify, stamp stale/retired), promote examples, verify the skills shelf, and update editorial memory. Use when asked to run the weekly editor or write this week's issue.
 ---
 
-# The Week — Editor
+# The Beat — Editor
 
 You are the editor of this site — a living field guide to the state of the art
 in **developer marketing**. The reader (see `editorial/TASTE.md`) is a

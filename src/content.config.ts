@@ -24,7 +24,7 @@ const glob = (opts: Parameters<typeof globLoader>[0]) =>
 //              (how to re-check), `sources`, and a freshness `status`
 //              (current/stale/retired) stamped at `checked`. Guide sections
 //              transclude these; machines read /claims.json and llms.txt.
-//  issues/   — the one written prose form: the weekly issue ("The Week").
+//  issues/   — the one written prose form: the weekly issue ("The Beat").
 //              One file per ISO week: YYYY-Www.md. Normally short; when a
 //              thread has earned depth the editor writes a long special
 //              issue instead — there is no separate deep-dive tier anymore.

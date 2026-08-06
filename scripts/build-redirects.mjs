@@ -71,7 +71,7 @@ for (const name of [...Object.keys(COLLECTIONS).map((c) => `${c}.json`), 'api.js
 for (const name of ['llms.txt', 'llms-full.txt']) {
   write(
     name,
-    `# The Beat — a developer marketing field guide\n\n> This site moved to ${site}/ — the current ${name} lives at ${site}/${name}.\n`
+    `# The Beat — developer marketing, on the record\n\n> This site moved to ${site}/ — the current ${name} lives at ${site}/${name}.\n`
   );
   count++;
 }
@@ -81,7 +81,7 @@ write(
   'feed.xml',
   `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>The Beat — a developer marketing field guide (moved)</title>
+  <title>The Beat — developer marketing, on the record (moved)</title>
   <link href="${site}/feed.xml" rel="alternate" type="application/atom+xml"/>
   <link href="${site}/" rel="alternate" type="text/html"/>
   <updated>2026-07-26T00:00:00Z</updated>

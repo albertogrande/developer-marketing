@@ -32,7 +32,7 @@ export const GET: APIRoute = async () => {
   const wire = await getWireSorted();
 
   const lines: string[] = [];
-  lines.push('# The Beat — a developer marketing field guide');
+  lines.push('# The Beat — developer marketing, on the record');
   lines.push('');
   lines.push(
     '> The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, content, distribution, launches, and measurement. Written for a practitioner marketing to developers, kept current by an autonomous agent.'
@@ -117,7 +117,7 @@ export const GET: APIRoute = async () => {
     lines.push('');
     lines.push('## Issues');
     lines.push(
-      'The Week — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.'
+      'The Beat — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.'
     );
     for (const w of issues) {
       lines.push(

@@ -42,7 +42,7 @@ export const GET: APIRoute = async () => {
   const wire = await getWireSorted();
 
   const out: string[] = [];
-  out.push('# The Beat — a developer marketing field guide (full text)');
+  out.push('# The Beat — developer marketing, on the record (full text)');
   out.push('');
   out.push(
     'Written for a practitioner marketing to developers. Source: ' +
@@ -204,7 +204,7 @@ export const GET: APIRoute = async () => {
   };
 
   datedSection(
-    'The Week',
+    'The Beat',
     'One issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.',
     issues,
     (id) => `/issues/${id}`,

@@ -92,7 +92,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-          FROM_NAME: ${{ vars.FROM_NAME || 'The Beat — The Week' }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'The Beat' }}
           REPLY_TO: ${{ vars.REPLY_TO }}
           WEEK: ${{ inputs.week }}
           DRY_RUN: ${{ inputs.dry_run }}

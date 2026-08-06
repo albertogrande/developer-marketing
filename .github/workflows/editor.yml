@@ -1,7 +1,7 @@
 name: Editor
 
 # The weekly editor. Claude Code runs the weekly-editor skill: it reads the
-# week's signals and editorial memory, writes one "The Week" issue to
+# week's signals and editorial memory, writes one "The Beat" issue to
 # src/content/issues/ (normally short; a long special issue when a thread has
 # earned the depth), does a full guide-accuracy pass, reconciles the claims
 # reference (distill new claims, re-verify the stalest, stamp stale/retired),

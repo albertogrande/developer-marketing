@@ -25,7 +25,7 @@ export const SUBSCRIBE_URL = NEWSLETTER_LIVE ? `${NEWSLETTER_API}/subscribe` : '
 
 /** What the reader is signing up for. One place, so every surface agrees. */
 export const NEWSLETTER = {
-  name: 'The Week',
+  name: 'The Beat',
   cadence: 'Monday mornings',
   promise:
     'One short email a week: what actually moved in developer marketing, what it means, and every claim linked to its source.',

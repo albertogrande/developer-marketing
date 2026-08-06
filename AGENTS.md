@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository publishes **The Beat — a developer marketing field guide**
+This repository publishes **The Beat — developer marketing, on the record**
 (https://thebeat.dev/), a site written to be
 read by agents as much as by people. This file is for two kinds of agent: one
 **consuming** the published content, and one **working on** this repo.

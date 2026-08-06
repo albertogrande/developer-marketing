@@ -78,7 +78,7 @@ ${footerHtml}
  * Double opt-in. Deliberately boring: one sentence, one link, and the plain
  * statement that ignoring it ends the matter.
  */
-export function confirmEmail({ siteUrl, confirmUrl, listName = 'The Week' }) {
+export function confirmEmail({ siteUrl, confirmUrl, listName = 'The Beat' }) {
   const bodyHtml = `
     <h1 style="${EMAIL_STYLES.h1}">Confirm your subscription</h1>
     <p style="${EMAIL_STYLES.p}">Someone — hopefully you — asked for <b>${esc(listName)}</b>, the weekly
@@ -131,7 +131,7 @@ ${siteUrl}/newsletter`;
  * @param {string} args.unsubscribeUrl   signed, per-recipient
  * @param {string} [args.listName]
  */
-export function issueEmail({ issue, siteUrl, webUrl, unsubscribeUrl, listName = 'The Week' }) {
+export function issueEmail({ issue, siteUrl, webUrl, unsubscribeUrl, listName = 'The Beat' }) {
   // The digest links to guide sections as "/developer-marketing/guide/…". Those
   // resolve on the site and nowhere else, so they are absolutised here — against
   // the origin, since the path already carries the site's base.

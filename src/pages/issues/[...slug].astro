@@ -35,7 +35,7 @@ const briefsThisWeek = (await getWireByWeek()).get(d.week) ?? [];
 <ReadingLayout
   title={d.title}
   description={d.summary}
-  deskLabel="The Week"
+  deskLabel="The Beat"
   stamp={`${d.week} · ${fmtWeekRange(d.date)}`}
   published={d.published}
   updated={d.updated}
@@ -47,7 +47,7 @@ const briefsThisWeek = (await getWireByWeek()).get(d.week) ?? [];
       url: absUrl(`/issues/${entry.id}`),
       published: d.published,
       updated: d.updated,
-      section: 'The Week',
+      section: 'The Beat',
       tags: d.tags,
       sources: d.sources,
     }),

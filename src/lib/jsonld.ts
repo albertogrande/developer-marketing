@@ -19,7 +19,7 @@ export function websiteNode(description: string) {
   return {
     '@type': 'WebSite',
     '@id': WEBSITE_ID(),
-    name: 'The Beat — a developer marketing field guide',
+    name: 'The Beat — developer marketing, on the record',
     description,
     url: absUrl('/'),
     inLanguage: 'en',

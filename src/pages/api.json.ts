@@ -63,7 +63,7 @@ export const GET: APIRoute = async () => {
   });
 
   const manifest = {
-    name: 'The Beat — a developer marketing field guide',
+    name: 'The Beat — developer marketing, on the record',
     description:
       'The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, distribution, and the metrics that matter. Kept current by an autonomous agent.',
     site: absUrl('/'),
@@ -121,7 +121,7 @@ export const GET: APIRoute = async () => {
       issues: collection('issues', issues, {
         pages: true,
         description:
-          'The Week — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.',
+          'The Beat — one issue per ISO week of what actually changed; occasionally a long special where a thread earned depth.',
       }),
       'deep-dives': collection('deep-dives', dives, {
         pages: true,

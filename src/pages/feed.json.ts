@@ -15,7 +15,7 @@ export const GET: APIRoute = async () => {
 
   const feed = {
     version: 'https://jsonfeed.org/version/1.1',
-    title: 'The Beat — a developer marketing field guide',
+    title: 'The Beat — developer marketing, on the record',
     home_page_url: absUrl('/'),
     feed_url: absUrl('/feed.json'),
     description:

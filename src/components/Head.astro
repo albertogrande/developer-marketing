@@ -28,7 +28,7 @@ const {
 
 const SITE_TITLE = 'The Beat';
 const fullTitle =
-  title === SITE_TITLE ? 'The Beat — a developer marketing field guide' : `${title} · ${SITE_TITLE}`;
+  title === SITE_TITLE ? 'The Beat — developer marketing, on the record' : `${title} · ${SITE_TITLE}`;
 const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;
@@ -60,7 +60,7 @@ const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 const SECTION_LABELS: Record<string, string> = {
   guide: 'Guide',
   articles: 'Newsroom archive',
-  issues: 'The Week',
+  issues: 'The Beat',
   'deep-dives': 'Deep Dives archive',
   radar: 'Radar archive',
   claims: 'Claims',

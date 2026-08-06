@@ -14,7 +14,7 @@ better than it found it.
 | Writer | What it produces | When |
 |---|---|---|
 | **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **the wire** (`src/content/wire/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
-| **The Editor** | **The Week** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
+| **The Editor** | **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
 
 The reference the writers maintain: the nine-section **guide**
 (`src/content/guide/`), its atomic **claims** (`src/content/claims/`, each
