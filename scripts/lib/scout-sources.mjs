@@ -5,7 +5,9 @@
 // The registry is data on purpose: widening coverage — a new feed, another
 // HN query, one more subreddit — is an edit here, not new code. Every feed
 // carries the date it was last verified to resolve; a feed that rots shows
-// up in the sweep's failure list, never breaks the run.
+// up in the sweep's failure list, never breaks the run. Autodiscovery tip:
+// most blogs advertise their feed in a <link rel="alternate"> tag — curl the
+// page and grep for rss/atom before declaring a candidate feedless.
 //
 // The event DB this feeds (signals/db/<ISO-week>.ndjson) is append-only:
 // one JSON line per event, keyed by a stable id derived from the normalized
@@ -46,6 +48,12 @@ export const SOURCES = [
   { id: 'twilio-blog', name: 'Twilio blog', feed: 'https://www.twilio.com/en-us/blog/feed', kind: 'operator', posture: 'vendor' },
   { id: 'auth0-blog', name: 'Auth0 blog', feed: 'https://auth0.com/blog/rss.xml', kind: 'operator', posture: 'vendor' },
   { id: 'microsoft-devblogs', name: 'Microsoft DevBlogs', feed: 'https://devblogs.microsoft.com/feed/', kind: 'operator', posture: 'vendor' },
+  { id: 'netlify-blog', name: 'Netlify blog', feed: 'https://www.netlify.com/feed.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'resend-blog', name: 'Resend blog', feed: 'https://resend.com/blog/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'commonroom-blog', name: 'Common Room blog', feed: 'https://www.commonroom.io/rss.xml', kind: 'practitioner', posture: 'vendor' },
+
+  // Research & data.
+  { id: 'slashdata-blog', name: 'SlashData blog', feed: 'https://www.slashdata.co/blog-feed.xml', kind: 'research', posture: 'independent' },
 
   // Launch trackers.
   { id: 'producthunt-devtools', name: 'Product Hunt — developer tools', feed: 'https://www.producthunt.com/feed?category=developer-tools', kind: 'newsletter', posture: 'independent' },
