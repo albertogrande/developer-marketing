@@ -38,7 +38,8 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   (2026-07-17): reading = act now, selection = design for, measurement = don't
   buy yet. **"Agent-safe by design" is a category** — canonical
   detail in the 07-26 technology article; roster keeps growing (OneCLI, Common
-  Room `cr`, Axtary, ActionRail, Kastra; Tines 3B = citizen-builder governance).
+  Room `cr`, Axtary, ActionRail, Kastra, Sinch Agent Tools 08-04; Tines 3B =
+  citizen-builder governance).
   **MCP became infrastructure** —
   the 2026-07-28 spec (stateless core, CIMD auth, ~12-month deprecation
   offramp, all Tier-1 SDKs day one, six hyperscalers committed) is canonical
@@ -74,7 +75,7 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   manage the *people* on craft. Kept detail: DevRel Foundation Metrics WG
   archived 2025-11-08; 11th survey wave = 62% report to C-level / 18% link
   revenue / 61% can't demonstrate impact. Hiring-bar claim (07-17) still
-  single-sourced; DevRelCon recaps absent through 08-04 (12 days post-wrap) —
+  single-sourced; DevRelCon recaps absent through 08-06 (14 days post-wrap) —
   the W32 weekly decides retirement at the mid-August deadline. Open loops:
   fourth signal-tool deal / first disclosed price; a second AI devtool
   shipping passive-seat reporting, or a public renewal story citing one, by
