@@ -20,13 +20,18 @@
 // Failures are per-source and never fatal (a rotten feed is a report line,
 // not a dead sweep); the script exits 0 unless the arguments are invalid.
 
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
   SOURCES,
+  SITEMAPS,
+  CRAWLS,
   COMMUNITY,
   parseAnyFeed,
+  parseSitemap,
+  extractLinks,
+  humanizeSlug,
   normalizeEvent,
   hnToEvents,
   redditToEvents,
@@ -57,6 +62,8 @@ if (has('--list')) {
   for (const p of PODCASTS) console.log(`rss        ${p.id.padEnd(28)} ${'podcast'.padEnd(12)} ${p.feed}`);
   for (const q of COMMUNITY.hnQueries) console.log(`hn         query: ${q}`);
   for (const q of COMMUNITY.hnShowQueries) console.log(`hn-show    query: ${q}`);
+  for (const s of SITEMAPS) console.log(`sitemap    ${s.id.padEnd(28)} ${s.kind.padEnd(12)} ${s.sitemap}`);
+  for (const s of CRAWLS) console.log(`crawl      ${s.id.padEnd(28)} ${s.kind.padEnd(12)} ${s.page}`);
   for (const s of COMMUNITY.subreddits) console.log(`reddit     r/${s.name} (${s.mode})`);
   console.log(`lobsters   newest.json, keyword-filtered`);
   for (const q of COMMUNITY.bskyQueries) console.log(`bluesky    query: ${q}`);
@@ -124,6 +131,52 @@ for (const s of rssSources) {
           })
         )
         .filter(inWindow);
+    })
+  );
+}
+
+// Dated sitemaps — as window-filterable as a feed; titles humanized from
+// the slug.
+for (const s of SITEMAPS) {
+  jobs.push(() =>
+    job(`sitemap ${s.id}`, async () => {
+      const xml = await get(s.sitemap, s.id);
+      const inc = new RegExp(s.include);
+      const exc = s.exclude ? new RegExp(s.exclude) : null;
+      return parseSitemap(xml)
+        .filter((u) => u.lastmod && inc.test(u.loc) && !(exc && exc.test(u.loc)))
+        .map((u) =>
+          normalizeEvent({ ts: u.lastmod, source: s.id, channel: 'crawl', title: humanizeSlug(u.loc), url: u.loc })
+        )
+        .filter(inWindow);
+    })
+  );
+}
+
+// Feedless blogs — crawl the index page. First contact seeds the seen-file
+// silently (no back-catalogue flood); after that, an unseen link is a new
+// post, stamped with capture time.
+const SEEN_FILE = 'signals/db/.crawl-seen.json';
+const crawlSeen = existsSync(SEEN_FILE) ? JSON.parse(await readFile(SEEN_FILE, 'utf8')) : {};
+let crawlSeenDirty = false;
+for (const s of CRAWLS) {
+  jobs.push(() =>
+    job(`crawl ${s.id}`, async () => {
+      const html = await get(s.page, s.id, 'text/html,*/*');
+      const links = extractLinks(html, { pattern: s.linkPattern, base: s.base });
+      const seenSet = new Set(crawlSeen[s.id] ?? []);
+      const unseen = links.filter((l) => !seenSet.has(l.url));
+      const coldStart = seenSet.size === 0;
+      for (const l of links) seenSet.add(l.url);
+      crawlSeen[s.id] = [...seenSet];
+      crawlSeenDirty = true;
+      if (coldStart) {
+        failures.push(`crawl ${s.id}: cold start — ${links.length} existing posts seeded, capture begins next run`);
+        return [];
+      }
+      return unseen.slice(0, s.take).map((l) =>
+        normalizeEvent({ ts: NOW, source: s.id, channel: 'crawl', title: l.text, url: l.url })
+      );
     })
   );
 }
@@ -197,6 +250,11 @@ for (const file of dbFiles) {
 }
 
 const fresh = [...seen.values()].sort((a, b) => a.ts.localeCompare(b.ts));
+
+if (!DRY && crawlSeenDirty) {
+  await mkdir(dirname(SEEN_FILE), { recursive: true });
+  await writeFile(SEEN_FILE, JSON.stringify(crawlSeen, null, 2) + '\n', 'utf8');
+}
 
 // Append each event to its own week's file (an event belongs to the week it
 // happened, not the week the sweep ran).

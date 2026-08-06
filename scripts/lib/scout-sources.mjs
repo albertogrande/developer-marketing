@@ -60,6 +60,27 @@ export const SOURCES = [
 ];
 
 // ---------------------------------------------------------------------------
+// Feedless sources, two shapes. SITEMAPS: sites whose sitemap.xml carries
+// <lastmod> — as window-filterable as a feed, just without titles (we
+// humanize the slug; the scout's triage has the URL). CRAWLS: sites with
+// neither feed nor dated sitemap — the blog index page is fetched, links
+// matching the pattern are extracted with their anchor text, and *only URLs
+// never seen before* become events (ts = capture time, same honesty rule as
+// a late-surfaced wire item). First contact with a crawl source seeds
+// signals/db/.crawl-seen.json silently instead of flooding the log with the
+// site's whole back catalogue.
+
+export const SITEMAPS = [
+  { id: 'reforge-blog', name: 'Reforge blog', sitemap: 'https://www.reforge.com/sitemap.xml', include: '^https://www\.reforge\.com/blog/.+', kind: 'practitioner', posture: 'independent' },
+  { id: 'leerob', name: 'Lee Robinson', sitemap: 'https://leerob.com/sitemap.xml', include: '^https://leerob\.com/[a-z0-9-]+$', exclude: '^https://leerob\.com/(writing|stack|uses|work|links|vercel)$', kind: 'practitioner', posture: 'independent' },
+];
+
+export const CRAWLS = [
+  { id: 'markepear', name: 'Markepear', page: 'https://www.markepear.dev/blog', base: 'https://www.markepear.dev', linkPattern: '^/blog/[a-z0-9-]+$', take: 12, kind: 'practitioner', posture: 'independent' },
+  { id: 'draft-dev', name: 'Draft.dev', page: 'https://draft.dev/learn', base: 'https://draft.dev', linkPattern: '^/learn/[a-z0-9-]+$', take: 12, kind: 'practitioner', posture: 'independent' },
+];
+
+// ---------------------------------------------------------------------------
 // Community firehoses, scoped by query — the watchlist captures matches, not
 // the whole site. Reddit and Bluesky refuse some datacenter networks with a
 // 403; the sweep tolerates that (failures reported, never fatal).
@@ -83,7 +104,7 @@ export const COMMUNITY = {
 
 // Valid enums — the enrich tool validates against these, and agents filter on
 // them, so extend deliberately (same rule as the site's schema vocabularies).
-export const CHANNELS = ['rss', 'hn', 'reddit', 'lobsters', 'bluesky', 'producthunt', 'search', 'manual'];
+export const CHANNELS = ['rss', 'hn', 'reddit', 'lobsters', 'bluesky', 'producthunt', 'crawl', 'search', 'manual'];
 export const EVENT_KINDS = ['launch', 'release', 'funding', 'acquisition', 'pricing', 'deprecation', 'research', 'campaign', 'content', 'discussion', 'podcast', 'hiring', 'other'];
 export const ENTITY_KINDS = ['company', 'tool', 'person', 'protocol', 'show'];
 export const SOURCE_KINDS = ['practitioner', 'operator', 'newsletter', 'research', 'podcast'];
@@ -168,6 +189,48 @@ export function parseAnyFeed(xml) {
   });
 
   return { feedTitle, items: items.filter((i) => i.title && i.link) };
+}
+
+// A sitemap gives URLs and dates but no titles — a humanized slug is honest
+// and good enough for triage (the model has the URL for anything better).
+export const humanizeSlug = (url) => {
+  const slug = url.replace(/\/$/, '').split('/').pop() ?? '';
+  const words = slug.replace(/[-_]+/g, ' ').trim();
+  return words ? words[0].toUpperCase() + words.slice(1) : url;
+};
+
+// <urlset> → [{ loc, lastmod? }]. Regex/string work like the feed parser.
+export function parseSitemap(xml) {
+  return xml
+    .split(/<url(?:\s[^>]*)?>/)
+    .slice(1)
+    .map((b) => b.split('</url>')[0])
+    .map((block) => {
+      const loc = tagText(block, 'loc');
+      const raw = tagText(block, 'lastmod');
+      const d = raw ? new Date(raw) : undefined;
+      return { loc, lastmod: d && !Number.isNaN(d.getTime()) ? d : undefined };
+    })
+    .filter((u) => u.loc);
+}
+
+// Blog-index links in document order (listing pages put newest first), with
+// anchor text as the title. Deduped by URL, pattern applied to the href as
+// written (relative form).
+export function extractLinks(html, { pattern, base }) {
+  const re = new RegExp(pattern);
+  const seen = new Set();
+  const out = [];
+  for (const m of html.matchAll(/<a\b[^>]*href="([^"#?]+)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi)) {
+    const href = m[1];
+    if (!re.test(href)) continue;
+    const url = href.startsWith('http') ? href : `${base}${href}`;
+    if (seen.has(url)) continue;
+    seen.add(url);
+    const text = snippet(m[2], 140);
+    out.push({ url, text: text || humanizeSlug(url) });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------

@@ -215,3 +215,50 @@ test('entities.json parses and every entry passes the gate rules', async () => {
     }
   }
 });
+
+test('parseSitemap extracts locs with valid lastmods and tolerates undated urls', async () => {
+  const { parseSitemap } = await import('./lib/scout-sources.mjs');
+  const XML = `<?xml version="1.0"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://x.dev/blog/a</loc><lastmod>2026-08-05</lastmod></url>
+  <url><loc>https://x.dev/blog/b</loc></url>
+  <url><loc>https://x.dev/blog/c</loc><lastmod>not-a-date</lastmod></url>
+</urlset>`;
+  const urls = parseSitemap(XML);
+  assert.equal(urls.length, 3);
+  assert.equal(urls[0].lastmod.toISOString().slice(0, 10), '2026-08-05');
+  assert.equal(urls[1].lastmod, undefined);
+  assert.equal(urls[2].lastmod, undefined, 'a garbage lastmod is treated as undated, not NaN');
+});
+
+test('extractLinks keeps document order, dedupes, applies the pattern, and uses anchor text', async () => {
+  const { extractLinks } = await import('./lib/scout-sources.mjs');
+  const HTML = `
+    <a href="/blog/newest-post"><h3>The newest post</h3></a>
+    <a href="/blog/older-post">Older post</a>
+    <a href="/blog/newest-post">dup</a>
+    <a href="/about">not a post</a>
+    <a href="/blog/feed.xml">feed</a>`;
+  const links = extractLinks(HTML, { pattern: '^/blog/[a-z0-9-]+$', base: 'https://x.dev' });
+  assert.equal(links.length, 2);
+  assert.equal(links[0].url, 'https://x.dev/blog/newest-post');
+  assert.equal(links[0].text, 'The newest post');
+  assert.equal(links[1].url, 'https://x.dev/blog/older-post');
+});
+
+test('humanizeSlug turns a URL slug into a readable title', async () => {
+  const { humanizeSlug } = await import('./lib/scout-sources.mjs');
+  assert.equal(humanizeSlug('https://x.dev/blog/api-marketing-guide'), 'Api marketing guide');
+});
+
+test('sitemap and crawl registries pass the same integrity rules as SOURCES', async () => {
+  const { SITEMAPS, CRAWLS, SOURCE_KINDS } = await import('./lib/scout-sources.mjs');
+  for (const s of SITEMAPS) {
+    assert.ok(s.id && s.sitemap.startsWith('https://') && s.include, s.id);
+    assert.ok(SOURCE_KINDS.includes(s.kind), s.id);
+  }
+  for (const s of CRAWLS) {
+    assert.ok(s.id && s.page.startsWith('https://') && s.linkPattern && s.base && s.take > 0, s.id);
+    assert.ok(SOURCE_KINDS.includes(s.kind), s.id);
+  }
+});
