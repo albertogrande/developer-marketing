@@ -87,14 +87,16 @@ Recurring + thinly covered by the guide = deep-dive candidate (flag below).
   ship proof, not adjectives. Two campaigns examples on record, distinct
   mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
-  (08-01 article; example + practice promoted 08-03). Deprecation cases feed
-  Thursday's dive — four dated windows now: HCP Vagrant EOL 08-04 (~21mo,
-  longest on record), MCP's 12-month offramp, GitHub Models 07-30 (six weeks,
-  no like-for-like), GitHub Spark 08-05 brief (~27-day export, shortest yet);
-  Cerebras free-tier sunset lands 08-17. Dive nuance: Spark's `llm()` calls
-  broke 07-30 with Models, so a clean window still burned its AI apps. Open
-  loops: how Cerebras lands; a second vendor framing a case study around
-  limits-raised. Guide: §01, §04, §05, §07.
+  (08-01 article; example + practice promoted 08-03). **The deprecation dive
+  shipped** (2026-08-06, `the-deprecation-that-didnt-burn-anyone`): house
+  position — the window is the headline but mechanics decide burn (published
+  policy > per-event promise; dated phases; API-as-channel/brownouts; day-one
+  offramp; honest no-like-for-like; compounding clocks — Spark's `llm()` broke
+  before Spark's own notice existed). Windows on file: Spark ~27d, Models
+  29d-to-dead, Cerebras ~1mo, MCP 12mo, HCP Vagrant ~21mo. Open loops: **how
+  Cerebras lands 08-17** (clean = deprecation-named errors + stable catalog,
+  not silent 404s — log either way); second limits-raised case study; first
+  vendor marketing a migration plan as a feature. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact out-distributes
   launch budget (→ example); Launch HN is the default GTM for agent-infra startups.
@@ -113,10 +115,6 @@ A dive ships **every Thursday**; these are the trendy half of what it picks
 from, gated on outside events — often not ripe. A dive never skips for want
 of a hot thread; it goes evergreen instead.
 
-- **COMMISSIONED 2026-08-03 → editorial/COMMISSION.txt**: *The deprecation that
-  didn't burn anyone* — migration windows as the trust surface; MCP's twelve-month
-  offramp vs GitHub Models' six weeks vs Cerebras landing 08-17. Taken from the
-  evergreen shelf; Thursday's run replaces the shelf entry if it writes it.
 - **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17)
   that postings silently screen for quantified-impact skills. Commission only
   if DevRelCon NYC recaps corroborate it across multiple talks; zero recaps
@@ -142,8 +140,10 @@ takes one replaces it, drawn from the thinnest guide sections.
 - **Pricing pages developers trust** — the free tier's shape as a promise,
   what a published limit signals, what a tier move does to trust. Cerebras'
   07-16 sunset is a live case; the subject outlives it. (`01`)
-- **The deprecation that didn't burn anyone** — migration windows as the
-  trust surface. **Commissioned 08-03** — replace this entry once written. (`04`)
+- **The champions program ledger** — what an advocates/champions program
+  actually costs and returns: the nomination bar, the perks, the expected
+  output, when one goes stale, and how operators account for it — §03 is the
+  guide's thinnest section and no dive has touched it. (`03`, `08`)
 - **What a launch actually buys you** — the measured anatomy of a Show HN /
   Product Hunt spike: traffic half-life, signup quality vs. baseline, day-30
   retention, when deferring beats taking it. §07 is the only guide section
