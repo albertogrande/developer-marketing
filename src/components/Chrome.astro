@@ -11,15 +11,13 @@ interface Props {
 // the `wide` prop is accepted for compatibility but no longer changes it.
 const max = 'var(--wrap)';
 
+// Five doors, matching the reader's three jobs (catch up, learn, hire help)
+// plus the masthead. Everything else — claims, examples, skills, the archives
+// — is reached through the guide, the command palette, or footers.
 const nav = [
-  { label: 'newsroom', url: '/articles' },
   { label: 'wire', url: '/wire' },
-  { label: 'weekly', url: '/issues' },
-  { label: 'deep-dives', url: '/deep-dives' },
+  { label: 'the-week', url: '/issues' },
   { label: 'guide', url: '/guide' },
-  { label: 'practices', url: '/claims' },
-  { label: 'examples', url: '/examples' },
-  { label: 'skills', url: '/skills' },
   { label: 'resources', url: '/resources' },
   { label: 'about', url: '/about' },
 ];
