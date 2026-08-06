@@ -7,13 +7,19 @@ already pings IndexNow with changed URLs (`scripts/indexnow-ping.mjs`); these
 two console verifications are the only steps that need a human with account
 access. Budget ~15 minutes.
 
-The property to verify is the live origin: **https://developer-marketing.vercel.app/**
-(re-do this for the new host if a custom domain arrives — `custom-domain.md`).
+The property to verify is the live origin: **https://thebeat.dev/**
+(if the site ever moves hosts again, re-verify the new origin — `custom-domain.md`).
+
+> The site moved here from `developer-marketing.vercel.app` in August 2026. If
+> the old origin was already verified, verify **thebeat.dev as a new property**
+> and resubmit the sitemap — a verification does not carry across origins. Then
+> use Google's Change of Address tool to pass the accumulated signal over; Bing
+> picks the move up from the 308s Vercel serves on the old hostname.
 
 ## 1. Google Search Console
 
 1. Open https://search.google.com/search-console → Add property →
-   **URL prefix** → `https://developer-marketing.vercel.app/`.
+   **URL prefix** → `https://thebeat.dev/`.
 2. Choose the **HTML tag** verification method and copy the token from
    `<meta name="google-site-verification" content="TOKEN">`.
 3. Paste the token into `VERIFICATION.google` in `src/lib/site.ts`, commit,
@@ -29,7 +35,7 @@ The property to verify is the live origin: **https://developer-marketing.vercel.
    `msvalidate.01` token into `VERIFICATION.bing` in `src/lib/site.ts`,
    commit, deploy, verify.
 3. Sitemaps → submit
-   `https://developer-marketing.vercel.app/sitemap-index.xml`.
+   `https://thebeat.dev/sitemap-index.xml`.
 4. IndexNow: nothing to do — the key file ships at the domain root and the
    deploy workflow submits changed URLs after every publish. The URL
    Submission panel in Bing Webmaster Tools will show them arriving.

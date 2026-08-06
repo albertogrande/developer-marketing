@@ -22,7 +22,7 @@ const SENTINEL = '\u0000';
  * Site-internal links are written root-relative in the content ("/developer-
  * marketing/guide/…") because that is what works on the site. In an email there
  * is no site to be relative to, so they have to be absolute or they are dead.
- * @param {string} origin e.g. "https://albertogrande.github.io"
+ * @param {string} origin e.g. "https://thebeat.dev"
  */
 export const resolveAgainst = (origin) => (href) =>
   href.startsWith('/') && !href.startsWith('//') ? `${origin.replace(/\/+$/, '')}${href}` : href;

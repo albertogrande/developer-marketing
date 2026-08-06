@@ -18,7 +18,7 @@ export function mdToHtml(md: string): string {
   return marked.parse(md, { async: false }) as string;
 }
 
-const SITE_NAME = 'Developer Marketing — a field guide';
+const SITE_NAME = 'The Beat — a developer marketing field guide';
 
 type Kind =
   | 'guide'

@@ -62,7 +62,7 @@ export const config = {
 
   // --- mail -----------------------------------------------------------------
   fromEmail: env.FROM_EMAIL || 'the-week@localhost',
-  fromName: env.FROM_NAME || 'Developer Marketing — The Week',
+  fromName: env.FROM_NAME || 'The Beat — The Week',
   replyTo: env.REPLY_TO || '',
   // RFC 2919 list identity. Mail clients group and filter on it.
   listId: env.LIST_ID || `the-week.${originOf(SITE_URL).replace(/^https?:\/\//, '') || 'localhost'}`,

@@ -66,7 +66,7 @@ if (!shows.length) {
 
 const get = async (url, label) => {
   const res = await fetch(url, {
-    headers: { 'user-agent': 'developer-marketing-scout/1.0 (+https://developer-marketing.vercel.app)' },
+    headers: { 'user-agent': 'thebeat-scout/1.0 (+https://thebeat.dev)' },
     redirect: 'follow',
   });
   if (!res.ok) throw new Error(`${label}: HTTP ${res.status}`);

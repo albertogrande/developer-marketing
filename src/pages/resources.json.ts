@@ -39,7 +39,7 @@ export const GET: APIRoute = async (context) => {
 
   const body = JSON.stringify(
     {
-      title: 'Developer Marketing field guide — resources',
+      title: 'The Beat — resources',
       description:
         'Vetted providers of developer-marketing services for devtools: agencies, studios, collectives and independents. No paid placements. Proof points are quoted from each provider’s own site and are self-reported unless stated otherwise.',
       updated,

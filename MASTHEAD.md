@@ -1,4 +1,4 @@
-# Developer Marketing — the masthead
+# The Beat — the masthead
 
 *A technical publication about developer marketing, with a circulation of one.*
 

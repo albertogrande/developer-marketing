@@ -1,7 +1,7 @@
 # AGENTS.md
 
-This repository publishes **Developer Marketing — a field guide**
-(https://developer-marketing.vercel.app/), a site written to be
+This repository publishes **The Beat — a developer marketing field guide**
+(https://thebeat.dev/), a site written to be
 read by agents as much as by people. This file is for two kinds of agent: one
 **consuming** the published content, and one **working on** this repo.
 
@@ -11,7 +11,7 @@ Start with the manifest — one fetch enumerates everything, with counts and
 honest updated dates:
 
 ```
-https://developer-marketing.vercel.app/api.json
+https://thebeat.dev/api.json
 ```
 
 | Surface | URL (under the site root) | What it is |
@@ -58,7 +58,7 @@ Notes for retrieval:
   `updated` derive from these, never from build time.
 
 **Citing**: content is CC BY 4.0 — quote it, link the canonical HTML page,
-credit "Developer Marketing field guide". Code is MIT.
+credit "The Beat". Code is MIT.
 
 **Reporting an error**: file a
 [correction issue](https://github.com/albertogrande/developer-marketing/issues/new?template=correction.yml)

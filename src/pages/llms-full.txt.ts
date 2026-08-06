@@ -42,7 +42,7 @@ export const GET: APIRoute = async () => {
   const wire = await getWireSorted();
 
   const out: string[] = [];
-  out.push('# Developer Marketing — a field guide (full text)');
+  out.push('# The Beat — a developer marketing field guide (full text)');
   out.push('');
   out.push(
     'Written for a practitioner marketing to developers. Source: ' +

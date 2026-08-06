@@ -63,14 +63,14 @@ export const GET: APIRoute = async () => {
   });
 
   const manifest = {
-    name: 'Developer Marketing — a field guide',
+    name: 'The Beat — a developer marketing field guide',
     description:
       'The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, distribution, and the metrics that matter. Kept current by an autonomous agent.',
     site: absUrl('/'),
     repository: REPO,
     license: { code: 'MIT', content: 'CC-BY-4.0', content_url: CONTENT_LICENSE_URL },
     attribution:
-      'Content is CC BY 4.0: quote it, link the canonical page, credit "Developer Marketing field guide".',
+      'Content is CC BY 4.0: quote it, link the canonical page, credit "The Beat".',
     cadence: {
       scout:
         'daily 05:00 UTC (internal signals; promotes qualifying items to the wire; patches the guide when a fact changes)',

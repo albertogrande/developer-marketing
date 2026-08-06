@@ -7,7 +7,7 @@ import { mdToHtml } from '../lib/markdown';
 // content_html for readers and content_text carrying the raw markdown for
 // agents. The _markdown extension points at each entry's .md sibling.
 
-const AUTHOR = 'Developer Marketing field guide';
+const AUTHOR = 'The Beat';
 
 export const GET: APIRoute = async () => {
   const items = await getFeedItems();
@@ -15,7 +15,7 @@ export const GET: APIRoute = async () => {
 
   const feed = {
     version: 'https://jsonfeed.org/version/1.1',
-    title: 'Developer Marketing — a field guide',
+    title: 'The Beat — a developer marketing field guide',
     home_page_url: absUrl('/'),
     feed_url: absUrl('/feed.json'),
     description:

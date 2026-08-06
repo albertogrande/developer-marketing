@@ -5,7 +5,7 @@ root-convention files crawlers actually fetch (`/robots.txt`, `/llms.txt` at
 the domain root).
 
 **It's no longer needed.** The site now lives at
-https://developer-marketing.vercel.app/ and serves at the domain root, so
+https://thebeat.dev/ and serves at the domain root, so
 `robots.txt` (generated, with the correct Sitemap line) and `llms.txt` are
 natively at their conventional paths. The old GitHub Pages deployment is a
 redirect layer (`scripts/build-redirects.mjs`, published by

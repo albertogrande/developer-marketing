@@ -25,7 +25,7 @@ export const GET: APIRoute = async (context) => {
   const updated = sections.reduce((m, s) => (s.updated > m ? s.updated : m), '1970-01-01');
 
   const body = JSON.stringify(
-    { title: 'Developer Marketing field guide — sections', updated, count: sections.length, sections },
+    { title: 'The Beat — sections', updated, count: sections.length, sections },
     null,
     2
   );

@@ -8,7 +8,7 @@ import { latestIssueId, listIssues, loadIssue } from '../lib/issues.mjs';
 import { issueEmail, confirmEmail } from '../lib/templates.mjs';
 import { buildMessage } from '../lib/mime.mjs';
 
-const SITE = 'https://developer-marketing.vercel.app';
+const SITE = 'https://thebeat.dev';
 const UNSUB = 'https://list.example.test/unsubscribe?t=token';
 
 const week = latestIssueId();

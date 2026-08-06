@@ -32,7 +32,7 @@ export const GET: APIRoute = async () => {
   const wire = await getWireSorted();
 
   const lines: string[] = [];
-  lines.push('# Developer Marketing — a field guide');
+  lines.push('# The Beat — a developer marketing field guide');
   lines.push('');
   lines.push(
     '> The state of the art in developer marketing — positioning, docs-led growth, DevRel, developer experience, content, distribution, launches, and measurement. Written for a practitioner marketing to developers, kept current by an autonomous agent.'

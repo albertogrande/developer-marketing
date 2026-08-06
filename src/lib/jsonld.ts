@@ -9,7 +9,7 @@ import { absUrl, isoDate, CONTENT_LICENSE_URL } from './site';
 import { AUTHORS } from './authors';
 import { DESK_LABELS } from './content';
 
-export const ORG_NAME = 'Developer Marketing field guide';
+export const ORG_NAME = 'The Beat';
 const WEBSITE_ID = () => `${absUrl('/')}#website`;
 const ORG_ID = () => `${absUrl('/')}#org`;
 
@@ -19,7 +19,7 @@ export function websiteNode(description: string) {
   return {
     '@type': 'WebSite',
     '@id': WEBSITE_ID(),
-    name: 'Developer Marketing — a field guide',
+    name: 'The Beat — a developer marketing field guide',
     description,
     url: absUrl('/'),
     inLanguage: 'en',

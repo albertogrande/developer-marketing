@@ -34,7 +34,7 @@ const htmlStub = (to) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Moved — Developer Marketing</title>
+<title>Moved — The Beat</title>
 <link rel="canonical" href="${to}">
 <meta http-equiv="refresh" content="0;url=${to}">
 </head>
@@ -71,7 +71,7 @@ for (const name of [...Object.keys(COLLECTIONS).map((c) => `${c}.json`), 'api.js
 for (const name of ['llms.txt', 'llms-full.txt']) {
   write(
     name,
-    `# Developer Marketing — a field guide\n\n> This site moved to ${site}/ — the current ${name} lives at ${site}/${name}.\n`
+    `# The Beat — a developer marketing field guide\n\n> This site moved to ${site}/ — the current ${name} lives at ${site}/${name}.\n`
   );
   count++;
 }
@@ -81,7 +81,7 @@ write(
   'feed.xml',
   `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Developer Marketing — a field guide (moved)</title>
+  <title>The Beat — a developer marketing field guide (moved)</title>
   <link href="${site}/feed.xml" rel="alternate" type="application/atom+xml"/>
   <link href="${site}/" rel="alternate" type="text/html"/>
   <updated>2026-07-26T00:00:00Z</updated>
@@ -91,7 +91,7 @@ write(
     <link href="${site}/feed.xml"/>
     <id>${site}/feed.xml#moved</id>
     <updated>2026-07-26T00:00:00Z</updated>
-    <summary>Developer Marketing now publishes from ${site}/ — resubscribe at ${site}/feed.xml.</summary>
+    <summary>The Beat now publishes from ${site}/ — resubscribe at ${site}/feed.xml.</summary>
   </entry>
 </feed>
 `

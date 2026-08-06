@@ -83,7 +83,7 @@ jobs:
           NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
           ADMIN_TOKEN: ${{ secrets.NEWSLETTER_ADMIN_TOKEN }}
           PUBLIC_BASE_URL: ${{ vars.NEWSLETTER_API }}
-          SITE_URL: ${{ vars.SITE_URL || 'https://developer-marketing.vercel.app' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://thebeat.dev' }}
           # Whichever is set wins; MAIL_TRANSPORT can force one explicitly.
           MAIL_TRANSPORT: ${{ vars.MAIL_TRANSPORT }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -92,7 +92,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-          FROM_NAME: ${{ vars.FROM_NAME || 'Developer Marketing — The Week' }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'The Beat — The Week' }}
           REPLY_TO: ${{ vars.REPLY_TO }}
           WEEK: ${{ inputs.week }}
           DRY_RUN: ${{ inputs.dry_run }}

@@ -25,7 +25,7 @@ export const GET: APIRoute = async () => {
   const updated = items[0]?.date ?? '1970-01-01';
 
   const body = JSON.stringify(
-    { title: 'Developer Marketing — radar archive', updated, count: items.length, radar: items },
+    { title: 'The Beat — radar archive', updated, count: items.length, radar: items },
     null,
     2
   );

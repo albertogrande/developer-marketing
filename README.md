@@ -1,4 +1,4 @@
-# Developer Marketing
+# The Beat
 
 [![CI](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/ci.yml)
 [![Deploy](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/albertogrande/developer-marketing/actions/workflows/deploy.yml)
@@ -13,7 +13,7 @@ Identity and charter: [MASTHEAD.md](MASTHEAD.md) · the retired newsroom desks
 
 <!-- TODO(author): add a screenshot/GIF of the site here -->
 
-- **Live site**: https://developer-marketing.vercel.app/ (the old GitHub Pages URLs redirect here)
+- **Live site**: https://thebeat.dev/ (the old GitHub Pages and `*.vercel.app` URLs redirect here)
 - **The wire**: the event log at `/wire` — one company, one thing that happened, two sentences, a primary source.
 - **The week**: one weekly issue at `/issues` on what moved and why — normally short, occasionally a long special when a thread earned depth.
 - **The guide**: the evergreen reference, nine sections, kept continuously current.
@@ -197,9 +197,9 @@ The guide is also a **source agents can query**, not just a site to read. It
 practices the machine-readable-docs play it preaches — see
 [AGENTS.md](AGENTS.md) for the full consumption guide. The surfaces:
 
-- [`/api.json`](https://developer-marketing.vercel.app/api.json) —
+- [`/api.json`](https://thebeat.dev/api.json) —
   the manifest: every endpoint and collection, with counts and honest updated dates. Start here.
-- [`/llms.txt`](https://developer-marketing.vercel.app/llms.txt)
+- [`/llms.txt`](https://thebeat.dev/llms.txt)
   (curated index of everything) and `/llms-full.txt` (the evergreen corpus in
   one fetch, plus recent dated pieces).
 - **Raw markdown siblings** — every entry at `/<collection>/<id>.md`,

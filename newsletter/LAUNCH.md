@@ -25,18 +25,22 @@ This work is on `main`: build green, the full test suite passing, no dead
 links. `/resources` is live, and the newsletter call-to-action ships in its
 honest "not wired up yet" state until step 4.
 
-## 2. A domain — 10 minutes, then DNS propagation
+## 2. A domain — done
 
-**This is the true blocker for email, and only you can do it.** No relay will
-send as `albertogrande.github.io` or `*.vercel.app`; they cannot be
-DKIM-authenticated. You need a domain you control.
+This was the true blocker for email: no relay will send as
+`albertogrande.github.io` or `*.vercel.app`, because neither can be
+DKIM-authenticated. The site now has **thebeat.dev** (Namecheap), so this step
+is closed. The wiring is recorded in `docs/custom-domain.md`; the short version:
 
-Once you have one:
+- Resend verifies the **`send.thebeat.dev`** subdomain and owns the SPF, DKIM
+  and MX records under it. It has to be a subdomain — a domain may carry only
+  one SPF record, and the apex already has one for Namecheap's forwarding.
+- `_dmarc.thebeat.dev` is `p=none` (monitor only). Tighten to `quarantine`
+  once the reports look clean.
+- `FROM_EMAIL=the-week@thebeat.dev`, `REPLY_TO=hello@thebeat.dev` — replies
+  reach a person through Namecheap's forwarding on the apex.
 
-- add it in Resend, paste the SPF and DKIM records it gives you into DNS
-- add a DMARC record yourself: `_dmarc  TXT  "v=DMARC1; p=none; rua=mailto:you@yourdomain"`
-  (start at `p=none`, tighten to `quarantine` once reports look clean)
-- point `FROM_EMAIL` at it, e.g. `the-week@yourdomain`
+Confirm the whole chain with `npm run newsletter:doctor`, which sends nothing.
 
 Verify with `npm run newsletter:doctor -- --dkim-selector resend`. It checks all
 three records and the domain's verification status in Resend, and sends nothing.

@@ -74,7 +74,7 @@ const NOW = new Date();
 const SINCE = new Date(NOW.getTime() - DAYS * 86400e3);
 const TIMEOUT_MS = 10_000;
 const CONCURRENCY = 8;
-const UA = 'developer-marketing-scout/1.0 (+https://developer-marketing.vercel.app)';
+const UA = 'thebeat-scout/1.0 (+https://thebeat.dev)';
 
 const failures = [];
 

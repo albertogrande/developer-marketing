@@ -26,9 +26,9 @@ const {
   jsonLd,
 } = Astro.props;
 
-const SITE_TITLE = 'Developer Marketing';
+const SITE_TITLE = 'The Beat';
 const fullTitle =
-  title === SITE_TITLE ? 'Developer Marketing — a field guide' : `${title} · ${SITE_TITLE}`;
+  title === SITE_TITLE ? 'The Beat — a developer marketing field guide' : `${title} · ${SITE_TITLE}`;
 const canonical = canonicalFor(Astro.url.pathname);
 const feed = withBase('/feed.xml');
 const ogImage = new URL(withBase('/og-default.png'), Astro.site).href;

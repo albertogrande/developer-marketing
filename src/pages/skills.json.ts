@@ -40,7 +40,7 @@ export const GET: APIRoute = async (context) => {
   const updated = items.reduce((m, s) => (s.verified > m ? s.verified : m), '1970-01-01');
 
   const body = JSON.stringify(
-    { title: 'Developer Marketing field guide — skills', updated, count: items.length, skills: items },
+    { title: 'The Beat — skills', updated, count: items.length, skills: items },
     null,
     2
   );
