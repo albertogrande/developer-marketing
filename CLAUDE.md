@@ -24,6 +24,16 @@ npm run podcast:transcripts -- --days 2     # publisher transcripts → .cache/
 npm run podcast:transcripts -- --list       # report only, download nothing
 ```
 
+The scout's event DB — deterministic capture of the whole watchlist, and the
+substrate the /intel skill queries:
+
+```bash
+npm run scout:sweep -- --days 2             # fetch watchlist → signals/db/<week>.ndjson
+npm run scout:sweep -- --dry-run            # fetch + triage report, write nothing
+npm run scout:query -- --entity vercel      # filter the merged event log
+npm run scout:enrich -- --patch -           # validated writes (the model never edits NDJSON)
+```
+
 One test file, or one test:
 
 ```bash
@@ -74,6 +84,16 @@ reference's atomic units, each carrying `status` (current/stale/retired) and
 `checked`. Claims are never deleted, only retired: their anchors must keep
 resolving. `articles/`, `deep-dives/` and `radar/` are closed archives —
 still rendered and machine-served, never extended.
+
+Underneath the curated capture sits the **event DB**: `scout:sweep` fetches
+the registered watchlist (`scripts/lib/scout-sources.mjs` — RSS/Atom feeds,
+HN/Show-HN queries, scoped subreddits, Lobsters, Bluesky) and appends every
+in-window item to `signals/db/<ISO-week>.ndjson`, append-only and dedup-by-id,
+whether or not anything is written about it. The scout enriches notable
+events (entities from `signals/entities.json`, an event kind, topics) through
+`scout:enrich` — never by editing NDJSON directly — and `scout:query`/the
+`/intel` skill answer questions over the merged log. Raw capture is not
+verification; only the wire and the issues pass the fact-integrity bar.
 
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
 capture), `editorial/MEMORY.md` (running threads, special-issue candidates),

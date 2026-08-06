@@ -1,6 +1,6 @@
 ---
 name: daily-scout
-description: Daily developer-marketing signals capture — sweep the last ~24h of practitioner blogs, DevRel communities, and industry research for what's new, append dated one-liners to signals/<week>.md, publish qualifying items to the wire, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
+description: Daily developer-marketing capture — run the deterministic watchlist sweep into the event DB (signals/db/), triage it plus targeted searches into dated one-liners in signals/<week>.md, enrich notable events with entities and kinds, publish qualifying items to the wire, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
 argument-hint: [optional focus, e.g. "DevRel metrics" or "docs-led growth"]
 ---
 
@@ -40,45 +40,58 @@ Raw daily capture. One line per signal. Internal — input for the weekly
 digest and the guide-refresh pass. Not rendered on the site.
 ```
 
-## Step 1 — Sweep (practitioner sources first)
+## Step 1 — Sweep (the tool collects; you triage)
 
-Use WebSearch and WebFetch. Budget **4–8 fetches**. Sweep a *fixed* source set
-(this is a standing developer-marketing watch, not a rotating beat), and always
-capture a resolving link. Public, fetchable sources only — skip login walls and
-paywalls.
+**Run the deterministic sweep first** — it fetches the whole watchlist (the
+RSS/Atom feeds, the podcast feeds, Hacker News, Show HN, the subreddits,
+Lobsters, Bluesky) and appends every new in-window item to the event DB
+(`signals/db/<WEEK_ID>.ndjson`), whether or not anything is ever written
+about it. That DB is the record that the day happened:
 
-**Practitioner blogs & operators (start here):**
+```bash
+npm run scout:sweep -- --days 2
+```
 
-- Developer marketing / DevRel writers and newsletters: the **DevRel Weekly**
-  archive, **Developer Marketing Alliance** blog, **DevRel.co / DevRel
-  Collective**, **Draft.dev** blog (technical content marketing),
-  **Markepear** (Jakub Czakon), **Adam Frankl** (*The Developer Facing
-  Startup*), **Lee Robinson**, **Common Room**, **Elena Verna** (PLG),
-  **Lenny's Newsletter** (public posts), **Reforge** public essays,
-  **Scaling DevTools** (podcast/notes).
-- Operator writing from developer-first companies: engineering/DevRel blogs at
-  **Stripe, Twilio, Vercel, Netlify, Postman, MongoDB, DigitalOcean, GitHub,
-  Sentry, Auth0, Algolia, Supabase, PlanetScale, Resend** — for how they
-  actually run docs, DX, and community.
+Read its triage report — that IS the sweep of the watchlist. The report also
+lists unreachable sources (tolerated; a persistently dead feed is worth a
+line in your report). The watchlist itself lives in
+`scripts/lib/scout-sources.mjs`; adding coverage is an edit there, not extra
+fetching here.
 
-**Podcast feeds — sweep these every run, they are the most reliable channel
-you have:**
+**Then spend your own budget where the tool can't go** — **4–8 fetches**,
+now for depth, not discovery:
 
-RSS is fetchable on days when Reddit and Bluesky are not, and each feed carries
-`<pubDate>`, so "what shipped in the last ~24h" is an exact question here rather
-than a guess. Fetch the feed, read the newest `<item>`, and capture any episode
-dated to the window. One fetch per feed — do not go hunting for audio.
+- Open the primary source behind anything you might promote (Step 3's rule:
+  a source you opened).
+- A broad `WebSearch` for `"developer marketing"`, `"developer relations"`,
+  `"developer experience"` in the last day or two — the valve for what the
+  watchlist misses. Log out-of-watchlist finds into the DB so the capture
+  stays complete:
 
-| Show | Feed |
-|---|---|
-| Scaling DevTools (Jack Bridger) | `https://feeds.transistor.fm/scaling-devtools` |
-| Latent Space (swyx & Alessio) | `https://api.substack.com/feed/podcast/1084089.rss` |
-| The Pragmatic Engineer (Gergely Orosz) | `https://newsletter.pragmaticengineer.com/feed` |
-| devtools.fm | `https://www.devtools.fm/rss.xml` (irregular — gaps of a month are normal) |
+```bash
+echo '[{"title":"…","url":"https://…","source":"websearch","summary":"…"}]' \
+  | npm run scout:enrich -- --add -
+```
 
-Candidates to verify and add if their feeds resolve: **Community Pulse**,
-**Fireside with Voxgig**, **The Art of Developer Experience**, **Developer
-Marketing Stories**, **Markepear**, **Everything Outside Code**.
+- Public, fetchable sources only — skip login walls and paywalls.
+
+**Enrich what matters.** For the events you triage as significant (promoted,
+signal-worthy, or clearly part of a running thread), stamp the intelligence
+fields — entities from `signals/entities.json` (register genuinely new ones
+first with `--new-entities`), an `event` kind, topics:
+
+```bash
+echo '[{"id":"<id from the triage>","entities":["vercel"],"event":"deprecation","topics":["pricing"]}]' \
+  | npm run scout:enrich -- --patch -
+```
+
+A handful of enriched events a day is plenty — enrich judgment, not the
+firehose. Never edit `signals/db/*.ndjson` by hand; the tool validates so
+the log stays replayable.
+
+**Podcasts — new episodes already land in the sweep's triage** (the sweep
+reads the same `PODCASTS` registry the transcript pipeline uses). Your job is
+the transcript-and-notes flow below, not re-fetching feeds.
 
 **Transcripts, when the publisher provides one.** Run:
 
@@ -168,22 +181,13 @@ justify the bill.
   databases, agent tooling, ML infra) — a launch, a big adoption story, a
   telling jobs/survey datapoint. The bar is adoption evidence, not noise.
 
-**Community & discussion — public endpoints that fetch reliably. Verify every
-claim against a primary source before repeating it:**
-
-- **Hacker News** (Algolia, always fetchable):
-  `https://hn.algolia.com/api/v1/search_by_date?query=developer%20marketing&tags=story`
-  and variants for `devrel`, `developer%20experience`, `docs` — follow into hot
-  comment threads.
-- **Reddit** (public JSON):
-  `https://www.reddit.com/r/devrel/search.json?q=&sort=new&restrict_sr=1&limit=25`;
-  also r/marketing, r/SaaS, r/ExperiencedDevs for developer-audience threads.
-- **Lobsters**: `https://lobste.rs/search?q=devrel&what=stories&order=newest`.
-- **Bluesky** (public API, no login):
-  `https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=developer%20relations&sort=latest`.
-- **Broad sweep**: a `WebSearch` for `"developer marketing"`, `"developer
-  relations"`, or `"developer experience"` in the last day or two, to catch
-  anything the lists miss.
+**Community & discussion — the sweep already queried HN, Show HN, the
+subreddits, Lobsters and Bluesky.** Your part: follow the triage into hot
+comment threads when the discussion itself is the signal, and verify every
+claim against a primary source before repeating it. If the sweep reported
+Reddit/Bluesky unreachable (some networks 403 them), a manual WebFetch of
+the same public endpoints is the fallback — log anything found via
+`scout:enrich --add`.
 
 Capture, in order of value to the reader:
 1. **Plays & tactics** — a positioning, pricing, docs, launch, or channel move

@@ -43,9 +43,20 @@ so — don't overwrite a published issue unless explicitly asked.
 2. `editorial/TASTE.md` — the reader's durable preferences. The issue must
    reflect them. `editorial/MENTIONS.md` (if present) — public citations of
    the site's pieces; a taste signal for which coverage travels.
-3. `signals/<WEEK_ID>.md` — the scout's capture for the window. Treat lines as
-   **leads, not facts**: they tell you where to dig; verify before publishing.
-   (If the window spans two signal files, read both.)
+3. `signals/<WEEK_ID>.md` — the scout's curated capture for the window.
+   Treat lines as **leads, not facts**: they tell you where to dig; verify
+   before publishing. (If the window spans two signal files, read both.)
+   Then the complete record — everything the watchlist emitted, curated or
+   not:
+
+   ```bash
+   npm run scout:query -- --since <START> --until <END>
+   npm run scout:query -- --since <START> --until <END> --count   # the shape
+   ```
+
+   The DB catches what the scout's one-liners didn't carry (a pattern across
+   many small launches, a company recurring all week). Same standing: raw
+   capture, not verified fact.
 4. The week's wire items — `src/content/wire/` files dated in the window.
    Already published and sourced; the issue links them rather than re-telling
    them ("The week in links" renders them automatically on the issue page).

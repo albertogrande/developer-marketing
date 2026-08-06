@@ -72,12 +72,14 @@ jobs:
           prompt: >
             Run the daily-scout skill (.claude/skills/daily-scout/SKILL.md).
             ${{ github.event.inputs.focus && format('Focus this sweep on: {0}.', github.event.inputs.focus) || '' }}
-            Sweep the last ~24h of developer-marketing sources — including the
-            fixed podcast RSS feeds listed in the skill, which are the most
-            reliable channel available — append dated one-liners to
-            signals/<week>.md, promote every qualifying signal to
-            the wire under src/content/wire/ (something happened + a primary
-            source + two sentences — traction is not a criterion), patch any
+            Start with the deterministic watchlist sweep
+            (`npm run scout:sweep -- --days 2` — it appends every new event
+            to signals/db/), triage its report plus your own targeted
+            searches, append dated one-liners to signals/<week>.md, enrich
+            notable events via scout:enrich, promote every qualifying signal
+            to the wire under src/content/wire/ (something happened + a
+            primary source + two sentences — traction is not a criterion),
+            patch any
             guide section under src/content/guide/ whose facts a change
             disproved, and update editorial/MEMORY.md lightly. Fetch podcast
             transcripts with `npm run podcast:transcripts -- --days 2`, distil
@@ -104,7 +106,7 @@ jobs:
           claude_args: >-
             --model claude-sonnet-5
             --max-turns 70
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run podcast:transcripts*),Bash(node scripts/podcast-transcripts.mjs*),Bash(node scripts/check-*)"
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run podcast:transcripts*),Bash(node scripts/podcast-transcripts.mjs*),Bash(npm run scout:sweep*),Bash(npm run scout:enrich*),Bash(npm run scout:query*),Bash(node scripts/scout-*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
       # so the verify step would overwrite the writer's record and the ledger

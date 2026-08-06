@@ -98,3 +98,7 @@ keep.
   path and the deterministic-dates rule.
 - Dates in machine surfaces come from content frontmatter, never
   `Date.now()` — builds must be reproducible.
+- **The event DB** (`signals/db/*.ndjson`, internal, not rendered) is
+  append-only and replayed last-write-wins by id. Write to it only through
+  `npm run scout:sweep` / `npm run scout:enrich` — hand-edited lines corrupt
+  the replay, and `scripts/check-editorial.mjs` gates every line's shape.

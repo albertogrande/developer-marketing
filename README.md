@@ -32,7 +32,7 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 
 Signals in, publication out. Two writers, each a [skill](.claude/skills/) an agent runs end to end.
 
-- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, sweeps blogs, communities, and research into `signals/<week>.md`, promotes qualifying events to the wire (`src/content/wire/`), and patches `src/content/guide/` on hard-fact changes.
+- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, runs the deterministic watchlist sweep (`npm run scout:sweep`) — every new item from the registered feeds and community queries lands in the append-only event DB (`signals/db/<week>.ndjson`) — then triages it into `signals/<week>.md`, enriches notable events with entities/kinds, promotes qualifying events to the wire (`src/content/wire/`), and patches `src/content/guide/` on hard-fact changes. Ask questions over the DB with `npm run scout:query` or the `/intel` skill.
 - **Editor** ([`weekly-editor`](.claude/skills/weekly-editor/)): Mondays, writes the issue to `src/content/issues/` — deciding itself when a week earns a long special issue — does the guide-accuracy pass, reconciles the claims reference (`src/content/claims/`: distill, re-verify the stalest, stamp stale/retired), promotes examples, keeps the skills shelf verified, and processes reader feedback.
 - **Memory**: `editorial/MEMORY.md` tracks threads, special-issue candidates, and guide coverage (capped, gate-enforced); `editorial/COVERAGE.md` is the generated index of everything published; `editorial/TASTE.md` is the reader profile. All internal.
 
@@ -98,7 +98,7 @@ src/
 newsletter/          # the in-house newsletter: capture service, SMTP sender, own MIME/markdown/token libs + tests
 api/                 # Vercel Functions binding the newsletter routes to URLs (static site stays static)
 site.config.mjs      # where the site is served from: SITE_ORIGIN + SITE_BASE, read by the build and the link gates
-signals/             # raw daily capture, one file per ISO week (internal, not rendered)
+signals/             # raw daily capture: <week>.md (curated) + db/<week>.ndjson (the event DB) + entities.json (internal)
 editorial/           # MEMORY.md (threads, candidates) + TASTE.md (reader) + NEWSROOM.md/BACKLOG.md (archived): internal
 MASTHEAD.md          # identity, the two writers, editorial charter
 AUTHORS.md           # ARCHIVE: the retired newsroom's five desks (article bylines still render)
