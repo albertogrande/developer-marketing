@@ -460,7 +460,15 @@ const signals = defineCollection({
     // the feed's title, show notes and guest, it does not listen. A podcast
     // signal says what an episode covers, never asserts a fact stated in audio
     // nobody verified. For a podcast item `company` is the show.
-    kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion', 'podcast']),
+    //
+    // `signal` is the intelligence tier: a pattern the event DB can prove —
+    // three or more dated, sourced events forming a trend — never a single
+    // event and never an unsourced prediction. The summary states the observed
+    // pattern (a composed, verifiable fact); any forward-looking read lives in
+    // the body, explicitly framed as a call, not reported as news. For a
+    // pattern item `company` is the pattern's subject (a company, a category,
+    // or "The field").
+    kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion', 'podcast', 'signal']),
     // The proof: a link to the primary source. Mandatory.
     source: z.object({ label: z.string(), url: z.string().url() }),
     // Supporting links — a teardown, the HN thread, the counter-argument.

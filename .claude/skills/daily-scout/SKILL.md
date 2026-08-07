@@ -304,7 +304,7 @@ One file per item, `src/content/signals/YYYY-MM-DD-company-slug.md`:
 title: <the headline — what happened, no company prefix>
 company: <as they write it>
 date: <the date of THIS run — never the source's publication date>
-kind: news | release | funding | launch | campaign | discussion | podcast
+kind: news | release | funding | launch | campaign | discussion | podcast | signal
 summary: '<exactly two sentences — the item itself>'
 tags: [<reuse existing tags where they fit>]
 source:
@@ -349,6 +349,40 @@ nothing cleared the three criteria, not one to pass over in silence.
 `check-refs.mjs` fails the build on an item missing `company`, `summary`, or
 `source.url` — an unverifiable one-line news claim is a rumour with a company
 name attached.
+
+## Step 3½ — Read the pattern (kind: signal — the intelligence tier)
+
+Signals is not only a log of events; it is the surface where the system shows
+it *sees*. After promoting the day's events, ask the DB whether today's items
+rhyme with something already captured:
+
+```bash
+npm run scout:query -- --entity <slug>       # what has this company been doing?
+npm run scout:query -- --event deprecation   # how many of these lately?
+npm run scout:query -- --topic pricing
+```
+
+Publish a pattern item — `kind: signal` — when **all** of these hold:
+
+- **Three or more dated events**, each with its own primary source, form the
+  pattern. Two is a coincidence; keep it in MEMORY.md as a thread instead.
+- The summary states the pattern as a **composed fact**: "X is the third Y in
+  N weeks", with the count and the window. A reader can check it by clicking.
+- `source` is the newest event's primary source; the other events go in
+  `sources`, one entry each. The pattern's evidence is the links, all of them.
+
+The epistemic line is hard and it is what keeps the intelligence tier honest:
+the **summary** carries only what the events prove happened. Any forward
+read — what this probably means, what to watch for next — lives in the
+**body**, framed explicitly as a call ("The read:", "What to watch:"), so the
+reader always knows whether they are reading the record or the bet. A
+prediction stated as news is the one way this tier can rot; MASTHEAD's
+fact-integrity bar applies to the summary in full.
+
+`company` is the pattern's subject: a company when one drives it, a category
+("Coding agents"), or "The field". Zero pattern items on most days is
+correct — a forced pattern is worse than none. When one lands, note it in
+MEMORY.md so the weekly editor can pick it up for "things to watch".
 
 ## Step 4 — Patch the guide (only for hard, unambiguous facts)
 

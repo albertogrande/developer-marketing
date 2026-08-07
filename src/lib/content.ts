@@ -62,6 +62,7 @@ export const SIGNAL_KIND_LABELS: Record<CollectionEntry<'signals'>['data']['kind
   campaign: 'Campaign',
   discussion: 'Discussion',
   podcast: 'Podcast',
+  signal: 'Pattern',
 };
 
 // ISO-8601 week id for a date — 'YYYY-Www', the same string the issues
