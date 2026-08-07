@@ -173,24 +173,18 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
       <a class="v3-more" href={withBase('/guide')}>open the guide →</a>
     </section>
 
-    {/* Newsletter — a terminal window. The form renders whether or not a
-        capture endpoint is configured; unset, submitting says so honestly
+    {/* Newsletter. Deliberately NOT a terminal: the weekly is a letter, and
+        the chrome already spends the terminal conceit on the wordmark — a
+        second `$` prompt here made the page argue with itself. A plain card,
+        serif headline, no dots and no cursor. The form renders whether or not
+        a capture endpoint is configured; unset, submitting says so honestly
         instead of swallowing the address. */}
     <section class="v3-nl" aria-labelledby="v3-nl-h">
-      <div class="v3-nl-bar" aria-hidden="true">
-        <span class="v3-nl-dot d1"></span>
-        <span class="v3-nl-dot d2"></span>
-        <span class="v3-nl-dot d3"></span>
-        <span class="v3-nl-title">mail — the beat</span>
-      </div>
       <div class="v3-nl-body">
-        <h2 class="v3-nl-cmd" id="v3-nl-h">
-          <span class="amber">$</span> the-beat subscribe <span class="dim">--weekly</span><span class="cur" aria-hidden="true">▌</span>
-        </h2>
+        <h2 class="v3-nl-cmd" id="v3-nl-h">The weekly issue, in your inbox</h2>
         <p class="v3-nl-p">{NEWSLETTER.promise}</p>
         <form class="v3-nl-form" method="post" action={SUBSCRIBE_URL || undefined} data-v3-nl novalidate>
           <label class="sr-only" for="v3-nl-email">Email address</label>
-          <span class="v3-nl-prompt" aria-hidden="true">&gt;</span>
           <input
             class="v3-nl-input"
             id="v3-nl-email"
@@ -212,7 +206,7 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
           <button class="v3-nl-btn" type="submit">subscribe</button>
           <p class="v3-nl-status" role="status" aria-live="polite" data-v3-status></p>
         </form>
-        <p class="v3-nl-fine"># {NEWSLETTER.cadence.toLowerCase()} · double opt-in · no tracking pixels · one-click unsubscribe</p>
+        <p class="v3-nl-fine">{NEWSLETTER.cadence} · double opt-in · no tracking pixels · one-click unsubscribe</p>
       </div>
     </section>
 
