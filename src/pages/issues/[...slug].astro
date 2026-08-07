@@ -30,7 +30,17 @@ const d = entry.data;
 // costs one lookup instead of a second pass by the editor. The digest above is
 // the opinion; this is the record of what happened. Empty for any week that
 // closed before the signals existed, and the section simply doesn't render.
+//
+// Classified by kind, in a fixed reading order — patterns first (the week's
+// intelligence), then the launches and releases, then the rest. Within a
+// group, newest first (the map's order is already date-descending).
 const briefsThisWeek = (await getSignalsByWeek()).get(d.week) ?? [];
+const KIND_ORDER: (typeof briefsThisWeek)[number]['data']['kind'][] = [
+  'signal', 'launch', 'release', 'news', 'funding', 'campaign', 'discussion', 'podcast',
+];
+const linkGroups = KIND_ORDER
+  .map((kind) => ({ kind, label: SIGNAL_KIND_LABELS[kind], items: briefsThisWeek.filter((b) => b.data.kind === kind) }))
+  .filter((g) => g.items.length > 0);
 ---
 <ReadingLayout
   title={d.title}
@@ -64,24 +74,28 @@ const briefsThisWeek = (await getSignalsByWeek()).get(d.week) ?? [];
     <section class="wil">
       <h2 class="wil-h">The week in links</h2>
       <p class="wil-dek">
-        Everything the signals filed in {d.week} — {briefsThisWeek.length} item{briefsThisWeek.length === 1 ? '' : 's'},
-        newest first. The full stream lives at <a href={withBase('/signals')}>the signals</a>.
+        Everything Signals filed in {d.week} — {briefsThisWeek.length} item{briefsThisWeek.length === 1 ? '' : 's'},
+        by section. The full stream lives at <a href={withBase('/signals')}>Signals</a>.
       </p>
-      <ul class="wil-list">
-        {briefsThisWeek.map((b) => (
-          <li class="wil-row">
-            <span class="wil-date">{isoDate(b.data.date).slice(5)}</span>
-            <div class="wil-main">
-              <a href={withBase(`/signals#${b.id}`)} class="wil-t">
-                <b>{b.data.company}</b> — {b.data.title}
-              </a>
-              <span class="wil-chip">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
-              <p class="wil-sum">{b.data.summary}</p>
-              <a class="wil-src" href={b.data.source.url} rel="noopener">{b.data.source.label}</a>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {linkGroups.map((g) => (
+        <section aria-label={g.label}>
+          <h3 class="wil-kind"><span class="amber" aria-hidden="true">##</span> {g.label}{g.items.length > 1 ? ` · ${g.items.length}` : ''}</h3>
+          <ul class="wil-list">
+            {g.items.map((b) => (
+              <li class="wil-row">
+                <span class="wil-date">{isoDate(b.data.date).slice(5)}</span>
+                <div class="wil-main">
+                  <a href={withBase(`/signals#${b.id}`)} class="wil-t">
+                    <b>{b.data.company}</b> — {b.data.title}
+                  </a>
+                  <p class="wil-sum">{b.data.summary}</p>
+                  <a class="wil-src" href={b.data.source.url} rel="noopener">{b.data.source.label}</a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </section>
   )}
 
@@ -111,6 +125,12 @@ const briefsThisWeek = (await getSignalsByWeek()).get(d.week) ?? [];
     font-size: 0.88rem;
     opacity: 0.75;
     margin: 0 0 1rem;
+  }
+  .wil-kind {
+    font-family: var(--mono, monospace);
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    margin: 1.4rem 0 0.2rem;
   }
   .wil-list {
     list-style: none;

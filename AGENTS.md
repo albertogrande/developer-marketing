@@ -43,6 +43,10 @@ Notes for retrieval:
   `llms-full.txt` carries the 30 most recent inline. `kind: podcast` items are
   summarised from an episode page, never from listening — treat any figure in
   one as attributed to the show notes, not verified by this site.
+  `kind: signal` items are patterns, not events: the summary is a composed
+  fact proven by three or more sourced events (all linked in `source` +
+  `sources`); anything forward-looking is confined to the body and framed as
+  a call — read the summary as verified, the body's read as editorial.
 - `claims` are the reference's atomic units. Each carries `since` (the dated
   fact that made it true), `verify` (how to re-check), `status`
   (`current`/`stale`/`retired`) and `checked` (last re-verification) —

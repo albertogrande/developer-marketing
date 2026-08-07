@@ -128,10 +128,26 @@ sources:                 # at least 2 resolving URLs the week's claims rest on
     url: https://...
 ---
 
-<The issue. Do NOT repeat the title as an H1 — the layout renders it. Flowing
-prose with a couple of subheads. A short "## Also this week" of 2–5 one-liners
-for what didn't earn body space. Close with "## One thing to watch" — a
-concrete, falsifiable call.>
+<The issue is the editor's letter — the one place the site speaks in first
+person about the week. Do NOT repeat the title as an H1 — the layout renders
+it. The shape:
+
+1. **The letter opens with the reflection** — the week's throughline, argued,
+   not a table of contents. What moved, why it matters, what to do about it.
+   Flowing prose with a couple of subheads; this is most of the piece.
+2. A short "## Also this week" of 2–5 one-liners for what didn't earn body
+   space.
+3. Close with "## Things to watch" — one to three concrete, falsifiable
+   calls. This is where the intelligence surfaces: any `kind: signal` pattern
+   items Signals published this week belong here (link them), plus the
+   MEMORY.md threads approaching a decision point. Every entry names what
+   would confirm or kill it — a call the reader can't check by a date isn't
+   a call, it's a mood. This section is the hook that carries the reader to
+   next week; write it last, and write it sharp.
+
+Do NOT hand-build a link roundup: the page derives "The week in links" from
+the week's Signals at build time, classified by kind — writing it twice is
+the drift the shared modules exist to prevent.>
 ```
 
 Hard requirements:

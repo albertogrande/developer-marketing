@@ -19,7 +19,7 @@ const lead = issues[0];
 // The signals, grouped into days for the timeline. Capped — the full signals is one
 // click away, and every item here is a real link (no ticker, no animation).
 const signalDays: { date: Date; items: typeof allWire }[] = [];
-for (const b of allWire.slice(0, 8)) {
+for (const b of allWire.slice(0, 14)) {
   const last = signalDays[signalDays.length - 1];
   if (last && isoDate(last.date) === isoDate(b.data.date)) last.items.push(b);
   else signalDays.push({ date: b.data.date, items: [b] });
@@ -123,6 +123,10 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
           <span class="v3-sec-l"><a href={withBase('/signals')}>Signals</a></span>
           <span class="v3-rule" aria-hidden="true"></span>
         </h2>
+        <p class="v3-sec-dek">
+          The pulse — every qualifying event, captured daily from the whole
+          watchlist. Sourced, dated, small companies included.
+        </p>
         <ol class="v3-tl">
           {signalDays.map((day) => (
             <li class="v3-day">
@@ -145,7 +149,7 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
             </li>
           ))}
         </ol>
-        <a class="v3-more" href={withBase('/signals')}>the full signals →</a>
+        <a class="v3-more" href={withBase('/signals')}>all signals →</a>
       </section>
     )}
 
