@@ -46,15 +46,15 @@ export const DESK_LABELS: Record<CollectionEntry<'articles'>['data']['desk'], st
   technology: 'Technology',
 };
 
-// The wire — the event log, newest first. Same tie-break as every other
+// The signals — the event log, newest first. Same tie-break as every other
 // dated collection, which matters here: items land several to a day.
-export const getWireSorted = memo(async () =>
-  (await getCollection('wire')).sort(entryByDateDesc)
+export const getSignalsSorted = memo(async () =>
+  (await getCollection('signals')).sort(entryByDateDesc)
 );
 
-// Wire kind → display label, in one place so the card chip, the JSON endpoint
+// Signals kind → display label, in one place so the card chip, the JSON endpoint
 // and llms.txt describe an item identically.
-export const WIRE_KIND_LABELS: Record<CollectionEntry<'wire'>['data']['kind'], string> = {
+export const SIGNAL_KIND_LABELS: Record<CollectionEntry<'signals'>['data']['kind'], string> = {
   news: 'News',
   release: 'Release',
   funding: 'Funding',
@@ -67,19 +67,19 @@ export const WIRE_KIND_LABELS: Record<CollectionEntry<'wire'>['data']['kind'], s
 // ISO-8601 week id for a date — 'YYYY-Www', the same string the issues
 // collection uses as its id and the scout uses for signals/<week>.md. Matches
 // `date -u +%G-W%V` exactly, year boundaries included (2027-01-03 → 2026-W53),
-// which is what lets an issue find its own wire items by id alone. The
+// which is what lets an issue find its own signals by id alone. The
 // implementation lives in ./dates.mjs (pure, `node --test`-pinned); imported
 // (not just re-exported) because this module uses it below.
 import { isoWeekId } from './dates.mjs';
 export { isoWeekId };
 
-// ISO week id → the wire items published in it, newest first. The weekly
+// ISO week id → the signals published in it, newest first. The weekly
 // issue reads this to render "The week in links" without anyone writing the
 // roundup a second time: the items already carry company, two sentences and a
 // source.
-export const getWireByWeek = memo(async (): Promise<Map<string, CollectionEntry<'wire'>[]>> => {
-  const map = new Map<string, CollectionEntry<'wire'>[]>();
-  for (const entry of await getWireSorted()) {
+export const getSignalsByWeek = memo(async (): Promise<Map<string, CollectionEntry<'signals'>[]>> => {
+  const map = new Map<string, CollectionEntry<'signals'>[]>();
+  for (const entry of await getSignalsSorted()) {
     const key = isoWeekId(entry.data.date);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(entry);
@@ -235,7 +235,7 @@ export const getGuideGraph = memo(async () => {
 // archived newsroom, deep dives and radar), newest first, one shape. Both
 // feeds read this; the guide is deliberately absent (it mutates continuously
 // — its freshness is carried by sitemap lastmod, api.json, and llms.txt
-// dates instead) and so is the wire (short items would drown the prose).
+// dates instead) and so is the signals (short items would drown the prose).
 export type FeedItem = {
   title: string;
   summary: string;
@@ -306,13 +306,13 @@ export type TaggedEntry =
   | { kind: 'example'; entry: CollectionEntry<'examples'> }
   | { kind: 'resource'; entry: CollectionEntry<'resources'> }
   | { kind: 'skill'; entry: CollectionEntry<'skills'> }
-  | { kind: 'wire'; entry: CollectionEntry<'wire'> }
+  | { kind: 'signals'; entry: CollectionEntry<'signals'> }
   | { kind: 'radar'; entry: CollectionEntry<'radar'> };
 
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [issues, articles, dives, claims, examples, resources, skills, wire, radar] =
+  const [issues, articles, dives, claims, examples, resources, skills, signals, radar] =
     await Promise.all([
       getIssuesSorted(),
       getArticlesSorted(),
@@ -321,7 +321,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
       getExamplesSorted(),
       getResourcesSorted(),
       getSkillsSorted(),
-      getWireSorted(),
+      getSignalsSorted(),
       getRadarSorted(),
     ]);
   const map = new Map<string, TaggedEntry[]>();
@@ -336,7 +336,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
   for (const entry of examples) for (const t of entry.data.tags) add(t, { kind: 'example', entry });
   for (const entry of resources) for (const t of entry.data.tags) add(t, { kind: 'resource', entry });
   for (const entry of skills) for (const t of entry.data.tags) add(t, { kind: 'skill', entry });
-  for (const entry of wire) for (const t of entry.data.tags) add(t, { kind: 'wire', entry });
+  for (const entry of signals) for (const t of entry.data.tags) add(t, { kind: 'signals', entry });
   for (const entry of radar) for (const t of entry.data.tags) add(t, { kind: 'radar', entry });
   return map;
 });

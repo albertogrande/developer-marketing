@@ -25,7 +25,7 @@ type Kind =
   | 'articles'
   | 'issues'
   | 'deep-dives'
-  | 'wire'
+  | 'signals'
   | 'radar'
   | 'claims'
   | 'examples'
@@ -37,7 +37,7 @@ type AnyEntry =
   | CollectionEntry<'articles'>
   | CollectionEntry<'issues'>
   | CollectionEntry<'deep-dives'>
-  | CollectionEntry<'wire'>
+  | CollectionEntry<'signals'>
   | CollectionEntry<'radar'>
   | CollectionEntry<'claims'>
   | CollectionEntry<'examples'>
@@ -51,7 +51,7 @@ const GALLERY: Partial<Record<Kind, true>> = {
   examples: true,
   skills: true,
   resources: true,
-  wire: true,
+  signals: true,
 };
 
 const linkList = (items: { label: string; url: string }[]) =>
@@ -81,7 +81,7 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     if (d.verified) fm.verified = isoDate(d.verified);
   }
   if (kind === 'examples') fm.company = d.company;
-  if (kind === 'wire') {
+  if (kind === 'signals') {
     fm.company = d.company;
     fm.kind = d.kind;
   }
@@ -126,7 +126,7 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
       ''
     );
   }
-  if (kind === 'wire') {
+  if (kind === 'signals') {
     parts.push(
       `- **Company**: ${d.company}`,
       `- **Kind**: ${d.kind}`,

@@ -1,36 +1,36 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase, fmtWeekRange, isoDate } from '../lib/site';
-import { getGuideSorted, getIssuesSorted, getWireSorted, WIRE_KIND_LABELS } from '../lib/content';
+import { getGuideSorted, getIssuesSorted, getSignalsSorted, SIGNAL_KIND_LABELS } from '../lib/content';
 import { NEWSLETTER, NEWSLETTER_LIVE, SUBSCRIBE_URL } from '../lib/newsletter';
 
 // Front v3 — one column, three markdown-headed sections: ## The Beat (the
-// week's issue), ## The Wire (the event timeline), ## The Guide (the
+// week's issue), ## Signals (the event timeline), ## The Guide (the
 // reference index), then the newsletter form. The previous front (v2) is
 // backed up in design-backups/2026-08-06-front-v2/.
 const [guide, issues, allWire] = await Promise.all([
   getGuideSorted(),
   getIssuesSorted(),
-  getWireSorted(),
+  getSignalsSorted(),
 ]);
 
 const lead = issues[0];
 
-// The wire, grouped into days for the timeline. Capped — the full wire is one
+// The signals, grouped into days for the timeline. Capped — the full signals is one
 // click away, and every item here is a real link (no ticker, no animation).
-const wireDays: { date: Date; items: typeof allWire }[] = [];
+const signalDays: { date: Date; items: typeof allWire }[] = [];
 for (const b of allWire.slice(0, 8)) {
-  const last = wireDays[wireDays.length - 1];
+  const last = signalDays[signalDays.length - 1];
   if (last && isoDate(last.date) === isoDate(b.data.date)) last.items.push(b);
-  else wireDays.push({ date: b.data.date, items: [b] });
+  else signalDays.push({ date: b.data.date, items: [b] });
 }
 
-// The source domain is trust furniture: shown on every wire row so "sourced,
+// The source domain is trust furniture: shown on every signals row so "sourced,
 // dated, verified" is visible on the front, not just claimed on /about.
 const srcHost = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 
-// One line per event. The wire's summaries run two full sentences — right on
-// /wire, a wall in a timeline — so the front shows the opening sentence cut to
+// One line per event. The signals' summaries run two full sentences — right on
+// /signals, a wall in a timeline — so the front shows the opening sentence cut to
 // what fits on one line at this width. It closes on a clause boundary and ends
 // in a full stop: a short true sentence, never a trailing "…". 108 chars is
 // the budget at 12px JetBrains Mono inside the 940px wrap.
@@ -116,25 +116,25 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
       )}
     </section>
 
-    {wireDays.length > 0 && (
-      <section aria-labelledby="v3-wire-h">
-        <h2 class="v3-sec" id="v3-wire-h">
+    {signalDays.length > 0 && (
+      <section aria-labelledby="v3-signals-h">
+        <h2 class="v3-sec" id="v3-signals-h">
           <span class="amber" aria-hidden="true">##</span>
-          <span class="v3-sec-l"><a href={withBase('/wire')}>The Wire</a></span>
+          <span class="v3-sec-l"><a href={withBase('/signals')}>Signals</a></span>
           <span class="v3-rule" aria-hidden="true"></span>
         </h2>
         <ol class="v3-tl">
-          {wireDays.map((day) => (
+          {signalDays.map((day) => (
             <li class="v3-day">
               <p class="v3-day-d">{isoDate(day.date)}</p>
               <ul class="v3-day-list">
                 {day.items.map((b) => (
                   <li class="v3-ev" data-date={isoDate(b.data.date)}>
-                    <a class="v3-ev-t" href={withBase(`/wire#${b.id}`)}>
+                    <a class="v3-ev-t" href={withBase(`/signals#${b.id}`)}>
                       <span class="v3-ev-co">{b.data.company}</span>: {b.data.title}
                     </a>
                     <p class="v3-ev-m">
-                      <span class="fd-beatlabel">{WIRE_KIND_LABELS[b.data.kind]}</span>
+                      <span class="fd-beatlabel">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
                       <span class="dim" aria-hidden="true">·</span>
                       <a class="v3-ev-src" href={b.data.source.url} rel="noopener">{srcHost(b.data.source.url)} ↗</a>
                     </p>
@@ -145,7 +145,7 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
             </li>
           ))}
         </ol>
-        <a class="v3-more" href={withBase('/wire')}>the full wire →</a>
+        <a class="v3-more" href={withBase('/signals')}>the full signals →</a>
       </section>
     )}
 
@@ -213,7 +213,7 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
     </section>
 
     <footer class="fm-keys">
-      <a href={withBase('/wire')}><b>g&thinsp;i</b> the wire</a>
+      <a href={withBase('/signals')}><b>g&thinsp;i</b> signals</a>
       <a href={withBase('/issues')}><b>g&thinsp;w</b> the week</a>
       <a href={withBase('/guide')}><b>g&thinsp;g</b> guide</a>
       <a href={withBase('/claims')}><b>g&thinsp;c</b> claims</a>

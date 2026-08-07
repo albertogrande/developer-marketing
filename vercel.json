@@ -6,11 +6,14 @@
     }
   ],
   "redirects": [
-    { "source": "/briefs.json", "destination": "/wire.json", "permanent": true },
+    { "source": "/briefs.json", "destination": "/signals.json", "permanent": true },
+    { "source": "/wire.json", "destination": "/signals.json", "permanent": true },
     { "source": "/weekly.json", "destination": "/issues.json", "permanent": true },
     { "source": "/practices.json", "destination": "/claims.json", "permanent": true },
-    { "source": "/briefs", "destination": "/wire", "permanent": true },
-    { "source": "/briefs/:path*", "destination": "/wire/:path*", "permanent": true },
+    { "source": "/briefs", "destination": "/signals", "permanent": true },
+    { "source": "/briefs/:path*", "destination": "/signals/:path*", "permanent": true },
+    { "source": "/wire", "destination": "/signals", "permanent": true },
+    { "source": "/wire/:path*", "destination": "/signals/:path*", "permanent": true },
     { "source": "/weekly", "destination": "/issues", "permanent": true },
     { "source": "/weekly/:path*", "destination": "/issues/:path*", "permanent": true },
     { "source": "/practices", "destination": "/claims", "permanent": true },

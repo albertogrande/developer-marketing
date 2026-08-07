@@ -74,7 +74,7 @@ artifact so a retry costs the run, not the writing. Composite steps live in
 `.github/actions/` precisely so they can't drift per workflow.
 
 The content model stores knowledge by kind, not prose form. The scout promotes
-qualifying signals to `src/content/wire/` (the event log — one company, two
+qualifying signals to `src/content/signals/` (the published Signals feed — one company, two
 sentences, a mandatory `source`; **traction is explicitly not a promotion
 criterion**, because ranking by reach is what silently drops the indie tail).
 The editor writes the weekly issue to `src/content/issues/` — normally short,
@@ -93,7 +93,7 @@ whether or not anything is written about it. The scout enriches notable
 events (entities from `signals/entities.json`, an event kind, topics) through
 `scout:enrich` — never by editing NDJSON directly — and `scout:query`/the
 `/intel` skill answer questions over the merged log. Raw capture is not
-verification; only the wire and the issues pass the fact-integrity bar.
+verification; only published signals and the issues pass the fact-integrity bar.
 
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
 capture), `editorial/MEMORY.md` (running threads, special-issue candidates),
@@ -162,7 +162,7 @@ Prefer editing these over inlining a second copy of the same knowledge:
 
 The charter is in `MASTHEAD.md` and it is load-bearing, not decoration. The
 three that most often catch a change: publishing is **criteria, not a quota**
-(a quiet wire day and a normal-length issue are successful runs); every
+(a thin signals day and a normal-length issue are successful runs); every
 load-bearing claim carries a public source and single-sourced claims say so
 inline; **nothing is for sale** — no sponsored slots, no affiliate links, no
 paid placement, including in `src/content/resources/`.

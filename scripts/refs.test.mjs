@@ -13,7 +13,7 @@ const resolves = makeResolver({
     issues: new Set(['2026-W28']),
     articles: new Set(['2026-07-20-story']),
     'deep-dives': new Set(['2026-07-06-dive']),
-    wire: new Set(['2026-07-28-acme']),
+    signals: new Set(['2026-07-28-acme']),
     radar: new Set(['old-entry']),
     claims: new Set(['quickstart-under-five']),
     examples: new Set(['acme-changelog']),
@@ -46,7 +46,7 @@ test('gallery anchors resolve against gallery ids', () => {
   assert.ok(resolves('/examples#acme-changelog'));
   assert.ok(resolves('/skills#review-skill'));
   assert.ok(resolves('/resources#devrel-book'));
-  assert.ok(resolves('/wire#2026-07-28-acme'));
+  assert.ok(resolves('/signals#2026-07-28-acme'));
   assert.ok(!resolves('/claims#nope'));
 });
 
@@ -104,5 +104,5 @@ test('sourcing floor: zero sources reported as a count problem', () => {
 
 test('sourcing floor: other collections are exempt', () => {
   assert.deepEqual(sourcingProblems('issues', {}, 'f.md', independentHostCount), []);
-  assert.deepEqual(sourcingProblems('wire', {}, 'f.md', independentHostCount), []);
+  assert.deepEqual(sourcingProblems('signals', {}, 'f.md', independentHostCount), []);
 });

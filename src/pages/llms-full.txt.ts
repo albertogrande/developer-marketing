@@ -10,7 +10,7 @@ import {
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWireSorted,
+  getSignalsSorted,
   RESOURCE_CATEGORY_LABELS,
 } from '../lib/content';
 
@@ -20,12 +20,12 @@ import {
 // engines actually cite (issues 8, archived articles 12, dives 4) and as
 // dated links to their .md siblings beyond it; the radar archive links-only.
 
-// Wire items are the exception to the "recent in full, older as links"
+// Signals items are the exception to the "recent in full, older as links"
 // treatment: each is already two sentences, so the recent window carries them
-// inline and older ones are left to /wire.json and llms.txt rather than
-// link-listed here — the wire grows faster than any other strand and would
+// inline and older ones are left to /signals.json and llms.txt rather than
+// link-listed here — the signals grows faster than any other strand and would
 // crowd out the corpus this file exists to serve.
-const RECENT = { issues: 8, articles: 12, dives: 4, wire: 30 };
+const RECENT = { issues: 8, articles: 12, dives: 4, signals: 30 };
 
 export const GET: APIRoute = async () => {
   const abs = absUrl;
@@ -39,7 +39,7 @@ export const GET: APIRoute = async () => {
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
-  const wire = await getWireSorted();
+  const signals = await getSignalsSorted();
 
   const out: string[] = [];
   out.push('# The Beat — developer marketing, on the record (full text)');
@@ -210,20 +210,20 @@ export const GET: APIRoute = async () => {
     (id) => `/issues/${id}`,
     RECENT.issues
   );
-  if (wire.length) {
+  if (signals.length) {
     out.push('');
     out.push('---');
     out.push('');
-    out.push('# The Wire');
+    out.push('# Signals');
     out.push('');
     out.push(
-      `The event log — short dated items, newest first (most recent ${Math.min(wire.length, RECENT.wire)} of ${wire.length}). Full set: ${abs('/wire.json')}.`
+      `The event log — short dated items, newest first (most recent ${Math.min(signals.length, RECENT.signals)} of ${signals.length}). Full set: ${abs('/signals.json')}.`
     );
-    for (const b of wire.slice(0, RECENT.wire)) {
+    for (const b of signals.slice(0, RECENT.signals)) {
       out.push('');
       out.push(`## ${b.data.company}: ${b.data.title}`);
       out.push(
-        `*${isoDate(b.data.date)}${b.data.updated ? ` · updated ${isoDate(b.data.updated)}` : ''} · ${b.data.kind} · ${abs(`/wire`)}#${b.id}*`
+        `*${isoDate(b.data.date)}${b.data.updated ? ` · updated ${isoDate(b.data.updated)}` : ''} · ${b.data.kind} · ${abs(`/signals`)}#${b.id}*`
       );
       out.push('');
       out.push(b.data.summary);

@@ -10,7 +10,7 @@ import {
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWireSorted,
+  getSignalsSorted,
 } from '../lib/content';
 
 // /api.json — the machine front door: one fetch that enumerates every
@@ -21,13 +21,13 @@ import {
 const REPO = 'https://github.com/albertogrande/developer-marketing';
 
 export const GET: APIRoute = async () => {
-  const [guide, articles, issues, dives, wire, radar, claims, examples, skills, resources] =
+  const [guide, articles, issues, dives, signals, radar, claims, examples, skills, resources] =
     await Promise.all([
       getGuideSorted(),
       getArticlesSorted(),
       getIssuesSorted(),
       getDivesSorted(),
-      getWireSorted(),
+      getSignalsSorted(),
       getRadarSorted(),
       getClaimsSorted(),
       getExamplesSorted(),
@@ -73,7 +73,7 @@ export const GET: APIRoute = async () => {
       'Content is CC BY 4.0: quote it, link the canonical page, credit "The Beat".',
     cadence: {
       scout:
-        'daily 05:00 UTC (internal signals; promotes qualifying items to the wire; patches the guide when a fact changes)',
+        'daily 05:00 UTC (internal signals; promotes qualifying items to the signals; patches the guide when a fact changes)',
       editor:
         'Mon 07:00 UTC (writes the weekly issue — occasionally a long special; full guide-accuracy pass; reconciles the claims reference)',
     },
@@ -83,7 +83,7 @@ export const GET: APIRoute = async () => {
         ...articles,
         ...issues,
         ...dives,
-        ...wire,
+        ...signals,
         ...radar,
         ...claims,
         ...examples,
@@ -128,10 +128,10 @@ export const GET: APIRoute = async () => {
         description:
           'ARCHIVE — long-form researched pieces (2026-07). No new entries; depth now ships as a long special issue.',
       }),
-      wire: collection('wire', wire, {
+      signals: collection('signals', signals, {
         pages: false,
         description:
-          'The wire — the event log: one company, one thing that happened, two sentences, and a mandatory primary source. No paid placements.',
+          'The signals — the event log: one company, one thing that happened, two sentences, and a mandatory primary source. No paid placements.',
       }),
       claims: collection('claims', claims, {
         pages: false,

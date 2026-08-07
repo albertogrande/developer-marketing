@@ -8,7 +8,7 @@
 // The DB is capture, not published claims — its URLs are deliberately outside
 // check-sources.mjs's liveness gate (which is .md-only): link-checking a
 // firehose would drown the gate, and nothing here ships to a reader without
-// first passing through the wire's own rules.
+// first passing through the signals' own rules.
 //
 // Usage:
 //   npm run scout:sweep                    # last 2 days, append + triage

@@ -13,7 +13,7 @@ const glob = (opts: Parameters<typeof globLoader>[0]) =>
 // The content model stores knowledge by kind, not by prose form. Two
 // primitives, one written prose form, one directory — plus read-only archives.
 //
-//  wire/     — the event log, and the only time-based storage going forward.
+//  signals/     — the event log, and the only time-based storage going forward.
 //              One file per dated, sourced fact: one company, one thing that
 //              happened, two sentences, a link. A small company whose news
 //              can't carry 900 words still gets covered here — traction is
@@ -432,21 +432,21 @@ const skills = defineCollection({
   }),
 });
 
-// wire/ — the event log. The smallest publishable unit: a company, what it
+// signals/ — the event log. The smallest publishable unit: a company, what it
 // did, two sentences, and the link that proves it. Deliberately not prose —
 // no byline, no take. `source` is mandatory for the same reason it is on
 // examples/: a one-line news claim nobody can go check is a rumour. The
 // stream is where the small-company tail lands, so the bar is "it happened
 // and here is where to verify it" — traction is not a criterion.
-const wire = defineCollection({
-  loader: glob({ pattern: '*.md', base: './src/content/wire' }),
+const signals = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/signals' }),
   schema: z.object({
     // The headline — what happened, in the site's voice, no company prefix
     // (the company renders as its own field on the card).
     title: z.string(),
     // The company the news is about, written as they write it.
     company: z.string(),
-    // The day the item entered the wire. For something surfaced late, this is
+    // The day the item entered the signals. For something surfaced late, this is
     // the capture date and the body says when it originally shipped.
     date: z.coerce.date(),
     // Optional revision stamp when an item is corrected after publication.
@@ -458,7 +458,7 @@ const wire = defineCollection({
     //
     // `podcast` is a deliberately weaker claim than the rest: the scout reads
     // the feed's title, show notes and guest, it does not listen. A podcast
-    // wire item says what an episode covers, never asserts a fact stated in audio
+    // signal says what an episode covers, never asserts a fact stated in audio
     // nobody verified. For a podcast item `company` is the show.
     kind: z.enum(['news', 'release', 'funding', 'launch', 'campaign', 'discussion', 'podcast']),
     // The proof: a link to the primary source. Mandatory.
@@ -501,7 +501,7 @@ const radar = defineCollection({
 export const collections = {
   guide,
   issues,
-  wire,
+  signals,
   claims,
   articles,
   'deep-dives': deepDives,

@@ -1,6 +1,6 @@
 ---
 name: daily-scout
-description: Daily developer-marketing capture — run the deterministic watchlist sweep into the event DB (signals/db/), triage it plus targeted searches into dated one-liners in signals/<week>.md, enrich notable events with entities and kinds, publish qualifying items to the wire, and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
+description: Daily developer-marketing capture — run the deterministic watchlist sweep into the event DB (signals/db/), triage it plus targeted searches into dated one-liners in signals/<week>.md, enrich notable events with entities and kinds, publish qualifying items to Signals (src/content/signals/), and patch the guide the moment a hard fact changes. Use when asked to run the scout or capture today's developer-marketing signals.
 argument-hint: [optional focus, e.g. "DevRel metrics" or "docs-led growth"]
 ---
 
@@ -244,9 +244,9 @@ Add **3–10 lines** under a `## <TODAY>` heading. One line each:
   new: append `## <TODAY>` with `- (quiet day)` so the editor knows you ran.
 - No takes beyond a clause. The weekly editor verifies and opines.
 
-## Step 3 — Promote what qualifies to the wire
+## Step 3 — Promote what qualifies to Signals
 
-Signals are internal; `src/content/wire/` is the published wire — the event
+The `signals/` directory at the repo root is internal raw capture; `src/content/signals/` is the published Signals feed — the event
 log, and the only place dated news lands. It exists so that a small company
 whose news can't carry long-form prose still gets covered, and so every
 qualifying event reaches a reader the same day.
@@ -266,7 +266,7 @@ Promote a signal when **all** of these hold:
 
 - Something **happened** — a company shipped, launched, raised, renamed,
   deprecated, or published something. A think-piece with no event behind it is
-  a signal, not a wire item.
+  an internal signal, not a published one.
 - There is a **primary source** you opened: the changelog, the blog post, the
   Show HN thread, the filing. Not a write-up about a write-up.
 - You can say what happened in **two sentences** without hedging into vagueness.
@@ -286,9 +286,9 @@ Neither is **significance**, and it is the filter that creeps back in wearing
 other clothes. These are **not** reasons to hold an item:
 
 - no adoption numbers, no named customers, "just a press release" — a shipped
-  product with a primary source is a wire item, whether or not anyone bit yet;
+  product with a primary source is a publishable signal, whether or not anyone bit yet;
 - "routine," "incremental," or "another entrant in a category we've covered" —
-  the wire is an event log, and the third entrant is what makes it a trend;
+  Signals is an event log, and the third entrant is what makes it a trend;
 - a podcast episode with no transcript yet — `kind: podcast` is summarised from
   the episode page, and the note says so (see below);
 - the item is small, or you can't yet tell whether it matters. The weekly editor
@@ -297,7 +297,7 @@ other clothes. These are **not** reasons to hold an item:
 The honest reject is "nothing happened" or "I couldn't open a primary source."
 If you are reaching for a different sentence, promote it.
 
-One file per item, `src/content/wire/YYYY-MM-DD-company-slug.md`:
+One file per item, `src/content/signals/YYYY-MM-DD-company-slug.md`:
 
 ```markdown
 ---
@@ -329,7 +329,7 @@ only cleared today's sweep, the date is today; put the ship date in the summary
 
 Backdating is the failure mode to watch for, because it hides working runs: an
 item filed under the publisher's date makes the day it was actually captured
-look empty, and the wire look like it skipped. Two sentences that name the ship
+look empty, and Signals look like it skipped. Two sentences that name the ship
 date carry that information without moving the file.
 
 For `kind: podcast`, `company` is **the show**, not the guest's employer, and
@@ -337,12 +337,12 @@ the note should state plainly that the item was summarised from the episode
 page rather than from listening. The guest and their company belong in the
 summary.
 
-**Several wire items a day is the normal outcome**, not a good one. The
+**Several published signals a day is the normal outcome**, not a good one. The
 watchlist captures on the order of a hundred-plus events a day across news,
 launches, changelogs, Show HN, podcasts and vendor blogs; on that volume, a
 run that promotes nothing has usually mis-set the bar rather than met a quiet
 day. Publishing is still criteria and not a quota — a genuinely thin day is a
-real thing and you must never pad the wire to hit a number — but zero is a
+real thing and you must never pad the feed to hit a number — but zero is a
 result to explain in the sourcing note, naming what you looked at and why
 nothing cleared the three criteria, not one to pass over in silence.
 
@@ -382,6 +382,6 @@ Keep it terse; the weekly editor does the full maintenance pass.
 ## Step 6 — Report
 
 End with a short plain-text summary: how many signals you captured (filename),
-how many wire items you published and which signals you left unpromoted, which
+how many signals you published and which signals you left unpromoted, which
 guide sections you patched and why, and anything you left out because you
 couldn't confirm it. Do **not** run git — the workflow commits and deploys.

@@ -66,7 +66,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
     <rect x="${cursorX}" y="232" width="30" height="56" fill="${CURSOR}"/>
     <text x="${WORDMARK_X}" y="360" font-size="34" fill="${AMBER_SOFT}">${TAGLINE}</text>
     <text x="${WORDMARK_X}" y="428" font-size="24" fill="${MUTED}">positioning · docs · devrel · dx · distribution</text>
-    <text x="${WORDMARK_X}" y="466" font-size="24" fill="${MUTED}">the wire, one weekly issue, and a guide kept current</text>
+    <text x="${WORDMARK_X}" y="466" font-size="24" fill="${MUTED}">daily signals, one weekly issue, and a guide kept current</text>
     <text x="${WORDMARK_X}" y="504" font-size="24" fill="${MUTED}">by an autonomous agent — every claim sourced</text>
     <text x="${WORDMARK_X}" y="576" font-size="26" fill="${FAINT}">${HOST}</text>
   </g>

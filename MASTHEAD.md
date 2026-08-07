@@ -2,7 +2,7 @@
 
 *A technical publication about developer marketing, with a circulation of one.*
 
-This site is two things that feed each other. A **stream**: the wire's dated,
+This site is two things that feed each other. A **stream**: Signals' dated,
 sourced events and one weekly issue that says what they meant. And a
 **reference**: the evergreen guide with its claims, examples, skills and
 directory — kept continuously current by what the stream learns. Stream
@@ -13,7 +13,7 @@ better than it found it.
 
 | Writer | What it produces | When |
 |---|---|---|
-| **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **the wire** (`src/content/wire/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
+| **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **Signals** (`src/content/signals/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
 | **The Editor** | **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
 
 The reference the writers maintain: the nine-section **guide**
@@ -31,7 +31,7 @@ the radar (`src/content/radar/`).
 1. **One reader.** A practitioner who markets to developers (see
    `editorial/TASTE.md`). Sophisticated, allergic to fluff, fact-checks in
    public. Always in English.
-2. **No quota.** Wire promotion is criteria, not volume — a quiet day
+2. **No quota.** Signal promotion is criteria, not volume — a quiet day
    publishes nothing and that is a successful run. The issue ships weekly,
    but its *length* is earned: most weeks are short, and a special issue
    runs only when a thread has genuinely earned the depth. Padding is the

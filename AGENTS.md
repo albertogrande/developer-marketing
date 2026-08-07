@@ -20,7 +20,7 @@ https://thebeat.dev/api.json
 | Curated index | `/llms.txt` | llmstxt.org-style index of all entries, linking raw markdown |
 | One-fetch corpus | `/llms-full.txt` | Evergreen collections in full + recent dated pieces |
 | Raw markdown | `/<collection>/<id>.md` | Self-contained sibling of every entry (canonical, dates, license, sources inside) |
-| Structured JSON | `/guide.json` `/claims.json` `/examples.json` `/skills.json` `/wire.json` `/issues.json` `/resources.json` `/articles.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
+| Structured JSON | `/guide.json` `/claims.json` `/examples.json` `/skills.json` `/signals.json` `/issues.json` `/resources.json` `/articles.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
 | Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Long-form dated pieces (issues + the archived articles, dives, radar), full content, honest updated stamps |
 | Sitemap | `/sitemap-index.xml` | Every page, trailing-slash canonical form, per-page lastmod |
 
@@ -33,13 +33,13 @@ Notes for retrieval:
   citations, license).
 - The `.md` siblings are the cheap form: same content, a fraction of the
   tokens, canonical URL in the frontmatter.
-- `claims`, `examples`, `skills`, `resources`, and `wire` have no
+- `claims`, `examples`, `skills`, `resources`, and `signals` have no
   standalone pages — cite them as `/claims/#<id>` (etc.) anchors; their
   `.md` siblings say so.
-- `wire` is the event log: one company, one thing that happened, two
+- `signals` is the event log: one company, one thing that happened, two
   sentences, and a mandatory `source` — so quiet news days and small
   companies still get covered. Deliberately **not** in `/feed.xml` or
-  `/feed.json`, which stay long-form; read `/wire.json` for the full set.
+  `/feed.json`, which stay long-form; read `/signals.json` for the full set.
   `llms-full.txt` carries the 30 most recent inline. `kind: podcast` items are
   summarised from an episode page, never from listening — treat any figure in
   one as attributed to the show notes, not verified by this site.
@@ -48,8 +48,8 @@ Notes for retrieval:
   (`current`/`stale`/`retired`) and `checked` (last re-verification) —
   filter on `status` before relying on one; retired claims stay published so
   anchors keep resolving.
-- Each weekly issue renders **The week in links**: every wire item filed in
-  that ISO week, derived from `wire` at build time rather than written twice.
+- Each weekly issue renders **The week in links**: every signal filed in
+  that ISO week, derived from `signals` at build time rather than written twice.
 - `articles`, `deep-dives` and `radar` are **closed archives** — still
   served, never extended.
 - Freshness fields: `date` (published), `updated` (revised), `verified`
@@ -66,7 +66,7 @@ with the claim and a checkable public source. The weekly editorial run
 re-verifies it, patches the piece with an `updated:` stamp, and answers the
 issue. Softer signals go to the `reader-feedback` label.
 
-**Cadence** (UTC): scout daily 05:00 (writes the wire; patches the guide when
+**Cadence** (UTC): scout daily 02:50 (writes Signals; patches the guide when
 facts change); editor Mon 07:00 (the weekly issue — occasionally a long
 special — plus the full accuracy pass and claims reconciliation). If your
 cache is older than a day, refetch.

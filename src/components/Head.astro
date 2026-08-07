@@ -50,7 +50,7 @@ const sitePath = stripBase(Astro.url.pathname);
 const mdMatch = sitePath.match(/^\/(guide|articles|issues|deep-dives|radar)\/([^/]+)\/?$/);
 const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
 const jsonMatch = sitePath.match(
-  /^\/(guide|articles|issues|deep-dives|radar|claims|examples|skills|resources|wire)\/?$/
+  /^\/(guide|articles|issues|deep-dives|radar|claims|examples|skills|resources|signals)\/?$/
 );
 const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 
@@ -64,7 +64,7 @@ const SECTION_LABELS: Record<string, string> = {
   'deep-dives': 'Deep Dives archive',
   radar: 'Radar archive',
   claims: 'Claims',
-  wire: 'The Wire',
+  signals: 'Signals',
   examples: 'Examples',
   skills: 'Skills',
   resources: 'Resources',

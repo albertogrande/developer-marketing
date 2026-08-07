@@ -41,7 +41,7 @@ const claimIds = ids('src/content/claims');
 const exampleIds = ids('src/content/examples');
 const skillIds = ids('src/content/skills');
 const resourceIds = ids('src/content/resources');
-const wireIds = ids('src/content/wire');
+const signalIds = ids('src/content/signals');
 const radarIds = ids('src/content/radar');
 
 // Frontmatter parsing and the src/pages route table live in ./lib/routes.mjs,
@@ -53,7 +53,7 @@ const STATIC_ROUTES = pageRoutes();
 const tags = new Set();
 
 const entries = [];
-for (const dir of ['guide', 'issues', 'articles', 'deep-dives', 'wire', 'claims', 'examples', 'skills', 'resources', 'radar']) {
+for (const dir of ['guide', 'issues', 'articles', 'deep-dives', 'signals', 'claims', 'examples', 'skills', 'resources', 'radar']) {
   for (const f of mdFiles(`src/content/${dir}`)) {
     const file = `src/content/${dir}/${f}`;
     entries.push({ dir, file, ...frontmatterOf(file) });
@@ -72,7 +72,7 @@ const resolves = makeResolver({
     issues: issueIds,
     articles: articleIds,
     'deep-dives': diveIds,
-    wire: wireIds,
+    signals: signalIds,
     radar: radarIds,
     claims: claimIds,
     examples: exampleIds,
@@ -111,10 +111,10 @@ for (const { dir, file, fm, body, err } of entries) {
     if (!fm.source?.url) problems.push(`${file}: missing source.url`);
     if (!fm.verified) problems.push(`${file}: missing verified date`);
   }
-  // A wire item is a one-line news claim with no byline behind it, so the
+  // A signal is a one-line news claim with no byline behind it, so the
   // primary source is the only thing making it checkable. Missing it, the
   // item is a rumour with a company name attached — fail the build.
-  if (dir === 'wire') {
+  if (dir === 'signals') {
     if (!fm.company) problems.push(`${file}: missing company`);
     if (!fm.summary) problems.push(`${file}: missing summary — the item is the summary`);
     if (!fm.source?.url) problems.push(`${file}: missing source.url — an unverifiable item is a rumour`);
@@ -160,5 +160,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check-refs: ok — ${claimIds.size} claims, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${issueIds.size} issues, ${wireIds.size} wire items, ${articleIds.size} archived articles, ${diveIds.size} archived dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
+  `check-refs: ok — ${claimIds.size} claims, ${exampleIds.size} examples, ${skillIds.size} skills, ${resourceIds.size} resources, ${guideIds.size} guide sections, ${issueIds.size} issues, ${signalIds.size} signals, ${articleIds.size} archived articles, ${diveIds.size} archived dives, ${radarIds.size} radar entries, ${tags.size} tags, ${STATIC_ROUTES.size} static routes.`
 );

@@ -19,7 +19,7 @@ open loops here, not the narrative. This is the brain that keeps the
   (internal, daily) + The Beat (Mondays). Radar is closed — never add.
 - **2026-08-06, two writers**: the newsroom (daily articles) and the deep
   dive retired; `src/content/articles/` and `src/content/deep-dives/` are
-  archives. Events → the wire (scout, daily); analysis → the weekly issue
+  archives. Events → Signals (scout, daily); analysis → the weekly issue
   (editor, Mondays), which runs long as a **special issue** when a thread
   earned depth. Claims carry `status`/`checked`; the editor reconciles ~3 of
   the stalest each week.

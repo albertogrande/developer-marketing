@@ -9,7 +9,7 @@ const ANCHOR_GALLERIES = {
   '/examples': 'examples',
   '/skills': 'skills',
   '/resources': 'resources',
-  '/wire': 'wire',
+  '/signals': 'signals',
 };
 
 // Collections whose entries have standalone pages under /<collection>/<id>.

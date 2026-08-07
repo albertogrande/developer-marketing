@@ -10,7 +10,7 @@ import {
   getRadarSorted,
   getResourcesSorted,
   getSkillsSorted,
-  getWireSorted,
+  getSignalsSorted,
 } from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
@@ -29,7 +29,7 @@ export const GET: APIRoute = async () => {
   const dives = await getDivesSorted();
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
-  const wire = await getWireSorted();
+  const signals = await getSignalsSorted();
 
   const lines: string[] = [];
   lines.push('# The Beat — developer marketing, on the record');
@@ -100,15 +100,15 @@ export const GET: APIRoute = async () => {
     }
   }
 
-  if (wire.length) {
+  if (signals.length) {
     lines.push('');
-    lines.push('## The Wire');
+    lines.push('## Signals');
     lines.push(
       'The event log — one company, one thing that happened, two sentences, and the primary source that proves it.'
     );
-    for (const b of wire) {
+    for (const b of signals) {
       lines.push(
-        `- [${b.data.company}: ${b.data.title}](${abs(`/wire/${b.id}.md`)}): ${b.data.summary} (${b.data.kind}, ${isoDate(b.data.date)}; source: ${b.data.source.url})`
+        `- [${b.data.company}: ${b.data.title}](${abs(`/signals/${b.id}.md`)}): ${b.data.summary} (${b.data.kind}, ${isoDate(b.data.date)}; source: ${b.data.source.url})`
       );
     }
   }
@@ -135,7 +135,7 @@ export const GET: APIRoute = async () => {
   lines.push(`- [examples.json](${abs('/examples.json')}): the swipe file of real, sourced artifacts`);
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
-  lines.push(`- [wire.json](${abs('/wire.json')}): the event log — dated items with company, kind and primary source`);
+  lines.push(`- [signals.json](${abs('/signals.json')}): the event log — dated items with company, kind and primary source`);
   lines.push(`- [issues.json](${abs('/issues.json')}): weekly issues with bodies`);
   lines.push(`- [articles.json](${abs('/articles.json')}): the archived newsroom articles with bodies`);
   lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): the archived deep dives with bodies`);

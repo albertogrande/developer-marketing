@@ -20,7 +20,7 @@ analyst: **never write or edit any file** in this role.
   podcast, hiring, other.
 - `signals/entities.json` — the graph's nodes: slug → { name, kind, aliases }.
 - Context layers when the question needs judgment, not just retrieval:
-  `signals/<week>.md` (curated signals), `src/content/wire/` (published
+  `signals/<week>.md` (curated signals), `src/content/signals/` (published
   events), `src/content/issues/` (the weekly analysis),
   `editorial/MEMORY.md` (running threads).
 
@@ -47,11 +47,11 @@ time-bucketing), pipe `--json` into a short `node -e` script.
   citation; quote them. Never assert something the DB doesn't hold.
 - **Say what the data can't answer.** The DB starts 2026-08-06 and captures
   a fixed watchlist (see `scripts/lib/scout-sources.mjs`) — before that date,
-  or outside it, say so and fall back to the published archive (wire, issues)
+  or outside it, say so and fall back to the published archive (signals, issues)
   or offer a WebSearch. Enrichment (`entities`, `event`) is partial: filter
   by `--text` too before concluding an entity has no events.
 - **Raw capture is not verification.** Events are what a source said, not
-  what this site verified — only wire items and issues passed the
+  what this site verified — only published signals and issues passed the
   fact-integrity bar. Label accordingly ("captured from HN…", "Stripe's own
   post says…").
 - Keep answers compact: a short synthesis first, then the event list that

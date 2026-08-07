@@ -14,7 +14,7 @@ Identity and charter: [MASTHEAD.md](MASTHEAD.md) · the retired newsroom desks
 <!-- TODO(author): add a screenshot/GIF of the site here -->
 
 - **Live site**: https://thebeat.dev/ (the old GitHub Pages and `*.vercel.app` URLs redirect here)
-- **The wire**: the event log at `/wire` — one company, one thing that happened, two sentences, a primary source.
+- **Signals**: the event log at `/signals` — one company, one thing that happened, two sentences, a primary source.
 - **The week**: one weekly issue at `/issues` on what moved and why — normally short, occasionally a long special when a thread earned depth.
 - **The guide**: the evergreen reference, nine sections, kept continuously current.
 - **Claims**: the reference's atomic "when X → do Y (because Z)" units, each with a freshness status and a checked date.
@@ -32,7 +32,7 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 
 Signals in, publication out. Two writers, each a [skill](.claude/skills/) an agent runs end to end.
 
-- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, runs the deterministic watchlist sweep (`npm run scout:sweep`) — every new item from the registered feeds and community queries lands in the append-only event DB (`signals/db/<week>.ndjson`) — then triages it into `signals/<week>.md`, enriches notable events with entities/kinds, promotes qualifying events to the wire (`src/content/wire/`), and patches `src/content/guide/` on hard-fact changes. Ask questions over the DB with `npm run scout:query` or the `/intel` skill.
+- **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, runs the deterministic watchlist sweep (`npm run scout:sweep`) — every new item from the registered feeds and community queries lands in the append-only event DB (`signals/db/<week>.ndjson`) — then triages it into `signals/<week>.md`, enriches notable events with entities/kinds, promotes qualifying events to Signals (`src/content/signals/`), and patches `src/content/guide/` on hard-fact changes. Ask questions over the DB with `npm run scout:query` or the `/intel` skill.
 - **Editor** ([`weekly-editor`](.claude/skills/weekly-editor/)): Mondays, writes the issue to `src/content/issues/` — deciding itself when a week earns a long special issue — does the guide-accuracy pass, reconciles the claims reference (`src/content/claims/`: distill, re-verify the stalest, stamp stale/retired), promotes examples, keeps the skills shelf verified, and processes reader feedback.
 - **Memory**: `editorial/MEMORY.md` tracks threads, special-issue candidates, and guide coverage (capped, gate-enforced); `editorial/COVERAGE.md` is the generated index of everything published; `editorial/TASTE.md` is the reader profile. All internal.
 
@@ -76,7 +76,7 @@ not a content migration: `SITE_ORIGIN=https://your-domain SITE_BASE=/ npm run bu
 src/
   content/
     guide/           # evergreen reference: NN-slug.md, frontmatter: title, order, summary, updated
-    wire/            # the event log: YYYY-MM-DD-company-slug.md, frontmatter: title, company, date, kind, summary, source
+    signals/         # the event log: YYYY-MM-DD-company-slug.md, frontmatter: title, company, date, kind, summary, source
     issues/          # the weekly issue: YYYY-Www.md, frontmatter: title, week, date, published, summary, tags, sources
     claims/          # the reference's atoms: {when, do, why, section, since, verify, status, checked}; feed the agent endpoints
     examples/        # swipe file: one real artifact per file: {company, artifact, channel, demonstrates, source}
@@ -88,7 +88,7 @@ src/
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot, NewsletterCta
-  pages/             # index, guide/, wire/, issues/, claims/, examples/, skills/, resources/,
+  pages/             # index, guide/, signals/, issues/, claims/, examples/, skills/, resources/,
                      #  articles/, deep-dives/, radar/ (archives), tags/, newsletter/, about
                      #  + machine endpoints: api.json, llms.txt, llms-full.txt, feed.xml, feed.json,
                      #    ten <collection>.json files, and a [slug].md.ts raw-markdown sibling per collection
@@ -206,7 +206,7 @@ practices the machine-readable-docs play it preaches — see
   self-contained (canonical URL, dates, license, sources inside), announced
   from each page via `rel="alternate" type="text/markdown"`.
 - **Ten JSON endpoints** — `/guide.json`, `/claims.json`, `/examples.json`,
-  `/skills.json`, `/resources.json`, `/wire.json`, `/issues.json`,
+  `/skills.json`, `/resources.json`, `/signals.json`, `/issues.json`,
   `/articles.json`, `/deep-dives.json`, `/radar.json` — markdown bodies
   included; the skills and resources ones so an agent asked to audit your
   docs can find the skill that already does it, or the person to hire when

@@ -3,17 +3,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
 import { withBase, absUrl, isoDate, fmtMed } from '../../lib/site';
-import { getWireSorted, WIRE_KIND_LABELS } from '../../lib/content';
+import { getSignalsSorted, SIGNAL_KIND_LABELS } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
-// The wire — short dated news snippets, newest first, grouped by day. Each is
+// The signals — short dated news snippets, newest first, grouped by day. Each is
 // a company, what it did, two sentences, and the link that proves it. This is
 // the tier between the internal signals capture and a full desk article: a day
 // the newsroom logs a skip still reaches a reader here, and a small company
 // whose news can't carry 900 words still gets covered. Machines read the same
-// set at /wire.json.
+// set at /signals.json.
 
-const briefs = await getWireSorted();
+const briefs = await getSignalsSorted();
 
 const cards = await Promise.all(
   briefs.map(async (b) => ({ b, Content: (await render(b)).Content }))
@@ -29,46 +29,46 @@ for (const card of cards) {
 }
 
 const DESCRIPTION =
-  'The wire — short dated developer-marketing, DevRel and devtools news. One company, one thing that happened, two sentences, and the link that proves it.';
+  'The signals — short dated developer-marketing, DevRel and devtools news. One company, one thing that happened, two sentences, and the link that proves it.';
 ---
 <BaseLayout
-  title="The Wire"
+  title="Signals"
   description={DESCRIPTION}
   jsonLd={[
     collectionPageNode({
-      name: 'The Wire',
+      name: 'Signals',
       description: DESCRIPTION,
-      url: absUrl('/wire'),
+      url: absUrl('/signals'),
       items: briefs.map((b) => ({
         name: `${b.data.company}: ${b.data.title}`,
-        url: `${absUrl('/wire')}#${b.id}`,
+        url: `${absUrl('/signals')}#${b.id}`,
       })),
     }),
   ]}
 >
   <div class="page-head">
-    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the wire</div>
-    <h1 class="page-title">The Wire</h1>
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the signals</div>
+    <h1 class="page-title">Signals</h1>
     <p class="dek">
-      The wire. One company, one thing that happened, two sentences, and the
+      The signals. One company, one thing that happened, two sentences, and the
       link that proves it — the tier below a full
       <a href={withBase('/articles')}>newsroom piece</a>, so a quiet news day
       still reaches you and a small company still gets covered. Nothing here is
       paid for or placed; see <a href={withBase('/about')}>about</a>. Machines
-      read the set at <a href={withBase('/wire.json')}><code>/wire.json</code></a>.
+      read the set at <a href={withBase('/signals.json')}><code>/signals.json</code></a>.
     </p>
   </div>
 
   {days.length > 0 ? (
-    <div class="wire" data-pagefind-body>
+    <div class="signals" data-pagefind-body>
       {days.map(({ date, items }) => (
-        <section class="wire-day">
-          <h2 class="wire-date"><span class="amber" aria-hidden="true">·</span> {fmtMed(date)}</h2>
+        <section class="signals-day">
+          <h2 class="signals-date"><span class="amber" aria-hidden="true">·</span> {fmtMed(date)}</h2>
           {items.map(({ b, Content }) => (
             <article class="brief" id={b.id} data-date={isoDate(b.data.date)}>
               <div class="brief-top">
                 <span class="brief-co">{b.data.company}</span>
-                <span class="brief-chip" data-pagefind-filter="kind">{WIRE_KIND_LABELS[b.data.kind]}</span>
+                <span class="brief-chip" data-pagefind-filter="kind">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
               </div>
               <h3 class="brief-h"><a href={`#${b.id}`}>{b.data.title}</a></h3>
               <p class="brief-sum">{b.data.summary}</p>
@@ -91,18 +91,18 @@ const DESCRIPTION =
       ))}
     </div>
   ) : (
-    <p class="dek">The wire is quiet. Check back shortly.</p>
+    <p class="dek">The signals is quiet. Check back shortly.</p>
   )}
 </BaseLayout>
 
 <style>
-  .wire {
+  .signals {
     margin-top: 1.5rem;
   }
-  .wire-day + .wire-day {
+  .signals-day + .signals-day {
     margin-top: 2rem;
   }
-  .wire-date {
+  .signals-date {
     font-family: var(--mono, monospace);
     font-size: 0.82rem;
     font-weight: 500;

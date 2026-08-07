@@ -57,7 +57,7 @@ so — don't overwrite a published issue unless explicitly asked.
    The DB catches what the scout's one-liners didn't carry (a pattern across
    many small launches, a company recurring all week). Same standing: raw
    capture, not verified fact.
-4. The week's wire items — `src/content/wire/` files dated in the window.
+4. The week's published signals — `src/content/signals/` files dated in the window.
    Already published and sourced; the issue links them rather than re-telling
    them ("The week in links" renders them automatically on the issue page).
 5. `editorial/podcasts/` — episode notes whose `date` falls in the window.

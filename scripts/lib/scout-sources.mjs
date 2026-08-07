@@ -21,7 +21,7 @@ import { isoWeekId } from '../../src/lib/dates.mjs';
 // ---------------------------------------------------------------------------
 // The RSS/Atom watchlist. kind: practitioner | operator | newsletter |
 // research. posture: independent | vendor — vendor feeds are data about the
-// vendor (the wire flags self-reported claims; the enum keeps that context
+// vendor (the signals flags self-reported claims; the enum keeps that context
 // queryable). All feeds verified 2026-08-06; candidates that failed then
 // (devrelweekly 525, draft.dev/leerob/netlify/resend/planetscale/markepear/
 // slashdata 404s, commonroom no feed, reforge 500) are deliberately absent —
@@ -66,7 +66,7 @@ export const SOURCES = [
 // neither feed nor dated sitemap — the blog index page is fetched, links
 // matching the pattern are extracted with their anchor text, and *only URLs
 // never seen before* become events (ts = capture time, same honesty rule as
-// a late-surfaced wire item). First contact with a crawl source seeds
+// a late-surfaced signal). First contact with a crawl source seeds
 // signals/db/.crawl-seen.json silently instead of flooding the log with the
 // site's whole back catalogue.
 
@@ -88,7 +88,7 @@ export const CRAWLS = [
 export const COMMUNITY = {
   // Algolia HN API — always fetchable, exact timestamps.
   hnQueries: ['devrel', '"developer marketing"', '"developer experience"', 'documentation', 'devtools pricing'],
-  // Show HN is where the small launches the wire exists for land.
+  // Show HN is where the small launches the signals exists for land.
   hnShowQueries: ['devtool', 'developer', 'API', 'CLI', 'SDK'],
   // r/devrel is small — take it whole; the big ones are keyword-filtered.
   subreddits: [
