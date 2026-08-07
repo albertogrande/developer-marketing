@@ -50,20 +50,17 @@ Recurring + thinly covered by the guide = special-issue candidate (flag below).
   bullet, §06) + practice carry MCP-as-table-stakes and the Google retrieval/
   ranking split (Search ignores llms.txt; Lighthouse audits it unscored).
   `SKILL.md` sub-thread: Copilot GA = GitHub as second skills-as-a-file vendor;
-  promote on a third + usage evidence. **Stranded-integrator open loop → news article 08-04**
-  (`2026-08-04-mcp-directory-review`, Rio): the directory is a *gated distribution
-  channel*, not a formality — reframed off Symonds's single-sourced 4-month vs
-  OpenAI-29-day peg onto multiply-sourced review mechanics (Anthropic docs+policy:
-  Team/Enterprise portal, no SLA, missing privacy policy = instant reject; Tallyfy +
-  sunpeak: "plan in weeks not days," a missing item resets queue place, functional
-  test on every tool). Nuance on record: intake migrated Google Form → portal, likely
-  why the old queue was discarded. House move → guide §06 (build ≠ distribute; treat
-  submission like App Store review, never make one directory your only path). Watching:
-  corroboration of *other* stranded Google-Form-era submitters; a review SLA/appeals path.
-  "Agent experience" analytics is now a category not one tool (Armature YC 08-04 +
-  AgentCat, both MCP-session reconstruction). Open loops: a devtool reporting attributed
-  AI-referral signups with a number by end of Q3 2026; a major MCP host publishing a dated
-  migration plan by end of Sept; where pre-action authz consolidates. Guide: §02, §06.
+  promote on a third + usage evidence. **Stranded-integrator thread shipped as news
+  article 08-04** (`2026-08-04-mcp-directory-review`, Rio: the MCP directory is a
+  *gated distribution channel*, review mechanics multiply-sourced) — house move in
+  guide §06. Watching: corroboration of other stranded Google-Form-era submitters; a
+  review SLA/appeals path. "Agent experience" analytics is now a category not one tool (Armature YC 08-04 +
+  AgentCat, both MCP-session reconstruction). **Countertrend** (08-07, proposal not yet
+  merged): Emacs's draft AGENTS.md tells LLMs to search/analyze, not generate, and to
+  surface its no-LLM-contributions policy — roster so far only logged enabling adoptions.
+  Open loops: a devtool reporting attributed AI-referral signups with a number by end of
+  Q3 2026; a major MCP host publishing a dated migration plan by end of Sept; where
+  pre-action authz consolidates. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common
@@ -107,8 +104,11 @@ Recurring + thinly covered by the guide = special-issue candidate (flag below).
 - **AI features priced as seat + meter** `→` — the devtools default: per-seat
   license + metered model consumption; GitHub Code Quality GA extended it from
   generation to review (money article 07-22; §01 + practice carry the shape).
-  Quiet since. Open loops: first *non-generative* feature on a metered AI line;
-  whether Copilot promo-credit lapse (~Sept 2026) → bill-shock. Guide: §01, §04.
+  **New variant 08-07**: Meta's Muse Code beta prices a "contributor" tier
+  ~12x/21x cheaper for training rights on prompts/completions — a discount
+  sold as a data trade, not volume or seats. Open loops: first *non-generative*
+  feature on a metered AI line; Copilot promo-credit lapse (~Sept 2026) →
+  bill-shock; a second vendor following Meta's data-tier shape. Guide: §01, §04.
 
 ## Special-issue candidates
 

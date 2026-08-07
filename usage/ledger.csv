@@ -79,3 +79,5 @@ date,workflow,run_id,step,model,cost_usd,duration_ms,turns
 2026-08-06,Newsroom,31088816233,writer,claude-opus-4-8,0.9374089999999999,129040,16
 2026-08-06,Deep Dive,31114052870,writer,claude-fable-5,5.715506999999999,521799,57
 2026-08-06,Deep Dive,31114052870,verify,claude-sonnet-5,1.6295381,348849,48
+2026-08-07,Scout,31153071645,writer,claude-sonnet-5,3.4802300000000015,479888,97
+2026-08-07,Scout,31153071645,verify,claude-opus-4-8,0.688677,87242,12

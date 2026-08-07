@@ -1,39 +1,232 @@
 {
   "_comment": "The event graph's nodes. Events in signals/db/ reference these slugs in their entities[] field; the edges are the events themselves. Maintained by the scout via scout-enrich --new-entities (validated: unique slugs, kinds from ENTITY_KINDS in scripts/lib/scout-sources.mjs, no duplicate aliases). Aliases are matching hints for query and enrichment, lowercase.",
-  "anthropic": { "name": "Anthropic", "kind": "company", "aliases": ["claude"] },
-  "openai": { "name": "OpenAI", "kind": "company", "aliases": ["chatgpt"] },
-  "github": { "name": "GitHub", "kind": "company", "aliases": ["github copilot", "copilot"] },
-  "microsoft": { "name": "Microsoft", "kind": "company", "aliases": ["msft"] },
-  "google": { "name": "Google", "kind": "company", "aliases": ["gemini"] },
-  "stripe": { "name": "Stripe", "kind": "company", "aliases": [] },
-  "vercel": { "name": "Vercel", "kind": "company", "aliases": ["next.js", "nextjs"] },
-  "netlify": { "name": "Netlify", "kind": "company", "aliases": [] },
-  "supabase": { "name": "Supabase", "kind": "company", "aliases": [] },
-  "sentry": { "name": "Sentry", "kind": "company", "aliases": [] },
-  "postman": { "name": "Postman", "kind": "company", "aliases": [] },
-  "mongodb": { "name": "MongoDB", "kind": "company", "aliases": ["atlas"] },
-  "twilio": { "name": "Twilio", "kind": "company", "aliases": [] },
-  "auth0": { "name": "Auth0", "kind": "company", "aliases": ["okta"] },
-  "algolia": { "name": "Algolia", "kind": "company", "aliases": [] },
-  "digitalocean": { "name": "DigitalOcean", "kind": "company", "aliases": [] },
-  "planetscale": { "name": "PlanetScale", "kind": "company", "aliases": [] },
-  "resend": { "name": "Resend", "kind": "company", "aliases": [] },
-  "cloudflare": { "name": "Cloudflare", "kind": "company", "aliases": ["cdnjs", "workers"] },
-  "hashicorp": { "name": "HashiCorp", "kind": "company", "aliases": ["vagrant", "terraform", "vault"] },
-  "atlassian": { "name": "Atlassian", "kind": "company", "aliases": ["jira", "bitbucket"] },
-  "godaddy": { "name": "GoDaddy", "kind": "company", "aliases": [] },
-  "sinch": { "name": "Sinch", "kind": "company", "aliases": [] },
-  "tines": { "name": "Tines", "kind": "company", "aliases": [] },
-  "kastra": { "name": "Kastra", "kind": "company", "aliases": [] },
-  "armature": { "name": "Armature", "kind": "company", "aliases": [] },
-  "unblocked": { "name": "Unblocked", "kind": "company", "aliases": [] },
-  "cerebras": { "name": "Cerebras", "kind": "company", "aliases": [] },
-  "cursor": { "name": "Cursor", "kind": "tool", "aliases": ["anysphere"] },
-  "claude-code": { "name": "Claude Code", "kind": "tool", "aliases": [] },
-  "mcp": { "name": "Model Context Protocol", "kind": "protocol", "aliases": ["model context protocol"] },
-  "agent-skills": { "name": "Agent Skills", "kind": "protocol", "aliases": ["skill.md"] },
-  "scaling-devtools": { "name": "Scaling DevTools", "kind": "show", "aliases": [] },
-  "latent-space": { "name": "Latent Space", "kind": "show", "aliases": [] },
-  "pragmatic-engineer": { "name": "The Pragmatic Engineer", "kind": "show", "aliases": [] },
-  "devtools-fm": { "name": "devtools.fm", "kind": "show", "aliases": [] }
+  "anthropic": {
+    "name": "Anthropic",
+    "kind": "company",
+    "aliases": [
+      "claude"
+    ]
+  },
+  "openai": {
+    "name": "OpenAI",
+    "kind": "company",
+    "aliases": [
+      "chatgpt"
+    ]
+  },
+  "github": {
+    "name": "GitHub",
+    "kind": "company",
+    "aliases": [
+      "github copilot",
+      "copilot"
+    ]
+  },
+  "microsoft": {
+    "name": "Microsoft",
+    "kind": "company",
+    "aliases": [
+      "msft"
+    ]
+  },
+  "google": {
+    "name": "Google",
+    "kind": "company",
+    "aliases": [
+      "gemini"
+    ]
+  },
+  "stripe": {
+    "name": "Stripe",
+    "kind": "company",
+    "aliases": []
+  },
+  "vercel": {
+    "name": "Vercel",
+    "kind": "company",
+    "aliases": [
+      "next.js",
+      "nextjs"
+    ]
+  },
+  "netlify": {
+    "name": "Netlify",
+    "kind": "company",
+    "aliases": []
+  },
+  "supabase": {
+    "name": "Supabase",
+    "kind": "company",
+    "aliases": []
+  },
+  "sentry": {
+    "name": "Sentry",
+    "kind": "company",
+    "aliases": []
+  },
+  "postman": {
+    "name": "Postman",
+    "kind": "company",
+    "aliases": []
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "kind": "company",
+    "aliases": [
+      "atlas"
+    ]
+  },
+  "twilio": {
+    "name": "Twilio",
+    "kind": "company",
+    "aliases": []
+  },
+  "auth0": {
+    "name": "Auth0",
+    "kind": "company",
+    "aliases": [
+      "okta"
+    ]
+  },
+  "algolia": {
+    "name": "Algolia",
+    "kind": "company",
+    "aliases": []
+  },
+  "digitalocean": {
+    "name": "DigitalOcean",
+    "kind": "company",
+    "aliases": []
+  },
+  "planetscale": {
+    "name": "PlanetScale",
+    "kind": "company",
+    "aliases": []
+  },
+  "resend": {
+    "name": "Resend",
+    "kind": "company",
+    "aliases": []
+  },
+  "cloudflare": {
+    "name": "Cloudflare",
+    "kind": "company",
+    "aliases": [
+      "cdnjs",
+      "workers"
+    ]
+  },
+  "hashicorp": {
+    "name": "HashiCorp",
+    "kind": "company",
+    "aliases": [
+      "vagrant",
+      "terraform",
+      "vault"
+    ]
+  },
+  "atlassian": {
+    "name": "Atlassian",
+    "kind": "company",
+    "aliases": [
+      "jira",
+      "bitbucket"
+    ]
+  },
+  "godaddy": {
+    "name": "GoDaddy",
+    "kind": "company",
+    "aliases": []
+  },
+  "sinch": {
+    "name": "Sinch",
+    "kind": "company",
+    "aliases": []
+  },
+  "tines": {
+    "name": "Tines",
+    "kind": "company",
+    "aliases": []
+  },
+  "kastra": {
+    "name": "Kastra",
+    "kind": "company",
+    "aliases": []
+  },
+  "armature": {
+    "name": "Armature",
+    "kind": "company",
+    "aliases": []
+  },
+  "unblocked": {
+    "name": "Unblocked",
+    "kind": "company",
+    "aliases": []
+  },
+  "cerebras": {
+    "name": "Cerebras",
+    "kind": "company",
+    "aliases": []
+  },
+  "cursor": {
+    "name": "Cursor",
+    "kind": "tool",
+    "aliases": [
+      "anysphere"
+    ]
+  },
+  "claude-code": {
+    "name": "Claude Code",
+    "kind": "tool",
+    "aliases": []
+  },
+  "mcp": {
+    "name": "Model Context Protocol",
+    "kind": "protocol",
+    "aliases": [
+      "model context protocol"
+    ]
+  },
+  "agent-skills": {
+    "name": "Agent Skills",
+    "kind": "protocol",
+    "aliases": [
+      "skill.md"
+    ]
+  },
+  "scaling-devtools": {
+    "name": "Scaling DevTools",
+    "kind": "show",
+    "aliases": []
+  },
+  "latent-space": {
+    "name": "Latent Space",
+    "kind": "show",
+    "aliases": []
+  },
+  "pragmatic-engineer": {
+    "name": "The Pragmatic Engineer",
+    "kind": "show",
+    "aliases": []
+  },
+  "devtools-fm": {
+    "name": "devtools.fm",
+    "kind": "show",
+    "aliases": []
+  },
+  "meta": {
+    "aliases": [
+      "muse code",
+      "muse spark"
+    ],
+    "name": "Meta",
+    "kind": "company"
+  },
+  "emacs": {
+    "aliases": [
+      "gnu emacs"
+    ],
+    "name": "Emacs",
+    "kind": "tool"
+  }
 }
