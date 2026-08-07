@@ -251,6 +251,17 @@ log, and the only place dated news lands. It exists so that a small company
 whose news can't carry long-form prose still gets covered, and so every
 qualifying event reaches a reader the same day.
 
+**Promote from the event DB, not from what you happened to hand-search.** The
+sweep is the candidate pool; the handful of items you fetched for depth is a
+subset of it, not a replacement. Walk the day's events before you promote:
+
+```bash
+npm run scout:query -- --since <the day you are writing up>
+```
+
+A run that promotes one item out of a hundred-plus captured events has almost
+certainly applied a bar that isn't written below. Check which one.
+
 Promote a signal when **all** of these hold:
 
 - Something **happened** — a company shipped, launched, raised, renamed,
@@ -259,6 +270,8 @@ Promote a signal when **all** of these hold:
 - There is a **primary source** you opened: the changelog, the blog post, the
   Show HN thread, the filing. Not a write-up about a write-up.
 - You can say what happened in **two sentences** without hedging into vagueness.
+
+Those three are the **whole** bar. Nothing else gates promotion.
 
 Do **not** promote: unverified claims (a signal flagged "reportedly" stays a
 signal), sourcing notes, thread-carryover lines, or anything whose only source
@@ -269,13 +282,28 @@ heard of clears this bar if something real happened and the link proves it —
 that is the point of the tier. Ranking by reach is what pushes the small-company
 tail out of coverage entirely.
 
+Neither is **significance**, and it is the filter that creeps back in wearing
+other clothes. These are **not** reasons to hold an item:
+
+- no adoption numbers, no named customers, "just a press release" — a shipped
+  product with a primary source is a wire item, whether or not anyone bit yet;
+- "routine," "incremental," or "another entrant in a category we've covered" —
+  the wire is an event log, and the third entrant is what makes it a trend;
+- a podcast episode with no transcript yet — `kind: podcast` is summarised from
+  the episode page, and the note says so (see below);
+- the item is small, or you can't yet tell whether it matters. The weekly editor
+  decides what mattered; the scout's job is that the event is on the record.
+
+The honest reject is "nothing happened" or "I couldn't open a primary source."
+If you are reaching for a different sentence, promote it.
+
 One file per item, `src/content/wire/YYYY-MM-DD-company-slug.md`:
 
 ```markdown
 ---
 title: <the headline — what happened, no company prefix>
 company: <as they write it>
-date: <today, or the capture date for something surfaced late>
+date: <the date of THIS run — never the source's publication date>
 kind: news | release | funding | launch | campaign | discussion | podcast
 summary: '<exactly two sentences — the item itself>'
 tags: [<reuse existing tags where they fit>]
@@ -294,19 +322,33 @@ related:          # optional; base-less guide paths
 when the two sentences are the whole story — the body is not a quota.>
 ```
 
-`date` is when the item entered the wire. If something shipped weeks ago and
-only cleared today's sweep, use today and say so in the summary or the note —
-don't backdate, and don't imply it is fresher than it is.
+`date` — and the `YYYY-MM-DD` in the filename — is **the day this run writes the
+item**, not the day the source published. If something shipped two days ago and
+only cleared today's sweep, the date is today; put the ship date in the summary
+("Vercel shipped X on 2026-08-06…") so the item is honest about its own age.
+
+Backdating is the failure mode to watch for, because it hides working runs: an
+item filed under the publisher's date makes the day it was actually captured
+look empty, and the wire look like it skipped. Two sentences that name the ship
+date carry that information without moving the file.
 
 For `kind: podcast`, `company` is **the show**, not the guest's employer, and
 the note should state plainly that the item was summarised from the episode
 page rather than from listening. The guest and their company belong in the
 summary.
 
-Several wire items a day is normal and correct; zero is fine on a genuinely
-quiet day. `check-refs.mjs` fails the build on an item missing `company`,
-`summary`, or `source.url` — an unverifiable one-line news claim is a rumour
-with a company name attached.
+**Several wire items a day is the normal outcome**, not a good one. The
+watchlist captures on the order of a hundred-plus events a day across news,
+launches, changelogs, Show HN, podcasts and vendor blogs; on that volume, a
+run that promotes nothing has usually mis-set the bar rather than met a quiet
+day. Publishing is still criteria and not a quota — a genuinely thin day is a
+real thing and you must never pad the wire to hit a number — but zero is a
+result to explain in the sourcing note, naming what you looked at and why
+nothing cleared the three criteria, not one to pass over in silence.
+
+`check-refs.mjs` fails the build on an item missing `company`, `summary`, or
+`source.url` — an unverifiable one-line news claim is a rumour with a company
+name attached.
 
 ## Step 4 — Patch the guide (only for hard, unambiguous facts)
 
