@@ -13,6 +13,7 @@ better than it found it.
 
 | Writer | What it produces | When |
 |---|---|---|
+| **The Jobs Scout** | Fully-remote marketing-leadership, growth and product-marketing roles at devtools/AI companies, confirmed against the employer's own posting (`signals/jobs/jobs.json` → `/jobs`). A listing earns its slot by matching the scope — never by payment. | Weekly |
 | **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **Signals** (`src/content/signals/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
 | **The Editor** | **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
 

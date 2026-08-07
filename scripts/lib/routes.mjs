@@ -116,6 +116,19 @@ export function routeLastmod() {
       }
     }
   }
+
+  // The jobs board's honest date is the newest lastSeenAt in its data file —
+  // the day the sweep last confirmed the set, never the build clock. Absent
+  // while the board is empty (the gate exempts /jobs the same way as the
+  // other honestly-undated pages until the first sweep lands).
+  try {
+    const jobs = JSON.parse(readFileSync('signals/jobs/jobs.json', 'utf8'));
+    if (Array.isArray(jobs) && jobs.length) {
+      bump('/jobs', jobs.reduce((m, j) => (j.lastSeenAt > m ? j.lastSeenAt : m), ''));
+    }
+  } catch {
+    // no jobs data — /jobs stays undated
+  }
   return map;
 }
 

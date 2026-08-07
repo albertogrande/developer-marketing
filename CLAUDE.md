@@ -17,6 +17,13 @@ npm run preview             # serve the built dist/
 npm test                    # node --test over newsletter/test/*.test.mjs and scripts/*.test.mjs
 ```
 
+The jobs board — weekly sweep (Sunday), deterministic merge:
+
+```bash
+npm run jobs:merge              # signals/jobs/incoming.json → signals/jobs/jobs.json
+node --test scripts/jobs-merge.test.mjs
+```
+
 Podcast transcripts for the scout, cached locally and never committed:
 
 ```bash
@@ -102,6 +109,17 @@ capture), `editorial/MEMORY.md` (running threads, special-issue candidates),
 `AUTHORS.md` documents the retired desks whose bylines the article archive
 still renders. The writers run interactively too — `/daily-scout`,
 `/weekly-editor` — writing files without committing.
+
+**2½. The jobs board** — a fourth, narrower capture: fully-remote
+marketing-leadership / growth / product-marketing roles at devtools and AI
+companies (no DevRel, deliberately), swept weekly by the `jobs-scout` skill
+(`jobs.yml`, Sunday) and stored in `signals/jobs/jobs.json`. The skill only
+discovers and classifies; `scripts/jobs-merge.mjs` owns every integrity
+decision — validation, URL-canonical dedupe, identity collapse, ATS-board
+liveness (Ashby/Greenhouse APIs), two-missed-sweeps aging. Rendered at `/jobs`
+grouped by remote region (worldwide/eu/usa/other — a classification, never a
+gate) with the machine twin at `/jobs.json`. Ported from the private
+`dev-marketing-jobs` repo; listings are never paid placements.
 
 **3. The newsletter** (`newsletter/`) — self-hosted end to end: own list, own
 MIME/SMTP/token libraries, no ESP and no tracking of any kind. `server.mjs`

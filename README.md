@@ -14,6 +14,7 @@ Identity and charter: [MASTHEAD.md](MASTHEAD.md) · the retired newsroom desks
 <!-- TODO(author): add a screenshot/GIF of the site here -->
 
 - **Live site**: https://thebeat.dev/ (the old GitHub Pages and `*.vercel.app` URLs redirect here)
+- **Jobs**: the board at `/jobs` — fully-remote marketing-leadership, growth and product-marketing roles at devtools/AI companies, swept weekly, grouped by remote region. Never paid placement.
 - **Signals**: the event log at `/signals` — one company, one thing that happened, two sentences, a primary source.
 - **The week**: one weekly issue at `/issues` on what moved and why — normally short, occasionally a long special when a thread earned depth.
 - **The guide**: the evergreen reference, nine sections, kept continuously current.

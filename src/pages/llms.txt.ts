@@ -136,6 +136,7 @@ export const GET: APIRoute = async () => {
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
   lines.push(`- [signals.json](${abs('/signals.json')}): the event log — dated items with company, kind and primary source`);
+  lines.push(`- [jobs.json](${abs('/jobs.json')}): the jobs board — open, fully-remote marketing-leadership/growth/product-marketing roles at devtools and AI companies, with region (worldwide/eu/usa/other)`);
   lines.push(`- [issues.json](${abs('/issues.json')}): weekly issues with bodies`);
   lines.push(`- [articles.json](${abs('/articles.json')}): the archived newsroom articles with bodies`);
   lines.push(`- [deep-dives.json](${abs('/deep-dives.json')}): the archived deep dives with bodies`);

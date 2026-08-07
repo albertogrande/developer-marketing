@@ -148,7 +148,10 @@ for (const [, block] of urlBlocks) {
   if (/\.(md|json|txt)$/.test(loc)) problems.push(`sitemap: machine endpoint leaked: ${loc}`);
   // Pages with no dated content honestly carry no lastmod: the masthead and
   // the newsletter flow landings.
-  const undated = loc === `${ROOT}/about/` || loc.startsWith(`${ROOT}/newsletter/`);
+  // /jobs is dated from its data file once the first sweep lands (see
+  // routeLastmod); until then it is honestly undated like the other two.
+  const undated =
+    loc === `${ROOT}/about/` || loc === `${ROOT}/jobs/` || loc.startsWith(`${ROOT}/newsletter/`);
   if (!undated && !block.includes('<lastmod>')) problems.push(`sitemap: ${loc} missing lastmod`);
 }
 

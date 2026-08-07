@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase, absUrl } from '../../lib/site';
+import { collectionPageNode } from '../../lib/jsonld';
+import jobs from '../../../signals/jobs/jobs.json';
+
+// The jobs board — fully-remote marketing-leadership, growth and
+// product-marketing roles at developer-focused and AI companies, captured by
+// the weekly jobs-scout sweep and kept honest by scripts/jobs-merge.mjs
+// (validation, dedupe, liveness, two-missed-sweeps aging). Every stored job is
+// open: the merge drops a posting outright once its ATS board stops listing it
+// or its page dies. Grouped by remote region so "remote" always says remote
+// *where*. Machines read the same set at /jobs.json.
+
+type Job = {
+  id: string;
+  title: string;
+  company: string;
+  companyUrl: string | null;
+  location: string;
+  region: 'worldwide' | 'eu' | 'usa' | 'other';
+  category: 'marketing-leadership' | 'growth' | 'product-marketing';
+  tags: string[];
+  salary: string | null;
+  url: string;
+  source: string;
+  summary: string;
+  postedAt: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+};
+
+const all = jobs as Job[];
+
+const REGION_ORDER = ['worldwide', 'eu', 'usa', 'other'] as const;
+const REGION_LABELS: Record<Job['region'], string> = {
+  worldwide: 'Remote — worldwide',
+  eu: 'Remote — Europe',
+  usa: 'Remote — US / North America',
+  other: 'Remote — other regions',
+};
+const CATEGORY_LABELS: Record<Job['category'], string> = {
+  'marketing-leadership': 'Marketing leadership',
+  growth: 'Growth',
+  'product-marketing': 'Product marketing',
+};
+
+const groups = REGION_ORDER.map((region) => ({
+  region,
+  label: REGION_LABELS[region],
+  items: all
+    .filter((j) => j.region === region)
+    .sort((a, b) => b.firstSeenAt.localeCompare(a.firstSeenAt) || a.company.localeCompare(b.company)),
+})).filter((g) => g.items.length > 0);
+
+// Deterministic freshness: the newest lastSeenAt in the data, never the build clock.
+const updated = all.reduce((m, j) => (j.lastSeenAt > m ? j.lastSeenAt : m), '');
+
+const DESCRIPTION =
+  'Open, fully-remote marketing-leadership, growth and product-marketing roles at developer-focused and AI companies — confirmed against the employer’s own posting, grouped by remote region, refreshed weekly.';
+---
+<BaseLayout
+  title="Jobs"
+  description={DESCRIPTION}
+  jsonLd={[
+    collectionPageNode({
+      name: 'Jobs',
+      description: DESCRIPTION,
+      url: absUrl('/jobs'),
+      items: all.map((j) => ({ name: `${j.company}: ${j.title}`, url: j.url })),
+    }),
+  ]}
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the jobs board</div>
+    <h1 class="page-title">Jobs</h1>
+    <p class="dek">
+      Fully-remote <b>marketing leadership</b>, <b>growth</b> and
+      <b>product marketing</b> roles at developer-focused and AI companies,
+      swept weekly and confirmed against the employer's own posting — a listing
+      that dies is dropped, not struck through. Grouped by where "remote"
+      actually applies. No DevRel yet, deliberately. Nothing here is paid
+      placement; see <a href={withBase('/about')}>about</a>. Machines read the
+      set at <a href={withBase('/jobs.json')}><code>/jobs.json</code></a>.
+      {updated && <>Last swept <b>{updated}</b>.</>}
+    </p>
+  </div>
+
+  {groups.length > 0 ? (
+    <div class="jobs" data-pagefind-body>
+      {groups.map((g) => (
+        <section class="jobs-region" aria-label={g.label}>
+          <h2 class="jobs-region-h"><span class="amber" aria-hidden="true">##</span> {g.label} · {g.items.length}</h2>
+          <ul class="jobs-list">
+            {g.items.map((j) => (
+              <li class="job" id={j.id}>
+                <p class="job-t">
+                  <a href={j.url} rel="noopener">{j.title}</a>
+                  <span class="dim" aria-hidden="true"> · </span>
+                  {j.companyUrl ? (
+                    <a class="job-co" href={j.companyUrl} rel="noopener">{j.company}</a>
+                  ) : (
+                    <span class="job-co">{j.company}</span>
+                  )}
+                </p>
+                <p class="job-m">
+                  <span class="job-cat">{CATEGORY_LABELS[j.category]}</span>
+                  <span class="dim" aria-hidden="true"> · </span>
+                  <span>{j.location}</span>
+                  {j.salary && (
+                    <>
+                      <span class="dim" aria-hidden="true"> · </span>
+                      <span class="job-sal">{j.salary}</span>
+                    </>
+                  )}
+                </p>
+                {j.summary && <p class="job-s">{j.summary}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="jobs-empty">
+      The first sweep hasn't landed yet — the board fills when the weekly
+      jobs-scout run finds roles that clear the bar. The scope and pipeline are
+      already live; check back after Sunday's sweep.
+    </p>
+  )}
+</BaseLayout>
+
+<style lang="scss">
+  .jobs-region-h {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    margin: 2rem 0 0.4rem;
+  }
+  .jobs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .job {
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .job-t {
+    margin: 0;
+    line-height: 1.45;
+    a { text-decoration: none; font-weight: 700; }
+    a:hover { text-decoration: underline; }
+  }
+  .job-co { color: var(--muted); font-weight: 400; }
+  .job-m {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .job-cat { color: var(--accent-2, var(--accent)); }
+  .job-sal { color: var(--fg); }
+  .job-s {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    opacity: 0.85;
+    max-width: 70ch;
+  }
+  .jobs-empty {
+    margin-top: 2rem;
+    color: var(--muted);
+    max-width: 62ch;
+  }
+</style>

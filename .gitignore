@@ -22,3 +22,6 @@ editorial/FEEDBACK-REPLIES.md
 # os / editor
 .DS_Store
 *.log
+
+# Jobs sweep scratch — the scraper's checkpoint file; merge consumes and deletes it.
+signals/jobs/incoming.json

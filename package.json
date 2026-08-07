@@ -19,7 +19,8 @@
     "newsletter:send": "node newsletter/send.mjs",
     "newsletter:export": "node newsletter/export.mjs",
     "newsletter:preview": "node newsletter/send.mjs --dry-run --out newsletter/data/preview.html",
-    "astro": "astro"
+    "astro": "astro",
+    "jobs:merge": "node scripts/jobs-merge.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",

@@ -1,0 +1,106 @@
+name: Jobs
+
+# Weekly jobs sweep. Claude Code runs the jobs-scout skill (find + extract +
+# classify against the employer's own JD), then the deterministic merge owns
+# every data-integrity decision — validation, dedupe, stable ids, liveness,
+# two-missed-sweeps aging — and writes signals/jobs/jobs.json. The site build
+# gates the result before anything is committed.
+#
+# WEEKLY on purpose: job postings live for weeks, not hours, so a daily sweep
+# buys almost no freshness for 7x the runs; the merge's liveness checks (ATS
+# board APIs + closed-page markers) keep dead roles off the board between
+# sweeps. Sunday so Monday's editor sees a fresh board.
+#
+# Requires repo secret CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`).
+
+on:
+  schedule:
+    # Sunday 03:10 UTC nominal; GitHub's scheduler adds 1-3.5h of queue delay
+    # in practice, so this fires Sunday morning UTC. Minute 10 dodges the
+    # congested top-of-hour slot (see scout.yml for the measured numbers).
+    - cron: "10 3 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+# Same group as the writers — two jobs never race a push to main.
+concurrency:
+  group: main-writers
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+
+      - name: Find open roles
+        id: claude
+        # A max-turns stop exits non-zero; the incoming-file check below is the
+        # real guard, so the run continues to it either way.
+        continue-on-error: true
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: >
+            Run the jobs-scout skill (.claude/skills/jobs-scout/SKILL.md):
+            read signals/jobs/sources.json, discover currently-open,
+            fully-remote marketing-leadership / growth / product-marketing
+            roles at developer-focused or AI companies, confirm each against
+            the employer's original posting, classify its remote region
+            (worldwide/eu/usa/other), and write signals/jobs/incoming.json.
+            Checkpoint with a Write after every source. Do NOT touch
+            signals/jobs/jobs.json, and do not commit or push.
+          show_full_output: true
+          # Sonnet: the sweep is mechanical find-extract-classify work.
+          claude_args: >-
+            --model claude-sonnet-5
+            --max-turns 60
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(wc *)"
+
+      # The skill's #1 rule is that incoming.json exists after the first
+      # source; a run that produced nothing is a failed scrape, not a quiet
+      # week (a quiet week is an empty ARRAY, which passes).
+      - name: Guard — the scrape wrote its checkpoint
+        run: |
+          test -f signals/jobs/incoming.json || {
+            echo "::error::jobs-scout ended without writing signals/jobs/incoming.json"
+            exit 1
+          }
+
+      - name: Merge (deterministic — dedupe, liveness, aging)
+        run: npm run jobs:merge
+
+      - name: Gates — the board still builds
+        run: npm run build
+
+      # The composite passes the message through an env var verbatim, so shell
+      # interpolation never runs there — stamp the date into an output first.
+      - name: Stamp run date
+        id: stamp
+        run: echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        uses: ./.github/actions/commit-and-push
+        with:
+          paths: signals/jobs/jobs.json
+          message: "Jobs: weekly sweep ${{ steps.stamp.outputs.today }}"
+
+      - name: Notify on failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          detail: "weekly jobs sweep failed — see the run log"
+          alert_email_to: ${{ secrets.ALERT_EMAIL_TO }}
+          alert_api_key: ${{ secrets.RESEND_API_KEY }}
+          alert_from: ${{ vars.ALERT_FROM_EMAIL }}
+          alert_mention: ${{ vars.ALERT_MENTION }}

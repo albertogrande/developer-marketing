@@ -47,6 +47,12 @@ Notes for retrieval:
   fact proven by three or more sourced events (all linked in `source` +
   `sources`); anything forward-looking is confined to the body and framed as
   a call — read the summary as verified, the body's read as editorial.
+- `/jobs.json` is the jobs board: open, fully-remote marketing-leadership /
+  growth / product-marketing roles at devtools and AI companies, refreshed
+  weekly. `region` says where "remote" applies (`worldwide`/`eu`/`usa`/
+  `other`); every stored job was open at `lastSeenAt` — dead postings are
+  dropped, not flagged. Not a content collection: no `.md` siblings, and the
+  set lives in `signals/jobs/jobs.json`, not `src/content/`.
 - `claims` are the reference's atomic units. Each carries `since` (the dated
   fact that made it true), `verify` (how to re-check), `status`
   (`current`/`stale`/`retired`) and `checked` (last re-verification) —
@@ -70,15 +76,15 @@ with the claim and a checkable public source. The weekly editorial run
 re-verifies it, patches the piece with an `updated:` stamp, and answers the
 issue. Softer signals go to the `reader-feedback` label.
 
-**Cadence** (UTC): scout daily 02:50 (writes Signals; patches the guide when
-facts change); editor Mon 07:00 (the weekly issue — occasionally a long
+**Cadence** (UTC): jobs sweep Sunday 03:10; scout daily 02:50 (writes Signals; patches the guide when
+facts change); editor Mon 07:35 (the weekly issue — occasionally a long
 special — plus the full accuracy pass and claims reconciliation). If your
 cache is older than a day, refetch.
 
 ## Working on this repo
 
 The content is written by autonomous editorial agents whose playbooks live in
-`.claude/skills/` (daily-scout, weekly-editor). If you are one of them,
+`.claude/skills/` (daily-scout, weekly-editor, jobs-scout). If you are one of them,
 follow your skill file; the notes below are the invariants everyone must
 keep.
 
