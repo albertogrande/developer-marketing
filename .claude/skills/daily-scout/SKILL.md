@@ -323,9 +323,22 @@ when the two sentences are the whole story — the body is not a quota.>
 ```
 
 `date` — and the `YYYY-MM-DD` in the filename — is **the day this run writes the
-item**, not the day the source published. If something shipped two days ago and
-only cleared today's sweep, the date is today; put the ship date in the summary
-("Vercel shipped X on 2026-08-06…") so the item is honest about its own age.
+item**, not the day the source published.
+
+**Never restate that date in the summary.** The stream, the front page and the
+issue roundup all stamp it next to the item; "Vercel shipped X on 2026-08-06"
+under a 2026-08-06 heading is the same fact twice. Write "Vercel shipped X:
+…" and let the timeline carry the when.
+
+State a date in the summary **only when it differs from the item's own** — and
+then it is mandatory, because that is the gap the reader can't see. Three cases
+where it earns its place:
+
+- **Surfaced late**: something shipped days or weeks before it cleared the
+  sweep. "Cloudflare published `@cloudflare/computer` on 2026-08-03, surfaced
+  in this sweep…" — without it the item implies a freshness it doesn't have.
+- **A future deadline**: an end-of-life, a migration cutoff, a GA date.
+- **A span the item is about**: a deprecation window, a pattern's window.
 
 Backdating is the failure mode to watch for, because it hides working runs: an
 item filed under the publisher's date makes the day it was actually captured

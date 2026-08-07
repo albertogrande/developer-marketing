@@ -1,14 +1,17 @@
 ---
-// Terminal chrome (inherited from The Wire's mono-grid skin). The mark is the
-// masthead — "The Beat", set in the furniture mono — over a `--flag` nav.
+// Terminal chrome (inherited from The Wire's mono-grid skin). The mark is
+// `$ the beat▌` over a `--flag` nav.
 //
-// It used to be a typed command (`$ the-beat▌`), which put the publication's
-// name in lowercase-hyphenated binary form and disagreed with the OG card's
-// own `$ the beat▌`. The name is the name: one lockup, title case, no prompt
-// and no cursor. The terminal conceit still carries everything around it —
-// the `--flag` nav here, the `>` kickers, and the newsletter form's genuine
-// command line (`$ the-beat subscribe --weekly`), which stays a command
-// because there it actually reads as one.
+// The blinking cursor is the wordmark, not decoration: the publication is
+// called The Beat and the block pulses at 1.1s, so the mark keeps time. That
+// is the whole joke and it only works with the cursor attached — never ship
+// this lockup without it.
+//
+// Two spellings to keep straight, because they have drifted before: the mark
+// is `the beat` with a SPACE (a name being typed), while the newsletter
+// form's genuine command line is `the-beat subscribe --weekly` with a HYPHEN
+// (a binary being invoked). Both take the `$` prompt; page kickers and the
+// favicon use `>` as a list marker instead.
 // scripts/build-og.mjs renders the same lockup — re-run it after any change.
 import { withBase } from '../lib/site';
 
@@ -37,7 +40,7 @@ const isCurrent = (url: string) => {
 <div class="chrome" style={`max-width:${max}`}>
   <header class="chrome-head">
     <a href={withBase('/')} class="chrome-mark">
-      The Beat
+      <span class="amber">$</span> the beat<span class="cur" aria-hidden="true">▌</span>
     </a>
     <nav class="chrome-nav" aria-label="Primary">
       {nav.map((n) => (

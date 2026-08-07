@@ -62,6 +62,9 @@ export const SIGNAL_KIND_LABELS: Record<CollectionEntry<'signals'>['data']['kind
   campaign: 'Campaign',
   discussion: 'Discussion',
   podcast: 'Podcast',
+  // Pattern items carry no chip on the stream or the front page — the item
+  // says what it is, and a label nobody else wears reads as a badge. The
+  // label survives for the issue roundup's section heading and the JSON.
   signal: 'Pattern',
 };
 

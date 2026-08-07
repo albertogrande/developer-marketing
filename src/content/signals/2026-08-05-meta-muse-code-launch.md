@@ -3,7 +3,7 @@ title: Meta launches Muse Code, pricing a data-sharing "contributor" tier 12x ch
 company: Meta
 date: 2026-08-05
 kind: launch
-summary: 'Meta launched Muse Code in beta on 2026-08-05, a terminal coding agent powered by Muse Spark 1.2 that competes directly with Claude Code and OpenAI Codex on macOS and Linux. Standard pay-as-you-go pricing is $1.25/$4.25 per million input/output tokens, but a "contributor" tier undercuts it roughly 12x on input and 21x on output ($0.10/$0.20) in exchange for Meta training on the user''s prompts and completions — a discount priced explicitly as a data trade rather than volume or seat pricing.'
+summary: 'Meta launched Muse Code in beta, a terminal coding agent powered by Muse Spark 1.2 that competes directly with Claude Code and OpenAI Codex on macOS and Linux. Standard pay-as-you-go pricing is $1.25/$4.25 per million input/output tokens, but a "contributor" tier undercuts it roughly 12x on input and 21x on output ($0.10/$0.20) in exchange for Meta training on the user''s prompts and completions — a discount priced explicitly as a data trade rather than volume or seat pricing.'
 tags: [pricing, ai-coding-agents, positioning]
 source:
   label: 'TechCrunch — Meta launches Muse Code, an AI agent for large code bases'

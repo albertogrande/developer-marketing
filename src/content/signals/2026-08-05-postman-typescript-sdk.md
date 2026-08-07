@@ -3,7 +3,7 @@ title: Postman ships an official TypeScript SDK that regenerates itself from the
 company: Postman
 date: 2026-08-05
 kind: release
-summary: 'Postman released @postman/api-sdk on 2026-08-05: a typed TypeScript client for the full Postman API — workspaces, collections, environments, monitors, mocks — regenerated deterministically from the API''s own specification, so an API change files an automated pull request against the SDK repository rather than waiting on manual maintenance. It is built with Postman''s own SDK Generator, which customers can point at their own APIs for the same auto-updating clients.'
+summary: 'Postman released @postman/api-sdk: a typed TypeScript client for the full Postman API — workspaces, collections, environments, monitors, mocks — regenerated deterministically from the API''s own specification, so an API change files an automated pull request against the SDK repository rather than waiting on manual maintenance. It is built with Postman''s own SDK Generator, which customers can point at their own APIs for the same auto-updating clients.'
 tags: [dx, docs, dogfooding]
 source:
   label: 'Postman Blog — Introducing @postman/api-sdk: the official TypeScript SDK for the Postman API'

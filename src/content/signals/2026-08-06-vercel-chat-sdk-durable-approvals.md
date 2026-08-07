@@ -3,7 +3,7 @@ title: Chat SDK adds a Slack approval card that survives redeploys
 company: Vercel
 date: 2026-08-06
 kind: release
-summary: 'Vercel shipped human-in-the-loop approvals in the Chat SDK on 2026-08-06 under a new `chat/workflow` subpath: `requestApproval` posts a Slack card with Approve and Deny buttons and suspends a Workflow SDK workflow until someone answers, returning `approved`, `user` and `timedOut`. The approval persists across deploys and restarts with no separate database table or polling loop, and supports scoped approvers, signature-verified decisions and an audit trail written back onto the card.'
+summary: 'Vercel shipped human-in-the-loop approvals in the Chat SDK under a new `chat/workflow` subpath: `requestApproval` posts a Slack card with Approve and Deny buttons and suspends a Workflow SDK workflow until someone answers, returning `approved`, `user` and `timedOut`. The approval persists across deploys and restarts with no separate database table or polling loop, and supports scoped approvers, signature-verified decisions and an audit trail written back onto the card.'
 tags: [agents, dx]
 source:
   label: 'Vercel Changelog — Pause workflows for approval with Chat SDK'

@@ -123,10 +123,6 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
           <span class="v3-sec-l"><a href={withBase('/signals')}>Signals</a></span>
           <span class="v3-rule" aria-hidden="true"></span>
         </h2>
-        <p class="v3-sec-dek">
-          The pulse — every qualifying event, captured daily from the whole
-          watchlist. Sourced, dated, small companies included.
-        </p>
         <ol class="v3-tl">
           {signalDays.map((day) => (
             <li class="v3-day">
@@ -138,8 +134,12 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
                       <span class="v3-ev-co">{b.data.company}</span>: {b.data.title}
                     </a>
                     <p class="v3-ev-m">
-                      <span class="fd-beatlabel">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
-                      <span class="dim" aria-hidden="true">·</span>
+                      {b.data.kind !== 'signal' && (
+                        <>
+                          <span class="fd-beatlabel">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
+                          <span class="dim" aria-hidden="true">·</span>
+                        </>
+                      )}
                       <a class="v3-ev-src" href={b.data.source.url} rel="noopener">{srcHost(b.data.source.url)} ↗</a>
                     </p>
                     <p class="v3-ev-s">{oneLine(b.data.summary)}</p>
@@ -216,16 +216,14 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
       </div>
     </section>
 
+    {/* The four doors the chrome nav carries, and the feed. Every other
+        shortcut still works and is still listed under `?` and in ⌘K — the
+        footer advertises the way in, not the whole keymap. */}
     <footer class="fm-keys">
       <a href={withBase('/signals')}><b>g&thinsp;i</b> signals</a>
       <a href={withBase('/issues')}><b>g&thinsp;w</b> the week</a>
       <a href={withBase('/guide')}><b>g&thinsp;g</b> guide</a>
-      <a href={withBase('/claims')}><b>g&thinsp;c</b> claims</a>
-      <a href={withBase('/examples')}><b>g&thinsp;e</b> examples</a>
-      <a href={withBase('/skills')}><b>g&thinsp;s</b> skills</a>
-      <a href={withBase('/resources')}><b>g&thinsp;o</b> resources</a>
       <a href={withBase('/about')}><b>g&thinsp;a</b> about</a>
-      <a href={withBase('/newsletter')}><b>g&thinsp;m</b> newsletter</a>
       <a href={withBase('/feed.xml')}><b>≋</b> feed</a>
     </footer>
   </div>

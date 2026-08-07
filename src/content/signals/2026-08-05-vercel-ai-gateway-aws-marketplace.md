@@ -3,7 +3,7 @@ title: AI Gateway lists on AWS Marketplace so procurement stops being the blocke
 company: Vercel
 date: 2026-08-05
 kind: release
-summary: 'Vercel put AI Gateway on AWS Marketplace on 2026-08-05: private offers with annual contract terms plus usage-based pricing beyond the contract, billed through the buyer''s existing AWS account with no markup over provider rates. Teams consolidate inference spend onto the AWS bill they already have instead of opening a separate vendor agreement.'
+summary: 'Vercel put AI Gateway on AWS Marketplace: private offers with annual contract terms plus usage-based pricing beyond the contract, billed through the buyer''s existing AWS account with no markup over provider rates. Teams consolidate inference spend onto the AWS bill they already have instead of opening a separate vendor agreement.'
 tags: [pricing, dx]
 source:
   label: 'Vercel Changelog — AI Gateway is now available on AWS Marketplace'

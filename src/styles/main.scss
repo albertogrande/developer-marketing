@@ -598,9 +598,9 @@ a:hover { text-decoration-color: var(--accent); color: var(--accent-2); }
 /* ---- chrome ---- */
 .chrome { margin: 0 auto; }
 .chrome-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 16px 20px 13px; flex-wrap: wrap; }
-/* The masthead, not a command: title case, a little tracking so it reads as a
-   name rather than a token, and no cursor. Stays in the furniture mono. */
-.chrome-mark { font-family: var(--font-mono); font-weight: 700; font-size: 18px; letter-spacing: .04em; color: var(--fg); text-decoration: none; white-space: nowrap; }
+/* `$ the beat▌` — a name being typed. No tracking: the mono grid is the point,
+   and the blinking cursor after it is the wordmark's beat. */
+.chrome-mark { font-family: var(--font-mono); font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; white-space: nowrap; }
 .chrome-mark:hover { color: var(--accent); }
 .chrome-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-family: var(--font-mono); font-size: 13px; }
 .chrome-nav a { color: var(--muted); text-decoration: none; }
@@ -987,7 +987,6 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .v3-sec-l a:hover { color: var(--accent); }
 .v3-rule { flex: 1; border-top: 1px dashed var(--rule-strong); position: relative; top: -3px; }
 .v3-sec .dim { font-size: 11px; }
-.v3-sec-dek { margin: -8px 0 14px; font-size: 13px; color: var(--muted); }
 
 /* -- the issue lead: framed so the week's piece reads as the headline ------- */
 .v3-lead {

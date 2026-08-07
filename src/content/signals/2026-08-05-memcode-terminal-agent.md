@@ -3,7 +3,7 @@ title: A terminal coding agent bets everything on persistent memory
 company: Memcode
 date: 2026-08-05
 kind: launch
-summary: 'Memcode launched on Show HN on 2026-08-05: a terminal coding agent in public beta, shipped as a single static binary with a one-line install, whose differentiator is persistent memory of a repository''s history, architecture and decisions across sessions — "every session starts already oriented instead of re-reading everything." Runs on Memcode credits or bring-your-own API keys.'
+summary: 'Memcode launched on Show HN: a terminal coding agent in public beta, shipped as a single static binary with a one-line install, whose differentiator is persistent memory of a repository''s history, architecture and decisions across sessions — "every session starts already oriented instead of re-reading everything." Runs on Memcode credits or bring-your-own API keys.'
 tags: [agents, ai-coding-agents, positioning]
 source:
   label: 'Memcode — a terminal coding agent with memory'

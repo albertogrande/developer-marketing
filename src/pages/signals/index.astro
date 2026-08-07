@@ -68,7 +68,9 @@ const DESCRIPTION =
             <article class="brief" id={b.id} data-date={isoDate(b.data.date)}>
               <div class="brief-top">
                 <span class="brief-co">{b.data.company}</span>
-                <span class="brief-chip" data-pagefind-filter="kind">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
+                {b.data.kind !== 'signal' && (
+                  <span class="brief-chip" data-pagefind-filter="kind">{SIGNAL_KIND_LABELS[b.data.kind]}</span>
+                )}
               </div>
               <h3 class="brief-h"><a href={`#${b.id}`}>{b.data.title}</a></h3>
               <p class="brief-sum">{b.data.summary}</p>
