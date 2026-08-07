@@ -15,19 +15,30 @@ name: Scout
 
 on:
   schedule:
-    # Daily at 00:40 UTC, sized backwards from two constraints.
+    # Daily at 02:50 UTC — as late in the US Pacific day as the deadline allows.
     #
-    # The window must close after the US publishing day: 00:40 UTC is 17:40
-    # PDT, and GitHub's scheduler adds 71–216 min of queue delay in practice
-    # (median 163 over the last fortnight), so the sweep actually fires
-    # ~01:50–04:15 UTC — 18:50–21:15 PDT, past the West Coast close.
+    # GitHub queues scheduled jobs: measured delay is 71–216 min (median 163),
+    # so this nominal 02:50 actually fires ~04:00–06:25 UTC = 21:00–23:25
+    # Pacific. That is the tail of the US day, which is the point.
     #
-    # The result must be on the site by 07:00 Madrid = 05:00 UTC. Worst
-    # observed delay (216 min) plus worst observed run (13 min) puts the
-    # push at 04:29 UTC, ~30 min of margin. Do NOT move this to minute 0:
-    # top-of-hour is the congested slot, and the old "0 5 * * *" was landing
-    # at 07:30–08:33 UTC — two to three hours late, every single day.
-    - cron: "40 0 * * *"
+    # It cannot go later. Pacific midnight is 07:00 UTC, which is 09:00 in
+    # Madrid — waiting for the calendar day to close in PT means starting the
+    # run at the far end of the window it is supposed to beat. Worst observed
+    # delay (216) plus worst observed run (13) already puts the push at 06:39
+    # UTC = 08:39 Madrid; anything later breaks the 08:00–09:00 target.
+    #
+    # Nothing is lost to the gap: the sweep runs `--days 2`, so a post that
+    # lands at 23:50 PT after the run is picked up by the next one, still
+    # inside its window. Freshness slips by a day for late-evening US posts;
+    # the event DB stays complete.
+    #
+    # Do NOT move this to minute 0 — top-of-hour is the congested slot, and
+    # the old "0 5 * * *" landed at 07:30–08:33 UTC, two to three hours late
+    # every single day.
+    #
+    # Holds in winter too: CET (UTC+1) and PST (UTC-8) keep the same 9h gap,
+    # so the fire lands 20:00–22:25 PST and the push at 07:39 Madrid worst case.
+    - cron: "50 2 * * *"
   workflow_dispatch:
     inputs:
       focus:
