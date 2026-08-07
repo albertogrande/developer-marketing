@@ -22,13 +22,14 @@ interface Props {
 // the `wide` prop is accepted for compatibility but no longer changes it.
 const max = 'var(--wrap)';
 
-// Four doors: the two stream forms, the reference, the masthead. Everything
-// else — claims, examples, skills, resources, the archives — is reached
-// through the guide, the command palette, or footers.
+// Five doors: the two stream forms, the reference, the jobs board, the
+// masthead. Everything else — claims, examples, skills, resources, the
+// archives — is reached through the guide, the command palette, or footers.
 const nav = [
   { label: 'issues', url: '/issues' },
   { label: 'the-signals', url: '/signals' },
   { label: 'the-guide', url: '/guide' },
+  { label: 'jobs', url: '/jobs' },
   { label: 'about', url: '/about' },
 ];
 const here = Astro.url.pathname.replace(/\/$/, '') || '/';
