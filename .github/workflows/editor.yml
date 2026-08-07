@@ -14,9 +14,12 @@ name: Editor
 
 on:
   schedule:
-    # Monday 07:00 UTC — after the week (Mon–Sun) has closed and after the
-    # Monday scout run, so the issue sees a complete signals file.
-    - cron: "0 7 * * 1"
+    # Monday 06:20 UTC — after the week (Mon–Sun) has closed and after the
+    # Monday scout run, so the issue sees a complete signals file. The scout
+    # now fires at 00:40 UTC and lands by 04:29 even at the worst observed
+    # queue delay, so this stays safely downstream of it; minute 20 dodges
+    # the congested top-of-hour slot the way the scout's 40 does.
+    - cron: "20 6 * * 1"
   workflow_dispatch: {}
 
 permissions:

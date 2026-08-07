@@ -15,9 +15,19 @@ name: Scout
 
 on:
   schedule:
-    # Daily at 05:00 UTC (night in Madrid). Off-peak so it doesn't compete with
-    # interactive Max usage.
-    - cron: "0 5 * * *"
+    # Daily at 00:40 UTC, sized backwards from two constraints.
+    #
+    # The window must close after the US publishing day: 00:40 UTC is 17:40
+    # PDT, and GitHub's scheduler adds 71–216 min of queue delay in practice
+    # (median 163 over the last fortnight), so the sweep actually fires
+    # ~01:50–04:15 UTC — 18:50–21:15 PDT, past the West Coast close.
+    #
+    # The result must be on the site by 07:00 Madrid = 05:00 UTC. Worst
+    # observed delay (216 min) plus worst observed run (13 min) puts the
+    # push at 04:29 UTC, ~30 min of margin. Do NOT move this to minute 0:
+    # top-of-hour is the congested slot, and the old "0 5 * * *" was landing
+    # at 07:30–08:33 UTC — two to three hours late, every single day.
+    - cron: "40 0 * * *"
   workflow_dispatch:
     inputs:
       focus:
