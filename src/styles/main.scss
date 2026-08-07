@@ -598,7 +598,10 @@ a:hover { text-decoration-color: var(--accent); color: var(--accent-2); }
 /* ---- chrome ---- */
 .chrome { margin: 0 auto; }
 .chrome-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 16px 20px 13px; flex-wrap: wrap; }
-.chrome-mark { font-family: var(--font-mono); font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; white-space: nowrap; }
+/* The masthead, not a command: title case, a little tracking so it reads as a
+   name rather than a token, and no cursor. Stays in the furniture mono. */
+.chrome-mark { font-family: var(--font-mono); font-weight: 700; font-size: 18px; letter-spacing: .04em; color: var(--fg); text-decoration: none; white-space: nowrap; }
+.chrome-mark:hover { color: var(--accent); }
 .chrome-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-family: var(--font-mono); font-size: 13px; }
 .chrome-nav a { color: var(--muted); text-decoration: none; }
 .chrome-nav a:hover { color: var(--accent); }

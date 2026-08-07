@@ -27,43 +27,36 @@ const OUT = new URL('../public/og-default.png', import.meta.url);
 
 // The masthead line, kept identical to Head.astro's full title.
 const TAGLINE = 'developer marketing, on the record';
-const WORDMARK = 'the beat';
+const WORDMARK = 'The Beat';
 const HOST = SITE_ORIGIN.replace(/^https?:\/\//, '').replace(/\/+$/, '');
 
-// The card is the header wordmark writ large, so it takes the wordmark's
-// prompt: "$", matching src/components/Chrome.astro. The site uses two prompt
-// glyphs by role — "$" for the wordmark, where it reads as a typed command,
-// and "&gt;" for page kickers and the favicon, where it is a list marker. An
-// earlier pass moved this card to "&gt;" on the mistaken belief that "$"
-// appeared nowhere else; it appears in the one place that matters most.
-const PROMPT = '$';
+// The card is the header wordmark writ large, so it carries no prompt and no
+// cursor either — the mark is the publication's name, not a typed command.
+// The "$" still belongs to genuine command lines (the newsletter form's
+// `$ the-beat subscribe --weekly`) and "&gt;" to page kickers and the favicon;
+// the wordmark simply stopped being one of them.
+//
+// History worth keeping: an earlier pass moved this card from "$" to "&gt;" on
+// the mistaken belief that "$" appeared nowhere else, and was reverted. The
+// card and src/components/Chrome.astro must always render the same lockup —
+// they drifted once (hyphen here, space there) and that is what retired the
+// command form.
 
 const BG = '#0d1117';
 const AMBER = '#f59e0b';
 const AMBER_SOFT = '#f0b429';
 const FG = '#e6edf3';
-const CURSOR = '#c9d1d9';
 const MUTED = '#8b949e';
 const FAINT = '#6e7681';
 
-// Menlo at font-size N advances 0.6*N per character — the block cursor has to
-// land exactly after the wordmark, so its x is computed, never eyeballed.
 const WORDMARK_SIZE = 64;
 const WORDMARK_X = 80;
-const ADVANCE = 0.6 * WORDMARK_SIZE;
-const cursorX = Math.round(WORDMARK_X + `${PROMPT} ${WORDMARK}`.length * ADVANCE);
-
-// XML-escape the prompt for the SVG source; the length maths above uses the
-// literal single character, not the entity.
-const promptGlyph = PROMPT.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="${BG}"/>
   <rect width="1200" height="8" fill="${AMBER}"/>
   <g font-family="Menlo, ui-monospace, monospace">
-    <text x="${WORDMARK_X}" y="280" font-size="${WORDMARK_SIZE}" font-weight="700" fill="${AMBER}">${promptGlyph}</text>
-    <text x="${WORDMARK_X + ADVANCE}" y="280" font-size="${WORDMARK_SIZE}" font-weight="700" fill="${FG}" xml:space="preserve"> ${WORDMARK}</text>
-    <rect x="${cursorX}" y="232" width="30" height="56" fill="${CURSOR}"/>
+    <text x="${WORDMARK_X}" y="280" font-size="${WORDMARK_SIZE}" font-weight="700" fill="${FG}" letter-spacing="2">${WORDMARK}</text>
     <text x="${WORDMARK_X}" y="360" font-size="34" fill="${AMBER_SOFT}">${TAGLINE}</text>
     <text x="${WORDMARK_X}" y="428" font-size="24" fill="${MUTED}">positioning · docs · devrel · dx · distribution</text>
     <text x="${WORDMARK_X}" y="466" font-size="24" fill="${MUTED}">daily signals, one weekly issue, and a guide kept current</text>

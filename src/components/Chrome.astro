@@ -1,11 +1,15 @@
 ---
-// Terminal chrome (inherited from Signals's mono-grid skin). A `$ the-beat`
-// mark with a blinking cursor and `--flag` nav.
+// Terminal chrome (inherited from The Wire's mono-grid skin). The mark is the
+// masthead — "The Beat", set in the furniture mono — over a `--flag` nav.
 //
-// The mark is a typed command, not a masthead — same binary name the
-// newsletter form invokes (`$ the-beat subscribe --weekly`), which is why the
-// prompt is `$` while page kickers use `>` as a list marker.
-// scripts/build-og.mjs renders a `$ the beat▌` lockup — re-run it to match.
+// It used to be a typed command (`$ the-beat▌`), which put the publication's
+// name in lowercase-hyphenated binary form and disagreed with the OG card's
+// own `$ the beat▌`. The name is the name: one lockup, title case, no prompt
+// and no cursor. The terminal conceit still carries everything around it —
+// the `--flag` nav here, the `>` kickers, and the newsletter form's genuine
+// command line (`$ the-beat subscribe --weekly`), which stays a command
+// because there it actually reads as one.
+// scripts/build-og.mjs renders the same lockup — re-run it after any change.
 import { withBase } from '../lib/site';
 
 interface Props {
@@ -33,7 +37,7 @@ const isCurrent = (url: string) => {
 <div class="chrome" style={`max-width:${max}`}>
   <header class="chrome-head">
     <a href={withBase('/')} class="chrome-mark">
-      <span class="amber">$</span> the-beat<span class="cur" aria-hidden="true">▌</span>
+      The Beat
     </a>
     <nav class="chrome-nav" aria-label="Primary">
       {nav.map((n) => (
