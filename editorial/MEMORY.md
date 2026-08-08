@@ -89,12 +89,10 @@ Recurring + thinly covered by the guide = special-issue candidate (flag below).
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
   (08-01 article; example + practice promoted 08-03). **The deprecation dive
   shipped** (2026-08-06, `the-deprecation-that-didnt-burn-anyone` — the
-  archive's final dive): house position — the window is the headline but
-  mechanics decide burn (published policy > per-event promise; dated phases;
-  API-as-channel/brownouts; day-one offramp; honest no-like-for-like;
-  compounding clocks — Spark's `llm()` broke before Spark's own notice
-  existed). Windows on file: Spark ~27d, Models 29d-to-dead, Cerebras ~1mo,
-  MCP 12mo, HCP Vagrant ~21mo. Open loops: **how Cerebras lands 08-17**
+  archive's final dive): house position on record — the window is the headline,
+  the mechanics decide burn; the six live in the piece. Windows on file: Spark
+  ~27d, Models 29d-to-dead, Cerebras ~1mo, MCP 12mo, HCP Vagrant ~21mo.
+  Open loops: **how Cerebras lands 08-17**
   (clean = deprecation-named errors + stable catalog, not silent 404s — log
   either way); second limits-raised case study; first vendor marketing a
   migration plan as a feature. Guide: §01, §04, §05, §07.
