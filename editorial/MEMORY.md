@@ -37,30 +37,32 @@ Recurring + thinly covered by the guide = special-issue candidate (flag below).
 - **AI assistants as a primary reader of your docs** `↑` — machine-mediated
   discovery: reading → selection → transaction. House position = the GEO dive
   (2026-07-17): reading = act now, selection = design for, measurement = don't
-  buy yet. **"Agent-safe by design" is a category** — canonical
-  detail in the 07-26 technology article; roster keeps growing (OneCLI, Common
-  Room `cr`, Axtary, ActionRail, Kastra, Sinch Agent Tools 08-04; Tines 3B =
-  citizen-builder governance).
-  **MCP became infrastructure** —
-  the 2026-07-28 spec (stateless core, CIMD auth, ~12-month deprecation
-  offramp, all Tier-1 SDKs day one, six hyperscalers committed) is canonical
-  in the 07-29 technology article; download figures = self-reported SDK pulls,
-  vendor commitments ≠ shipped integrations. Follow-through fast: Copilot code
-  review skills+MCP GA + Anthropic rollout 07-29. W31 digest + guide (§02 MCP
-  bullet, §06) + practice carry MCP-as-table-stakes and the Google retrieval/
-  ranking split (Search ignores llms.txt; Lighthouse audits it unscored).
-  `SKILL.md` sub-thread: Copilot GA = GitHub as second skills-as-a-file vendor;
-  promote on a third + usage evidence. **Stranded-integrator thread shipped as news
-  article 08-04** (`2026-08-04-mcp-directory-review`, Rio: the MCP directory is a
-  *gated distribution channel*, review mechanics multiply-sourced) — house move in
-  guide §06. Watching: corroboration of other stranded Google-Form-era submitters; a
-  review SLA/appeals path. "Agent experience" analytics is now a category not one tool (Armature YC 08-04 +
-  AgentCat, both MCP-session reconstruction). **Countertrend** (08-07, proposal not yet
-  merged): Emacs's draft AGENTS.md tells LLMs to search/analyze, not generate, and to
-  surface its no-LLM-contributions policy — roster so far only logged enabling adoptions.
-  Open loops: a devtool reporting attributed AI-referral signups with a number by end of
-  Q3 2026; a major MCP host publishing a dated migration plan by end of Sept; where
-  pre-action authz consolidates. Guide: §02, §06.
+  buy yet. **"Agent-safe by design" is a category** — canonical detail in the
+  07-26 technology article; roster keeps growing (OneCLI, Common Room `cr`,
+  Axtary, ActionRail, Kastra, Sinch Agent Tools 08-04; Tines 3B = governance).
+  **MCP became infrastructure** — the 07-28 spec (stateless core, CIMD auth,
+  ~12mo deprecation offramp, all Tier-1 SDKs day one, six hyperscalers) is
+  canonical in the 07-29 technology article; W31 digest + guide (§02, §06) +
+  practice carry MCP-as-table-stakes. `SKILL.md` sub-thread: Copilot GA =
+  GitHub as second skills-as-a-file vendor; **skills.sh adds packs 08-07**
+  (Vercel — bundle skills into one shareable/installable link), a
+  distribution primitive for the same thread; promote on a third vendor +
+  usage evidence. **Stranded-integrator thread shipped as news article
+  08-04** (`2026-08-04-mcp-directory-review`, Rio: the MCP directory is a
+  *gated distribution channel*, review mechanics multiply-sourced) — house
+  move in guide §06. Watching: corroboration of other stranded submitters; a
+  review SLA/appeals path. "Agent experience" analytics is now a category, not
+  one tool (Armature YC 08-04 + AgentCat, both MCP-session reconstruction).
+  **Countertrend** (08-07, proposal not merged): Emacs's draft AGENTS.md tells
+  LLMs to search/analyze, not generate, and surface its no-LLM-contributions
+  policy — roster so far only logged enabling adoptions. **Reading into
+  acting** (08-08): Cloudflare's Kitesurf, an agent-only browser trading human
+  affordances for token/CPU cost, and Supabase joining Perplexity Computer as
+  a connector that reads/writes Postgres from chat — the transaction stage the
+  GEO dive said not to measure yet is starting to ship product. Open loops: a
+  devtool reporting attributed AI-referral signups by end of Q3 2026; a major
+  MCP host publishing a dated migration plan by end of Sept; where pre-action
+  authz consolidates. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common

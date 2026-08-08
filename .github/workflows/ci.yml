@@ -28,6 +28,13 @@ jobs:
       - run: npm run build
       # The newsletter's own suite: crypto, storage, encoders and the service.
       - run: npm test
+      # Editorial state. This also runs in editorial-gates, but only there is
+      # too late: a push that puts editorial/ or signals/ out of bounds passes
+      # CI and then fails every autonomous writer until someone notices. The
+      # jobs board did exactly that — it added signals/jobs/, which the gate
+      # did not know about, and the next scout died with the day's writing in
+      # a rescue artifact. Fail on the push instead.
+      - run: node scripts/check-editorial.mjs
       # Source liveness on content changed by this PR/push (no-op when the
       # diff touches no content).
       - run: node scripts/check-sources.mjs --changed

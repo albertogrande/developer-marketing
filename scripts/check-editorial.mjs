@@ -12,6 +12,14 @@
 // line parses and carries an id, ts and url; the query tools replay these
 // blind, so a malformed line is corruption, not style).
 //
+// signals/ has exactly two subdirectories, and they are listed in SUBDIRS
+// rather than checked one-off: db/ (the event log) and jobs/ (the board's
+// stored state). Adding a third means adding it here in the same commit —
+// the jobs board shipped without that and stopped every writer run for a day,
+// because this gate runs only in editorial-gates and `npm run check`, not in
+// CI on push. CI now runs it too, so the next such directory fails on the
+// push that adds it rather than on the next scout.
+//
 // Runs in `npm run check` and the editorial-gates action. Warns at 90% of
 // cap, fails above cap.
 
@@ -39,11 +47,16 @@ if (existsSync(MEMORY)) {
 }
 
 // --- signals/ filenames -----------------------------------------------------
+const SUBDIRS = new Set(['db', 'jobs']);
 if (existsSync('signals')) {
   for (const e of readdirSync('signals', { withFileTypes: true })) {
     if (e.name.startsWith('.')) continue;
     if (e.isDirectory()) {
-      if (e.name !== 'db') problems.push(`signals/${e.name}/: unexpected directory — only db/ lives here`);
+      if (!SUBDIRS.has(e.name)) {
+        problems.push(
+          `signals/${e.name}/: unexpected directory — only ${[...SUBDIRS].join('/, ')}/ live here`
+        );
+      }
       continue;
     }
     if (e.name === 'entities.json') continue; // validated below
@@ -109,6 +122,42 @@ if (existsSync('signals/db')) {
         problems.push(`signals/db/${f}:${i + 1}: unparsable JSON line`);
       }
     });
+  }
+}
+
+// --- signals/jobs/ board state -----------------------------------------------
+// scripts/jobs-merge.mjs owns every integrity decision about a listing; this
+// gate only checks that the directory holds what it should and that the stored
+// state still parses, since the /jobs page and /jobs.json read it at build.
+if (existsSync('signals/jobs')) {
+  const JOB_FILES = new Set(['jobs.json', 'sources.json', 'incoming.json']);
+  for (const f of readdirSync('signals/jobs')) {
+    if (f.startsWith('.')) continue;
+    if (!JOB_FILES.has(f)) {
+      problems.push(`signals/jobs/${f}: unexpected file — only ${[...JOB_FILES].join(', ')} live here`);
+      continue;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(readFileSync(`signals/jobs/${f}`, 'utf8'));
+    } catch (e) {
+      problems.push(`signals/jobs/${f}: does not parse (${e.message})`);
+      continue;
+    }
+    // jobs.json is the rendered board; a non-array or a duplicate id is
+    // corruption the page would render silently.
+    if (f === 'jobs.json') {
+      if (!Array.isArray(parsed)) {
+        problems.push('signals/jobs/jobs.json: not an array — the board reads it as a list');
+        continue;
+      }
+      const ids = new Set();
+      for (const [i, job] of parsed.entries()) {
+        if (!job?.id) problems.push(`signals/jobs/jobs.json[${i}]: listing missing id`);
+        else if (ids.has(job.id)) problems.push(`signals/jobs/jobs.json: id "${job.id}" appears twice`);
+        else ids.add(job.id);
+      }
+    }
   }
 }
 
