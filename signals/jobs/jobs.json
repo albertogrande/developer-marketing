@@ -1,1 +1,186 @@
-[]
+[
+  {
+    "title": "B2B Growth Marketer - Belgium",
+    "company": "ElevenLabs",
+    "companyUrl": "https://elevenlabs.io",
+    "location": "Remote, Belgium",
+    "remote": "remote",
+    "region": "eu",
+    "category": "growth",
+    "tags": [
+      "growth-marketing",
+      "ai",
+      "demand-generation"
+    ],
+    "salary": null,
+    "url": "https://elevenlabs.io/careers/7c9abf17-1e6b-4038-92ba-bea97293627a/b2b-growth-marketer-belgium",
+    "source": "hackmamba-devtooljobs",
+    "summary": "ElevenLabs' first marketing hire in Belgium, building B2B demand generation programs to scale enterprise pipeline across priority industries for this AI voice company.",
+    "postedAt": null,
+    "id": "353552801316a2e6",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Product Marketing Manager, ChatGPT for Work",
+    "company": "OpenAI",
+    "companyUrl": "https://openai.com",
+    "location": "US - Remote",
+    "remote": "remote",
+    "region": "usa",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "ai",
+      "chatgpt"
+    ],
+    "salary": null,
+    "url": "https://openai.com/careers/product-marketing-manager-chatgpt-for-work-remote-us/",
+    "source": "search",
+    "summary": "Owns marketing strategy and go-to-market for ChatGPT's business/workplace product line at OpenAI.",
+    "postedAt": null,
+    "id": "cc67064b2ad70d51",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Product Marketing Manager, Platform",
+    "company": "OpenAI",
+    "companyUrl": "https://openai.com",
+    "location": "Remote (US)",
+    "remote": "remote",
+    "region": "usa",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "ai",
+      "developer-platform"
+    ],
+    "salary": null,
+    "url": "https://openai.com/careers/product-marketing-manager-platform-remote-us/",
+    "source": "search",
+    "summary": "Develops and executes marketing strategy to drive developer and enterprise adoption of OpenAI's API/platform products.",
+    "postedAt": null,
+    "id": "1e94306c8a5abf29",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Director, Growth Marketing",
+    "company": "OpenRouter",
+    "companyUrl": "https://openrouter.ai",
+    "location": "United States, Remote",
+    "remote": "remote",
+    "region": "usa",
+    "category": "marketing-leadership",
+    "tags": [
+      "growth-marketing",
+      "ai-infrastructure",
+      "director"
+    ],
+    "salary": null,
+    "url": "https://jobs.ashbyhq.com/openrouter/9c1cb711-cd17-4d07-9be5-f122c0a865b9",
+    "source": "mkt1-jobs",
+    "summary": "Director-level, player/coach role running OpenRouter's self-serve growth engine (paid media, AEO/SEO, conversion, measurement) for this AI model-routing API platform, with a $5M+ 2027 paid budget.",
+    "postedAt": null,
+    "id": "be2e6b945c6889fa",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Senior Growth Marketer",
+    "company": "Railway",
+    "companyUrl": "https://railway.com",
+    "location": "Remote (anywhere)",
+    "remote": "remote",
+    "region": "worldwide",
+    "category": "growth",
+    "tags": [
+      "growth-marketing",
+      "developer-tools",
+      "infrastructure"
+    ],
+    "salary": null,
+    "url": "https://railway.com/careers/growth-marketer",
+    "source": "mkt1-jobs",
+    "summary": "A T-shaped growth marketer for Railway's deployment platform, owning a growth channel (SEO/AEO, brand, partnerships, or lead capture) end-to-end including hands-on implementation.",
+    "postedAt": null,
+    "id": "a59ac7f030302720",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Growth Marketer",
+    "company": "Resend",
+    "companyUrl": "https://resend.com",
+    "location": "Americas / Remote",
+    "remote": "remote",
+    "region": "usa",
+    "category": "growth",
+    "tags": [
+      "growth-marketing",
+      "developer-tools",
+      "email-api"
+    ],
+    "salary": "$140,000–$180,000",
+    "url": "https://resend.com/careers/0662df8f-575a-4e77-a756-aa7f7ea1e45c",
+    "source": "search",
+    "summary": "Resend's inaugural Growth Marketer, owning the acquisition funnel end-to-end (sign-up sources, free-to-paid conversion, landing pages, paid spend) at this developer-focused email API company.",
+    "postedAt": null,
+    "id": "0b8cf8aa8be34298",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Senior Product Marketing Manager [IC4]",
+    "company": "Sourcegraph",
+    "companyUrl": "https://sourcegraph.com",
+    "location": "Remote (USA - West preferred, hire almost anywhere)",
+    "remote": "remote",
+    "region": "worldwide",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "developer-tools",
+      "code-search"
+    ],
+    "salary": "$144,000–$180,000",
+    "url": "https://job-boards.greenhouse.io/sourcegraph91/jobs/6132206004",
+    "source": "search",
+    "summary": "Drives technical product marketing and go-to-market strategy for Sourcegraph's developer infrastructure platform, translating deep technical capability into narratives for enterprise engineering teams.",
+    "postedAt": null,
+    "id": "bac2255ca2bfdef5",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  },
+  {
+    "title": "Product Marketing Manager",
+    "company": "Stripe",
+    "companyUrl": "https://stripe.com",
+    "location": "Remote in United States (or Chicago/New York/SF office)",
+    "remote": "remote",
+    "region": "usa",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "fintech-api",
+      "payments"
+    ],
+    "salary": "$145,000–$217,600",
+    "url": "https://stripe.com/jobs/listing/product-marketing-manager/6348471",
+    "source": "search",
+    "summary": "Product marketer developing messaging, go-to-market strategy, and adoption plans for Stripe's payments products across enterprise and startup segments.",
+    "postedAt": null,
+    "id": "26ec53ec10e3974a",
+    "firstSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-09",
+    "missedRuns": 0
+  }
+]
