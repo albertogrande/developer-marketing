@@ -26,12 +26,15 @@ export default defineConfig({
   site: SITE_ORIGIN,
   base: SITE_BASE,
   trailingSlash: 'ignore',
-  // The 2026-08 content-model rename (briefs→wire, weekly→issues,
+  // The 2026-08 content-model rename (briefs→wire→signals, weekly→issues,
   // practices→claims) kept every published URL alive as a meta-refresh stub.
+  // Each stub points at the route's CURRENT name, never at an intermediate
+  // one: /wire stopped being a page in the signals rename, so a stub aimed
+  // there 404s anywhere the Vercel redirect table isn't in front of the build.
   // The per-issue set is closed — no future issue ever lived under /weekly —
   // so it is enumerated from disk rather than pattern-matched.
   redirects: {
-    '/briefs': '/wire',
+    '/briefs': '/signals',
     '/weekly': '/issues',
     '/practices': '/claims',
     ...Object.fromEntries(
