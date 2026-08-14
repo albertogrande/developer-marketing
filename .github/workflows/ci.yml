@@ -26,6 +26,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # The same editorial-state gate the nightly writers run. Without it here,
+      # a structural change (a new directory under signals/, a malformed
+      # registry) sails through CI green and detonates at 3am in an unattended
+      # run instead — the 08-08..08-14 outage was exactly that.
+      - run: node scripts/check-editorial.mjs
       # The newsletter's own suite: crypto, storage, encoders and the service.
       - run: npm test
       # Source liveness on content changed by this PR/push (no-op when the

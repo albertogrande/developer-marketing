@@ -7,12 +7,13 @@ date: 2026-07-26
 summary: A repeatable sweep of developer conversation across Reddit, Hacker News, Discord and issue trackers, turned into notes a DevRel team can act on.
 job: research
 agents: [claude-code, cursor, windsurf, codex]
-install: npx skills add jonathimer/devmarketing-skills
+install: npx add-skill jonathimer/devmarketing-skills
 license: MIT
+updated: 2026-08-10
 caveat: Public conversation only — the sharpest signal about your own product still arrives in the support queue and the issue tracker.
 section: 03-devrel-and-community
 tags: [devrel, community, research, listening]
-verified: 2026-07-26
+verified: 2026-08-10
 source:
   label: 'devmarketing-skills: developer-listening'
   url: https://github.com/jonathimer/devmarketing-skills/tree/main/skills/developer-listening

@@ -228,5 +228,123 @@
     ],
     "name": "Emacs",
     "kind": "tool"
+  },
+  "toolport": {
+    "aliases": [
+      "conduit"
+    ],
+    "name": "Toolport",
+    "kind": "tool"
+  },
+  "salesforce": {
+    "aliases": [],
+    "name": "Salesforce",
+    "kind": "company"
+  },
+  "common-room": {
+    "aliases": [
+      "commonroom"
+    ],
+    "name": "Common Room",
+    "kind": "company"
+  },
+  "bodaty": {
+    "aliases": [
+      "aictrlnet"
+    ],
+    "name": "Bodaty",
+    "kind": "company"
+  },
+  "spotify": {
+    "aliases": [],
+    "name": "Spotify",
+    "kind": "company"
+  },
+  "nutanix": {
+    "aliases": [],
+    "name": "Nutanix",
+    "kind": "company"
+  },
+  "prime-intellect": {
+    "aliases": [
+      "primeintellect"
+    ],
+    "name": "Prime Intellect",
+    "kind": "company"
+  },
+  "val-town": {
+    "aliases": [
+      "valtown"
+    ],
+    "name": "Val Town",
+    "kind": "company"
+  },
+  "launchdarkly": {
+    "aliases": [],
+    "name": "LaunchDarkly",
+    "kind": "company"
+  },
+  "gneiss-group": {
+    "aliases": [
+      "kessa"
+    ],
+    "name": "Gneiss Group",
+    "kind": "company"
+  },
+  "lovable": {
+    "aliases": [],
+    "name": "Lovable",
+    "kind": "company"
+  },
+  "coderabbit": {
+    "aliases": [],
+    "name": "CodeRabbit",
+    "kind": "company"
+  },
+  "blacksmith": {
+    "aliases": [
+      "codesmith"
+    ],
+    "name": "Blacksmith",
+    "kind": "company"
+  },
+  "river-ai": {
+    "aliases": [
+      "river"
+    ],
+    "name": "River AI",
+    "kind": "company"
+  },
+  "humanlayer": {
+    "aliases": [],
+    "name": "HumanLayer",
+    "kind": "company"
+  },
+  "cognition": {
+    "aliases": [
+      "devin"
+    ],
+    "name": "Cognition",
+    "kind": "company"
+  },
+  "zerodrift": {
+    "aliases": [],
+    "name": "ZeroDrift",
+    "kind": "company"
+  },
+  "nextslide": {
+    "aliases": [],
+    "name": "NextSlide",
+    "kind": "company"
+  },
+  "databricks": {
+    "aliases": [],
+    "name": "Databricks",
+    "kind": "company"
+  },
+  "deepseek": {
+    "aliases": [],
+    "name": "DeepSeek",
+    "kind": "company"
   }
 }
