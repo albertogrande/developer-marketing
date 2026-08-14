@@ -8,7 +8,7 @@ tags: [positioning, pricing, content]
 since: 2026 DevGTM operator consensus (PostHog, Tinybird, GitBook, Mozilla, APIwiz — Hackmamba roundup)
 verify: Every quantitative claim on your homepage links to something a visitor can check; your pricing page shows a number without a sales call.
 status: current
-checked: 2026-07-11
+checked: 2026-08-10
 updated: 2026-07-11
 sources:
   - label: Hackmamba — Marketing to developers, lessons from DevGTM experts

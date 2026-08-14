@@ -10,19 +10,18 @@ open loops here, not the narrative. This is the brain that keeps the
 ## Standing editorial findings
 
 - **2026-07-11, the practices bar**: a corpus's edge over a bare model is
-  current, dated, sourced facts — not timeless judgment. Practices that decay
-  to "model already knows this" get retired or refreshed.
-- **2026-07-11, the examples swipe file**: `src/content/examples/` catalogs
-  real, sourced artifacts — the evidence layer under practices and guide.
+  current, dated, sourced facts — practices that decay to "model already
+  knows this" get retired or refreshed.
+- **2026-07-11, the examples swipe file**: `src/content/examples/` = real,
+  sourced artifacts, the evidence layer under practices and guide.
   **Weekly-editor promotion, 0–3/week, often zero — never a quota.**
-- **2026-07-11, desk transition**: daily radar quota retired; now signals
-  (internal, daily) + The Beat (Mondays). Radar is closed — never add.
-- **2026-08-06, two writers**: the newsroom (daily articles) and the deep
-  dive retired; `src/content/articles/` and `src/content/deep-dives/` are
-  archives. Events → Signals (scout, daily); analysis → the weekly issue
-  (editor, Mondays), which runs long as a **special issue** when a thread
-  earned depth. Claims carry `status`/`checked`; the editor reconciles ~3 of
-  the stalest each week.
+- **2026-07-11, desk transition**: radar quota retired; now signals (daily,
+  internal) + The Beat (Mondays). Radar closed — never add.
+- **2026-08-06, two writers**: newsroom and deep-dive desks retired;
+  `articles/` and `deep-dives/` are archives. Events → Signals (scout,
+  daily); analysis → the weekly issue (editor, Mondays), long as a
+  **special issue** when a thread earned depth. Claims carry
+  `status`/`checked`; the editor reconciles ~3 of the stalest weekly.
 - **2026-07-26, the directory + the newsletter** (charter rules 8 and 9).
   `src/content/resources/` = who to hire (live site, verifiable `signal`,
   `checked` date, **nothing for sale**; maintenance on demand). Newsletter =
@@ -31,36 +30,33 @@ open loops here, not the narrative. This is the brain that keeps the
 
 ## Running threads
 
-Momentum tags `↑`/`→`/`↓`; `Tension:` when evidence cuts against a thread.
-Recurring + thinly covered by the guide = special-issue candidate (flag below).
+Momentum `↑`/`→`/`↓`; `Tension:` = evidence cuts against; recurring + thin
+guide coverage = special-issue candidate (flag below).
 
 - **AI assistants as a primary reader of your docs** `↑` — machine-mediated
   discovery: reading → selection → transaction. House position = the GEO dive
-  (2026-07-17): reading = act now, selection = design for, measurement = don't
-  buy yet. **"Agent-safe by design" is a category** — canonical
-  detail in the 07-26 technology article; roster keeps growing (OneCLI, Common
-  Room `cr`, Axtary, ActionRail, Kastra, Sinch Agent Tools 08-04; Tines 3B =
-  citizen-builder governance).
-  **MCP became infrastructure** —
-  the 2026-07-28 spec (stateless core, CIMD auth, ~12-month deprecation
-  offramp, all Tier-1 SDKs day one, six hyperscalers committed) is canonical
-  in the 07-29 technology article; download figures = self-reported SDK pulls,
-  vendor commitments ≠ shipped integrations. Follow-through fast: Copilot code
-  review skills+MCP GA + Anthropic rollout 07-29. W31 digest + guide (§02 MCP
-  bullet, §06) + practice carry MCP-as-table-stakes and the Google retrieval/
-  ranking split (Search ignores llms.txt; Lighthouse audits it unscored).
-  `SKILL.md` sub-thread: Copilot GA = GitHub as second skills-as-a-file vendor;
-  promote on a third + usage evidence. **Stranded-integrator thread shipped as news
-  article 08-04** (`2026-08-04-mcp-directory-review`, Rio: the MCP directory is a
-  *gated distribution channel*, review mechanics multiply-sourced) — house move in
-  guide §06. Watching: corroboration of other stranded Google-Form-era submitters; a
-  review SLA/appeals path. "Agent experience" analytics is now a category not one tool (Armature YC 08-04 +
-  AgentCat, both MCP-session reconstruction). **Countertrend** (08-07, proposal not yet
-  merged): Emacs's draft AGENTS.md tells LLMs to search/analyze, not generate, and to
-  surface its no-LLM-contributions policy — roster so far only logged enabling adoptions.
-  Open loops: a devtool reporting attributed AI-referral signups with a number by end of
-  Q3 2026; a major MCP host publishing a dated migration plan by end of Sept; where
-  pre-action authz consolidates. Guide: §02, §06.
+  (2026-07-17). **"Agent-safe by design" is a category** (07-26 article;
+  roster: OneCLI, Common Room `cr`, Axtary, ActionRail, Kastra, Sinch 08-04;
+  Tines 3B). **MCP became infrastructure** — 2026-07-28 spec canonical in the
+  07-29 article; W31 + guide (§02, §06) + practice carry MCP-as-table-stakes
+  and the Google retrieval/ranking split. `SKILL.md` sub-thread: promote on a
+  third skills-as-a-file vendor + usage evidence. **Directory = gated
+  channel** (08-04 article, house move in §06); **W32 put numbers on the
+  gate**: Symonds' dated timeline (submitted 03-22, queue discarded 07-30;
+  OpenAI approved same connector in 29 days) — still one account, §06 carries
+  it. Distribution rail consolidating: Vercel Agent Plugins 1.0.0 (08-06,
+  AWS/Anysphere/GitHub/Microsoft/OpenAI; watch non-signers); pre-action
+  authz has two rival answers (Auth0 XAA, IdP-mediated, 08-06 vs. Eve
+  Maler's U4A PoC, resource-owner-mediated, 08-10) — watch which an MCP host
+  ships. "Agent experience" analytics is a category (Armature + AgentCat).
+  **Reading into acting** (08-08): Kitesurf (agent-only browser) and
+  Supabase as a read/write Perplexity connector — the transaction stage is
+  shipping product; enterprise infra joined the roster (Nutanix MCP server,
+  08-11). Countertrend: Emacs draft AGENTS.md (08-03, unmerged) restricts
+  agents rather than enabling them. Open loops: second stranded-integrator
+  account or an Anthropic review SLA by end of Aug (W32 watch #3);
+  attributed AI-referral signups by end of Q3; a major MCP host's dated
+  migration plan by end of Sept. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common
@@ -72,53 +68,59 @@ Recurring + thinly covered by the guide = special-issue candidate (flag below).
   house position on record — report the *program* in four auditable numbers,
   manage the *people* on craft. Kept detail: DevRel Foundation Metrics WG
   archived 2025-11-08; 11th survey wave = 62% report to C-level / 18% link
-  revenue / 61% can't demonstrate impact. Hiring-bar claim (07-17) still
-  single-sourced; DevRelCon recaps absent through 08-06 (14 days post-wrap) —
-  the W32 weekly decides retirement at the mid-August deadline. Open loops:
+  revenue / 61% can't demonstrate impact. **Hiring-bar claim retired 08-10**
+  (W32, on the standing deadline): zero DevRelCon NYC recaps 18 days
+  post-wrap — one person's job search; said so in the issue. Open loops:
   fourth signal-tool deal / first disclosed price; a second AI devtool
   shipping passive-seat reporting, or a public renewal story citing one, by
-  end of Q3; the recaps. Guide: §08, §03.
+  end of Q3. Guide: §08, §03.
 - **Developer population plateau → segment depth** `→` — SlashData: ~47M
   developers, ~10% y/y and decelerating, shifting to South Asia / Greater
   China. Re-check each wave (none since April). Guide: §01, §06.
 - **Verification-first marketing** `↑` — developers fact-check in public;
-  ship proof, not adjectives. Two campaigns examples on record, distinct
-  mechanics: HeimWall's honest benchmark (07-21 article; example 07-27) and
+  ship proof, not adjectives. Three campaigns examples on record, distinct
+  mechanics: HeimWall's honest benchmark (07-21 article; example 07-27),
   Cloudflare's cdnjs dogfooding measured by the public limits it raised
-  (08-01 article; example + practice promoted 08-03). **The deprecation dive
-  shipped** (2026-08-06, `the-deprecation-that-didnt-burn-anyone` — the
-  archive's final dive): house position — the window is the headline but
-  mechanics decide burn (published policy > per-event promise; dated phases;
-  API-as-channel/brownouts; day-one offramp; honest no-like-for-like;
-  compounding clocks — Spark's `llm()` broke before Spark's own notice
-  existed). Windows on file: Spark ~27d, Models 29d-to-dead, Cerebras ~1mo,
-  MCP 12mo, HCP Vagrant ~21mo. Open loops: **how Cerebras lands 08-17**
+  (08-01 article; example + practice promoted 08-03), and Sentry's Seer
+  workflow post printing the counter-number (close-without-merge +12.5%)
+  and arguing it healthy — example promoted + §05 updated 08-10. **The
+  deprecation dive shipped** (2026-08-06, `the-deprecation-that-didnt-burn-anyone`):
+  the window is the headline, mechanics decide burn. Windows ledger (now in
+  §04 + claim distilled 08-10): Spark ~27d, Models 29d-to-dead, Cerebras
+  ~1mo, MCP 12mo, HCP Vagrant ~21mo. Open loops: **how Cerebras lands 08-17**
   (clean = deprecation-named errors + stable catalog, not silent 404s — log
-  either way); second limits-raised case study; first vendor marketing a
-  migration plan as a feature. Guide: §01, §04, §05, §07.
+  either way; W32 watch #2); second limits-raised case study; first vendor
+  marketing a migration plan as a feature. Guide: §01, §04, §05, §07.
 - **Earned distribution still tops the stack** `→` — Juggler's 07-12 Show HN
   (276 pts, solo, unfunded, AGPL): reputation + a runnable artifact out-distributes
   launch budget (→ example); Launch HN is the default GTM for agent-infra startups.
   Tension: Block's Buzz (07-21, 304 pts, "LLM slop" verdict) — founder credibility
   buys attention, not the verdict. Guide: §06, §07.
-- **AI features priced as seat + meter** `→` — the devtools default: per-seat
-  license + metered model consumption; GitHub Code Quality GA extended it from
-  generation to review (money article 07-22; §01 + practice carry the shape).
-  **New variant 08-07**: Meta's Muse Code beta prices a "contributor" tier
-  ~12x/21x cheaper for training rights on prompts/completions — a discount
-  sold as a data trade, not volume or seats. Open loops: first *non-generative*
-  feature on a metered AI line; Copilot promo-credit lapse (~Sept 2026) →
-  bill-shock; a second vendor following Meta's data-tier shape. Guide: §01, §04.
+- **AI features priced as seat + meter — and now data rights** `↑` — the
+  devtools default: per-seat license + metered consumption (money article
+  07-22; §01 + practice carry the shape). **W32 centered the Meta variant**:
+  Muse Code's "contributor" tier ~12x/21x cheaper for training rights — a
+  discount sold as a data trade; claim distilled + §01 updated 08-10 (a
+  training-data policy now has a public market rate; put it on the pricing
+  page). Tension (08-11): Meta open-sourced Muse Glimmer (30B, Apache 2.0,
+  free) the same month — the opposite distribution model. Context: coding
+  agents commoditized — three entrants in 48h (Muse/Memcode/Clark), none on
+  capability; accessory market arrived (Mirafold); pattern signal 08-07.
+  Open loops: incumbent ships or rules out a data tier by end of Aug (W32
+  watch #1); first *non-generative* metered feature; Copilot promo-credit
+  lapse (~Sept 2026) → bill-shock.
+  Guide: §01, §04.
 
 ## Special-issue candidates
 
 Promote here when a thread recurs in signals AND the guide covers it thinly.
-The Monday editor checks this list before deciding the issue's shape; most
-weeks none is ripe and the issue stays normal — never force a special.
+Most weeks none is ripe and the issue stays normal — never force a special.
 
-- **The measurable-ROI DevRel hiring bar** — one practitioner's claim (07-17);
-  zero DevRelCon recaps corroborate it through 08-06. **Retire if none by
-  mid-August** (the W32 weekly decides).
+- **The terms sheet is the product** — the W30→W32 arc (seat pricing → exit
+  windows → data trades) argued weekly; a special could unify it as one
+  surface: how devtools terms became public, comparable positioning. Ripens
+  if an incumbent answers Meta's data tier or the Copilot credit lapse lands
+  (~Sept). Watching.
 - **What a developer segment is actually worth** — if the plateau holds
   across the next SlashData wave, "pick a segment and go deep" deserves
   numbers: how operators size and choose segments. Not yet — watching.
@@ -130,9 +132,8 @@ weeks none is ripe and the issue stays normal — never force a special.
 ## Evergreen shelf
 
 Durable subjects a practitioner will still need in a year — always ripe.
-A special issue may take from here when no trendy thread has earned the
-depth. **Keep at least three on the shelf**: whoever takes one replaces it,
-drawn from the thinnest guide sections.
+**Keep at least three on the shelf**: whoever takes one replaces it, drawn
+from the thinnest guide sections.
 
 - **What a quickstart owes the reader** — the anatomy of a first five
   minutes: what to cut, what to hard-code, when a sandbox key beats a
@@ -165,6 +166,5 @@ The nine evergreen sections and what each owns — *where* a fact belongs.
 
 ## Published coverage
 
-The per-piece index is `editorial/COVERAGE.md`, generated from content
-frontmatter by the gates — grep it for what has already run; never append by
-hand. (Radar archive: 5 entries, closed.)
+Per-piece index: `editorial/COVERAGE.md`, generated by the gates — grep it;
+never append by hand. (Radar archive: 5 entries, closed.)

@@ -15,7 +15,7 @@ license: Apache-2.0 (per-skill may differ)
 caveat: Commits are the wrong source for why a change matters. It drafts the what; the why, the migration note and the breaking-change warning are yours.
 section: 07-launches
 tags: [launches, changelog, releases, docs]
-verified: 2026-07-26
+verified: 2026-08-10
 source:
   label: 'awesome-claude-skills: changelog-generator'
   url: https://github.com/ComposioHQ/awesome-claude-skills/tree/master/changelog-generator
