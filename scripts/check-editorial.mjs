@@ -39,11 +39,16 @@ if (existsSync(MEMORY)) {
 }
 
 // --- signals/ filenames -----------------------------------------------------
+// db/ is the scout's event log; jobs/ is the jobs board's store (validated
+// below). Anything else is a stray — the 08-08..08-14 outage was this check
+// not knowing about jobs/ and failing every writer run for a week.
+const SIGNALS_DIRS = new Set(['db', 'jobs']);
 if (existsSync('signals')) {
   for (const e of readdirSync('signals', { withFileTypes: true })) {
     if (e.name.startsWith('.')) continue;
     if (e.isDirectory()) {
-      if (e.name !== 'db') problems.push(`signals/${e.name}/: unexpected directory — only db/ lives here`);
+      if (!SIGNALS_DIRS.has(e.name))
+        problems.push(`signals/${e.name}/: unexpected directory — only ${[...SIGNALS_DIRS].join('/, ')}/ live here`);
       continue;
     }
     if (e.name === 'entities.json') continue; // validated below
@@ -74,6 +79,26 @@ if (existsSync(ENTITIES)) {
     }
   } catch (e) {
     problems.push(`${ENTITIES}: does not parse (${e.message})`);
+  }
+}
+
+// --- signals/jobs/ ----------------------------------------------------------
+// The jobs board's store. Deep integrity (schema, dedupe, liveness) belongs to
+// scripts/jobs-merge.mjs; here only shape — the two known files parse as JSON,
+// nothing else lives in the directory.
+if (existsSync('signals/jobs')) {
+  const JOBS_FILES = new Set(['jobs.json', 'sources.json']);
+  for (const e of readdirSync('signals/jobs', { withFileTypes: true })) {
+    if (e.name.startsWith('.')) continue;
+    if (e.isDirectory() || !JOBS_FILES.has(e.name)) {
+      problems.push(`signals/jobs/${e.name}: unexpected — only jobs.json and sources.json live here`);
+      continue;
+    }
+    try {
+      JSON.parse(readFileSync(`signals/jobs/${e.name}`, 'utf8'));
+    } catch (err) {
+      problems.push(`signals/jobs/${e.name}: does not parse (${err.message})`);
+    }
   }
 }
 
