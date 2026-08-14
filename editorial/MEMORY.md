@@ -45,18 +45,18 @@ guide coverage = special-issue candidate (flag below).
   gate**: Symonds' dated timeline (submitted 03-22, queue discarded 07-30;
   OpenAI approved same connector in 29 days) — still one account, §06 carries
   it. Distribution rail consolidating: Vercel Agent Plugins 1.0.0 (08-06,
-  AWS/Anysphere/GitHub/Microsoft/OpenAI; watch non-signers); pre-action
-  authz has two rival answers (Auth0 XAA, IdP-mediated, 08-06 vs. Eve
-  Maler's U4A PoC, resource-owner-mediated, 08-10) — watch which an MCP host
-  ships. "Agent experience" analytics is a category (Armature + AgentCat).
-  **Reading into acting** (08-08): Kitesurf (agent-only browser) and
-  Supabase as a read/write Perplexity connector — the transaction stage is
-  shipping product; enterprise infra joined the roster (Nutanix MCP server,
-  08-11). Countertrend: Emacs draft AGENTS.md (08-03, unmerged) restricts
-  agents rather than enabling them. Open loops: second stranded-integrator
-  account or an Anthropic review SLA by end of Aug (W32 watch #3);
-  attributed AI-referral signups by end of Q3; a major MCP host's dated
-  migration plan by end of Sept. Guide: §02, §06.
+  AWS/Anysphere/GitHub/Microsoft/OpenAI); **GitHub opened its own rail
+  08-14**, an agent-apps Marketplace wired into Copilot's harness.
+  Pre-action authz has two rival answers (Auth0 XAA, IdP-mediated, 08-06 vs.
+  Eve Maler's U4A PoC, resource-owner-mediated, 08-10) — watch which an MCP
+  host ships. **Reading into acting** (08-08): Kitesurf (agent-only
+  browser) and Supabase as a read/write Perplexity connector; enterprise
+  infra joined the MCP roster (Nutanix, 08-11), then a data platform
+  (MongoDB, 08-14). Countertrend: Emacs draft AGENTS.md (08-03, unmerged)
+  restricts agents rather than enabling them. Open loops: second
+  stranded-integrator account or an Anthropic review SLA by end of Aug (W32
+  watch #3); attributed AI-referral signups by end of Q3; a major MCP
+  host's dated migration plan by end of Sept. Guide: §02, §06.
 - **DevRel measurement: influence, not attribution** `↑` — consensus on
   influenced pipeline + activation; AI-answer presence entering as a
   discovery metric. Signal layer consolidating into GTM stacks: Zoom+Common
