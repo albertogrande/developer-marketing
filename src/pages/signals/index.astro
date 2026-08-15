@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
-import { withBase, absUrl, isoDate, fmtMed } from '../../lib/site';
+import { absUrl, isoDate, fmtMed } from '../../lib/site';
 import { getSignalsSorted, SIGNAL_KIND_LABELS } from '../../lib/content';
 import { collectionPageNode } from '../../lib/jsonld';
 
@@ -49,14 +49,6 @@ const DESCRIPTION =
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the signals</div>
     <h1 class="page-title">Signals</h1>
-    <p class="dek">
-      The signals. One company, one thing that happened, two sentences, and the
-      link that proves it — the tier below a full
-      <a href={withBase('/articles')}>newsroom piece</a>, so a quiet news day
-      still reaches you and a small company still gets covered. Nothing here is
-      paid for or placed; see <a href={withBase('/about')}>about</a>. Machines
-      read the set at <a href={withBase('/signals.json')}><code>/signals.json</code></a>.
-    </p>
   </div>
 
   {days.length > 0 ? (

@@ -28,12 +28,6 @@ const weekly = await getIssuesSorted();
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> weekly</div>
     <h1 class="page-title">The Beat</h1>
-    <p class="dek">
-      One short read a week on what actually moved in developer marketing — and
-      what to do about it. The running reference lives in the
-      <a href={withBase('/guide')}>guide</a>; this is the pulse. Earlier dated
-      posts live in the <a href={withBase('/radar')}>radar archive</a>.
-    </p>
   </div>
 
   {weekly.length > 0 ? (

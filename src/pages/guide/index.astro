@@ -35,22 +35,14 @@ const countsFor = (id: string) => {
     }),
   ]}
 >
-  {/* The guide map's dek and section summaries are unique prose — indexed
-      (the sections' own pages are indexed separately via ReadingLayout). */}
-  <div class="page-head" data-pagefind-body>
+  <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> guide</div>
     <h1 class="page-title">The field guide</h1>
-    <p class="dek">
-      A practitioner's reference to marketing to developers — nine sections,
-      each a topic hub gathering the evergreen state of the art, the
-      <a href={withBase('/claims')}>claims</a> that implement it, the
-      <a href={withBase('/examples')}>evidence</a> behind it, the
-      <a href={withBase('/skills')}>skills</a> that automate it, and the coverage
-      that keeps it honest. Each carries the date it was last checked.
-    </p>
   </div>
 
-  <ul class="fm-list">
+  {/* The guide map's section summaries are unique prose — indexed
+      (the sections' own pages are indexed separately via ReadingLayout). */}
+  <ul class="fm-list" data-pagefind-body>
     {guide.map((g) => {
       const counts = countsFor(g.id);
       return (

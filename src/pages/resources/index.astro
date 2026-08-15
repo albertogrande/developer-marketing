@@ -36,7 +36,6 @@ const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const emphasize = (s: string) => esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-const devtoolsOnly = cards.filter(({ r }) => r.data.focus === 'devtools').length;
 const lastChecked = resources.reduce<Date | null>(
   (max, r) => (max && max > r.data.checked ? max : r.data.checked),
   null
@@ -61,14 +60,6 @@ const lastChecked = resources.reduce<Date | null>(
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> resources</div>
     <h1 class="page-title">Who to hire</h1>
-    <p class="dek">
-      {resources.length} agencies, studios, collectives and independents who sell
-      developer marketing as a service, {devtoolsOnly} of them working on devtools
-      specifically. Every entry has a live site, one proof point you can go check
-      yourself, and the date we last opened it. Nobody paid to be here and nobody
-      can. Machines read the set at
-      <a href={withBase('/resources.json')}><code>/resources.json</code></a>.
-    </p>
   </div>
 
   <div class="rs-bar" role="group" aria-label="Filter by service">

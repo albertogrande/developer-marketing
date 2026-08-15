@@ -47,13 +47,6 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> skills</div>
     <h1 class="page-title">Skills</h1>
-    <p class="dek">
-      Agent skills you can actually install, for the work this guide describes.
-      Each card names the job, the publisher, the verbatim install line, and the
-      caveat — because a listing is a pointer, not an endorsement. Grouped by the
-      <a href={withBase('/guide')}>guide section</a> whose work it does. Machines
-      read the set at <a href={withBase('/skills.json')}><code>/skills.json</code></a>.
-    </p>
   </div>
 
   {groups.length > 0 ? (

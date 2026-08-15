@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { withBase, absUrl } from '../../lib/site';
+import { absUrl } from '../../lib/site';
 import { collectionPageNode } from '../../lib/jsonld';
 import jobs from '../../../signals/jobs/jobs.json';
 
@@ -74,16 +74,7 @@ const DESCRIPTION =
   <div class="page-head">
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> the jobs board</div>
     <h1 class="page-title">Jobs</h1>
-    <p class="dek">
-      Fully-remote <b>marketing leadership</b>, <b>growth</b> and
-      <b>product marketing</b> roles at developer-focused and AI companies,
-      swept weekly and confirmed against the employer's own posting — a listing
-      that dies is dropped, not struck through. Grouped by where "remote"
-      actually applies. No DevRel yet, deliberately. Nothing here is paid
-      placement; see <a href={withBase('/about')}>about</a>. Machines read the
-      set at <a href={withBase('/jobs.json')}><code>/jobs.json</code></a>.
-      {updated && <>Last swept <b>{updated}</b>.</>}
-    </p>
+    {updated && <p class="dek">Last swept <b>{updated}</b>.</p>}
   </div>
 
   {groups.length > 0 ? (

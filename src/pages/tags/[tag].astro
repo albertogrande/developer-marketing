@@ -59,8 +59,8 @@ const taggedName = (i: (typeof items)[number]) =>
     <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> tags / {tag}</div>
     <h1 class="page-title">#{tag}</h1>
     <p class="dek">
-      Everything tagged <code>{tag}</code> — {items.length} item{items.length === 1 ? '' : 's'}.
-      See <a href={withBase('/tags')}>all tags</a>.
+      {items.length} item{items.length === 1 ? '' : 's'} ·
+      <a href={withBase('/tags')}>all tags</a>
     </p>
   </div>
 
