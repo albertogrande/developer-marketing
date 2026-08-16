@@ -346,5 +346,13 @@
     "aliases": [],
     "name": "DeepSeek",
     "kind": "company"
+  },
+  "spacex": {
+    "aliases": [
+      "space exploration technologies",
+      "spacexai"
+    ],
+    "name": "SpaceX",
+    "kind": "company"
   }
 }
