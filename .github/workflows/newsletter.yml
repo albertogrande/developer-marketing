@@ -29,8 +29,18 @@ name: Newsletter
 # public URL) and SITE_URL.
 
 on:
-  # Primary path: the Editor pushed this week's issue and Deploy has published
-  # it, so the archive link in the email resolves by the time this runs.
+  # Primary path: the Editor has pushed this week's issue.
+  #
+  # Note what this does and does not guarantee. It guarantees the issue file
+  # exists, which is the failure this trigger was introduced to fix. It does
+  # NOT guarantee the public archive link already resolves: the site is built
+  # by Vercel off its own push webhook (site.config.mjs), independently of the
+  # Deploy workflow, and that build races this job. In practice Vercel takes
+  # about a minute and this job runs npm ci + npm test before sending, so the
+  # ordering holds with margin — but it is a race, not an interlock. If a
+  # subscriber ever reports a dead archive link on send day, that is the cause,
+  # and the fix is to gate on the live origin (the probe in deploy.yml's smoke
+  # job) rather than to add a sleep.
   workflow_run:
     workflows: ["Editor"]
     types: [completed]
