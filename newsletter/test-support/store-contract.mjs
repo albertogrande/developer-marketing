@@ -6,7 +6,7 @@
 // implements it: point this at a backend — the NDJSON log, Postgres, Redis — and
 // if it passes, the service and the sender work against it unchanged.
 //
-//   import { runStoreContract } from './store-contract.mjs';
+//   import { runStoreContract } from '../test-support/store-contract.mjs';
 //   runStoreContract('postgres', async () => openPostgresStore(process.env.DATABASE_URL));
 //
 // The factory must return a store scoped to a *fresh, empty* list each call.

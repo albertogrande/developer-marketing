@@ -37,6 +37,16 @@ runs:
         echo "ALERT_DETAIL=editorial gate failed: check-sources --changed (a cited source did not resolve)" >> "$GITHUB_ENV"
         node scripts/check-sources.mjs --changed
 
+    # The unattended desks ran the gates but never the unit tests, so a broken
+    # parser or encoder could only be caught by CI on a human's PR — and these
+    # desks commit to main at 3am without one. Seconds, and it is the same
+    # suite CI runs.
+    - name: Gate — unit tests
+      shell: bash
+      run: |
+        echo "ALERT_DETAIL=editorial gate failed: npm test" >> "$GITHUB_ENV"
+        npm test
+
     # Cleared on success so a later, unrelated failure in the same job does not
     # inherit the last gate's message.
     - name: Clear the alert detail
