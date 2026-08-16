@@ -171,18 +171,18 @@ export const getRadarSorted = memo(async () =>
 
 // The guide's knowledge graph, inverted once per build: for each section,
 // the claims that implement it, the examples that evidence it, the skills
-// that automate it, and the dated coverage (issues plus the archives) whose
-// `related` points at it. The topic-hub pages and the handbook index both
-// read this.
+// that automate it, and the dated coverage (signals and issues, plus the
+// archives) whose `related` points at it. The topic-hub pages and the
+// handbook index both read this.
 export type CoverageRef = {
-  kind: 'article' | 'issue' | 'dive' | 'radar';
+  kind: 'article' | 'issue' | 'dive' | 'radar' | 'signal';
   title: string;
   href: string;
   date: Date;
 };
 
 export const getGuideGraph = memo(async () => {
-  const [claims, examples, skills, articles, issues, dives, radar] = await Promise.all([
+  const [claims, examples, skills, articles, issues, dives, radar, signals] = await Promise.all([
     getClaimsSorted(),
     getExamplesSorted(),
     getSkillsSorted(),
@@ -190,6 +190,7 @@ export const getGuideGraph = memo(async () => {
     getIssuesSorted(),
     getDivesSorted(),
     getRadarSorted(),
+    getSignalsSorted(),
   ]);
 
   const claimsBySection = new Map<string, typeof claims>();
@@ -230,6 +231,13 @@ export const getGuideGraph = memo(async () => {
   for (const e of radar)
     for (const r of e.data.related)
       addRef(r.href, { kind: 'radar', title: e.data.title, href: `/radar/${e.id}`, date: e.data.date });
+  // The signals are the only *live* dated tier — articles, dives and radar are
+  // all closed archives — so leaving them out froze every section's coverage
+  // in the archives era. They have no page of their own; the whole feed
+  // renders at /signals, so the ref is an anchor like claims and examples.
+  for (const s of signals)
+    for (const r of s.data.related)
+      addRef(r.href, { kind: 'signal', title: s.data.title, href: `/signals#${s.id}`, date: s.data.date });
   for (const refs of coverageBySection.values()) refs.sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return { claimsBySection, examplesBySection, skillsBySection, coverageBySection };

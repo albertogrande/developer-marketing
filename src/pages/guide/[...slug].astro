@@ -29,7 +29,7 @@ const { entry, prev, next, claims, examples, skills, coverage } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
-const KIND_LABEL = { article: 'article', issue: 'the week', dive: 'deep dive', radar: 'radar' };
+const KIND_LABEL = { article: 'article', issue: 'the week', dive: 'deep dive', radar: 'radar', signal: 'signal' };
 ---
 <ReadingLayout
   title={d.title}
