@@ -67,7 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     # Raised with the turn caps below — a job timeout kills the run mid-write
     # with no rescue and no guard, which is strictly worse than a turn cap.
-    timeout-minutes: 50
+    # 60, tracking the writer cap's 70 -> 110: the longest observed run is
+    # ~12 min, so this stays comfortable headroom rather than a live ceiling.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       # Runners are ephemeral, so without this the transcript cache is empty on
@@ -135,12 +137,22 @@ jobs:
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
           #
-          # 70 turns, not 40: the 2026-08-01 merge put signal promotion, the
-          # podcast fetch, distilling into editorial/podcasts/ and draining
-          # three backlog episodes on the same budget the sweep alone used to
-          # have, and 08-02 and 08-03 both died at the cap. A cap is a
-          # ceiling, not a quota — a sweep that finishes in 30 turns still
-          # costs 30.
+          # 110 turns, raised from 70 on the ledger's own evidence: over the
+          # 14 days to 2026-08-16, SIX OF SEVEN writer runs reached the 70
+          # cap (71, 77, 78, 97, 71, 60, 71 — median 71). The desk was being
+          # truncated almost every night and only shipping because
+          # tolerate_max_turns lets a capped run through, which is exactly
+          # what writer-guard's warning says not to let stand: "If this
+          # recurs, raise --max-turns rather than letting the desk publish
+          # partial work."
+          #
+          # 110 clears the worst observed run (97) with headroom. Re-check
+          # with `node scripts/ledger-report.mjs --days 14` after a week: if
+          # runs still pile up at the ceiling, the fix is less work per turn
+          # (progressive disclosure in the skill), not a bigger number.
+          #
+          # A cap is a ceiling, not a quota — a sweep that finishes in 30
+          # turns still costs 30.
           #
           # The allowlist is deliberately wide across read-only shell: every
           # denial costs a turn, and a denied command tends to get retried. On
@@ -150,7 +162,7 @@ jobs:
           # mutate the tree; the skill still writes through Write/Edit.
           claude_args: >-
             --model claude-sonnet-5
-            --max-turns 70
+            --max-turns 110
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run podcast:transcripts*),Bash(node scripts/podcast-transcripts.mjs*),Bash(npm run scout:sweep*),Bash(npm run scout:enrich*),Bash(npm run scout:query*),Bash(node scripts/scout-*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,

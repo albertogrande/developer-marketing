@@ -14,8 +14,17 @@ npm run dev                 # Astro on :4321, hot-reloads src/
 npm run build               # check-refs → astro build → pagefind → check-agent-surface
 npm run check               # check-refs + source liveness on changed content (fast, pre-commit)
 npm run preview             # serve the built dist/
-npm test                    # node --test over newsletter/test/*.test.mjs and scripts/*.test.mjs
+npm run typecheck           # astro check — gated at zero errors in CI
+npm test                    # node --test, recursive from the repo root
+npm run test:coverage       # the same suite with a coverage report (~90% of lines)
+npm run ledger:report       # per-desk cost and turn-cap saturation from usage/ledger.csv
 ```
+
+`npm test` is deliberately the bare recursive form. It used to pass a shell
+glob (`newsletter/test/*.test.mjs scripts/*.test.mjs`), which silently skipped
+any test added elsewhere — a runner that fails open is worse than no runner.
+Test helpers that are not themselves tests live in `newsletter/test-support/`,
+outside the patterns Node matches.
 
 The jobs board — weekly sweep (Sunday), deterministic merge:
 
