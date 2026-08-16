@@ -53,14 +53,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
           cache: npm
       - run: npm ci
       - run: node scripts/build-redirects.mjs
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
       - name: Notify on failure
@@ -82,12 +82,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       # The notifier is a local composite action, so the failure path needs a
       # checkout first (this job normally runs without one).
       - name: Checkout for notifier
         if: failure()
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure
@@ -113,13 +113,13 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       # The ping script itself is dependency-free, but it maps changed files
       # to routes via scripts/lib/routes.mjs, which parses frontmatter with
       # the yaml package — so the install is not optional here.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
           cache: npm
@@ -148,7 +148,7 @@ jobs:
       contents: read
       issues: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Probe the live origin
         run: |
           set -euo pipefail
