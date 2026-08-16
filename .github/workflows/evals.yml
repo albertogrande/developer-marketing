@@ -43,8 +43,13 @@ jobs:
       - name: Run evals
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Through an env var, never interpolated into the shell string —
+          # the pattern jobs.yml already documents for the commit message.
+          # Dispatch-gated, so this was never reachable without write access,
+          # but it was the one place the repo broke its own rule.
+          SUITE: ${{ github.event.inputs.suite || 'all' }}
         run: |
-          node evals/run.mjs --suite "${{ github.event.inputs.suite || 'all' }}" | tee eval-output.txt
+          node evals/run.mjs --suite "$SUITE" | tee eval-output.txt
 
       - name: Job summary
         if: always()

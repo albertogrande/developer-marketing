@@ -10,8 +10,9 @@ name: Health
 
 on:
   schedule:
-    # 12:00 UTC daily — hours after the scout's 05:00 run and the Monday
-    # editor at 07:00, so a healthy day is never mid-flight when checked.
+    # 12:00 UTC daily — hours after the scout's 02:50 run and the Monday
+    # editor at 07:35 (both plus up to 3.5h of scheduler queue delay), so a
+    # healthy day is never mid-flight when checked.
     - cron: "0 12 * * *"
   workflow_dispatch: {}
 

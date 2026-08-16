@@ -123,7 +123,7 @@ The autonomous writers need a Claude Code OAuth token:
 1. `claude setup-token` (logged into Claude Code with a Max/Pro plan) → copy the token.
 2. Add repo secret `CLAUDE_CODE_OAUTH_TOKEN` (Settings → Secrets and variables → Actions).
 3. Enable Pages: Settings → Pages → Source → **GitHub Actions**.
-4. The Scout runs daily at 05:00 UTC and the Editor on Mondays at 07:00 UTC;
+4. The Scout runs daily at 02:50 UTC and the Editor on Mondays at 07:35 UTC;
    both can be triggered manually (Actions → workflow → Run workflow).
 
 Run the writers in an interactive session too: `/daily-scout`,

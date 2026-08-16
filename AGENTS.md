@@ -76,7 +76,7 @@ with the claim and a checkable public source. The weekly editorial run
 re-verifies it, patches the piece with an `updated:` stamp, and answers the
 issue. Softer signals go to the `reader-feedback` label.
 
-**Cadence** (UTC): jobs sweep Sunday 03:10; scout daily 02:50 (writes Signals; patches the guide when
+**Cadence** (UTC): jobs sweep Sunday 08:20; scout daily 02:50 (writes Signals; patches the guide when
 facts change); editor Mon 07:35 (the weekly issue — occasionally a long
 special — plus the full accuracy pass and claims reconciliation). If your
 cache is older than a day, refetch.
