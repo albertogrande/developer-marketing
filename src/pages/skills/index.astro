@@ -12,7 +12,6 @@ import { collectionPageNode, softwareAppNode } from '../../lib/jsonld';
 // Machines read the same set at /skills.json.
 
 const [skills, guide] = await Promise.all([getSkillsSorted(), getGuideSorted()]);
-const sectionTitle = new Map(guide.map((g) => [g.id, g.data.title]));
 
 const cards = await Promise.all(
   skills.map(async (s) => ({ s, Content: (await render(s)).Content }))

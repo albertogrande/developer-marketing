@@ -76,6 +76,29 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
 
+  typecheck:
+    name: Types
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # tsconfig.json has extended astro/tsconfigs/strict all along, but
+      # `typescript` and `@astrojs/check` were not dependencies and nothing
+      # ever ran a check — the strictness was declarative only, across ~10k
+      # lines where most commits are authored unattended at 3am and merged
+      # without human review. Static analysis is the cheapest reviewer
+      # available and it was entirely absent.
+      #
+      # Gated at zero errors, not a baseline: the first run found 14, twelve of
+      # them in a dead design snapshot that has now been deleted and two real
+      # ones in api.json.ts, so there is no backlog to route around.
+      - run: npm run typecheck
+
   editorial:
     name: Editorial state
     runs-on: ubuntu-latest
