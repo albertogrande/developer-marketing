@@ -25,7 +25,11 @@ import { isoWeekId } from '../../src/lib/dates.mjs';
 // queryable). All feeds verified 2026-08-06; candidates that failed then
 // (devrelweekly 525, draft.dev/leerob/netlify/resend/planetscale/markepear/
 // slashdata 404s, commonroom no feed, reforge 500) are deliberately absent —
-// re-verify before adding.
+// re-verify before adding. The answer-engine sources were added and verified
+// 2026-08-16; ahrefs (429/Cloudflare challenge — serves RSS to a browser, not
+// to a scheduled job), Search Engine Journal and Search Engine Roundtable are
+// deliberately absent: the first is unreliable, the other two duplicate Search
+// Engine Land's beat at several times the volume.
 
 export const SOURCES = [
   // Practitioners & newsletters — independent voices.
@@ -55,6 +59,14 @@ export const SOURCES = [
   // Research & data.
   { id: 'slashdata-blog', name: 'SlashData blog', feed: 'https://www.slashdata.co/blog-feed.xml', kind: 'research', posture: 'independent' },
 
+  // Answer engines — how developers (and their agents) discover tools through
+  // AI search rather than a ten-blue-links page. The rest of the watchlist is
+  // devtools-native and reports this only when a devtool ships something; these
+  // three cover the discipline itself, so the beat has a source of its own.
+  { id: 'search-engine-land', name: 'Search Engine Land', feed: 'https://searchengineland.com/feed', kind: 'newsletter', posture: 'independent' },
+  { id: 'growth-memo', name: 'Growth Memo (Kevin Indig)', feed: 'https://www.growth-memo.com/feed', kind: 'practitioner', posture: 'independent' },
+  { id: 'sparktoro', name: 'SparkToro (Rand Fishkin)', feed: 'https://sparktoro.com/blog/feed/', kind: 'research', posture: 'vendor' },
+
   // Launch trackers.
   { id: 'producthunt-devtools', name: 'Product Hunt — developer tools', feed: 'https://www.producthunt.com/feed?category=developer-tools', kind: 'newsletter', posture: 'independent' },
 ];
@@ -78,6 +90,9 @@ export const SITEMAPS = [
 export const CRAWLS = [
   { id: 'markepear', name: 'Markepear', page: 'https://www.markepear.dev/blog', base: 'https://www.markepear.dev', linkPattern: '^/blog/[a-z0-9-]+$', take: 12, kind: 'practitioner', posture: 'independent' },
   { id: 'draft-dev', name: 'Draft.dev', page: 'https://draft.dev/learn', base: 'https://draft.dev', linkPattern: '^/learn/[a-z0-9-]+$', take: 12, kind: 'practitioner', posture: 'independent' },
+  // An AEO platform's own blog: vendor research on citation patterns, so read
+  // it as data *about the vendor's incentives* as much as about AI search.
+  { id: 'profound', name: 'Profound', page: 'https://www.tryprofound.com/blog', base: 'https://www.tryprofound.com', linkPattern: '^/blog/[a-z0-9-]+$', take: 12, kind: 'research', posture: 'vendor' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -87,7 +102,19 @@ export const CRAWLS = [
 
 export const COMMUNITY = {
   // Algolia HN API — always fetchable, exact timestamps.
-  hnQueries: ['devrel', '"developer marketing"', '"developer experience"', 'documentation', 'devtools pricing'],
+  hnQueries: [
+    'devrel',
+    '"developer marketing"',
+    '"developer experience"',
+    'documentation',
+    'devtools pricing',
+    // The answer-engine beat. Phrases, not the bare acronyms: "GEO" is mostly
+    // geography and "AEO" is mostly noise, so they cost triage more than they
+    // return. llms.txt is unambiguous and is where devtools argue about this.
+    'llms.txt',
+    '"answer engine"',
+    '"AI search"',
+  ],
   // Show HN is where the small launches the signals exists for land.
   hnShowQueries: ['devtool', 'developer', 'API', 'CLI', 'SDK'],
   // r/devrel is small — take it whole; the big ones are keyword-filtered.
@@ -97,9 +124,14 @@ export const COMMUNITY = {
     { name: 'SaaS', mode: 'filtered' },
     { name: 'ExperiencedDevs', mode: 'filtered' },
   ],
-  // Applied to filtered subreddits and to Lobsters' newest stream.
-  keywords: ['developer', 'devrel', 'devtool', 'api', 'sdk', 'docs', 'documentation', 'open source', 'pricing', 'launch'],
-  bskyQueries: ['"developer relations"', '"developer marketing"', 'devrel'],
+  // Applied to filtered subreddits and to Lobsters' newest stream. Plain
+  // lowercase substring match, so every entry must be distinctive on its own:
+  // 'geo' would match geospatial and geometry, 'aeo' matches little at all.
+  keywords: [
+    'developer', 'devrel', 'devtool', 'api', 'sdk', 'docs', 'documentation', 'open source', 'pricing', 'launch',
+    'llms.txt', 'answer engine', 'ai search', 'ai overviews',
+  ],
+  bskyQueries: ['"developer relations"', '"developer marketing"', 'devrel', '"answer engine optimization"', '"AI search"'],
 };
 
 // Valid enums — the enrich tool validates against these, and agents filter on

@@ -131,6 +131,11 @@ const claims = defineCollection({
           'activation',
           'distribution',
           'channels',
+          // Answer-engine optimization: being found and cited when the first
+          // impression is an AI answer rather than a search result. Distinct
+          // from `docs` (the surface) and `distribution` (the channel) — this
+          // is the discipline of being retrievable and quotable.
+          'aeo',
           'metrics',
           'launches',
           'pricing',

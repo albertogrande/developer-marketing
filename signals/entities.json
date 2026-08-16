@@ -354,5 +354,28 @@
     ],
     "name": "SpaceX",
     "kind": "company"
+  },
+  "perplexity": {
+    "name": "Perplexity",
+    "kind": "company",
+    "aliases": [
+      "perplexity ai",
+      "comet"
+    ]
+  },
+  "profound": {
+    "name": "Profound",
+    "kind": "company",
+    "aliases": [
+      "tryprofound"
+    ]
+  },
+  "llms-txt": {
+    "name": "llms.txt",
+    "kind": "protocol",
+    "aliases": [
+      "llms.txt",
+      "llms-full.txt"
+    ]
   }
 }

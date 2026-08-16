@@ -111,7 +111,7 @@ export const GET: APIRoute = async () => {
     collections: {
       guide: collection('guide', guide, {
         pages: true,
-        description: 'The evergreen reference — nine topic hubs, continuously kept current.',
+        description: 'The evergreen reference — ten topic hubs, continuously kept current.',
       }),
       articles: collection('articles', articles, {
         pages: true,

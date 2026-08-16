@@ -152,7 +152,7 @@ from the thinnest guide sections.
 
 ## Guide coverage index
 
-The nine evergreen sections and what each owns — *where* a fact belongs.
+The ten evergreen sections and what each owns — *where* a fact belongs.
 
 - `00-start-here` — orientation, the mental model, how the site updates
 - `01-positioning-for-developers` — positioning, segments, trust, proof, pricing shape
@@ -160,9 +160,10 @@ The nine evergreen sections and what each owns — *where* a fact belongs.
 - `03-devrel-and-community` — DevRel programs, community, advocacy
 - `04-developer-experience-and-activation` — DX, onboarding, time-to-value, deprecation trust
 - `05-content-that-earns-trust` — technical content, honest benchmarks
-- `06-channels-and-distribution` — where developers are, GEO/AI answers
+- `06-channels-and-distribution` — where developers are, channel mix, MCP directories
 - `07-launches` — launches developers amplify, HN/PH dynamics
 - `08-measurement-and-metrics` — DevRel/marketing measurement, funnels, adoption cohorts
+- `09-answer-engines-and-aeo` — AI-search visibility, citations, llms.txt, agent-readable surfaces (added 2026-08-16; the AEO material 06 used to absorb belongs here now, and 06 keeps the channel-mix framing)
 
 ## Published coverage
 

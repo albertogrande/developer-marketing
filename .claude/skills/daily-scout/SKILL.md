@@ -65,8 +65,11 @@ now for depth, not discovery:
   a source you opened).
 - A broad `WebSearch` for `"developer marketing"`, `"developer relations"`,
   `"developer experience"` in the last day or two — the valve for what the
-  watchlist misses. Log out-of-watchlist finds into the DB so the capture
-  stays complete:
+  watchlist misses. Rotate in `"answer engine optimization"`, `"AI search"
+  developers` or `llms.txt` when the answer-engine beat has been quiet for a
+  few days: that thread moves in studies and platform statements, which land
+  outside devtools feeds. Log out-of-watchlist finds into the DB so the
+  capture stays complete:
 
 ```bash
 echo '[{"title":"…","url":"https://…","source":"websearch","summary":"…"}]' \
@@ -88,6 +91,15 @@ echo '[{"id":"<id from the triage>","entities":["vercel"],"event":"deprecation",
 A handful of enriched events a day is plenty — enrich judgment, not the
 firehose. Never edit `signals/db/*.ndjson` by hand; the tool validates so
 the log stays replayable.
+
+Topics are free text, so consistency is what makes them queryable later.
+Reuse the slugs already in the log rather than inventing synonyms — in
+particular **`aeo`** for anything about being found, read or cited by answer
+engines and coding assistants (AI search visibility, llms.txt, citation
+studies, crawl-to-referral data, AEO/GEO tooling). That one slug is what
+makes `scout:query --topic aeo` and the `/intel` skill able to answer "what
+has moved in AI-search visibility lately", so stamp it even when the event
+is filed under another beat.
 
 **Podcasts — new episodes already land in the sweep's triage** (the sweep
 reads the same `PODCASTS` registry the transcript pipeline uses). Your job is
@@ -166,6 +178,22 @@ justify the bill.
 - **SlashData** developer economics, **State of Developer Relations** surveys,
   **Stack Overflow Developer Survey**, **GitHub Octoverse**, **DX / DevEx
   research** (Forsgren et al.).
+
+**Answer engines (the AEO beat):**
+
+- The watchlist carries this beat directly — **Search Engine Land**,
+  **Growth Memo**, **SparkToro** and the **Profound** crawl, plus the
+  `llms.txt` / `"answer engine"` / `"AI search"` HN queries. Most of what
+  those sources publish is general-marketing SEO and is *not* for this site.
+- What qualifies: a **measured** fact about machine-mediated discovery
+  (citation studies, crawl-to-referral data, referral-conversion numbers), a
+  platform changing the rules (a search or assistant vendor's official
+  position on llms.txt, crawling, or citations), or a **devtool company**
+  reporting its own AI-referral numbers or shipping for machine readers.
+  Vendor visibility dashboards marketing their own category are not news;
+  their *data*, with the incentive named, sometimes is.
+- Stamp every one with the `aeo` topic, and hang the published ones off
+  [Answer engines & AEO](/guide/09-answer-engines-and-aeo) in `related`.
 
 **The money, campaigns and technology beats (feed the editor's angles):**
 

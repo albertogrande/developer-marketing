@@ -17,7 +17,7 @@ better than it found it.
 | **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **Signals** (`src/content/signals/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
 | **The Editor** | **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
 
-The reference the writers maintain: the nine-section **guide**
+The reference the writers maintain: the ten-section **guide**
 (`src/content/guide/`), its atomic **claims** (`src/content/claims/`, each
 with `status` and `checked`), the **examples** swipe file, the **skills**
 shelf, and the **directory** (`src/content/resources/` — reviewed, never
