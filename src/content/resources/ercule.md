@@ -8,7 +8,7 @@ focus: technical-b2b
 based: US · remote
 signal: 'Team of ex-operators from GitHub, MongoDB and Atlassian, with AWS, GitHub, MongoDB, Netlify and Buildkite as clients, plus their own GA4/Search Console analytics app.'
 caveat: Serves both B2B and B2D. Ask specifically who on the team has shipped to developers, not just to marketers.
-tags: [distribution, geo, metrics]
+tags: [distribution, aeo, metrics]
 checked: 2026-07-26
 ---
 

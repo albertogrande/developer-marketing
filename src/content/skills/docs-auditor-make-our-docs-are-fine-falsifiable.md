@@ -11,7 +11,7 @@ install: npx skills add Infrasity-Labs/dev-gtm-claude-skills
 license: MIT
 caveat: Structural checks cannot tell you whether the quickstart runs. Pair the score with a real time-to-first-call test on a clean machine.
 section: 02-docs-as-front-door
-tags: [docs, seo, geo, metrics]
+tags: [docs, seo, aeo, metrics]
 verified: 2026-07-26
 source:
   label: 'dev-gtm-claude-skills: docs-auditor'

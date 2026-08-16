@@ -10,8 +10,8 @@ agents: [any]
 install: npx skills add luka2chat/geo-skills
 license: MIT
 caveat: No citations behind the rules — it descends from a curated awesome-list. A well-organised checklist, not evidence.
-section: 06-channels-and-distribution
-tags: [geo, seo, distribution, content]
+section: 09-answer-engines-and-aeo
+tags: [aeo, seo, distribution, content]
 verified: 2026-08-03
 source:
   label: luka2chat/geo-skills

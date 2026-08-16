@@ -14,8 +14,8 @@ install: |
   ln -s "$PWD/gtm-engineer-skills/improve-aeo-geo" ~/.claude/skills/improve-aeo-geo
 license: MIT
 caveat: Manual clone-and-symlink per skill, and a marketing agent editing your app needs the same review as any other contributor.
-section: 06-channels-and-distribution
-tags: [geo, seo, distribution, tooling]
+section: 09-answer-engines-and-aeo
+tags: [aeo, seo, distribution, tooling]
 verified: 2026-07-26
 source:
   label: onvoyage-ai/gtm-engineer-skills

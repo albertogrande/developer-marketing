@@ -8,7 +8,7 @@ focus: devtools
 based: US · remote
 signal: 'A Y Combinator-backed docs studio for devtools with Supermemory, Greptile, Reducto and Rootly shipped, agents doing the code verification and humans doing the architecture.'
 caveat: Founded 2025. Very young, small, and the flagship results are recent and self-reported. Priced and staffed for startups, not for a regulated enterprise docs estate.
-tags: [docs, dx, geo]
+tags: [docs, dx, aeo]
 checked: 2026-07-26
 sources:
   - label: 'Launch YC: Manicule'

@@ -8,7 +8,7 @@ focus: devtools
 based: India · remote
 signal: In-house engineer-writers rather than a freelancer marketplace, 40+ infrastructure and devtool logos including Travis CI and env0, and a stated seven-day turnaround on technical video.
 caveat: Volume-led ("four blogs a week") is a strategy that punishes a thin product story. Self-reported multiples.
-tags: [content, docs, geo]
+tags: [content, docs, aeo]
 checked: 2026-07-26
 ---
 

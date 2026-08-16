@@ -10,8 +10,8 @@ agents: [claude-code, claude-ai, codex]
 install: npx skills add Infrasity-Labs/dev-gtm-claude-skills
 license: MIT
 caveat: Presence, not persuasion — every file can pass while the content behind them earns no citation.
-section: 06-channels-and-distribution
-tags: [geo, distribution, docs, agents]
+section: 09-answer-engines-and-aeo
+tags: [aeo, distribution, docs, agents]
 verified: 2026-08-03
 source:
   label: 'dev-gtm-claude-skills: llms-txt-checker'

@@ -8,7 +8,7 @@ focus: devtools
 based: US · remote
 signal: Founder Adam DuVander wrote *Developer Marketing Does Not Exist* (2021) and *Technical Content Strategy Decoded* (2023); Google, Microsoft and Algolia named as clients.
 caveat: A small senior practice, so capacity is the constraint, not craft.
-tags: [content, positioning, geo]
+tags: [content, positioning, aeo]
 checked: 2026-07-26
 ---
 

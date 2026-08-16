@@ -8,7 +8,7 @@ focus: devtools
 based: Remote
 signal: 50+ engineering-first clients including Cloudinary, Auth0, Netlify, Appwrite and Sourcegraph, drawn from a stated 1,500-strong technical creator network.
 caveat: Reach and pipeline figures ("5.6M+ developers reached", "$400M+ pipeline") are self-reported and not attributable to any one engagement.
-tags: [content, docs, geo, community]
+tags: [content, docs, aeo, community]
 checked: 2026-07-26
 ---
 
