@@ -39,6 +39,6 @@
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
-    "pg": "^8.22.0"
+    "pg": "^8.23.0"
   }
 }
