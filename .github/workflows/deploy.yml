@@ -28,6 +28,18 @@ on:
   workflow_run:
     workflows: ["CI", "Scout", "Editor", "Jobs", "Liveness"]
     types: [completed]
+    # Filters on the TRIGGERING run's branch, so a workflow_run is never even
+    # created for a PR. Without it, CI runs on every pull_request, so every PR
+    # spawned a Deploy run that entered the `pages` concurrency group and then
+    # skipped on the job-level branch test below. Observed on 2026-08-16: the
+    # merge's own Deploy (#113) succeeded, then six Dependabot PRs produced
+    # #114-#119, two of which were CANCELLED — evicted from the group while
+    # queued. That is the same silent-eviction failure mode documented for
+    # `main-writers` in jobs.yml, and here it can evict a real deploy.
+    #
+    # The job-level `if` stays as defence in depth: this filter stops the run
+    # being created, that one stops it publishing if it ever is.
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:

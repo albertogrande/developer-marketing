@@ -44,6 +44,11 @@ on:
   workflow_run:
     workflows: ["Editor"]
     types: [completed]
+    # Same reason as deploy.yml: filter on the triggering run's branch so a
+    # run is never created off-main. The Editor only runs on main today, so
+    # this is belt-and-braces rather than a live fix — but a send job is the
+    # last place to leave that to convention.
+    branches: [main]
   schedule:
     # Backstop only. Monday 15:00 UTC is late enough that the Editor (07:35 +
     # up to 216 min of queue delay) has long finished; if the workflow_run
