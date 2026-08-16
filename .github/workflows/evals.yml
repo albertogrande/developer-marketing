@@ -14,9 +14,13 @@ on:
   workflow_dispatch:
     inputs:
       suite:
-        description: "Suite to run (scout | editor | all)"
+        description: "Suite to run (scout | editor | jobs | all)"
         required: false
         default: "all"
+      repeat:
+        description: "Runs per case. >1 measures the decision variance the baseline floors assume."
+        required: false
+        default: "1"
 
 permissions:
   contents: read
@@ -37,8 +41,13 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      # Pinned. This installed unversioned, which made the eval harness the
+      # least reproducible surface in the repo while guarding the most
+      # reproducibility-sensitive thing in it: a baseline that a CLI change
+      # could move without a single line of this repo changing. Bump
+      # deliberately, and re-baseline in the same PR if it moves the numbers.
       - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
+        run: npm install -g @anthropic-ai/claude-code@2.0.76
 
       - name: Run evals
         env:
@@ -48,8 +57,13 @@ jobs:
           # Dispatch-gated, so this was never reachable without write access,
           # but it was the one place the repo broke its own rule.
           SUITE: ${{ github.event.inputs.suite || 'all' }}
+          REPEAT: ${{ github.event.inputs.repeat || '1' }}
         run: |
-          node evals/run.mjs --suite "$SUITE" | tee eval-output.txt
+          # --record writes usage/evals/<date>.md. It was never passed, so no
+          # eval history existed at all — every run's numbers vanished with the
+          # runner and there was nothing to compare a regression against. The
+          # file is uploaded below rather than committed: evals run on PRs.
+          node evals/run.mjs --suite "$SUITE" --repeat "$REPEAT" --record | tee eval-output.txt
 
       - name: Job summary
         if: always()
@@ -61,3 +75,14 @@ jobs:
             cat eval-output.txt 2>/dev/null || echo "(no output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the run record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-record
+          path: |
+            usage/evals/
+            eval-output.txt
+          if-no-files-found: ignore
+          retention-days: 90

@@ -1,0 +1,5 @@
+# "requires US work authorization" is named in the `usa` rule. The bare
+# "Remote" line is not enough for `worldwide`, which requires no stated
+# hiring-region restriction — this JD states one.
+type: region
+region: usa
