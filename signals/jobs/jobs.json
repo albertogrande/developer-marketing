@@ -1,5 +1,51 @@
 [
   {
+    "title": "Developer Product Marketing Lead",
+    "company": "OpenRouter",
+    "companyUrl": "https://openrouter.ai/",
+    "location": "Remote (US)",
+    "remote": "remote",
+    "region": "usa",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "developer-marketing",
+      "ai-infrastructure"
+    ],
+    "salary": null,
+    "url": "https://jobs.ashbyhq.com/openrouter/3db2aabd-e379-4ee8-b479-30e5159c9fa4",
+    "source": "search",
+    "summary": "Founding IC product marketer at OpenRouter, an AI model-routing and infrastructure API, owning developer-facing messaging, product launch narratives, and technical content quality.",
+    "postedAt": "2026-01-24",
+    "id": "6bbea14988bdb21b",
+    "firstSeenAt": "2026-08-16",
+    "lastSeenAt": "2026-08-16",
+    "missedRuns": 0
+  },
+  {
+    "title": "Product Marketing Manager, Partnerships",
+    "company": "Perplexity",
+    "companyUrl": "https://www.perplexity.ai/",
+    "location": "Remote",
+    "remote": "remote",
+    "region": "worldwide",
+    "category": "product-marketing",
+    "tags": [
+      "product-marketing",
+      "partnerships",
+      "ai"
+    ],
+    "salary": "$190K–$250K",
+    "url": "https://jobs.ashbyhq.com/perplexity/d5bc2302-202f-4596-9c4d-8720d1e79064",
+    "source": "search",
+    "summary": "Perplexity is building its partner marketing function from scratch, hiring a PMM to own joint go-to-market with major partners; Perplexity is a well-known AI product/answer-engine company.",
+    "postedAt": "2026-07-30",
+    "id": "6e6634c598064908",
+    "firstSeenAt": "2026-08-16",
+    "lastSeenAt": "2026-08-16",
+    "missedRuns": 0
+  },
+  {
     "title": "B2B Growth Marketer - Belgium",
     "company": "ElevenLabs",
     "companyUrl": "https://elevenlabs.io",
@@ -20,7 +66,7 @@
     "id": "353552801316a2e6",
     "firstSeenAt": "2026-08-09",
     "lastSeenAt": "2026-08-09",
-    "missedRuns": 0
+    "missedRuns": 1
   },
   {
     "title": "Product Marketing Manager, ChatGPT for Work",
@@ -43,7 +89,7 @@
     "id": "cc67064b2ad70d51",
     "firstSeenAt": "2026-08-09",
     "lastSeenAt": "2026-08-09",
-    "missedRuns": 0
+    "missedRuns": 1
   },
   {
     "title": "Product Marketing Manager, Platform",
@@ -66,7 +112,7 @@
     "id": "1e94306c8a5abf29",
     "firstSeenAt": "2026-08-09",
     "lastSeenAt": "2026-08-09",
-    "missedRuns": 0
+    "missedRuns": 1
   },
   {
     "title": "Director, Growth Marketing",
@@ -112,52 +158,54 @@
     "id": "a59ac7f030302720",
     "firstSeenAt": "2026-08-09",
     "lastSeenAt": "2026-08-09",
-    "missedRuns": 0
+    "missedRuns": 1
   },
   {
     "title": "Growth Marketer",
     "company": "Resend",
-    "companyUrl": "https://resend.com",
-    "location": "Americas / Remote",
+    "companyUrl": "https://resend.com/",
+    "location": "Americas (UTC-3 to UTC-8)",
     "remote": "remote",
     "region": "usa",
     "category": "growth",
     "tags": [
-      "growth-marketing",
-      "developer-tools",
-      "email-api"
+      "growth",
+      "acquisition",
+      "email-api",
+      "devtools"
     ],
-    "salary": "$140,000–$180,000",
+    "salary": "$140,000–$180,000 USD",
     "url": "https://resend.com/careers/0662df8f-575a-4e77-a756-aa7f7ea1e45c",
     "source": "search",
-    "summary": "Resend's inaugural Growth Marketer, owning the acquisition funnel end-to-end (sign-up sources, free-to-paid conversion, landing pages, paid spend) at this developer-focused email API company.",
+    "summary": "Resend's first growth marketer, owning acquisition and free-to-paid conversion for its developer-focused transactional email API.",
     "postedAt": null,
     "id": "0b8cf8aa8be34298",
     "firstSeenAt": "2026-08-09",
-    "lastSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-16",
     "missedRuns": 0
   },
   {
     "title": "Senior Product Marketing Manager [IC4]",
     "company": "Sourcegraph",
-    "companyUrl": "https://sourcegraph.com",
-    "location": "Remote (USA - West preferred, hire almost anywhere)",
+    "companyUrl": "https://sourcegraph.com/",
+    "location": "Remote (USA - West preferred)",
     "remote": "remote",
-    "region": "worldwide",
+    "region": "usa",
     "category": "product-marketing",
     "tags": [
       "product-marketing",
       "developer-tools",
-      "code-search"
+      "ai",
+      "code-intelligence"
     ],
-    "salary": "$144,000–$180,000",
+    "salary": "$144,000–$180,000+",
     "url": "https://job-boards.greenhouse.io/sourcegraph91/jobs/6132206004",
     "source": "search",
-    "summary": "Drives technical product marketing and go-to-market strategy for Sourcegraph's developer infrastructure platform, translating deep technical capability into narratives for enterprise engineering teams.",
+    "summary": "Sourcegraph, a code-intelligence and AI coding platform, hiring a senior PMM to translate technical capabilities into go-to-market narratives and enterprise sales enablement.",
     "postedAt": null,
     "id": "bac2255ca2bfdef5",
     "firstSeenAt": "2026-08-09",
-    "lastSeenAt": "2026-08-09",
+    "lastSeenAt": "2026-08-16",
     "missedRuns": 0
   },
   {
@@ -181,6 +229,6 @@
     "id": "26ec53ec10e3974a",
     "firstSeenAt": "2026-08-09",
     "lastSeenAt": "2026-08-09",
-    "missedRuns": 0
+    "missedRuns": 1
   }
 ]
