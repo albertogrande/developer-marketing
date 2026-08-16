@@ -11,14 +11,22 @@ name: Deploy
 #   2. Ping IndexNow with the URLs that changed, so the search indexes that
 #      feed the answer engines recrawl within hours, not days.
 #
-# Runs on push to main, after an editorial workflow finishes (their bot
-# commits do NOT trigger `push` for workflows — Vercel's webhook still fires),
-# and on demand. A failed run opens a pipeline-failure issue.
+# Triggered only by another workflow completing, never by `push` directly.
+# The bots' commits do NOT fire `push` for workflows (Vercel's webhook still
+# does), so `workflow_run` was always how their content got here — and routing
+# human pushes through CI too means a red commit can no longer publish. On
+# 2026-08-16 CI run 31954609053 failed and Deploy run 31954608905 shipped the
+# same SHA in the same second, because the two fired independently on `push`.
+#
+# Jobs and Liveness are listed for the same reason as Scout and Editor: they
+# also push to main, and without them a jobs-board or mentions commit never
+# rebuilt the redirect layer or pinged IndexNow.
+#
+# Every job below is gated on the triggering run having succeeded (see the
+# `if:` on each). A failed run opens a pipeline-failure issue.
 on:
-  push:
-    branches: [main]
   workflow_run:
-    workflows: ["Scout", "Editor"]
+    workflows: ["CI", "Scout", "Editor", "Jobs", "Liveness"]
     types: [completed]
   workflow_dispatch: {}
 
@@ -34,8 +42,16 @@ concurrency:
 
 jobs:
   redirects:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # Publish only for a successful run *on main*. The head_branch test is
+    # load-bearing now that CI is a trigger: CI also runs on pull_request, and
+    # without it every green PR would publish the redirect layer and ping
+    # IndexNow with branch content.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,6 +76,7 @@ jobs:
   deploy:
     needs: redirects
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -91,6 +108,7 @@ jobs:
   ping:
     needs: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       actions: read
@@ -125,6 +143,7 @@ jobs:
   smoke:
     needs: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       issues: write
