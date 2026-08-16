@@ -139,8 +139,14 @@ test('auto-entities are derived at read time, so --auto reaches unenriched event
   assert.match(auto, /vercel\s+1\b/, 'the same event is reachable once auto-tags are included');
 });
 
-test('a bad --by field and a bad --match are argument errors, not empty reports', () => {
-  for (const args of [['--by', 'nonsense'], ['--by', 'source', '--match', '(unclosed']]) {
+test('bad arguments are errors, not empty reports', () => {
+  const bad = [
+    ['--by', 'nonsense'],
+    ['--by', 'source', '--match', '(unclosed'],
+    ['--by', 'source', '--top', 'lots'],
+    ['--health', '--weeks', '-1'],
+  ];
+  for (const args of bad) {
     assert.throws(
       () => stats({ '2026-W33.ndjson': [event()] }, args),
       (e) => e.status === 2,

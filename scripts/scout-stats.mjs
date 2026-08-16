@@ -55,8 +55,18 @@ const ARRAY_KEYS = ['entity', 'topic'];
 const BY_KEYS = [...SCALAR_KEYS, ...ARRAY_KEYS];
 
 const BY = flag('--by');
-const TOP = Number(flag('--top', '') ?? '') || 20;
-const WEEKS = Number(flag('--weeks', '') ?? '') || 3;
+const positive = (name, fallback) => {
+  const raw = flag(name);
+  if (raw === undefined) return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    console.error(`scout-stats: ${name} must be a positive number, got "${raw}"`);
+    process.exit(2);
+  }
+  return n;
+};
+const TOP = positive('--top', 20);
+const WEEKS = positive('--weeks', 3);
 const YIELD = has('--yield');
 const HEALTH = has('--health');
 const JSON_OUT = has('--json');
