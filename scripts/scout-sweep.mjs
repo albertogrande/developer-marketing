@@ -21,7 +21,7 @@
 // not a dead sweep); the script exits 0 unless the arguments are invalid.
 
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
   SOURCES,
@@ -77,6 +77,11 @@ const CONCURRENCY = 8;
 const UA = 'thebeat-scout/1.0 (+https://thebeat.dev)';
 
 const failures = [];
+// label → in-window items this run. A source that fetches fine and returns
+// nothing looks identical, in the old report, to one that was never asked —
+// which is how Reddit and Bluesky went a fortnight at zero without anything
+// saying so. Recording the shape of every job makes silence legible.
+const yielded = new Map();
 
 async function get(url, label, accept = 'application/rss+xml, application/atom+xml, application/json, text/xml, */*') {
   const res = await fetch(url, {
@@ -91,7 +96,9 @@ async function get(url, label, accept = 'application/rss+xml, application/atom+x
 // Each job returns events (possibly none); its failure is one report line.
 async function job(label, fn) {
   try {
-    return await fn();
+    const events = await fn();
+    yielded.set(label, events.length);
+    return events;
   } catch (e) {
     failures.push(`${label}: ${e.message}`);
     return [];
@@ -116,7 +123,7 @@ for (const s of rssSources) {
     job(`rss ${s.id}`, async () => {
       const xml = await get(s.feed, s.id);
       const { items } = parseAnyFeed(xml);
-      const channel = s.id === 'producthunt-devtools' ? 'producthunt' : 'rss';
+      const channel = s.channel ?? 'rss';
       return items
         .filter((i) => i.date) // undated items can't be windowed — skip, honestly
         .map((i) =>
@@ -236,16 +243,26 @@ for (let i = 0; i < jobs.length; i += CONCURRENCY) {
   const batch = jobs.slice(i, i + CONCURRENCY).map((fn) => fn());
   results.push(...(await Promise.all(batch)));
 }
+
 const fetched = results.flat();
 
-// Dedupe: within the run, then against what the DB already holds for this
-// week and the previous one (a window can straddle the boundary).
+// Dedupe: within the run, then against everything the DB already holds.
+//
+// This used to check only the week files for SINCE and NOW, which leaks: an
+// event's file is chosen by its own timestamp, so a source that restamps a URL
+// with a later date — leerob.com's sitemap gives every <loc> the build time —
+// re-enters in a *different* week file and is appended again. That is exactly
+// how the first fortnight collected 34 duplicate lines. Replay hides it (last
+// write wins), so nothing ever complained, but line count stopped meaning
+// event count. Reading every week file is what scout-query and scout-enrich
+// already do; the cost is one pass over a few hundred KB per sweep.
 const seen = new Map();
 for (const ev of fetched) if (!seen.has(ev.id)) seen.set(ev.id, ev);
 
-const dbFiles = [...new Set([dbFileFor(SINCE), dbFileFor(NOW)])];
+const dbFiles = existsSync('signals/db')
+  ? readdirSync('signals/db').filter((f) => /^\d{4}-W\d{2}\.ndjson$/.test(f)).map((f) => `signals/db/${f}`)
+  : [];
 for (const file of dbFiles) {
-  if (!existsSync(file)) continue;
   for (const id of readDb(await readFile(file, 'utf8')).keys()) seen.delete(id);
 }
 
@@ -297,4 +314,16 @@ console.log(
 if (failures.length) {
   console.log(`\nunreachable (${failures.length}) — tolerated, fix or prune in scripts/lib/scout-sources.mjs:`);
   for (const f of failures) console.log(`  - ${f}`);
+}
+
+// Reached, returned nothing. Over a 2-day window most of the watchlist is
+// silent on any given day, so this is a count, not a roll-call: one quiet
+// source is normal, a source quiet for weeks is a registry problem, and that
+// judgment needs history — `npm run scout:stats -- --health` has it.
+const silent = [...yielded.entries()].filter(([, n]) => n === 0).length;
+if (silent) {
+  console.log(
+    `\n${silent} of ${yielded.size} reached sources published nothing in the window ` +
+      `(normal at 2 days — 'npm run scout:stats -- --health' names the ones silent for weeks).`
+  );
 }

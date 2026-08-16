@@ -114,13 +114,17 @@ test('normalizeEvent stamps id, ISO ts, the ISO week, and empty enrichment field
 test('hnToEvents links comment-only stories to their HN page', () => {
   const events = hnToEvents({
     hits: [
-      { title: 'Show HN: Tool', url: 'https://tool.dev', created_at: '2026-08-05T12:00:00Z', author: 'pg', objectID: '1' },
+      { title: 'Show HN: Tool', url: 'https://tool.dev', created_at: '2026-08-05T12:00:00Z', author: 'pg', objectID: '1', points: 240, num_comments: 88 },
       { title: 'Ask HN: DevRel?', url: null, created_at: '2026-08-05T13:00:00Z', author: 'x', objectID: '42' },
     ],
   });
   assert.equal(events.length, 2);
   assert.equal(events[1].url, 'https://news.ycombinator.com/item?id=42');
   assert.equal(events[0].channel, 'hn');
+  // Algolia already sends these; the sweep used to drop them on the floor.
+  assert.equal(events[0].points, 240);
+  assert.equal(events[0].comments, 88);
+  assert.equal('points' in events[1], false, 'a hit without counters writes no key');
 });
 
 test('redditToEvents keyword-filters when asked and links the permalink', () => {
@@ -141,12 +145,17 @@ test('redditToEvents keyword-filters when asked and links the permalink', () => 
 
 test('lobstersToEvents matches keywords against title and tags', () => {
   const json = [
-    { title: 'A new API gateway', tags: ['networking'], url: 'https://x.dev/a', created_at: '2026-08-05T10:00:00Z', short_id: 's1', submitter_user: 'u' },
+    { title: 'A new API gateway', tags: ['networking'], url: 'https://x.dev/a', created_at: '2026-08-05T10:00:00Z', short_id: 's1', submitter_user: 'u', description: '<p>Routes traffic.</p>', score: 31, comment_count: 4 },
     { title: 'Fungi of Patagonia', tags: ['science'], url: 'https://x.dev/b', created_at: '2026-08-05T10:00:00Z', short_id: 's2', submitter_user: 'u' },
   ];
   const events = lobstersToEvents(json, { keywords: ['api'] });
   assert.equal(events.length, 1);
   assert.equal(events[0].channel, 'lobsters');
+  // This mapper used to pass no summary, so every Lobsters event in the DB was
+  // title-only regardless of what the story carried.
+  assert.equal(events[0].summary, 'Routes traffic.');
+  assert.equal(events[0].points, 31);
+  assert.equal(events[0].comments, 4);
 });
 
 test('bskyToEvents builds a stable https URL from the at:// uri', () => {
@@ -198,6 +207,74 @@ test('registry integrity: unique ids, https feeds, valid kind and posture enums'
   assert.ok(COMMUNITY.hnQueries.length > 0 && COMMUNITY.subreddits.length > 0);
   assert.ok(CHANNELS.includes('search') && CHANNELS.includes('manual'), 'model write-path channels exist');
   assert.ok(EVENT_KINDS.includes('other'), 'the enum has an honest fallback');
+  for (const s of SOURCES) {
+    if (s.channel === undefined) continue;
+    assert.ok(CHANNELS.includes(s.channel), `${s.id}: channel "${s.channel}" is not in CHANNELS`);
+  }
+});
+
+test('the topic vocabulary is closed, kebab-case, and every alias resolves into it', async () => {
+  const { TOPICS, TOPIC_ALIASES, canonicalTopic } = await import('./lib/scout-sources.mjs');
+  const seen = new Set();
+  for (const t of TOPICS) {
+    assert.match(t, /^[a-z0-9][a-z0-9-]*$/, `topic "${t}" is not kebab-case`);
+    assert.ok(!seen.has(t), `duplicate topic "${t}"`);
+    seen.add(t);
+  }
+  for (const [retired, canon] of Object.entries(TOPIC_ALIASES)) {
+    assert.ok(TOPICS.includes(canon), `alias "${retired}" points at "${canon}", which is not a topic`);
+    assert.ok(!TOPICS.includes(retired), `"${retired}" is both retired and canonical`);
+  }
+  assert.equal(canonicalTopic('aeo'), 'aeo');
+  assert.equal(canonicalTopic('ai-search'), 'aeo', 'the fragment the DB actually drifted to resolves home');
+  assert.equal(canonicalTopic('not-a-topic'), undefined);
+});
+
+test('autoEntities matches registered names and aliases on word boundaries only', async () => {
+  const { autoEntities } = await import('./lib/scout-sources.mjs');
+  const reg = {
+    _comment: 'ignored',
+    vercel: { name: 'Vercel', aliases: ['next.js'] },
+    anthropic: { name: 'Anthropic', aliases: ['claude'] },
+    go: { name: 'Go', aliases: [] },
+  };
+  assert.deepEqual(autoEntities('Vercel ships Next.js 16', reg), ['vercel'], 'name and alias collapse to one slug');
+  assert.deepEqual(autoEntities('Claude Code adds skills', reg), ['anthropic'], 'alias matching is case-insensitive');
+  assert.deepEqual(autoEntities('A guide to overclocking', reg), [], 'substring "clock" must not match Claude');
+  assert.deepEqual(autoEntities('Advercelerate your funnel', reg), [], 'a slug inside a longer word is not a match');
+  assert.deepEqual(autoEntities('Going to the shops', reg), [], 'needles under 3 chars are skipped entirely');
+  assert.deepEqual(autoEntities('Anthropic and Vercel partner', reg), ['anthropic', 'vercel'], 'sorted, deduped');
+});
+
+test('normalizeEvent keeps engagement counters optional and never invents them', () => {
+  const base = { ts: '2026-08-10T00:00:00Z', source: 'show-hn', channel: 'hn', title: ' Spaced ', url: 'https://x.dev/a' };
+  const bare = normalizeEvent(base);
+  assert.equal('points' in bare, false, 'a source without counters writes no key');
+  assert.equal('comments' in bare, false);
+  assert.deepEqual(bare.entities, [], 'curated entities always start empty');
+  assert.equal('entitiesAuto' in bare, false, 'auto-tags are derived at read time, never stored');
+
+  const rich = normalizeEvent({ ...base, points: 0, comments: 12 });
+  assert.equal(rich.points, 0, 'zero points is data, not absence');
+  assert.equal(rich.comments, 12);
+});
+
+test('attachAutoEntities derives tags at read time without touching curated entities', async () => {
+  const { attachAutoEntities } = await import('./lib/scout-sources.mjs');
+  const reg = { vercel: { name: 'Vercel', aliases: [] }, anthropic: { name: 'Anthropic', aliases: ['claude'] } };
+  const [tagged, curated, untouched] = attachAutoEntities(
+    [
+      { id: 'a', title: 'Vercel ships something', entities: [] },
+      { id: 'b', title: 'Claude gets skills', entities: ['vercel'] },
+      { id: 'c', title: 'Fungi of Patagonia', entities: [] },
+    ],
+    reg
+  );
+  assert.deepEqual(tagged.entitiesAuto, ['vercel']);
+  assert.deepEqual(tagged.entities, [], 'derivation never writes into the curated field');
+  assert.deepEqual(curated.entitiesAuto, ['anthropic']);
+  assert.deepEqual(curated.entities, ['vercel'], 'a curated entity survives derivation untouched');
+  assert.equal('entitiesAuto' in untouched, false, 'no match means no key, not an empty array');
 });
 
 test('entities.json parses and every entry passes the gate rules', async () => {

@@ -6,6 +6,7 @@
 //   npm run scout:query                              # everything, newest first
 //   npm run scout:query -- --since 2026-08-01 --until 2026-08-07
 //   npm run scout:query -- --entity vercel           # slug or alias
+//   npm run scout:query -- --entity vercel --auto    # include auto-tagged events
 //   npm run scout:query -- --event pricing --topic plg
 //   npm run scout:query -- --channel hn --source show-hn
 //   npm run scout:query -- --text "launch week"      # title+summary substring
@@ -15,7 +16,7 @@
 // Exit 0 with results (or none); 2 on bad arguments.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { readDb } from './lib/scout-sources.mjs';
+import { readDbFiles, attachAutoEntities, DB_FILE_RE } from './lib/scout-sources.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (name) => {
@@ -40,31 +41,36 @@ const SOURCE = flag('--source');
 const TEXT = flag('--text')?.toLowerCase();
 const JSON_OUT = has('--json');
 const COUNT = has('--count');
+// The sweep tags every event it captures with the registered entities named in
+// its own words (`entitiesAuto`). Those are substring matches, not judgment, so
+// --entity searches the model's curated field by default; --auto widens it to
+// the deterministic ones, which is the only way to reach the unenriched tail.
+const AUTO = has('--auto');
 
 // Resolve an alias to its slug so `--entity claude` finds `anthropic`.
-let entitySlug = ENTITY;
 const ENTITIES_FILE = 'signals/entities.json';
-if (ENTITY && existsSync(ENTITIES_FILE)) {
-  const reg = JSON.parse(readFileSync(ENTITIES_FILE, 'utf8'));
-  if (!reg[ENTITY]) {
-    const hit = Object.entries(reg).find(
-      ([slug, e]) => !slug.startsWith('_') && (e.aliases ?? []).includes(ENTITY.toLowerCase())
-    );
-    if (hit) entitySlug = hit[0];
-  }
+const registry = existsSync(ENTITIES_FILE) ? JSON.parse(readFileSync(ENTITIES_FILE, 'utf8')) : {};
+let entitySlug = ENTITY;
+if (ENTITY && !registry[ENTITY]) {
+  const hit = Object.entries(registry).find(
+    ([slug, e]) => !slug.startsWith('_') && (e.aliases ?? []).includes(ENTITY.toLowerCase())
+  );
+  if (hit) entitySlug = hit[0];
 }
 
 const files = existsSync('signals/db')
-  ? readdirSync('signals/db').filter((f) => f.endsWith('.ndjson')).sort().map((f) => `signals/db/${f}`)
+  ? readdirSync('signals/db').filter((f) => DB_FILE_RE.test(f)).sort().map((f) => `signals/db/${f}`)
   : [];
 
-const events = [];
-for (const file of files) for (const rec of readDb(readFileSync(file, 'utf8')).values()) events.push(rec);
+// Merged across week files, not per file — the same id can land in two of them
+// (see readDbFiles), and counting it twice is how a corpus grows in the telling.
+const { byId } = readDbFiles(files, { read: (f) => readFileSync(f, 'utf8') });
+const events = AUTO ? attachAutoEntities([...byId.values()], registry) : [...byId.values()];
 
 const wanted = events
   .filter((e) => !SINCE || e.ts >= new Date(SINCE).toISOString())
   .filter((e) => !UNTIL || e.ts <= new Date(`${UNTIL}T23:59:59Z`).toISOString())
-  .filter((e) => !entitySlug || (e.entities ?? []).includes(entitySlug))
+  .filter((e) => !entitySlug || (AUTO ? [...(e.entities ?? []), ...(e.entitiesAuto ?? [])] : e.entities ?? []).includes(entitySlug))
   .filter((e) => !EVENT || e.event === EVENT)
   .filter((e) => !TOPIC || (e.topics ?? []).includes(TOPIC))
   .filter((e) => !CHANNEL || e.channel === CHANNEL)

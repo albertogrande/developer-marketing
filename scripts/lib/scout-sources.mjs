@@ -22,7 +22,11 @@ import { isoWeekId } from '../../src/lib/dates.mjs';
 // The RSS/Atom watchlist. kind: practitioner | operator | newsletter |
 // research. posture: independent | vendor — vendor feeds are data about the
 // vendor (the signals flags self-reported claims; the enum keeps that context
-// queryable). All feeds verified 2026-08-06; candidates that failed then
+// queryable). `channel` is optional and defaults to 'rss'; set it when the
+// feed is a different *kind of surface* rather than a different publisher —
+// a launch tracker or a changelog.
+//
+// All feeds verified 2026-08-06; candidates that failed then
 // (devrelweekly 525, draft.dev/leerob/netlify/resend/planetscale/markepear/
 // slashdata 404s, commonroom no feed, reforge 500) are deliberately absent —
 // re-verify before adding. The answer-engine sources were added and verified
@@ -30,6 +34,16 @@ import { isoWeekId } from '../../src/lib/dates.mjs';
 // to a scheduled job), Search Engine Journal and Search Engine Roundtable are
 // deliberately absent: the first is unreliable, the other two duplicate Search
 // Engine Land's beat at several times the volume.
+//
+// The operator and changelog blocks below were added 2026-08-16 to correct a
+// measured imbalance: 77% of the event DB's first fortnight came from one HN
+// pipe, because the vendor side of the watchlist was too small — not because
+// HN was too loud (only 4% of that HN capture was off-beat). Vendor feeds are
+// the low-volume, high-yield half of the corpus: 25–67% of their events reach
+// published Signals, against ~2% of HN's. Verified 2026-08-16 by parsing each
+// feed through parseAnyFeed; linear.app/rss.xml, blog.langchain.dev/rss/ and
+// changelog.cursor.com/rss all answer 200 but yield zero parseable items, so
+// they are deliberately absent — re-verify before adding.
 
 export const SOURCES = [
   // Practitioners & newsletters — independent voices.
@@ -56,6 +70,36 @@ export const SOURCES = [
   { id: 'resend-blog', name: 'Resend blog', feed: 'https://resend.com/blog/rss.xml', kind: 'operator', posture: 'vendor' },
   { id: 'commonroom-blog', name: 'Common Room blog', feed: 'https://www.commonroom.io/rss.xml', kind: 'practitioner', posture: 'vendor' },
 
+  // Operators, second wave — the platforms and runtimes whose positioning
+  // moves this beat. Cloudflare is here because three published signals cited
+  // blog.cloudflare.com while it was not on the watchlist at all; the rest
+  // close the gap between "what indie builders build on" (visible on HN) and
+  // "what those platforms say about it" (previously invisible).
+  { id: 'cloudflare-blog', name: 'Cloudflare blog', feed: 'https://blog.cloudflare.com/rss/', kind: 'operator', posture: 'vendor' },
+  { id: 'openai-news', name: 'OpenAI news', feed: 'https://openai.com/news/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'railway-blog', name: 'Railway blog', feed: 'https://blog.railway.com/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'fly-blog', name: 'Fly.io blog', feed: 'https://fly.io/blog/feed.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'neon-blog', name: 'Neon blog', feed: 'https://neon.com/blog/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'replit-blog', name: 'Replit blog', feed: 'https://blog.replit.com/feed.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'warp-blog', name: 'Warp blog', feed: 'https://www.warp.dev/blog/feed.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'val-town-blog', name: 'Val Town blog', feed: 'https://blog.val.town/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'docker-blog', name: 'Docker blog', feed: 'https://www.docker.com/blog/feed/', kind: 'operator', posture: 'vendor' },
+  { id: 'gitlab-blog', name: 'GitLab blog', feed: 'https://about.gitlab.com/atom.xml', kind: 'operator', posture: 'vendor' },
+  // Runtimes and frameworks: quiet feeds (weeks between posts) kept because
+  // when they do publish it is a release the whole beat reacts to.
+  { id: 'bun-blog', name: 'Bun blog', feed: 'https://bun.com/rss.xml', kind: 'operator', posture: 'vendor' },
+  { id: 'deno-blog', name: 'Deno blog', feed: 'https://deno.com/feed', kind: 'operator', posture: 'vendor' },
+  { id: 'astro-blog', name: 'Astro blog', feed: 'https://astro.build/rss.xml', kind: 'operator', posture: 'vendor' },
+
+  // Changelogs — a surface the watchlist had no coverage of at all. A blog is
+  // where a devtool *announces* positioning; a changelog is where positioning
+  // actually moves: tier renames, quota changes, deprecations. That is why
+  // they carry their own channel — 'pricing' and 'deprecation' are event kinds
+  // the DB has never once recorded, and this is the surface that produces them.
+  { id: 'github-changelog', name: 'GitHub changelog', feed: 'https://github.blog/changelog/feed/', kind: 'operator', posture: 'vendor', channel: 'changelog' },
+  { id: 'sentry-changelog', name: 'Sentry changelog', feed: 'https://sentry.io/changelog/feed.xml', kind: 'operator', posture: 'vendor', channel: 'changelog' },
+  { id: 'railway-changelog', name: 'Railway changelog', feed: 'https://railway.com/changelog/rss.xml', kind: 'operator', posture: 'vendor', channel: 'changelog' },
+
   // Research & data.
   { id: 'slashdata-blog', name: 'SlashData blog', feed: 'https://www.slashdata.co/blog-feed.xml', kind: 'research', posture: 'independent' },
 
@@ -68,7 +112,7 @@ export const SOURCES = [
   { id: 'sparktoro', name: 'SparkToro (Rand Fishkin)', feed: 'https://sparktoro.com/blog/feed/', kind: 'research', posture: 'vendor' },
 
   // Launch trackers.
-  { id: 'producthunt-devtools', name: 'Product Hunt — developer tools', feed: 'https://www.producthunt.com/feed?category=developer-tools', kind: 'newsletter', posture: 'independent' },
+  { id: 'producthunt-devtools', name: 'Product Hunt — developer tools', feed: 'https://www.producthunt.com/feed?category=developer-tools', kind: 'newsletter', posture: 'independent', channel: 'producthunt' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -84,7 +128,13 @@ export const SOURCES = [
 
 export const SITEMAPS = [
   { id: 'reforge-blog', name: 'Reforge blog', sitemap: 'https://www.reforge.com/sitemap.xml', include: '^https://www\.reforge\.com/blog/.+', kind: 'practitioner', posture: 'independent' },
-  { id: 'leerob', name: 'Lee Robinson', sitemap: 'https://leerob.com/sitemap.xml', include: '^https://leerob\.com/[a-z0-9-]+$', exclude: '^https://leerob\.com/(writing|stack|uses|work|links|vercel)$', kind: 'practitioner', posture: 'independent' },
+  // leerob.com publishes posts at bare top-level slugs, so the include pattern
+  // has to be broad; the exclude list carries the site's non-post pages. Note
+  // this sitemap stamps every <loc> with the build time, so on each deploy the
+  // whole site re-enters the window — harmless only because dedupe now spans
+  // every week file (see scout-sweep.mjs), which is what stopped it appending
+  // 21 duplicate events a second time.
+  { id: 'leerob', name: 'Lee Robinson', sitemap: 'https://leerob.com/sitemap.xml', include: '^https://leerob\.com/[a-z0-9-]+$', exclude: '^https://leerob\.com/(writing|stack|uses|work|links|vercel|bio|bookmarks|beliefs|bronco)$', kind: 'practitioner', posture: 'independent' },
 ];
 
 export const CRAWLS = [
@@ -136,10 +186,51 @@ export const COMMUNITY = {
 
 // Valid enums — the enrich tool validates against these, and agents filter on
 // them, so extend deliberately (same rule as the site's schema vocabularies).
-export const CHANNELS = ['rss', 'hn', 'reddit', 'lobsters', 'bluesky', 'producthunt', 'crawl', 'search', 'manual'];
+export const CHANNELS = ['rss', 'changelog', 'hn', 'reddit', 'lobsters', 'bluesky', 'producthunt', 'crawl', 'search', 'manual'];
 export const EVENT_KINDS = ['launch', 'release', 'funding', 'acquisition', 'pricing', 'deprecation', 'research', 'campaign', 'content', 'discussion', 'podcast', 'hiring', 'other'];
 export const ENTITY_KINDS = ['company', 'tool', 'person', 'protocol', 'show'];
 export const SOURCE_KINDS = ['practitioner', 'operator', 'newsletter', 'research', 'podcast'];
+
+// Topics were free text for the DB's first fortnight and drifted exactly the
+// way this repo's other vocabularies are enum'd to prevent: 38 slugs across 51
+// enriched events, with `agents` / `agent-tooling` / `agent-infra` splitting one
+// thread, and `aeo` — the slug daily-scout/SKILL.md mandates stamping "even
+// when the event is filed under another beat" — never once used, while its
+// synonyms `ai-search` and `crawlers` were. An agent filtering on a topic gets
+// a silently short answer when that happens, so the list is closed now.
+//
+// Extending it is a deliberate edit here plus a line in the scout's skill.
+export const TOPICS = [
+  // Discovery and the answer-engine beat.
+  'aeo', 'docs', 'content', 'distribution', 'marketplace',
+  // Agents: the umbrella, then the distinct sub-threads worth filtering apart.
+  'agents', 'ai-coding-agents', 'agent-skills', 'agent-tooling', 'agent-governance',
+  'agent-safe-docs', 'agents-md', 'mcp',
+  // Commercial.
+  'pricing', 'plg', 'funding', 'valuation', 'metrics', 'roi', 'org-design', 'pmm', 'hiring',
+  // Engineering and product surface.
+  'devtools', 'sdk', 'infrastructure', 'open-source', 'ai-contributions', 'security',
+  'compliance', 'governance', 'testing', 'code-review', 'browser-automation',
+  'dogfooding', 'launches',
+];
+
+// Retired slugs → the canonical one. Kept so the enrich tool can tell the
+// model *which* topic to use instead of just refusing, and so a reader of old
+// events knows where a thread went. Never delete a row: the DB still holds
+// events stamped with the left-hand side.
+export const TOPIC_ALIASES = {
+  'ai-search': 'aeo',
+  crawlers: 'aeo',
+  'agent-infra': 'agent-tooling',
+  'pre-action-authz': 'agent-governance',
+  authorization: 'agent-governance',
+  'ai-era': 'agents',
+};
+
+// Resolve a topic to its canonical slug, or undefined if it is not in the
+// vocabulary at all.
+export const canonicalTopic = (t) =>
+  TOPICS.includes(t) ? t : TOPIC_ALIASES[t] && TOPICS.includes(TOPIC_ALIASES[t]) ? TOPIC_ALIASES[t] : undefined;
 
 // ---------------------------------------------------------------------------
 // Feed parsing — RSS 2.0 *and* Atom, unlike podcasts.mjs's parseFeed (which
@@ -291,9 +382,62 @@ export function normalizeUrl(raw) {
 export const eventId = (url) =>
   createHash('sha256').update(normalizeUrl(url)).digest('hex').slice(0, 12);
 
+// Deterministic entity matching over an event's own words.
+//
+// `entities` is the model's curated judgment and stays that way. The problem it
+// cannot solve alone is coverage: the scout enriches "a handful of events a day"
+// by design, which left 96% of the first fortnight's corpus entity-blind — 42 of
+// 62 registered entities had zero events, including ones whose titles plainly
+// named them. autoEntities fills that gap: every registered name or alias that
+// appears, as a word, in an event's title or summary.
+//
+// This is derived at read time and never stored. Freezing it would mean a
+// migration now and a stale corpus later — registering an entity should light
+// up the events that already named it, not just future ones. The cost is one
+// pass over the log per query, which is milliseconds at this size.
+//
+// The result stays in its own field, `entitiesAuto`, and never merges into
+// `entities`. Auto matches are routing metadata, not claims — "Meta" inside
+// "meta description" is a real false positive this produces — and folding them
+// together would launder a substring match into curated judgment.
+export function autoEntities(text, registry = {}) {
+  const hay = ` ${String(text ?? '').toLowerCase()} `;
+  const hits = new Set();
+  for (const [slug, ent] of Object.entries(registry)) {
+    if (slug.startsWith('_')) continue;
+    const needles = [ent?.name, ...(ent?.aliases ?? [])].filter((n) => typeof n === 'string' && n.length >= 3);
+    for (const n of needles) {
+      // Word-ish boundaries, but tolerant of the punctuation real names carry
+      // ('Next.js', 'Val Town', 'r/devrel'): anything that is not a letter or
+      // digit may sit either side.
+      const esc = n.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`(^|[^a-z0-9])${esc}([^a-z0-9]|$)`, 'i').test(hay)) {
+        hits.add(slug);
+        break;
+      }
+    }
+  }
+  return [...hits].sort();
+}
+
+// Every event, plus the entities its own words name. The read-time half of the
+// pair above — query and stats both go through this so "what has Vercel been
+// doing?" means the same thing in both.
+export const attachAutoEntities = (events, registry = {}) =>
+  events.map((e) => {
+    const auto = autoEntities(`${e.title ?? ''} ${e.summary ?? ''}`, registry);
+    return auto.length ? { ...e, entitiesAuto: auto } : e;
+  });
+
 // The one place the event shape is decided. `ts` is the item's own timestamp
 // when the source gives one, else the sweep time the caller passes.
-export function normalizeEvent({ ts, source, channel, title, url, summary, author }) {
+//
+// `points`/`comments` are the source's own engagement counters where it
+// publishes them. They exist for analysis — "did this land or sink?" is not
+// answerable without them — and are explicitly *not* a promotion criterion:
+// ranking capture by reach is what drops the indie tail the Signals feed
+// exists for (MASTHEAD.md). Nothing in the publish path reads them.
+export function normalizeEvent({ ts, source, channel, title, url, summary, author, points, comments }) {
   const when = ts instanceof Date ? ts : new Date(ts);
   return {
     id: eventId(url),
@@ -305,6 +449,8 @@ export function normalizeEvent({ ts, source, channel, title, url, summary, autho
     url: normalizeUrl(url),
     ...(summary ? { summary } : {}),
     ...(author ? { author } : {}),
+    ...(Number.isFinite(points) ? { points } : {}),
+    ...(Number.isFinite(comments) ? { comments } : {}),
     entities: [],
     topics: [],
   };
@@ -326,6 +472,9 @@ export function hnToEvents(json, { source = 'hackernews' } = {}) {
         url: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
         summary: snippet(h.story_text ?? ''),
         author: h.author,
+        // Already in the Algolia payload; the sweep used to discard them.
+        points: h.points,
+        comments: h.num_comments,
       })
     );
 }
@@ -347,6 +496,8 @@ export function redditToEvents(json, { subreddit, keywords = [] } = {}) {
       url: `https://www.reddit.com${p.permalink}`,
       summary: snippet(p.selftext ?? ''),
       author: p.author,
+      points: p.score,
+      comments: p.num_comments,
     })
   );
 }
@@ -366,7 +517,12 @@ export function lobstersToEvents(json, { keywords = [] } = {}) {
       channel: 'lobsters',
       title: s.title,
       url: s.url || s.comments_url || `https://lobste.rs/s/${s.short_id}`,
+      // This mapper passed no summary at all, so every Lobsters event was
+      // title-only — a structural blank, not a thin feed.
+      summary: snippet(s.description ?? ''),
       author: s.submitter_user,
+      points: s.score,
+      comments: s.comment_count,
     })
   );
 }
@@ -386,6 +542,8 @@ export function bskyToEvents(json, { query } = {}) {
         url: `https://bsky.app/profile/${handle}/post/${rkey ?? ''}`,
         summary: snippet(p.record.text),
         author: handle,
+        points: p.likeCount,
+        comments: p.replyCount,
       });
     });
 }
@@ -413,6 +571,30 @@ export function readDb(text, { warn = console.warn } = {}) {
   return byId;
 }
 
+// The whole log as one map, merged across week files in filename order.
+//
+// readDb merges by id *within* a file, which is not the same thing: an event's
+// file is chosen by its own timestamp, so a source that restamps a URL puts the
+// same id in two week files. Per-file replay then yields it twice, and every
+// consumer that flattened `readDb` per file counted it twice — that is why a
+// 1,150-event corpus reported 1,184. Merge across files, always, so line count
+// never has to equal event count.
+export function readDbFiles(files, { read, warn = console.warn } = {}) {
+  const byId = new Map();
+  const fileOf = new Map();
+  for (const file of files) {
+    for (const [id, rec] of readDb(read(file), { warn })) {
+      byId.set(id, { ...byId.get(id), ...rec });
+      fileOf.set(id, file);
+    }
+  }
+  return { byId, fileOf };
+}
+
 export const dbFileFor = (date) => `signals/db/${isoWeekId(date)}.ndjson`;
+
+// Every week file, oldest first. One definition so the tools cannot disagree
+// about what "the DB" is.
+export const DB_FILE_RE = /^\d{4}-W\d{2}\.ndjson$/;
 
 export { isoWeekId };

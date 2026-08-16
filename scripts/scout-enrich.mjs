@@ -24,8 +24,12 @@ import {
   CHANNELS,
   EVENT_KINDS,
   ENTITY_KINDS,
+  TOPICS,
+  TOPIC_ALIASES,
+  canonicalTopic,
   normalizeEvent,
-  readDb,
+  readDbFiles,
+  DB_FILE_RE,
   dbFileFor,
 } from './lib/scout-sources.mjs';
 
@@ -79,18 +83,39 @@ if (NEW_ENTITIES) {
 
 // --- load the whole DB once (patches may target any week) -------------------
 const dbFiles = existsSync('signals/db')
-  ? readdirSync('signals/db').filter((f) => f.endsWith('.ndjson')).map((f) => `signals/db/${f}`)
+  ? readdirSync('signals/db').filter((f) => DB_FILE_RE.test(f)).sort().map((f) => `signals/db/${f}`)
   : [];
-const byId = new Map();
-const fileOf = new Map();
-for (const file of dbFiles) {
-  for (const [id, rec] of readDb(readFileSync(file, 'utf8'))) {
-    byId.set(id, rec);
-    fileOf.set(id, file);
-  }
-}
+const { byId, fileOf } = readDbFiles(dbFiles, { read: (f) => readFileSync(f, 'utf8') });
 const entities = loadEntities();
 const knownEntity = (slug) => Object.hasOwn(entities, slug) && !slug.startsWith('_');
+
+// Topics are a closed vocabulary (see TOPICS in lib/scout-sources.mjs for why).
+// Validate, and canonicalize a retired slug rather than refusing it — the point
+// is that one thread carries one label, not that the scout has to memorize the
+// list. Anything genuinely new is an edit to TOPICS, deliberately.
+const checkTopics = (label, topics) => {
+  if (topics === undefined) return undefined;
+  if (!Array.isArray(topics)) {
+    problems.push(`${label}: topics must be an array`);
+    return undefined;
+  }
+  const out = [];
+  for (const t of topics) {
+    const canon = canonicalTopic(t);
+    if (!canon) {
+      const near = TOPICS.filter((v) => v.includes(String(t).split('-')[0])).slice(0, 4);
+      problems.push(
+        `${label}: unknown topic "${t}"` +
+          (near.length ? ` — did you mean ${near.join(', ')}?` : '') +
+          ` (add it to TOPICS in scripts/lib/scout-sources.mjs if the beat really needs it)`
+      );
+      continue;
+    }
+    if (canon !== t) console.log(`scout-enrich: topic "${t}" → "${canon}" (${TOPIC_ALIASES[t] ? 'retired slug' : 'canonical'}).`);
+    if (!out.includes(canon)) out.push(canon);
+  }
+  return out;
+};
 
 // --- --patch: enrichment lines ----------------------------------------------
 if (PATCH && !problems.length) {
@@ -104,12 +129,12 @@ if (PATCH && !problems.length) {
     }
     for (const e of p.entities ?? []) if (!knownEntity(e)) problems.push(`patch ${p.id}: unknown entity "${e}" (register it with --new-entities)`);
     if (p.event !== undefined && !EVENT_KINDS.includes(p.event)) problems.push(`patch ${p.id}: bad event "${p.event}"`);
-    if (p.topics !== undefined && !Array.isArray(p.topics)) problems.push(`patch ${p.id}: topics must be an array`);
+    const topics = checkTopics(`patch ${p.id}`, p.topics);
     const extra = Object.keys(p).filter((k) => !['id', 'entities', 'event', 'topics'].includes(k));
     if (extra.length) problems.push(`patch ${p.id}: unexpected field(s) ${extra.join(', ')}`);
     const file = fileOf.get(p.id);
     if (!lines.has(file)) lines.set(file, []);
-    lines.get(file).push(JSON.stringify({ id: p.id, ...(p.entities ? { entities: p.entities } : {}), ...(p.event ? { event: p.event } : {}), ...(p.topics ? { topics: p.topics } : {}) }));
+    lines.get(file).push(JSON.stringify({ id: p.id, ...(p.entities ? { entities: p.entities } : {}), ...(p.event ? { event: p.event } : {}), ...(topics ? { topics } : {}) }));
   }
   if (!problems.length) {
     for (const [file, ls] of lines) await appendFile(file, ls.join('\n') + '\n', 'utf8');
@@ -141,7 +166,8 @@ if (ADD && !problems.length) {
     if (byId.has(ev.id)) continue; // already captured — silently fine
     for (const e of item.entities ?? []) if (!knownEntity(e)) problems.push(`add ${ev.id}: unknown entity "${e}"`);
     if (item.event !== undefined && !EVENT_KINDS.includes(item.event)) problems.push(`add ${ev.id}: bad event "${item.event}"`);
-    fresh.push({ ...ev, ...(item.entities ? { entities: item.entities } : {}), ...(item.event ? { event: item.event } : {}), ...(item.topics ? { topics: item.topics } : {}) });
+    const topics = checkTopics(`add ${ev.id}`, item.topics);
+    fresh.push({ ...ev, ...(item.entities ? { entities: item.entities } : {}), ...(item.event ? { event: item.event } : {}), ...(topics ? { topics } : {}) });
   }
   if (!problems.length && fresh.length) {
     const byFile = new Map();

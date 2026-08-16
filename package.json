@@ -16,6 +16,7 @@
     "scout:sweep": "node scripts/scout-sweep.mjs",
     "scout:enrich": "node scripts/scout-enrich.mjs",
     "scout:query": "node scripts/scout-query.mjs",
+    "scout:stats": "node scripts/scout-stats.mjs",
     "newsletter:serve": "node newsletter/server.mjs",
     "newsletter:doctor": "node newsletter/doctor.mjs",
     "newsletter:send": "node newsletter/send.mjs",
