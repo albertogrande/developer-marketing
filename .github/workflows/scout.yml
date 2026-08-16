@@ -45,11 +45,17 @@ on:
         description: "Optional focus for this sweep (e.g. 'DevRel metrics')"
         required: false
         default: ""
+      rescue_from_run:
+        description: "Recover a failed run's rescue-patch first (run id). Set automatically by the Recover workflow."
+        required: false
+        default: ""
 
 permissions:
   contents: write
   id-token: write
   issues: write
+  # apply-rescue downloads a previous failed run's rescue-patch artifact.
+  actions: read
 
 # All main-writing workflows share one group so two writers never race a push.
 concurrency:
@@ -61,25 +67,45 @@ jobs:
     runs-on: ubuntu-latest
     # Raised with the turn caps below — a job timeout kills the run mid-write
     # with no rescue and no guard, which is strictly worse than a turn cap.
-    timeout-minutes: 50
+    # 60, tracking the writer cap's 70 -> 110: the longest observed run is
+    # ~12 min, so this stays comfortable headroom rather than a live ceiling.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       # Runners are ephemeral, so without this the transcript cache is empty on
       # every run and each sweep re-downloads what the last one already had.
-      # Keyed by day so a run reuses the same day's fetches on retry, and falls
-      # back to the most recent cache otherwise. Transcripts are third-party
-      # copyrighted work: they live here and in .cache/ only, never in a commit.
+      # Transcripts are third-party copyrighted work: they live here and in
+      # .cache/ only, never in a commit.
+      - name: Cache key (UTC day)
+        id: cachekey
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      # Keyed by day, so the Recover workflow's retry reuses the same day's
+      # fetches instead of paying for them twice, and falls back to the most
+      # recent cache otherwise. This used to key on github.run_id, which is
+      # unique per run: it could never hit exactly, always fell through to the
+      # restore-key prefix, and wrote a fresh entry every night — the comment
+      # said "keyed by day" but the expression did not.
       - name: Cache podcast transcripts
         uses: actions/cache@v4
         with:
           path: .cache/transcripts
-          key: podcast-transcripts-${{ github.run_id }}
+          key: podcast-transcripts-${{ steps.cachekey.outputs.day }}
           restore-keys: |
             podcast-transcripts-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
+
+      # Only set when the Recover workflow re-dispatched this run after a
+      # failure — recovers that run's uncommitted writing so the retry starts
+      # from the work rather than from nothing. Everything recovered still
+      # goes through the fact-integrity pass and the gates below.
+      - name: Recover a failed run's writing
+        uses: ./.github/actions/apply-rescue
+        with:
+          run_id: ${{ github.event.inputs.rescue_from_run }}
+          github_token: ${{ github.token }}
 
       - name: Capture today's signals
         id: claude
@@ -111,12 +137,22 @@ jobs:
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
           #
-          # 70 turns, not 40: the 2026-08-01 merge put signal promotion, the
-          # podcast fetch, distilling into editorial/podcasts/ and draining
-          # three backlog episodes on the same budget the sweep alone used to
-          # have, and 08-02 and 08-03 both died at the cap. A cap is a
-          # ceiling, not a quota — a sweep that finishes in 30 turns still
-          # costs 30.
+          # 110 turns, raised from 70 on the ledger's own evidence: over the
+          # 14 days to 2026-08-16, SIX OF SEVEN writer runs reached the 70
+          # cap (71, 77, 78, 97, 71, 60, 71 — median 71). The desk was being
+          # truncated almost every night and only shipping because
+          # tolerate_max_turns lets a capped run through, which is exactly
+          # what writer-guard's warning says not to let stand: "If this
+          # recurs, raise --max-turns rather than letting the desk publish
+          # partial work."
+          #
+          # 110 clears the worst observed run (97) with headroom. Re-check
+          # with `node scripts/ledger-report.mjs --days 14` after a week: if
+          # runs still pile up at the ceiling, the fix is less work per turn
+          # (progressive disclosure in the skill), not a bigger number.
+          #
+          # A cap is a ceiling, not a quota — a sweep that finishes in 30
+          # turns still costs 30.
           #
           # The allowlist is deliberately wide across read-only shell: every
           # denial costs a turn, and a denied command tends to get retried. On
@@ -126,7 +162,7 @@ jobs:
           # mutate the tree; the skill still writes through Write/Edit.
           claude_args: >-
             --model claude-sonnet-5
-            --max-turns 70
+            --max-turns 110
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run podcast:transcripts*),Bash(node scripts/podcast-transcripts.mjs*),Bash(npm run scout:sweep*),Bash(npm run scout:enrich*),Bash(npm run scout:query*),Bash(node scripts/scout-*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
@@ -159,35 +195,16 @@ jobs:
       - name: Verify changed claims (fact-integrity pass)
         id: verify
         if: steps.changes.outputs.n != '0'
-        uses: anthropics/claude-code-action@v1
+        # A separate model in a fresh context checks the writer's claims — the
+        # writer never grades its own homework. Opus rather than the writer's
+        # Sonnet so the check is genuinely cross-model. 60 turns because there
+        # are more signals to verify.
+        uses: ./.github/actions/fact-integrity
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: >
-            You are the fact-integrity gate for this repo's autonomous writer.
-            The previous step edited content but nothing is committed yet. Run
-            `git status --porcelain -- src/content signals` to list edited and
-            new files, `git diff -- src/content signals` for the edits, and
-            read new files in full. For every load-bearing factual claim added
-            or changed — figures, survey results, dates, pricing, quotes,
-            company moves — verify it against a credible public source with
-            WebFetch/WebSearch. Fix what is wrong, revert what cannot be
-            verified, and mark anything kept-but-unverified as such in the
-            text ("reportedly", with its single source). Do not add new
-            stories and do not restyle prose. Write files only — do not
-            commit or push.
-          show_full_output: true
-          # A separate model in a fresh context checks the writer's claims —
-          # the writer never grades its own homework. Opus 4.8 rather than the
-          # writer's Sonnet so the check is genuinely cross-model, matching
-          # the writer/verifier split every other desk already has.
-          # No continue-on-error and no tolerate_max_turns on the verifier:
-          # a fact-integrity pass that ran out of turns may have left claims
-          # unchecked, and unchecked claims are the one thing that must never
-          # reach a commit. 60 turns because there are more signals to verify.
-          claude_args: >-
-            --model claude-opus-4-8
-            --max-turns 60
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *)"
+          oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          model: claude-opus-5
+          max_turns: "60"
+          desk: writer
 
       # A clean verify may change nothing — only require that it really ran.
       - name: Guard — verifier ran
@@ -206,7 +223,7 @@ jobs:
           EXEC_WRITER: ${{ steps.exec-writer.outputs.file }}
           EXEC_VERIFY: ${{ steps.verify.outputs.execution_file }}
           MODEL_WRITER: claude-sonnet-5
-          MODEL_VERIFY: claude-opus-4-8
+          MODEL_VERIFY: claude-opus-5
         run: |
           bash scripts/append-ledger.sh
           echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"

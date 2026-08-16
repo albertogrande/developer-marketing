@@ -45,5 +45,6 @@ runs:
           echo "Pull/push failed; retrying in ${delay}s…"
           sleep "$delay"
         done
+        echo "ALERT_DETAIL=commit-and-push: rebase+push to ${GITHUB_REF_NAME} failed after 4 attempts — the work is committed locally but never reached the remote" >> "$GITHUB_ENV"
         echo "Push failed after retries." >&2
         exit 1

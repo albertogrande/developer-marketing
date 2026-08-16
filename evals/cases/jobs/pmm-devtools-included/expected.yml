@@ -1,0 +1,5 @@
+# All three hold: (A) developer-focused (managed Postgres, engineers are the
+# ICP), (B) product-marketing, (C) fully remote with no stated hiring-region
+# restriction.
+type: scope
+include: yes

@@ -15,16 +15,31 @@ name: Jobs
 
 on:
   schedule:
-    # Sunday 03:10 UTC nominal; GitHub's scheduler adds 1-3.5h of queue delay
-    # in practice, so this fires Sunday morning UTC. Minute 10 dodges the
+    # Sunday 08:20 UTC nominal; GitHub's scheduler adds 1-3.5h of queue delay
+    # in practice, so this fires ~09:30-12:00 Sunday. Minute 20 dodges the
     # congested top-of-hour slot (see scout.yml for the measured numbers).
-    - cron: "10 3 * * 0"
-  workflow_dispatch: {}
+    #
+    # Moved off 03:10, which sat only 20 nominal minutes after the Sunday
+    # scout — well inside that queue delay, so the two could arrive in either
+    # order or overlap. They share the `main-writers` concurrency group, which
+    # holds exactly one PENDING run: a third arrival evicts the queued one, and
+    # a cancellation is not `failure()`, so notify-failure never fires and the
+    # sweep vanishes silently. 08:20 clears the scout's worst-case push (06:39)
+    # and stays well ahead of Sunday's 14:00 liveness run.
+    - cron: "20 8 * * 0"
+  workflow_dispatch:
+    inputs:
+      rescue_from_run:
+        description: "Recover a failed run's rescue-patch first (run id). Set automatically by the Recover workflow."
+        required: false
+        default: ""
 
 permissions:
   contents: write
   id-token: write
   issues: write
+  # apply-rescue downloads a previous failed run's rescue-patch artifact.
+  actions: read
 
 # Same group as the writers — two jobs never race a push to main.
 concurrency:
@@ -42,6 +57,16 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+
+      # Only set when the Recover workflow re-dispatched this run after a
+      # failure — recovers that run's uncommitted writing so the retry starts
+      # from the work rather than from nothing. Everything recovered still
+      # goes through the fact-integrity pass and the gates below.
+      - name: Recover a failed run's writing
+        uses: ./.github/actions/apply-rescue
+        with:
+          run_id: ${{ github.event.inputs.rescue_from_run }}
+          github_token: ${{ github.token }}
 
       - name: Find open roles
         id: claude
@@ -67,12 +92,27 @@ jobs:
             --max-turns 60
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(wc *)"
 
+      # The same guard the other two desks use, instead of the bare `test -f`
+      # this had: that check could not tell a failed scrape from an expired
+      # CLAUDE_CODE_OAUTH_TOKEN or a run that never got past its first
+      # response, so an auth failure here produced a stale board and no alarm.
       # The skill's #1 rule is that incoming.json exists after the first
-      # source; a run that produced nothing is a failed scrape, not a quiet
-      # week (a quiet week is an empty ARRAY, which passes).
+      # source, so it doubles as the expect_changes proof — except that the
+      # file is gitignored, so the path check below still does that half.
+      - name: Guard — writer ran
+        uses: ./.github/actions/writer-guard
+        with:
+          execution_file: ${{ steps.claude.outputs.execution_file }}
+          tolerate_max_turns: "true"
+
+      # A run that produced nothing is a failed scrape, not a quiet week (a
+      # quiet week is an empty ARRAY, which passes). Kept as its own step
+      # because incoming.json is gitignored and writer-guard proves changes
+      # through `git status`.
       - name: Guard — the scrape wrote its checkpoint
         run: |
           test -f signals/jobs/incoming.json || {
+            echo "ALERT_DETAIL=jobs-scout ended without writing signals/jobs/incoming.json" >> "$GITHUB_ENV"
             echo "::error::jobs-scout ended without writing signals/jobs/incoming.json"
             exit 1
           }
@@ -89,17 +129,34 @@ jobs:
         id: stamp
         run: echo "today=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
 
+      # This desk's model spend was the only one missing from usage/ledger.csv,
+      # so the board's weekly cost was invisible next to the scout's and the
+      # editor's. No EXEC_VERIFY: the jobs sweep has no fact-integrity pass —
+      # the deterministic merge is what vets its output.
+      - name: Append usage ledger
+        env:
+          EXEC_WRITER: ${{ steps.claude.outputs.execution_file }}
+          MODEL_WRITER: claude-sonnet-5
+        run: bash scripts/append-ledger.sh
+
       - name: Commit and push
         uses: ./.github/actions/commit-and-push
         with:
-          paths: signals/jobs/jobs.json
+          paths: signals/jobs/jobs.json usage/
           message: "Jobs: weekly sweep ${{ steps.stamp.outputs.today }}"
+
+      # A failed merge or build used to discard the whole ~60-turn scrape with
+      # the runner: incoming.json is gitignored, so nothing preserved it.
+      # rescue-content force-adds it by name.
+      - name: Rescue uncommitted content on failure
+        if: failure()
+        uses: ./.github/actions/rescue-content
 
       - name: Notify on failure
         if: failure()
         uses: ./.github/actions/notify-failure
         with:
-          detail: "weekly jobs sweep failed — see the run log"
+          detail: ${{ env.ALERT_DETAIL || 'weekly jobs sweep failed — see the run log' }}
           alert_email_to: ${{ secrets.ALERT_EMAIL_TO }}
           alert_api_key: ${{ secrets.RESEND_API_KEY }}
           alert_from: ${{ vars.ALERT_FROM_EMAIL }}

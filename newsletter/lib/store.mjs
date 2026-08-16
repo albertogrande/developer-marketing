@@ -11,7 +11,7 @@
 //
 // This assumes a durable filesystem and one writer, which rules out serverless —
 // see store-postgres.mjs for the implementation that does not. Both satisfy the
-// same contract (test/store-contract.mjs), and every method is async even where
+// same contract (test-support/store-contract.mjs), and every method is async even where
 // this one could answer from memory, because an interface that only a local
 // in-memory store can satisfy is not an interface.
 

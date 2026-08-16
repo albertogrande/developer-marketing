@@ -1,4 +1,4 @@
-// The list, in Postgres. Same contract as store.mjs (test/store-contract.mjs),
+// The list, in Postgres. Same contract as store.mjs (test-support/store-contract.mjs),
 // for hosts without a durable filesystem — a Vercel or Lambda function, where
 // the NDJSON log cannot survive the invocation that wrote it.
 //

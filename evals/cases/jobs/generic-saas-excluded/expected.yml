@@ -1,0 +1,6 @@
+# Fails (A). The ICP is HR teams, not developers, and an HR SaaS with an
+# AI feature is not an AI company: "A generic SaaS/consumer company that
+# merely 'uses AI' is neither — exclude it." (B) and (C) both hold and do not
+# rescue it.
+type: scope
+include: no

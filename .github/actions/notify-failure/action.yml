@@ -43,6 +43,15 @@ inputs:
     description: "GitHub handle to @mention in the issue. Defaults to the repo owner."
     required: false
     default: ""
+  escalate_after:
+    description: >-
+      Consecutive failures of this workflow after which the alert escalates —
+      streak in the issue title, a pipeline-escalated label, and a run
+      annotation. Repeat failures used to only add a quiet comment, so the
+      alarm softened as the outage lengthened; 3 is one full day lost on a
+      daily desk.
+    required: false
+    default: "3"
 
 runs:
   using: composite
@@ -53,6 +62,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
         DETAIL: ${{ inputs.detail }}
         MENTION: ${{ inputs.alert_mention }}
+        ESCALATE_AFTER: ${{ inputs.escalate_after }}
       run: |
         set -euo pipefail
         title="Pipeline failure: ${GITHUB_WORKFLOW}"
@@ -70,12 +80,43 @@ runs:
 
         gh label create pipeline-failure --color B60205 \
           --description "An autonomous pipeline job failed" --force 2>/dev/null || true
+        # Match on prefix, not equality: an escalated issue carries a streak
+        # suffix in its title, and an exact match would stop finding it and
+        # open a duplicate on every subsequent failure.
         existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label pipeline-failure \
           --state open --json number,title \
-          --jq "[.[] | select(.title == \"$title\")][0].number // empty")
+          --jq "[.[] | select(.title | startswith(\"$title\"))][0].number // empty")
         if [ -n "$existing" ]; then
+          # Every prior failure left exactly one comment, so bot comments + the
+          # original report = how many times this desk has now failed in a row.
+          # Counting only the notifier's own comments keeps a human's triage
+          # notes from inflating the streak.
+          prior=$(gh issue view "$existing" --repo "$GITHUB_REPOSITORY" \
+            --json comments \
+            --jq '[.comments[] | select(.author.login | startswith("github-actions"))] | length' \
+            2>/dev/null || echo 0)
+          [ -n "$prior" ] || prior=0
+          failures=$(( prior + 2 ))
+
+          banner=""
+          if [ "$failures" -ge "$ESCALATE_AFTER" ]; then
+            # The 08-08..08-14 shape: the first failure opened a loud issue and
+            # the next seven only commented, so the alarm got quieter exactly
+            # as the outage got worse. Past the threshold, say so in the title
+            # (where a notification list shows it), annotate the run, and label
+            # it so the streak is filterable.
+            banner=$(printf '> [!CAUTION]\n> **%s consecutive failures.** This desk has been down since the first report above. Rescue patches are attached to each failed run and the Recover workflow has already retried once — this needs a human.\n\n' "$failures")
+            gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" \
+              --title "$title — $failures consecutive failures" 2>/dev/null || true
+            gh label create pipeline-escalated --color 5319E7 \
+              --description "A pipeline failure that has repeated past its escalation threshold" --force 2>/dev/null || true
+            gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" \
+              --add-label pipeline-escalated 2>/dev/null || true
+            echo "::error::${GITHUB_WORKFLOW} has now failed ${failures} times in a row — see ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${existing}"
+          fi
+
           gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" \
-            --body "$(printf '@%s failed again at %s.\n\n%s\n\nRun: %s' "$mention" "$when" "$detail_line" "$url")"
+            --body "$(printf '%s@%s failed again at %s (failure #%s).\n\n%s\n\nRun: %s' "$banner" "$mention" "$when" "$failures" "$detail_line" "$url")"
           issue_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${existing}"
         else
           issue_url=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \

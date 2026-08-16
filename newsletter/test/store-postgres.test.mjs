@@ -12,7 +12,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runStoreContract } from './store-contract.mjs';
+import { runStoreContract } from '../test-support/store-contract.mjs';
 import {
   openPostgresStore,
   rowToRecord,

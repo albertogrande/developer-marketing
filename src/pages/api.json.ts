@@ -91,9 +91,16 @@ export const GET: APIRoute = async () => {
         ...resources,
       ].flatMap(
         (e) =>
+          // Every collection contributes whichever freshness fields it has:
+          // guide sections carry `updated` but no `date`, claims and resources
+          // carry `checked`, skills carry `verified`. Read them off the union
+          // through the same optional cast the last two already used — the
+          // undefined ones are filtered downstream, and this is the honest
+          // shape of a heterogeneous set rather than a claim every entry has
+          // all four.
           [
-            e.data.date,
-            e.data.updated,
+            (e.data as { date?: Date }).date,
+            (e.data as { updated?: Date }).updated,
             (e.data as { verified?: Date }).verified,
             (e.data as { checked?: Date }).checked,
           ] as (Date | undefined)[]

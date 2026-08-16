@@ -1,10 +1,23 @@
 name: Newsletter
 
-# Sends the week's digest to the confirmed list, two hours after the Weekly
-# workflow writes it. The list itself lives on the capture service (see
-# newsletter/README.md); this job reads the recipients over its authenticated
-# admin endpoint, renders the issue from src/content/weekly/, and hands each
-# message to the SMTP relay.
+# Sends the week's issue to the confirmed list. The list itself lives on the
+# capture service (see newsletter/README.md); this job reads the recipients
+# over its authenticated admin endpoint, renders the issue from
+# src/content/issues/, and hands each message to the SMTP relay.
+#
+# Driven by the Editor finishing, not by a clock. It used to fire on a fixed
+# Monday 09:00 cron, 85 minutes after the Editor's 07:35 — against a scheduler
+# queue delay measured at 71-216 minutes for both. When the Editor had not
+# committed yet, send.mjs fell back to `latestIssueId()` and mailed LAST
+# week's issue; and because deliveries are idempotent per data/sent/<week>,
+# a list that had already received that week was silently skipped entirely and
+# the new issue never went out at all. Neither failure was visible.
+#
+# Now: the week is resolved explicitly and the issue file must exist for it, so
+# the wrong week cannot be mailed and a missing issue is a loud failure rather
+# than a quiet substitution. The cron remains only as a late backstop for the
+# case where the workflow_run event is missed; a send that already happened is
+# a no-op on the second pass.
 #
 # Wiring is optional: with the secrets unset the job reports that the newsletter
 # is not configured and exits successfully, so a fork or a fresh clone is not
@@ -16,10 +29,26 @@ name: Newsletter
 # public URL) and SITE_URL.
 
 on:
+  # Primary path: the Editor has pushed this week's issue.
+  #
+  # Note what this does and does not guarantee. It guarantees the issue file
+  # exists, which is the failure this trigger was introduced to fix. It does
+  # NOT guarantee the public archive link already resolves: the site is built
+  # by Vercel off its own push webhook (site.config.mjs), independently of the
+  # Deploy workflow, and that build races this job. In practice Vercel takes
+  # about a minute and this job runs npm ci + npm test before sending, so the
+  # ordering holds with margin — but it is a race, not an interlock. If a
+  # subscriber ever reports a dead archive link on send day, that is the cause,
+  # and the fix is to gate on the live origin (the probe in deploy.yml's smoke
+  # job) rather than to add a sleep.
+  workflow_run:
+    workflows: ["Editor"]
+    types: [completed]
   schedule:
-    # Monday 09:00 UTC — the Weekly workflow writes the digest at 07:00 and
-    # Deploy publishes it; by now the archive link in the email resolves.
-    - cron: "0 9 * * 1"
+    # Backstop only. Monday 15:00 UTC is late enough that the Editor (07:35 +
+    # up to 216 min of queue delay) has long finished; if the workflow_run
+    # already sent, this pass finds every recipient already served and no-ops.
+    - cron: "0 15 * * 1"
   workflow_dispatch:
     inputs:
       week:
@@ -45,6 +74,13 @@ concurrency:
 
 jobs:
   send:
+    # Only off a SUCCESSFUL Editor run on main. A failed Editor means there is
+    # no issue to mail, and the week check below would fail the run anyway —
+    # better to not start than to open a pipeline-failure issue for it.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -58,6 +94,23 @@ jobs:
       # The renderer and the token signing are covered by tests; a broken
       # encoder must not reach an inbox.
       - run: npm test
+
+      # Resolve the week explicitly instead of letting send.mjs fall back to
+      # "the newest file in src/content/issues", which is what allowed a
+      # not-yet-written week to become last week's issue in the inbox.
+      - name: Resolve the week to send
+        id: week
+        env:
+          WEEK_INPUT: ${{ inputs.week }}
+        run: |
+          set -euo pipefail
+          week="${WEEK_INPUT:-$(date -u -d 'last sunday' +%G-W%V)}"
+          if [ ! -f "src/content/issues/${week}.md" ]; then
+            echo "::error::No issue at src/content/issues/${week}.md — refusing to send. The Editor has not written this week yet, or the week resolved wrong. Nothing was mailed."
+            exit 1
+          fi
+          echo "Sending issue ${week}."
+          echo "id=$week" >> "$GITHUB_OUTPUT"
 
       - name: Check the newsletter is configured
         id: config
@@ -94,7 +147,7 @@ jobs:
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           FROM_NAME: ${{ vars.FROM_NAME || 'The Beat' }}
           REPLY_TO: ${{ vars.REPLY_TO }}
-          WEEK: ${{ inputs.week }}
+          WEEK: ${{ steps.week.outputs.id }}
           DRY_RUN: ${{ inputs.dry_run }}
           TEST_TO: ${{ inputs.test_to }}
         run: |

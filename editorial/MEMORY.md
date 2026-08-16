@@ -15,8 +15,6 @@ open loops here, not the narrative. This is the brain that keeps the
 - **2026-07-11, the examples swipe file**: `src/content/examples/` = real,
   sourced artifacts, the evidence layer under practices and guide.
   **Weekly-editor promotion, 0–3/week, often zero — never a quota.**
-- **2026-07-11, desk transition**: radar quota retired; now signals (daily,
-  internal) + The Beat (Mondays). Radar closed — never add.
 - **2026-08-06, two writers**: newsroom and deep-dive desks retired;
   `articles/` and `deep-dives/` are archives. Events → Signals (scout,
   daily); analysis → the weekly issue (editor, Mondays), long as a
@@ -69,8 +67,7 @@ guide coverage = special-issue candidate (flag below).
   manage the *people* on craft. Kept detail: DevRel Foundation Metrics WG
   archived 2025-11-08; 11th survey wave = 62% report to C-level / 18% link
   revenue / 61% can't demonstrate impact. **Hiring-bar claim retired 08-10**
-  (W32, on the standing deadline): zero DevRelCon NYC recaps 18 days
-  post-wrap — one person's job search; said so in the issue. Open loops:
+  (W32, on the standing deadline; reasoning in that issue). Open loops:
   fourth signal-tool deal / first disclosed price; a second AI devtool
   shipping passive-seat reporting, or a public renewal story citing one, by
   end of Q3. Guide: §08, §03.

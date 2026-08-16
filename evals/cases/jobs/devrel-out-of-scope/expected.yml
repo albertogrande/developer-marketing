@@ -1,0 +1,6 @@
+# Category (B) lists exactly three: marketing-leadership, growth,
+# product-marketing. DevRel/advocacy is named in the explicit exclusion —
+# "A great Developer Advocate opening is out of scope — do not emit it" — and
+# passing (A) developer-focused and (C) fully remote does not rescue it.
+type: scope
+include: no

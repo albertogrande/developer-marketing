@@ -8,20 +8,47 @@ description: >-
 runs:
   using: composite
   steps:
+    # Each gate names itself in ALERT_DETAIL before running, so notify-failure
+    # reports which one failed instead of "not reported by the failing step" —
+    # only writer-guard used to set it, leaving every gate failure anonymous
+    # in the issue and the email.
     - name: Gate — site builds with the new content
       shell: bash
       run: |
+        echo "ALERT_DETAIL=editorial gate failed: site build (check-refs / astro build / check-agent-surface)" >> "$GITHUB_ENV"
         npm ci
         npm run build
 
     - name: Gate — editorial state within bounds
       shell: bash
-      run: node scripts/check-editorial.mjs
+      run: |
+        echo "ALERT_DETAIL=editorial gate failed: check-editorial (memory cap, signals/ shape, event DB)" >> "$GITHUB_ENV"
+        node scripts/check-editorial.mjs
 
     - name: Regenerate the published coverage index
       shell: bash
-      run: node scripts/build-coverage-index.mjs
+      run: |
+        echo "ALERT_DETAIL=editorial gate failed: build-coverage-index" >> "$GITHUB_ENV"
+        node scripts/build-coverage-index.mjs
 
     - name: Gate — changed sources resolve
       shell: bash
-      run: node scripts/check-sources.mjs --changed
+      run: |
+        echo "ALERT_DETAIL=editorial gate failed: check-sources --changed (a cited source did not resolve)" >> "$GITHUB_ENV"
+        node scripts/check-sources.mjs --changed
+
+    # The unattended desks ran the gates but never the unit tests, so a broken
+    # parser or encoder could only be caught by CI on a human's PR — and these
+    # desks commit to main at 3am without one. Seconds, and it is the same
+    # suite CI runs.
+    - name: Gate — unit tests
+      shell: bash
+      run: |
+        echo "ALERT_DETAIL=editorial gate failed: npm test" >> "$GITHUB_ENV"
+        npm test
+
+    # Cleared on success so a later, unrelated failure in the same job does not
+    # inherit the last gate's message.
+    - name: Clear the alert detail
+      shell: bash
+      run: echo "ALERT_DETAIL=" >> "$GITHUB_ENV"

@@ -1,0 +1,66 @@
+name: Fact-integrity pass
+description: >-
+  The fresh-context verification pass every writer desk runs before its work is
+  committed: a different model, in a clean context, re-checks every
+  load-bearing factual claim the writer added or changed against a public
+  source, and fixes, reverts or hedges what it cannot stand up.
+
+  This was the one stage of the pipeline never extracted. Its prompt lived
+  inline in scout.yml and editor.yml and was byte-identical between them apart
+  from a single word ("writer" / "editor") — exactly the drift the other
+  composites exist to prevent, per CLAUDE.md: "Composite steps live in
+  .github/actions/ precisely so they can't drift per workflow."
+
+  The verifier deliberately gets no continue-on-error and no
+  tolerate_max_turns. A fact-integrity pass that ran out of turns may have
+  left claims unchecked, and unchecked claims are the one thing that must
+  never reach a commit.
+
+inputs:
+  oauth_token:
+    description: "CLAUDE_CODE_OAUTH_TOKEN."
+    required: true
+  model:
+    description: >-
+      The verifying model. MUST differ from the desk's writing model — the
+      writer never grades its own homework, and a same-model check is not a
+      cross-check.
+    required: true
+  max_turns:
+    description: "Turn cap for the verification pass."
+    required: false
+    default: "60"
+  desk:
+    description: "What the prompt calls the thing it is checking — 'writer' or 'editor'."
+    required: false
+    default: "writer"
+
+outputs:
+  execution_file:
+    description: "claude-code-action's execution log, for writer-guard and the usage ledger."
+    value: ${{ steps.verify.outputs.execution_file }}
+
+runs:
+  using: composite
+  steps:
+    - id: verify
+      uses: anthropics/claude-code-action@v1
+      with:
+        claude_code_oauth_token: ${{ inputs.oauth_token }}
+        prompt: >
+          You are the fact-integrity gate for this repo's autonomous
+          ${{ inputs.desk }}. The previous step edited content but nothing is
+          committed yet. Run `git status --porcelain -- src/content signals` to
+          list edited and new files, `git diff -- src/content signals` for the
+          edits, and read new files in full. For every load-bearing factual
+          claim added or changed — figures, survey results, dates, pricing,
+          quotes, company moves — verify it against a credible public source
+          with WebFetch/WebSearch. Fix what is wrong, revert what cannot be
+          verified, and mark anything kept-but-unverified as such in the text
+          ("reportedly", with its single source). Do not add new stories and do
+          not restyle prose. Write files only — do not commit or push.
+        show_full_output: true
+        claude_args: >-
+          --model ${{ inputs.model }}
+          --max-turns ${{ inputs.max_turns }}
+          --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *)"

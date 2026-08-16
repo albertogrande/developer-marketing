@@ -1,3 +1,4 @@
-# Unverified claims stay signals: "a signal flagged 'reportedly' stays a
-# signal."
-wire: no
+# Unverified claims are not promoted: "a signal flagged 'reportedly' stays a
+# signal" — it stays in the internal capture and never reaches the published
+# Signals feed.
+promote: no

@@ -13,6 +13,13 @@ runs:
     - shell: bash
       run: |
         git add -A -- signals editorial src/content
+        # The jobs desk's scrape checkpoint is gitignored (merge consumes and
+        # deletes it), so the sweep above misses it and a failed merge would
+        # discard a ~60-turn scrape. Forced in by name — never a blanket -f,
+        # which would also sweep in editorial/FEEDBACK-*.md, third-party text
+        # this repo deliberately never commits and must not ship in a
+        # downloadable artifact either.
+        git add -f -- signals/jobs/incoming.json 2>/dev/null || true
         git diff --cached --binary > rescue.patch
         if [ -s rescue.patch ]; then
           echo "Rescued $(git diff --cached --name-only | wc -l | tr -d ' ') file(s) of uncommitted content."

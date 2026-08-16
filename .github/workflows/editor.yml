@@ -23,12 +23,19 @@ on:
     # is slow and the editor is fast. Minute 35 dodges the congested
     # top-of-hour slot the way the scout's 50 does.
     - cron: "35 7 * * 1"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      rescue_from_run:
+        description: "Recover a failed run's rescue-patch first (run id). Set automatically by the Recover workflow."
+        required: false
+        default: ""
 
 permissions:
   contents: write
   id-token: write
   issues: write
+  # apply-rescue downloads a previous failed run's rescue-patch artifact.
+  actions: read
 
 concurrency:
   group: main-writers
@@ -46,6 +53,16 @@ jobs:
         with:
           node-version: "20"
           cache: npm
+
+      # Only set when the Recover workflow re-dispatched this run after a
+      # failure — recovers that run's uncommitted writing so the retry starts
+      # from the work rather than from nothing. Everything recovered still
+      # goes through the fact-integrity pass and the gates below.
+      - name: Recover a failed run's writing
+        uses: ./.github/actions/apply-rescue
+        with:
+          run_id: ${{ github.event.inputs.rescue_from_run }}
+          github_token: ${{ github.token }}
 
       # Reader feedback arrives as labeled issues (the correction template and
       # the reader-feedback link on /about). Materialise the open ones into a
@@ -147,30 +164,13 @@ jobs:
       - name: Verify changed claims (fact-integrity pass)
         id: verify
         if: steps.changes.outputs.n != '0'
-        uses: anthropics/claude-code-action@v1
+        # A different, fresh-context model checks the writer's claims.
+        uses: ./.github/actions/fact-integrity
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: >
-            You are the fact-integrity gate for this repo's autonomous editor.
-            The previous step edited content but nothing is committed yet. Run
-            `git status --porcelain -- src/content signals` to list edited and
-            new files, `git diff -- src/content signals` for the edits, and
-            read new files in full. For every load-bearing factual claim added
-            or changed — figures, survey results, dates, pricing, quotes,
-            company moves — verify it against a credible public source with
-            WebFetch/WebSearch. Fix what is wrong, revert what cannot be
-            verified, and mark anything kept-but-unverified as such in the
-            text ("reportedly", with its single source). Do not add new
-            stories and do not restyle prose. Write files only — do not
-            commit or push.
-          show_full_output: true
-          # A different, fresh-context model checks the writer's claims. No
-          # continue-on-error and no tolerate_max_turns here — a verifier that
-          # ran out of turns may have left claims unchecked.
-          claude_args: >-
-            --model claude-sonnet-5
-            --max-turns 60
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(git status *),Bash(git diff *),Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *)"
+          oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          model: claude-sonnet-5
+          max_turns: "60"
+          desk: editor
 
       # A clean verify may change nothing — only require that it really ran.
       - name: Guard — verifier ran

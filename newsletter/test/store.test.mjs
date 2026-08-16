@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openStore, isValidEmail } from '../lib/store.mjs';
-import { runStoreContract } from './store-contract.mjs';
+import { runStoreContract } from '../test-support/store-contract.mjs';
 
 const tmp = () => mkdtemp(join(tmpdir(), 'nl-store-'));
 
@@ -31,7 +31,7 @@ test('email validation', () => {
   }
 });
 
-// The behavioural basics live in store-contract.mjs, run above. What follows is
+// The behavioural basics live in test-support/store-contract.mjs, run above. What follows is
 // specific to keeping the list in an append-only file.
 
 test('state survives a restart, last line wins', async () => {
