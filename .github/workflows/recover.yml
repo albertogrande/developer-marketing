@@ -1,0 +1,66 @@
+name: Recover
+
+# Automatic retry for the autonomous writers — the half of the failure story
+# this repo never had.
+#
+# Detection has been iterated on twice and works. writer-guard catches a run
+# that errored or no-oped, health.yml catches the schedule itself going quiet,
+# notify-failure raises an issue and an email. What has never existed is a way
+# back: on 2026-08-02/03 and again across 08-08..08-14, every alarm fired
+# correctly and the pipeline still sat dead until a human noticed days later,
+# because nothing re-ran the desk and nothing re-applied the rescue patch it
+# had already preserved.
+#
+# So: when a SCHEDULED writer run fails, dispatch that same workflow once more
+# with the failed run's id, so apply-rescue can recover its writing and the
+# retry starts from the work instead of from nothing.
+#
+# Loop protection is the trigger condition itself. Only `schedule` runs are
+# retried; the retry arrives as `workflow_dispatch`, which this workflow
+# ignores. One automatic retry per scheduled failure, never two — a desk that
+# fails twice is a real bug, and the escalation ladder in notify-failure is
+# what should get louder at that point, not another run.
+
+on:
+  workflow_run:
+    workflows: ["Scout", "Editor", "Jobs"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: write
+
+# One recovery at a time. The retry itself takes the `main-writers` slot, so
+# two recoveries racing would only queue against each other anyway.
+concurrency:
+  group: recover
+  cancel-in-progress: false
+
+jobs:
+  retry:
+    # Scheduled failures only. A manual dispatch that fails was watched by
+    # whoever dispatched it, and retrying it would also be the loop.
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Re-dispatch the failed desk with its rescue patch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # `path` is .github/workflows/<file>.yml — the id `gh workflow run`
+          # wants. Deriving it beats a name→file map that would silently rot
+          # the next time a workflow is renamed.
+          WF_PATH: ${{ github.event.workflow_run.path }}
+          WF_NAME: ${{ github.event.workflow_run.name }}
+          FAILED_RUN: ${{ github.event.workflow_run.id }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          wf="$(basename "$WF_PATH")"
+          echo "::notice::${WF_NAME} run ${FAILED_RUN} failed on ${BRANCH}; dispatching one retry of ${wf} with rescue_from_run=${FAILED_RUN}."
+          gh workflow run "$wf" \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$BRANCH" \
+            -f rescue_from_run="$FAILED_RUN"

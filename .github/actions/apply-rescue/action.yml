@@ -1,0 +1,111 @@
+name: Apply rescue patch
+description: >-
+  Re-apply the uncommitted editorial work a previous failed run preserved, so a
+  retry starts from that writing instead of from nothing.
+
+  rescue-content has uploaded a `rescue-patch` artifact on every failed writer
+  run since 2026-07-17, and until now nothing ever read one back: recovery was
+  a documented manual `gh run download` + `git apply`. That gap is what turned
+  the 2026-08-08..08-14 outage into seven days of content reconstructed by
+  hand from eight artifacts. This is the other half of that mechanism.
+
+  Deliberately best-effort. The patch was cut against the failed run's
+  checkout and HEAD has moved since, so it applies three-way and a conflict
+  degrades to a warning: a partial recovery plus today's sweep beats a hard
+  stop, and the writer that runs next sees whatever landed as ordinary
+  uncommitted work.
+
+  What this does NOT do is shortcut the editorial bar. Recovered content
+  re-enters at the top of the pipeline — the fresh-context fact-integrity pass
+  and the editorial gates still run before anything is committed. Applying a
+  patch straight to a commit would republish unverified claims, which
+  MASTHEAD.md forbids.
+
+inputs:
+  run_id:
+    description: >-
+      The failed run whose rescue-patch to recover. Empty (the normal case, a
+      healthy scheduled run) does nothing at all.
+    required: false
+    default: ""
+  github_token:
+    description: "Token for `gh run download`. Needs actions:read on this repo."
+    required: true
+
+outputs:
+  applied:
+    description: "'true' when a patch was downloaded and applied (fully or partially)."
+    value: ${{ steps.apply.outputs.applied }}
+
+runs:
+  using: composite
+  steps:
+    - id: apply
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ inputs.run_id }}
+      run: |
+        set -uo pipefail
+        echo "applied=false" >> "$GITHUB_OUTPUT"
+
+        if [ -z "$RUN_ID" ]; then
+          echo "No rescue run id — nothing to recover."
+          exit 0
+        fi
+
+        dir="$RUNNER_TEMP/rescue"
+        rm -rf "$dir" && mkdir -p "$dir"
+
+        # A failed run that wrote nothing uploads no artifact at all
+        # (if-no-files-found: ignore), so a miss here is normal, not an error.
+        if ! gh run download "$RUN_ID" -n rescue-patch -D "$dir" 2>&1; then
+          echo "::warning::No rescue-patch artifact on run ${RUN_ID} (it may have failed before writing, or the 14-day retention lapsed). Continuing without it."
+          exit 0
+        fi
+
+        patch="$dir/rescue.patch"
+        if [ ! -s "$patch" ]; then
+          echo "::warning::rescue-patch artifact from run ${RUN_ID} is empty. Continuing without it."
+          exit 0
+        fi
+
+        echo "Recovered $(wc -l < "$patch") patch lines from run ${RUN_ID}."
+
+        # Three-way: HEAD has moved since the patch was cut against the failed
+        # run's checkout, so a plain `git apply` would reject hunks a merge can
+        # resolve. Files that merge cleanly land as ordinary uncommitted work.
+        if git apply -3 --verbose "$patch" 2>&1; then
+          echo "Rescue patch applied cleanly."
+        else
+          # Files that did NOT merge are left holding conflict markers. Those
+          # must not survive: nothing downstream would reject them — a
+          # `<<<<<<<` in a signals file builds and publishes perfectly happily
+          # — so this drops the conflicted files back to HEAD and keeps only
+          # what merged. Partial recovery plus today's sweep is the goal; a
+          # published conflict marker is not a recovery.
+          conflicted=$(git diff --name-only --diff-filter=U)
+          if [ -n "$conflicted" ]; then
+            echo "::warning::Rescue patch from run ${RUN_ID} conflicted in the following files; reverting them to HEAD and keeping the rest. The writer re-does this part:"
+            echo "$conflicted" | sed 's/^/  - /'
+            while IFS= read -r f; do
+              [ -n "$f" ] || continue
+              git reset -q -- "$f" 2>/dev/null || true
+              git checkout -f -- "$f" 2>/dev/null || rm -f "$f"
+            done <<< "$conflicted"
+          else
+            echo "::warning::Rescue patch from run ${RUN_ID} did not apply cleanly (no conflicted paths reported); keeping whatever landed."
+          fi
+        fi
+        echo "applied=true" >> "$GITHUB_OUTPUT"
+
+        # Belt and braces: if a marker reached the tree by any other route,
+        # stop now rather than let the desk publish it.
+        if git grep -lI -e '^<<<<<<< ' -e '^>>>>>>> ' -- signals editorial src/content 2>/dev/null | grep -q .; then
+          echo "::error::Conflict markers present after rescue recovery:"
+          git grep -lI -e '^<<<<<<< ' -e '^>>>>>>> ' -- signals editorial src/content | sed 's/^/  - /'
+          exit 1
+        fi
+
+        echo "--- files carrying recovered work ---"
+        git status --porcelain -- signals editorial src/content || true

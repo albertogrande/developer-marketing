@@ -45,11 +45,17 @@ on:
         description: "Optional focus for this sweep (e.g. 'DevRel metrics')"
         required: false
         default: ""
+      rescue_from_run:
+        description: "Recover a failed run's rescue-patch first (run id). Set automatically by the Recover workflow."
+        required: false
+        default: ""
 
 permissions:
   contents: write
   id-token: write
   issues: write
+  # apply-rescue downloads a previous failed run's rescue-patch artifact.
+  actions: read
 
 # All main-writing workflows share one group so two writers never race a push.
 concurrency:
@@ -80,6 +86,16 @@ jobs:
         with:
           node-version: "20"
           cache: npm
+
+      # Only set when the Recover workflow re-dispatched this run after a
+      # failure — recovers that run's uncommitted writing so the retry starts
+      # from the work rather than from nothing. Everything recovered still
+      # goes through the fact-integrity pass and the gates below.
+      - name: Recover a failed run's writing
+        uses: ./.github/actions/apply-rescue
+        with:
+          run_id: ${{ github.event.inputs.rescue_from_run }}
+          github_token: ${{ github.token }}
 
       - name: Capture today's signals
         id: claude

@@ -19,12 +19,19 @@ on:
     # in practice, so this fires Sunday morning UTC. Minute 10 dodges the
     # congested top-of-hour slot (see scout.yml for the measured numbers).
     - cron: "10 3 * * 0"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      rescue_from_run:
+        description: "Recover a failed run's rescue-patch first (run id). Set automatically by the Recover workflow."
+        required: false
+        default: ""
 
 permissions:
   contents: write
   id-token: write
   issues: write
+  # apply-rescue downloads a previous failed run's rescue-patch artifact.
+  actions: read
 
 # Same group as the writers — two jobs never race a push to main.
 concurrency:
@@ -42,6 +49,16 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+
+      # Only set when the Recover workflow re-dispatched this run after a
+      # failure — recovers that run's uncommitted writing so the retry starts
+      # from the work rather than from nothing. Everything recovered still
+      # goes through the fact-integrity pass and the gates below.
+      - name: Recover a failed run's writing
+        uses: ./.github/actions/apply-rescue
+        with:
+          run_id: ${{ github.event.inputs.rescue_from_run }}
+          github_token: ${{ github.token }}
 
       - name: Find open roles
         id: claude
