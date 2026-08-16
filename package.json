@@ -30,7 +30,7 @@
     "@astrojs/sitemap": "^3.2.0",
     "astro": "^5.2.0",
     "marked": "^18.0.7",
-    "sass": "^1.83.0",
+    "sass": "^1.102.0",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
