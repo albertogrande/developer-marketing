@@ -112,3 +112,19 @@ keep.
   append-only and replayed last-write-wins by id. Write to it only through
   `npm run scout:sweep` / `npm run scout:enrich` — hand-edited lines corrupt
   the replay, and `scripts/check-editorial.mjs` gates every line's shape.
+  **Line count is not event count**: a file holds full events *and* enrichment
+  lines, and the same id can appear in two week files, so read it through
+  `readDbFiles` (which merges across the whole log) and never with `wc -l`.
+  The event-kind field is named `event`, not `kind` — `kind` on an event is
+  rejected by every write path, and the published-signal frontmatter's own
+  `kind` is a different vocabulary.
+- **Engagement counters** (`points`, `comments`) are captured where a source
+  publishes them, for analysis only. Nothing in the publish path reads them,
+  and traction must never become a promotion criterion — ranking capture by
+  reach is what silently drops the indie tail (MASTHEAD.md).
+- **Entities come in two fields.** `entities` is the model's curated judgment,
+  written only through `scout:enrich`. `entitiesAuto` is derived at read time
+  by matching the registry's names and aliases against an event's own words —
+  never stored, so registering an entity lights up the events that already
+  named it. Only `entities` carries authority; `--auto` opts into the derived
+  ones for reach.

@@ -508,3 +508,7 @@
 {"id":"295609211cf9","ts":"2026-08-07T22:53:06.000Z","week":"2026-W32","source":"producthunt-devtools","channel":"producthunt","title":"bb","url":"https://www.producthunt.com/products/bb","summary":"<p> The IDE that builds itself </p> <p> <a href=\"https://www.producthunt.com/products/bb?utm_campaign=producthunt-atom-posts-feed&amp;utm_medium=rss-feed&amp;utm_source=producthunt-atom-posts-feed\">Discussion</a> | <a href=\"https://www.producthunt.com/r/p/1217674?app_id=339\">Link</a> </p>","author":"Chris Messina","entities":[],"topics":[]}
 {"id":"d3f92e527a2f","ts":"2026-08-09T06:01:09.000Z","week":"2026-W32","source":"producthunt-devtools","channel":"producthunt","title":"VoiceGecko","url":"https://www.producthunt.com/products/voice-gecko","summary":"<p> Open source, local voice-to-text </p> <p> <a href=\"https://www.producthunt.com/products/voice-gecko?utm_campaign=producthunt-atom-posts-feed&amp;utm_medium=rss-feed&amp;utm_source=producthunt-atom-posts-feed\">Discussion</a> | <a href=\"https://www.producthunt.com/r/p/1218413?app_id=339\">Link</a>…","author":"Luke","entities":[],"topics":[]}
 {"id":"39b28d95fcba","entities":["openai","nextslide"],"event":"acquisition","topics":[]}
+{"id":"7f251a2320ab","topics":["agent-tooling","browser-automation"]}
+{"id":"ef1393c40bbb","topics":["pmm","agents"]}
+{"id":"6568f62e95df","topics":["agent-governance"]}
+{"id":"644aa05eb883","topics":["agents","agent-governance","mcp"]}

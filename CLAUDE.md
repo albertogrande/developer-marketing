@@ -47,6 +47,7 @@ substrate the /intel skill queries:
 npm run scout:sweep -- --days 2             # fetch watchlist → signals/db/<week>.ndjson
 npm run scout:sweep -- --dry-run            # fetch + triage report, write nothing
 npm run scout:query -- --entity vercel      # filter the merged event log
+npm run scout:stats -- --by source          # distributions, --yield and --health
 npm run scout:enrich -- --patch -           # validated writes (the model never edits NDJSON)
 ```
 
@@ -102,14 +103,21 @@ resolving. `articles/`, `deep-dives/` and `radar/` are closed archives —
 still rendered and machine-served, never extended.
 
 Underneath the curated capture sits the **event DB**: `scout:sweep` fetches
-the registered watchlist (`scripts/lib/scout-sources.mjs` — RSS/Atom feeds,
-HN/Show-HN queries, scoped subreddits, Lobsters, Bluesky) and appends every
-in-window item to `signals/db/<ISO-week>.ndjson`, append-only and dedup-by-id,
-whether or not anything is written about it. The scout enriches notable
-events (entities from `signals/entities.json`, an event kind, topics) through
-`scout:enrich` — never by editing NDJSON directly — and `scout:query`/the
-`/intel` skill answer questions over the merged log. Raw capture is not
-verification; only published signals and the issues pass the fact-integrity bar.
+the registered watchlist (`scripts/lib/scout-sources.mjs` — RSS/Atom feeds and
+changelogs, HN/Show-HN queries, Lobsters) and appends every in-window item to
+`signals/db/<ISO-week>.ndjson`, append-only and dedup-by-id, whether or not
+anything is written about it. Subreddit and Bluesky jobs are registered and run
+daily but **have never produced an event** — both endpoints 403 from CI — so
+treat those channels as dark until the fetch is fixed, and don't describe the
+watchlist as covering them. The scout enriches notable events (entities from
+`signals/entities.json`, an event kind, topics from the closed `TOPICS` list)
+through `scout:enrich` — never by editing NDJSON directly. `scout:query`
+filters the merged log and `scout:stats` takes distributions over it
+(`--by`, `--yield`, `--health`); the `/intel` skill drives both. Capture leans
+heavily on HN, so any "what's moving" count is a count over what the watchlist
+reaches — `scout:stats --by source` on a slice says how heavily. Raw capture is
+not verification; only published signals and the issues pass the
+fact-integrity bar.
 
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
 capture), `editorial/MEMORY.md` (running threads, special-issue candidates),

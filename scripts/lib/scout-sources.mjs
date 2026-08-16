@@ -429,6 +429,28 @@ export const attachAutoEntities = (events, registry = {}) =>
     return auto.length ? { ...e, entitiesAuto: auto } : e;
   });
 
+// The event contract, in one place because it was previously restated in four
+// and they were free to disagree: normalizeEvent below, the allow-list in
+// scout-enrich, the allow-list in check-editorial, and the field list in the
+// /intel skill.
+//
+// A week file holds two line shapes:
+//
+//   full event      { id, ts, week, source, channel, title, url,
+//                     summary?, author?, points?, comments?, entities[], topics[] }
+//   enrichment line { id, ...ENRICHABLE_FIELDS }   — appended, merged on replay
+//
+// So a line is not an event, and the same id may appear in several lines and
+// in more than one week file. Always read through readDbFiles.
+//
+// Note the event-kind field is `event`, not `kind`. Published signals in
+// src/content/signals/ carry their own `kind` in frontmatter with a different
+// vocabulary; conflating them is the trap this comment exists to close.
+export const ENRICHABLE_FIELDS = ['entities', 'event', 'topics'];
+
+// Derived at read time, never stored — see autoEntities.
+export const DERIVED_FIELDS = ['entitiesAuto'];
+
 // The one place the event shape is decided. `ts` is the item's own timestamp
 // when the source gives one, else the sweep time the caller passes.
 //

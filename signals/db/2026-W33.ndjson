@@ -727,3 +727,4 @@
 {"id":"230a7914be5e","event":"discussion","topics":["governance","ai-contributions"]}
 {"id":"c1e7b02d8f5e","ts":"2026-08-10T00:00:00.000Z","week":"2026-W33","source":"websearch","channel":"search","title":"Meta-WebIndexer's share of AI crawler requests jumps from ~2% to 37.8% in under a month","url":"https://promptwatch.com/data/meta-web-indexer","summary":"Promptwatch's crawler-log data (26B+ data points) shows Meta-WebIndexer going from ~2.2% of tracked AI-crawler requests in mid-July 2026 to 37.8% by August 9, coinciding with reports Meta is building its own web index so its AI search doesn't depend on Google.","entities":[],"topics":[]}
 {"id":"c1e7b02d8f5e","entities":["meta"],"event":"research","topics":["ai-search","crawlers"]}
+{"id":"c1e7b02d8f5e","topics":["aeo"]}

@@ -92,14 +92,24 @@ A handful of enriched events a day is plenty — enrich judgment, not the
 firehose. Never edit `signals/db/*.ndjson` by hand; the tool validates so
 the log stays replayable.
 
-Topics are free text, so consistency is what makes them queryable later.
-Reuse the slugs already in the log rather than inventing synonyms — in
-particular **`aeo`** for anything about being found, read or cited by answer
-engines and coding assistants (AI search visibility, llms.txt, citation
-studies, crawl-to-referral data, AEO/GEO tooling). That one slug is what
-makes `scout:query --topic aeo` and the `/intel` skill able to answer "what
-has moved in AI-search visibility lately", so stamp it even when the event
-is filed under another beat.
+Entity coverage is not your job to solve by volume: `scout:query --auto`
+already reaches every event whose own words name a registered entity. What
+`entities` adds is the judgment a substring match can't — the event that is
+*about* Vercel without saying so. Spend the stamps there.
+
+**Topics are a closed vocabulary** (`TOPICS` in `scripts/lib/scout-sources.mjs`),
+because a free-text field drifted into 38 slugs across 51 events in a
+fortnight and made every topic filter quietly incomplete. The tool rejects an
+unknown topic and resolves a retired one, so you do not need the list
+memorized — but reuse before you extend, and extending is an edit to that
+file, not a new string here.
+
+The one to be deliberate about is **`aeo`**: anything about being found, read
+or cited by answer engines and coding assistants (AI search visibility,
+llms.txt, citation studies, crawl-to-referral data, AEO/GEO tooling). It is
+what lets `scout:query --topic aeo` answer "what has moved in AI-search
+visibility lately", so stamp it even when the event is filed under another
+beat. `ai-search` and `crawlers` are retired into it.
 
 **Podcasts — new episodes already land in the sweep's triage** (the sweep
 reads the same `PODCASTS` registry the transcript pipeline uses). Your job is

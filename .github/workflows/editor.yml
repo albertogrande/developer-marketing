@@ -129,7 +129,7 @@ jobs:
           claude_args: >-
             --model claude-fable-5
             --max-turns 90
-            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run check*),Bash(npm run scout:query*),Bash(node scripts/scout-query.mjs*),Bash(node scripts/check-*)"
+            --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run check*),Bash(npm run scout:query*),Bash(npm run scout:stats*),Bash(node scripts/scout-query.mjs*),Bash(node scripts/scout-stats.mjs*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
       # so the verify step would overwrite the writer's record and the ledger

@@ -26,6 +26,7 @@ import {
   ENTITY_KINDS,
   TOPICS,
   TOPIC_ALIASES,
+  ENRICHABLE_FIELDS,
   canonicalTopic,
   normalizeEvent,
   readDbFiles,
@@ -130,7 +131,7 @@ if (PATCH && !problems.length) {
     for (const e of p.entities ?? []) if (!knownEntity(e)) problems.push(`patch ${p.id}: unknown entity "${e}" (register it with --new-entities)`);
     if (p.event !== undefined && !EVENT_KINDS.includes(p.event)) problems.push(`patch ${p.id}: bad event "${p.event}"`);
     const topics = checkTopics(`patch ${p.id}`, p.topics);
-    const extra = Object.keys(p).filter((k) => !['id', 'entities', 'event', 'topics'].includes(k));
+    const extra = Object.keys(p).filter((k) => !['id', ...ENRICHABLE_FIELDS].includes(k));
     if (extra.length) problems.push(`patch ${p.id}: unexpected field(s) ${extra.join(', ')}`);
     const file = fileOf.get(p.id);
     if (!lines.has(file)) lines.set(file, []);

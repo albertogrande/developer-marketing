@@ -24,6 +24,7 @@
 // anyone noticed. The bar is unchanged; only the blast radius is.
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { ENRICHABLE_FIELDS } from './lib/scout-sources.mjs';
 
 const problems = [];
 const warnings = [];
@@ -141,7 +142,7 @@ if (existsSync('signals/db')) {
             problems.push(`signals/db/${f}:${i + 1}: event missing ts/url/title`);
           }
         } else {
-          const allowed = new Set(['id', 'entities', 'event', 'topics']);
+          const allowed = new Set(['id', ...ENRICHABLE_FIELDS]);
           const extra = Object.keys(rec).filter((k) => !allowed.has(k));
           if (extra.length) {
             problems.push(`signals/db/${f}:${i + 1}: enrichment line has unexpected field(s) ${extra.join(', ')}`);
