@@ -26,7 +26,7 @@
     "ledger:report": "node scripts/ledger-report.mjs"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/mdx": "^7.0.5",
     "@astrojs/sitemap": "^3.2.0",
     "astro": "^5.2.0",
     "marked": "^18.0.7",
