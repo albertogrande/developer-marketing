@@ -7,7 +7,10 @@
 
 :root {
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --font-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  /* Charter et al stay behind the webfont: they are what macOS/Windows/Linux
+     showed before it was self-hosted, so the swap lands on the old face and
+     nothing regresses if the file ever 404s. */
+  --font-serif: "Source Serif 4", Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
 
   --bg: #fbfaf8;
   --surface: #ffffff;
