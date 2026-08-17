@@ -96,11 +96,13 @@ follow your skill file; the notes below are the invariants everyone must
 keep.
 
 - **Build gates** (all run inside `npm run build`): `scripts/check-refs.mjs`
-  (referential integrity — sections, related hrefs, body links) and
-  `scripts/check-agent-surface.mjs` (the machine surface above must stay
-  complete: siblings exist, JSON-LD parses, canonicals agree, llms.txt covers
-  every entry, feeds well-formed, sitemap honest). If your change breaks a
-  gate, fix the change, not the gate.
+  (referential integrity — sections, related hrefs, body links),
+  `scripts/check-design-tokens.mjs` (every `font-size`, `line-height` and
+  `border-radius` names a token from `src/styles/main.scss` `:root`, and every
+  `var(--x)` is actually declared) and `scripts/check-agent-surface.mjs` (the
+  machine surface above must stay complete: siblings exist, JSON-LD parses,
+  canonicals agree, llms.txt covers every entry, feeds well-formed, sitemap
+  honest). If your change breaks a gate, fix the change, not the gate.
 - **URL form**: page URLs are cited and canonicalized with a trailing slash;
   file-ish URLs (`.md`, `.json`, `.xml`, `.txt`) never carry one. Internal
   helpers (`withBase`, `absUrl` in `src/lib/site.ts`) enforce this — use

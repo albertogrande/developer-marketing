@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/check-refs.mjs && astro build && pagefind --site dist && node scripts/check-agent-surface.mjs",
+    "build": "node scripts/check-refs.mjs && node scripts/check-design-tokens.mjs && astro build && pagefind --site dist && node scripts/check-agent-surface.mjs",
     "preview": "astro preview",
-    "check": "node scripts/check-refs.mjs && node scripts/check-editorial.mjs && node scripts/check-sources.mjs --changed",
+    "check": "node scripts/check-refs.mjs && node scripts/check-design-tokens.mjs && node scripts/check-editorial.mjs && node scripts/check-sources.mjs --changed",
     "typecheck": "astro check",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",

@@ -26,16 +26,10 @@
   --bar-bg: #11161c;
   --bar-fg: #e7edf3;
   --bar-muted: #9aa4af;
-  --bar-accent: #56d4dd;
-  --bar-rule: #2a323c;
 
   --c-correct: #1a7f37;
   --c-incorrect: #b62324;
   --c-partial: #9a6700;
-  --c-open: #b45309;
-  --mom-up: #1a7f37;
-  --mom-down: #b62324;
-  --mom-steady: #6b6b66;
   --hl: #faf2e6;
 
   --wrap: 940px;
@@ -71,13 +65,12 @@
   --lh-normal: 1.5;    /* deks, UI prose */
   --lh-prose:  1.65;   /* reading body */
 
-  /* ---- space — 4px base, the only ramp for padding/margin/gap -------------- */
-  --sp-1: 0.25rem;   --sp-2: 0.5rem;   --sp-3: 0.75rem;  --sp-4: 1rem;
-  --sp-5: 1.25rem;   --sp-6: 1.5rem;   --sp-8: 2rem;     --sp-10: 2.5rem;
-  --sp-12: 3rem;     --sp-16: 4rem;
-
-  /* ---- radius + elevation -------------------------------------------------- */
-  --r-sm: 3px;  --r-md: 4px;  --r-lg: 6px;  --r-pill: 999px;
+  /* ---- radius + elevation --------------------------------------------------
+     No spacing ramp on purpose. Padding and margin here do not sit on a 4px
+     grid (7px, 9px, 2.4rem…) and forcing them onto one is a layout change, not
+     a token change — so it is a separate job. Declaring a --sp-* scale nothing
+     used would just be more of what this pass deleted. */
+  --r-sm: 3px;  --r-md: 4px;  --r-lg: 6px;
   --shadow-modal: 0 18px 50px rgb(0 0 0 / 25%);
   --shadow-toast: 0 8px 24px rgb(0 0 0 / 25%);
 }
@@ -97,16 +90,10 @@
   --bar-bg: #010409;
   --bar-fg: #e6edf3;
   --bar-muted: #8b949e;
-  --bar-accent: #56d4dd;
-  --bar-rule: #21262d;
 
   --c-correct: #3fb950;
   --c-incorrect: #f85149;
   --c-partial: #d29922;
-  --c-open: #f59e0b;
-  --mom-up: #3fb950;
-  --mom-down: #f85149;
-  --mom-steady: #8b949e;
   --hl: #2a2310;
 }
 

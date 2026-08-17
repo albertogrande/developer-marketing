@@ -11,8 +11,8 @@ orientation: what the pieces are, and what breaks when you change them.
 ```bash
 npm install                 # Node 20, the toolchain pinned in CI
 npm run dev                 # Astro on :4321, hot-reloads src/
-npm run build               # check-refs → astro build → pagefind → check-agent-surface
-npm run check               # check-refs + source liveness on changed content (fast, pre-commit)
+npm run build               # check-refs + check-design-tokens → astro build → pagefind → check-agent-surface
+npm run check               # check-refs + check-design-tokens + source liveness (fast, pre-commit)
 npm run preview             # serve the built dist/
 npm run typecheck           # astro check — gated at zero errors in CI
 npm test                    # node --test, recursive from the repo root
@@ -166,9 +166,32 @@ import lazy.
 
 ## Invariants that gates enforce
 
-`npm run build` runs `scripts/check-refs.mjs` before the build and
+`npm run build` runs `scripts/check-refs.mjs` and
+`scripts/check-design-tokens.mjs` before the build and
 `scripts/check-agent-surface.mjs` after it. **If a change breaks a gate, fix the
 change, not the gate.**
+
+- **Every size is a token.** `src/styles/main.scss` `:root` holds the whole
+  vocabulary — `--fs-*` (ten steps), `--lh-*`, `--r-*`, the two shadows, the
+  colors. `font-size`, `line-height` and `border-radius` must name a token
+  everywhere, in the stylesheet and in every scoped `<style>` block;
+  `check-design-tokens` fails the build on a raw literal or on a `var(--x)`
+  that is never declared. That last rule is the point of the gate: `--mono` and
+  `--amber` were referenced 26 times and declared nowhere, and because both
+  call sites passed a fallback, the text simply rendered in the browser's
+  default monospace and an off-theme amber for months. There is **no
+  allowlist** — a genuinely new step means adding a token.
+- **The type scale is enumerated, not derived.** The mono furniture needs 1px
+  granularity at the small end (10/11/12/13px each do a distinct job), so a
+  modular ratio is the wrong tool and would collapse them. `--fs-h1` is one
+  `clamp()`; do not add breakpoint re-declarations of a heading beside it.
+- **A shared component kit names its own family.** `.fm-*` took its face from
+  the `.fm` ancestor that only the front page provides, so `/guide`, `/tags`,
+  `/newsletter`, `/claims`, `/skills` and `/resources` rendered it in Charter
+  serif at sizes tuned for mono. Style atoms so they survive being mounted
+  anywhere.
+- **There is no spacing ramp, on purpose.** Padding and margin here do not sit
+  on a 4px grid; putting them on one is a layout change, not a token change.
 
 - **URL form.** Page URLs carry a trailing slash; file-ish URLs (`.md`, `.json`,
   `.xml`, `.txt`) never do. Use `withBase` / `absUrl` / `canonicalFor` from
