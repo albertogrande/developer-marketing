@@ -172,8 +172,8 @@ const loops = d.openLoops.map((l) => ({
 
 <style>
   .th-question {
-    font-size: 1.02rem;
-    line-height: 1.55;
+    font-size: var(--fs-row);
+    line-height: var(--lh-normal);
     font-style: italic;
     margin: 0 0 1.6rem;
     padding-left: 0.85rem;
@@ -187,11 +187,11 @@ const loops = d.openLoops.map((l) => ({
     border-top: 1px solid var(--rule);
   }
   .th-h {
-    font-size: 1.15rem;
+    font-size: var(--fs-lead);
     margin: 0 0 0.3rem;
   }
   .th-dek {
-    font-size: 0.88rem;
+    font-size: var(--fs-dek);
     opacity: 0.75;
     margin: 0 0 1rem;
   }
@@ -215,17 +215,17 @@ const loops = d.openLoops.map((l) => ({
   }
   .th-loop-q {
     margin: 0;
-    font-size: 0.94rem;
-    line-height: 1.55;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-normal);
   }
   .th-loop-by {
     margin: 0.25rem 0 0;
-    font-size: 0.8rem;
+    font-size: var(--fs-ui);
   }
   .th-overdue { color: var(--accent); }
   .th-month {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
     letter-spacing: 0.02em;
     margin: 1.4rem 0 0.2rem;
   }
@@ -237,7 +237,7 @@ const loops = d.openLoops.map((l) => ({
   }
   .th-tl-date {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: var(--fs-label);
     opacity: 0.6;
     padding-top: 0.15rem;
     flex: 0 0 2.6rem;
@@ -245,12 +245,12 @@ const loops = d.openLoops.map((l) => ({
   .th-tl-main { min-width: 0; }
   .th-tl-t {
     text-decoration: none;
-    line-height: 1.4;
+    line-height: var(--lh-normal);
   }
   .th-tl-t:hover { text-decoration: underline; }
   .th-tl-sum {
-    font-size: 0.88rem;
-    line-height: 1.55;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-normal);
     margin: 0.3rem 0 0;
     opacity: 0.85;
   }

@@ -115,7 +115,7 @@ const DESCRIPTION =
   }
   .signals-date {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
     font-weight: 500;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -143,29 +143,29 @@ const DESCRIPTION =
     letter-spacing: 0.02em;
   }
   .brief-chip {
-    font-size: 0.72rem;
+    font-size: var(--fs-meta);
     font-family: var(--font-mono);
     padding: 0.08rem 0.4rem;
     border: 1px solid currentColor;
-    border-radius: 4px;
-    line-height: 1.5;
+    border-radius: var(--r-md);
+    line-height: var(--lh-normal);
     color: var(--accent);
   }
   .brief-h {
-    font-size: 1.05rem;
+    font-size: var(--fs-row);
     margin: 0 0 0.4rem;
-    line-height: 1.35;
+    line-height: var(--lh-snug);
   }
   .brief-h a { text-decoration: none; }
   .brief-h a:hover { text-decoration: underline; }
   .brief-sum {
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-prose);
     margin: 0;
   }
   .brief-note {
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-prose);
     opacity: 0.82;
   }
   .brief-note :global(p) { margin: 0.5rem 0 0; }
@@ -175,11 +175,11 @@ const DESCRIPTION =
     align-items: center;
     gap: 0.55rem;
     margin-top: 0.7rem;
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
   }
   .brief-src { margin-left: auto; }
   .brief-thread {
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
     margin: 0.6rem 0 0;
   }
   .brief-thread .dim { margin-right: 0.3rem; }

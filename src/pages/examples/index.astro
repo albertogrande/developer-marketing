@@ -83,7 +83,7 @@ const cards = await Promise.all(
   }
   .ex {
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: var(--r-lg);
     padding: 1.1rem 1.2rem 1rem;
     background: var(--panel, transparent);
   }
@@ -99,27 +99,27 @@ const cards = await Promise.all(
     letter-spacing: 0.02em;
   }
   .ex-chip {
-    font-size: 0.72rem;
+    font-size: var(--fs-meta);
     font-family: var(--font-mono);
     padding: 0.08rem 0.4rem;
     border: 1px solid var(--rule);
-    border-radius: 4px;
-    line-height: 1.5;
+    border-radius: var(--r-md);
+    line-height: var(--lh-normal);
   }
   .ex-artifact {
     color: var(--accent);
     border-color: currentColor;
   }
   .ex-h {
-    font-size: 1.15rem;
+    font-size: var(--fs-lead);
     margin: 0 0 0.4rem;
-    line-height: 1.3;
+    line-height: var(--lh-snug);
   }
   .ex-h a { text-decoration: none; }
   .ex-h a:hover { text-decoration: underline; }
   .ex-why {
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-prose);
   }
   .ex-why :global(p) { margin: 0.35rem 0 0; }
   .ex-meta {
@@ -128,7 +128,7 @@ const cards = await Promise.all(
     align-items: center;
     gap: 0.55rem;
     margin-top: 0.85rem;
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
   }
   .ex-demo {
     font-weight: 500;

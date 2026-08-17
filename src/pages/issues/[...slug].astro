@@ -130,7 +130,7 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
 
 <style>
   .wil-threads {
-    font-size: 0.85rem;
+    font-size: var(--fs-ui);
     margin: 0 0 1.5rem;
     padding-bottom: 0.8rem;
     border-bottom: 1px solid var(--rule);
@@ -142,17 +142,17 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
     border-top: 1px solid var(--rule);
   }
   .wil-h {
-    font-size: 1.15rem;
+    font-size: var(--fs-lead);
     margin: 0 0 0.3rem;
   }
   .wil-dek {
-    font-size: 0.88rem;
+    font-size: var(--fs-dek);
     opacity: 0.75;
     margin: 0 0 1rem;
   }
   .wil-kind {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
     letter-spacing: 0.02em;
     margin: 1.4rem 0 0.2rem;
   }
@@ -169,7 +169,7 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
   }
   .wil-date {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: var(--fs-label);
     opacity: 0.6;
     padding-top: 0.15rem;
     flex: 0 0 2.6rem;
@@ -177,27 +177,27 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
   .wil-main { min-width: 0; }
   .wil-t {
     text-decoration: none;
-    line-height: 1.4;
+    line-height: var(--lh-normal);
   }
   .wil-t:hover { text-decoration: underline; }
   .wil-chip {
-    font-size: 0.68rem;
+    font-size: var(--fs-meta);
     font-family: var(--font-mono);
     padding: 0.05rem 0.35rem;
     margin-left: 0.4rem;
     border: 1px solid currentColor;
-    border-radius: 4px;
+    border-radius: var(--r-md);
     color: var(--accent);
     white-space: nowrap;
   }
   .wil-sum {
-    font-size: 0.88rem;
-    line-height: 1.55;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-normal);
     margin: 0.3rem 0 0.25rem;
     opacity: 0.85;
   }
   .wil-src {
-    font-size: 0.78rem;
+    font-size: var(--fs-label);
     opacity: 0.7;
   }
 </style>

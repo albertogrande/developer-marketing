@@ -275,14 +275,14 @@ const lastChecked = resources.reduce<Date | null>(
   }
   .rs-chip {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-label);
     color: var(--muted);
     background: transparent;
     border: 1px solid var(--rule-strong);
-    border-radius: 4px;
+    border-radius: var(--r-md);
     padding: 3px 9px;
     cursor: pointer;
-    line-height: 1.5;
+    line-height: var(--lh-normal);
   }
   .rs-chip:hover { color: var(--fg); border-color: var(--accent); }
   .rs-chip.is-on {
@@ -294,7 +294,7 @@ const lastChecked = resources.reduce<Date | null>(
 
   .rs-blurb {
     font-family: var(--font-mono);
-    font-size: 12.5px;
+    font-size: var(--fs-label);
     color: var(--muted);
     margin: -4px 0 14px;
     max-width: var(--measure);
@@ -304,7 +304,7 @@ const lastChecked = resources.reduce<Date | null>(
 
   .rs {
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: var(--r-lg);
     padding: 1.05rem 1.2rem 0.95rem;
     background: var(--panel, transparent);
     margin: 0 0 1.1rem;
@@ -319,41 +319,41 @@ const lastChecked = resources.reduce<Date | null>(
     gap: 0.5rem;
     margin-bottom: 0.5rem;
   }
-  .rs-h { font-size: 1.15rem; margin: 0; line-height: 1.3; }
+  .rs-h { font-size: var(--fs-lead); margin: 0; line-height: var(--lh-snug); }
   .rs-h a { text-decoration: none; }
   .rs-h a:hover { text-decoration: underline; }
   .rs-chip-s {
-    font-size: 0.72rem;
+    font-size: var(--fs-meta);
     font-family: var(--font-mono);
     padding: 0.08rem 0.4rem;
     border: 1px solid var(--rule);
-    border-radius: 4px;
-    line-height: 1.5;
+    border-radius: var(--r-md);
+    line-height: var(--lh-normal);
     color: var(--muted);
   }
   .rs-kind { color: var(--accent); border-color: currentColor; }
   .rs-focus { color: var(--fg); }
-  .rs-where { font-family: var(--font-mono); font-size: 0.75rem; margin-left: auto; }
+  .rs-where { font-family: var(--font-mono); font-size: var(--fs-label); margin-left: auto; }
 
   .rs-dl {
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 0.15rem 0.75rem;
     margin: 0 0 0.7rem;
-    font-size: 0.92rem;
+    font-size: var(--fs-dek);
   }
   .rs-dl dt {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--fs-meta);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
     padding-top: 0.3em;
   }
-  .rs-dl dd { margin: 0; line-height: 1.5; }
+  .rs-dl dd { margin: 0; line-height: var(--lh-normal); }
   .rs-dt-caveat, .rs-caveat { color: var(--c-partial); }
 
-  .rs-body { font-size: 0.95rem; line-height: 1.6; }
+  .rs-body { font-size: var(--fs-dek); line-height: var(--lh-prose); }
   .rs-body :global(p) { margin: 0.35rem 0 0; }
 
   .rs-meta {
@@ -362,23 +362,25 @@ const lastChecked = resources.reduce<Date | null>(
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.85rem;
-    font-size: 0.82rem;
+    font-size: var(--fs-ui);
   }
   .rs-svcs {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--fs-meta);
     letter-spacing: 0.02em;
     color: var(--faint);
   }
   .rs-links { margin-left: auto; }
-  .rs-date { font-family: var(--font-mono); font-size: 0.75rem; }
+  .rs-date { font-family: var(--font-mono); font-size: var(--fs-label); }
 
   .rs-note { margin-top: 2.4rem; max-width: var(--measure); }
-  .rs-note p { font-size: 0.98rem; }
+  .rs-note p { font-size: var(--fs-row); }
   .rs-checks { padding-left: 1.1rem; }
-  .rs-checks li { margin: 0.5rem 0; font-size: 0.95rem; line-height: 1.55; }
-  .rs-fine {
-    font-size: 0.85rem !important;
+  .rs-checks li { margin: 0.5rem 0; font-size: var(--fs-dek); line-height: var(--lh-normal); }
+  /* `.rs-note p` above would otherwise win on specificity — match it rather
+     than reaching for !important. */
+  .rs-note p.rs-fine {
+    font-size: var(--fs-ui);
     color: var(--muted);
     border-top: 1px solid var(--rule);
     padding-top: 0.9rem;
