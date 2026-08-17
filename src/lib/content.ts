@@ -63,18 +63,41 @@ export const THREAD_MOMENTUM_GLYPHS: Record<
   cooling: '↓',
 };
 
+// One entry's contribution to a thread's timeline. `company` is present for
+// signals only — an issue is the publication's own voice, not a company's.
+export type ThreadMember = {
+  kind: 'signal' | 'issue';
+  id: string;
+  title: string;
+  company?: string;
+  summary: string;
+  href: string;
+  date: Date;
+};
+
+export type ThreadGraph = {
+  membersByThread: Map<string, ThreadMember[]>;
+  threadsBySection: Map<string, CollectionEntry<'threads'>[]>;
+  threadsByMember: Map<string, CollectionEntry<'threads'>[]>;
+};
+
 // Thread membership, inverted once per build: which dated entries were filed
 // onto each thread, which threads land in each guide section, and — the
 // reverse edge that makes the stream navigable — which threads a given signal
 // or issue belongs to. The inversion itself is a pure function so it can be
 // unit-tested; see src/lib/thread-graph.mjs.
-export const getThreadGraph = memo(async () => {
+//
+// The cast re-attaches the types that the .mjs boundary erases. Without it
+// every consumer reads the maps as `any`, which silently defeats the enum
+// checking on `status` and `momentum` at exactly the call sites that index
+// the label maps with them.
+export const getThreadGraph = memo(async (): Promise<ThreadGraph> => {
   const [threads, signals, issues] = await Promise.all([
     getThreadsSorted(),
     getSignalsSorted(),
     getIssuesSorted(),
   ]);
-  return buildThreadGraph({ threads, signals, issues });
+  return buildThreadGraph({ threads, signals, issues }) as ThreadGraph;
 });
 
 export const getDivesSorted = memo(async () =>

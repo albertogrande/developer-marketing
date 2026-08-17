@@ -2,7 +2,13 @@
 import { render } from 'astro:content';
 import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import { withBase, absUrl, fmtLong, isoDate } from '../../lib/site';
-import { getGuideSorted, getGuideGraph } from '../../lib/content';
+import {
+  getGuideSorted,
+  getGuideGraph,
+  getThreadGraph,
+  THREAD_MOMENTUM_GLYPHS,
+  THREAD_MOMENTUM_LABELS,
+} from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
 // Topic hub: the evergreen section plus everything the site knows about the
@@ -10,11 +16,18 @@ import { articleNode } from '../../lib/jsonld';
 // and the dated coverage that mentions it. The graph is inverted once per
 // build in lib/content.ts.
 export async function getStaticPaths() {
-  const [guide, graph] = await Promise.all([getGuideSorted(), getGuideGraph()]);
+  const [guide, graph, threadGraph] = await Promise.all([
+    getGuideSorted(),
+    getGuideGraph(),
+    getThreadGraph(),
+  ]);
   return guide.map((entry, i) => ({
     params: { slug: entry.id },
     props: {
       entry,
+      // Open arguments render above settled claims: what is still being
+      // worked frames what the section has already concluded.
+      threads: threadGraph.threadsBySection.get(entry.id) ?? [],
       prev: i > 0 ? guide[i - 1] : null,
       next: i < guide.length - 1 ? guide[i + 1] : null,
       claims: graph.claimsBySection.get(entry.id) ?? [],
@@ -25,7 +38,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { entry, prev, next, claims, examples, skills, coverage } = Astro.props;
+const { entry, prev, next, threads, claims, examples, skills, coverage } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const stamp = `Section ${String(d.order).padStart(2, '0')}`;
@@ -58,6 +71,24 @@ const KIND_LABEL = { article: 'article', issue: 'the week', dive: 'deep dive', r
 
   <Fragment slot="foot">
     <div class="hub">
+      {threads.length > 0 && (
+        <div class="hub-sec">
+          <p class="hub-h">Threads <span class="ar-count">{threads.length}</span></p>
+          <ul class="hub-list">
+            {threads.map((t) => (
+              <li class="hub-item">
+                <a href={withBase(`/threads/${t.id}`)}>{t.data.title}</a>
+                <span class="hub-m">
+                  {THREAD_MOMENTUM_GLYPHS[t.data.momentum]} {THREAD_MOMENTUM_LABELS[t.data.momentum]}
+                </span>
+                {t.data.status !== 'open' && <span class="hub-m">{t.data.status}</span>}
+                <span class="hub-sub">{t.data.question}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {claims.length > 0 && (
         <div class="hub-sec">
           <p class="hub-h">Claims <span class="ar-count">{claims.length}</span></p>
