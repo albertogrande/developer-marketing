@@ -3,6 +3,7 @@
 // sort inline.
 
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { buildThreadGraph, threadByStanding } from './thread-graph.mjs';
 
 type Dated = { id: string; data: { date: Date } };
 
@@ -27,6 +28,54 @@ export const getGuideSorted = memo(async () =>
 export const getIssuesSorted = memo(async () =>
   (await getCollection('issues')).sort(entryByDateDesc)
 );
+
+// The threads — the running arguments. Live first, then most recently worked;
+// the ordering rule itself lives in thread-graph.mjs next to its test.
+export const getThreadsSorted = memo(async () =>
+  (await getCollection('threads')).sort(threadByStanding)
+);
+
+// Thread vocabulary → display, in one place so the card chip, the thread page,
+// the JSON endpoint and llms.txt describe a thread identically.
+export const THREAD_STATUS_LABELS: Record<CollectionEntry<'threads'>['data']['status'], string> = {
+  open: 'open',
+  dormant: 'dormant',
+  resolved: 'resolved',
+};
+
+export const THREAD_MOMENTUM_LABELS: Record<
+  CollectionEntry<'threads'>['data']['momentum'],
+  string
+> = {
+  rising: 'gaining',
+  steady: 'steady',
+  cooling: 'fading',
+};
+
+// The arrow MEMORY.md has always drawn. Presentation, so it lives here and
+// never in frontmatter — an arrow in YAML is unenumerable and untypeable.
+export const THREAD_MOMENTUM_GLYPHS: Record<
+  CollectionEntry<'threads'>['data']['momentum'],
+  string
+> = {
+  rising: '↑',
+  steady: '→',
+  cooling: '↓',
+};
+
+// Thread membership, inverted once per build: which dated entries were filed
+// onto each thread, which threads land in each guide section, and — the
+// reverse edge that makes the stream navigable — which threads a given signal
+// or issue belongs to. The inversion itself is a pure function so it can be
+// unit-tested; see src/lib/thread-graph.mjs.
+export const getThreadGraph = memo(async () => {
+  const [threads, signals, issues] = await Promise.all([
+    getThreadsSorted(),
+    getSignalsSorted(),
+    getIssuesSorted(),
+  ]);
+  return buildThreadGraph({ threads, signals, issues });
+});
 
 export const getDivesSorted = memo(async () =>
   (await getCollection('deep-dives')).sort(entryByDateDesc)
@@ -248,6 +297,11 @@ export const getGuideGraph = memo(async () => {
 // feeds read this; the guide is deliberately absent (it mutates continuously
 // — its freshness is carried by sitemap lastmod, api.json, and llms.txt
 // dates instead) and so is the signals (short items would drown the prose).
+//
+// Threads are absent for the guide's reason, not the signals': a thread is
+// rewritten most weeks, so syndicating it would re-push 5–8 items every Monday
+// on top of the one issue that is actually the product. Their freshness rides
+// on sitemap lastmod, api.json and llms.txt, exactly as the guide's does.
 export type FeedItem = {
   title: string;
   summary: string;
@@ -312,6 +366,7 @@ export const getFeedItems = memo(async (): Promise<FeedItem[]> => {
 
 export type TaggedEntry =
   | { kind: 'issue'; entry: CollectionEntry<'issues'> }
+  | { kind: 'thread'; entry: CollectionEntry<'threads'> }
   | { kind: 'article'; entry: CollectionEntry<'articles'> }
   | { kind: 'deep-dive'; entry: CollectionEntry<'deep-dives'> }
   | { kind: 'claim'; entry: CollectionEntry<'claims'> }
@@ -324,9 +379,10 @@ export type TaggedEntry =
 // tag -> everything carrying it, across the tagged collections (the radar
 // archive included, so its topics stay discoverable).
 export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> => {
-  const [issues, articles, dives, claims, examples, resources, skills, signals, radar] =
+  const [issues, threads, articles, dives, claims, examples, resources, skills, signals, radar] =
     await Promise.all([
       getIssuesSorted(),
+      getThreadsSorted(),
       getArticlesSorted(),
       getDivesSorted(),
       getClaimsSorted(),
@@ -342,6 +398,7 @@ export const collectByTag = memo(async (): Promise<Map<string, TaggedEntry[]>> =
     map.get(tag)!.push(item);
   };
   for (const entry of issues) for (const t of entry.data.tags) add(t, { kind: 'issue', entry });
+  for (const entry of threads) for (const t of entry.data.tags) add(t, { kind: 'thread', entry });
   for (const entry of articles) for (const t of entry.data.tags) add(t, { kind: 'article', entry });
   for (const entry of dives) for (const t of entry.data.tags) add(t, { kind: 'deep-dive', entry });
   for (const entry of claims) for (const t of entry.data.tags) add(t, { kind: 'claim', entry });

@@ -27,7 +27,9 @@ const reportPath = argv.includes('--report') ? flag('--report', 'freshness-repor
 
 // The freshness stamp per collection: the field that means "a person checked
 // this recently", not the entry's publish date.
-const STAMP = { skills: 'verified', resources: 'checked', claims: 'checked' };
+// A live thread that nobody has worked in the window is the exact staleness
+// its momentum arrow claims to prevent, so it reports alongside the shelf.
+const STAMP = { skills: 'verified', resources: 'checked', claims: 'checked', threads: 'updated' };
 
 const today = new Date();
 const cutoff = new Date(today.getTime() - DAYS * 24 * 60 * 60 * 1000)

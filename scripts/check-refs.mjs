@@ -25,7 +25,7 @@ import { frontmatterOf, pageRoutes, siteConfig } from './lib/routes.mjs';
 import { independentHostCount } from './lib/sources.mjs';
 import { makeResolver, sourcingProblems } from './lib/refs.mjs';
 
-const COLLECTION_DIRS = ['guide', 'issues', 'articles', 'deep-dives', 'signals', 'claims', 'examples', 'skills', 'resources', 'radar'];
+const COLLECTION_DIRS = ['guide', 'issues', 'threads', 'articles', 'deep-dives', 'signals', 'claims', 'examples', 'skills', 'resources', 'radar'];
 
 /**
  * Collect every referential-integrity problem under `root`.
@@ -51,6 +51,7 @@ export function checkRefs({ root = '.' } = {}) {
 
   const guideIds = ids('src/content/guide');
   const issueIds = ids('src/content/issues');
+  const threadIds = ids('src/content/threads');
   const articleIds = ids('src/content/articles');
   const diveIds = ids('src/content/deep-dives');
   const claimIds = ids('src/content/claims');
@@ -80,6 +81,7 @@ export function checkRefs({ root = '.' } = {}) {
   }
 
   const counts = {
+    threads: threadIds.size,
     claims: claimIds.size,
     examples: exampleIds.size,
     skills: skillIds.size,
@@ -101,6 +103,7 @@ export function checkRefs({ root = '.' } = {}) {
     ids: {
       guide: guideIds,
       issues: issueIds,
+      threads: threadIds,
       articles: articleIds,
       'deep-dives': diveIds,
       signals: signalIds,
@@ -141,6 +144,34 @@ export function checkRefs({ root = '.' } = {}) {
       if (!fm.install) problems.push(`${file}: missing install`);
       if (!fm.source?.url) problems.push(`${file}: missing source.url`);
       if (!fm.verified) problems.push(`${file}: missing verified date`);
+    }
+    // A thread is a standing argument the publication can be held to, so the
+    // parts a reader holds it to are not optional. `question` is the one that
+    // matters most: without it the entry is a tag with prose attached, which
+    // is exactly what this collection exists not to be.
+    if (dir === 'threads') {
+      if (!fm.question) problems.push(`${file}: missing question — a thread without an open question is just a tag`);
+      if (!fm.summary) problems.push(`${file}: missing summary`);
+      if (!fm.momentum) problems.push(`${file}: missing momentum`);
+      // Required here and in zod, unlike every other collection's `updated`: a
+      // thread has no publish event, so this is the only honest date the
+      // sitemap and api.json have for the page.
+      if (!fm.updated) problems.push(`${file}: missing updated — the sitemap would have no honest date for this page`);
+      for (const s of fm.sections ?? []) {
+        if (!guideIds.has(s)) problems.push(`${file}: sections "${s}" is not a guide section`);
+      }
+      // An open loop with no question is a mood, not a commitment.
+      for (const l of fm.openLoops ?? []) {
+        if (!l?.question) problems.push(`${file}: an openLoops entry has no question — it states nothing that could settle it`);
+      }
+    }
+    // Thread membership, checked on every collection that can declare it. A
+    // slug naming no thread is a silent orphan: the item drops out of the
+    // timeline it was filed into and nothing renders differently, so the gate
+    // is the only thing that can see it.
+    for (const t of fm.threads ?? []) {
+      if (typeof t !== 'string') problems.push(`${file}: threads entry is not a string`);
+      else if (!threadIds.has(t)) problems.push(`${file}: threads "${t}" is not a thread`);
     }
     // A signal is a one-line news claim with no byline behind it, so the
     // primary source is the only thing making it checkable. Missing it, the
@@ -200,6 +231,6 @@ if (invokedDirectly) {
     process.exit(1);
   }
   console.log(
-    `check-refs: ok — ${c.claims} claims, ${c.examples} examples, ${c.skills} skills, ${c.resources} resources, ${c.guide} guide sections, ${c.issues} issues, ${c.signals} signals, ${c.articles} archived articles, ${c.dives} archived dives, ${c.radar} radar entries, ${c.tags} tags, ${c.staticRoutes} static routes.`
+    `check-refs: ok — ${c.claims} claims, ${c.examples} examples, ${c.skills} skills, ${c.resources} resources, ${c.guide} guide sections, ${c.issues} issues, ${c.threads} threads, ${c.signals} signals, ${c.articles} archived articles, ${c.dives} archived dives, ${c.radar} radar entries, ${c.tags} tags, ${c.staticRoutes} static routes.`
   );
 }

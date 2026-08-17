@@ -5,6 +5,7 @@ date: 2026-08-07
 kind: signal
 summary: 'Three separate terminal coding agents launched inside a forty-eight-hour window: Meta''s Muse Code in beta, with a contributor tier priced ~12–21x below list in exchange for training data; Memcode in public beta, differentiating on persistent repository memory; and Clark Code, an Apache-2.0 open-source client over a freemium runtime. A fourth entrant in the same window, Mirafold, sells a UI layer over the incumbents rather than an agent of its own — the accessory market arriving.'
 tags: [agents, ai-coding-agents, positioning]
+threads: [how-ai-features-get-priced]
 source:
   label: 'Clark Labs — clark-code (the newest of the three launches)'
   url: https://github.com/clark-labs-inc/clark-code

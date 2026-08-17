@@ -55,6 +55,7 @@ export const COLLECTIONS = {
   guide: { dir: 'src/content/guide', index: '/guide', page: true },
   articles: { dir: 'src/content/articles', index: '/articles', page: true },
   issues: { dir: 'src/content/issues', index: '/issues', page: true },
+  threads: { dir: 'src/content/threads', index: '/threads', page: true },
   'deep-dives': { dir: 'src/content/deep-dives', index: '/deep-dives', page: true },
   signals: { dir: 'src/content/signals', index: '/signals', page: false },
   radar: { dir: 'src/content/radar', index: '/radar', page: true },

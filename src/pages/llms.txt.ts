@@ -11,6 +11,9 @@ import {
   getResourcesSorted,
   getSkillsSorted,
   getSignalsSorted,
+  getThreadsSorted,
+  getThreadGraph,
+  THREAD_MOMENTUM_LABELS,
 } from '../lib/content';
 
 // llms.txt — a curated, link-first index for agents (https://llmstxt.org).
@@ -30,6 +33,8 @@ export const GET: APIRoute = async () => {
   const radar = await getRadarSorted();
   const resources = await getResourcesSorted();
   const signals = await getSignalsSorted();
+  const threads = await getThreadsSorted();
+  const { membersByThread } = await getThreadGraph();
 
   const lines: string[] = [];
   lines.push('# The Beat — developer marketing, on the record');
@@ -100,6 +105,21 @@ export const GET: APIRoute = async () => {
     }
   }
 
+  if (threads.length) {
+    lines.push('');
+    lines.push('## Threads');
+    lines.push(
+      'The running stories — the open questions this publication is following across weeks. Each names what would settle it, and lists the dated signals and issues filed onto it. Full membership as JSON: ' +
+        abs('/threads.json')
+    );
+    for (const t of threads) {
+      const n = (membersByThread.get(t.id) ?? []).length;
+      lines.push(
+        `- [${t.data.title}](${abs(`/threads/${t.id}.md`)}): ${t.data.question} — ${t.data.status}, momentum ${THREAD_MOMENTUM_LABELS[t.data.momentum]}, ${n} on the record, last worked ${isoDate(t.data.updated)}`
+      );
+    }
+  }
+
   if (signals.length) {
     lines.push('');
     lines.push('## Signals');
@@ -136,6 +156,7 @@ export const GET: APIRoute = async () => {
   lines.push(`- [skills.json](${abs('/skills.json')}): installable agent skills, with install lines and caveats`);
   lines.push(`- [resources.json](${abs('/resources.json')}): the directory of vetted providers, caveats and checked dates included`);
   lines.push(`- [signals.json](${abs('/signals.json')}): the event log — dated items with company, kind and primary source`);
+  lines.push(`- [threads.json](${abs('/threads.json')}): the running threads with their full membership — which signals and issues are evidence for which open question`);
   lines.push(`- [jobs.json](${abs('/jobs.json')}): the jobs board — open, fully-remote marketing-leadership/growth/product-marketing roles at devtools and AI companies, with region (worldwide/eu/usa/other)`);
   lines.push(`- [issues.json](${abs('/issues.json')}): weekly issues with bodies`);
   lines.push(`- [articles.json](${abs('/articles.json')}): the archived newsroom articles with bodies`);

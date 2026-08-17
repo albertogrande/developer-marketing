@@ -1,0 +1,261 @@
+---
+import { render } from 'astro:content';
+import ReadingLayout from '../../layouts/ReadingLayout.astro';
+import ArticleFoot from '../../components/ArticleFoot.astro';
+import TagList from '../../components/TagList.astro';
+import { absUrl, withBase, isoDate, fmtMed } from '../../lib/site';
+import {
+  getThreadsSorted,
+  getThreadGraph,
+  getGuideSorted,
+  THREAD_MOMENTUM_GLYPHS,
+  THREAD_MOMENTUM_LABELS,
+} from '../../lib/content';
+import { articleNode } from '../../lib/jsonld';
+
+export async function getStaticPaths() {
+  const [threads, graph, guide] = await Promise.all([
+    getThreadsSorted(),
+    getThreadGraph(),
+    getGuideSorted(),
+  ]);
+  const sectionTitles = new Map(guide.map((g) => [g.id, g.data.title]));
+  // Walked in the index's own order — live first, then most recently worked —
+  // so prev/next reads the same way the list does.
+  return threads.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      members: graph.membersByThread.get(entry.id) ?? [],
+      sectionTitles,
+      prev: i > 0 ? threads[i - 1] : null,
+      next: i < threads.length - 1 ? threads[i + 1] : null,
+    },
+  }));
+}
+
+const { entry, members, sectionTitles, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+
+// The timeline is derived, never written: members declare their own
+// membership, so a thread's record grows on the next build without the thread
+// file being touched. Grouped by month — a thread runs for months, so the
+// per-day grouping the signals page uses would be noise here.
+const MONTH = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const timeline: { label: string; items: typeof members }[] = [];
+for (const m of members) {
+  const label = MONTH.format(m.date);
+  if (timeline.at(-1)?.label !== label) timeline.push({ label, items: [] });
+  timeline.at(-1)!.items.push(m);
+}
+
+// "Overdue" is measured against the day the editor last worked the thread, not
+// against the build clock: dates come from frontmatter, so the page stays
+// reproducible and the claim stays honest — this deadline had already passed
+// the last time a human-or-agent looked at the thread.
+const lastWorked = isoDate(d.updated);
+const loops = d.openLoops.map((l) => ({
+  ...l,
+  // `by` is prose ("end of August 2026"), so this only fires on the ISO-ish
+  // ones. A prose deadline simply never marks overdue, which is the safe way
+  // round: no false alarms, and the text still says what it says.
+  overdue: !!l.by && /^\d{4}-\d{2}-\d{2}$/.test(l.by) && l.by < lastWorked,
+}));
+---
+<ReadingLayout
+  title={d.title}
+  description={d.summary}
+  deskLabel="Threads"
+  stamp={`${THREAD_MOMENTUM_GLYPHS[d.momentum]} ${THREAD_MOMENTUM_LABELS[d.momentum]} · opened ${fmtMed(d.started)}`}
+  updated={d.updated}
+  jsonLd={[
+    articleNode({
+      schemaType: 'Article',
+      title: d.title,
+      description: d.summary,
+      url: absUrl(`/threads/${entry.id}`),
+      // A thread has no publish event — `started` is the first dated evidence,
+      // which is the honest thing to put here.
+      published: d.started,
+      updated: d.updated,
+      section: 'Threads',
+      tags: d.tags,
+      sources: d.sources,
+    }),
+  ]}
+>
+  <div class="entry-lead" slot="lead">
+    <span class="kind">{d.status === 'open' ? 'running' : d.status}</span>
+    <TagList tags={d.tags} />
+  </div>
+
+  <p class="th-question"><span class="amber" aria-hidden="true">?</span> {d.question}</p>
+
+  <Content />
+
+  {loops.length > 0 && (
+    <section class="th-loops">
+      <h2 class="th-h">Open loops</h2>
+      <p class="th-dek">
+        What would move this thread. Each is meant to be checkable by a date — if one
+        goes quiet, that is itself an answer.
+      </p>
+      <ul class="th-loop-list">
+        {loops.map((l) => (
+          <li class={`th-loop-row${l.overdue ? ' is-overdue' : ''}`}>
+            <span class="th-loop-mark amber" aria-hidden="true">?</span>
+            <div>
+              <p class="th-loop-q">{l.question}</p>
+              {l.by && (
+                <p class="th-loop-by dim">
+                  by {l.by}{l.overdue && <span class="th-overdue"> · past due as of the last pass</span>}
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {members.length > 0 && (
+    <section class="th-record">
+      <h2 class="th-h">On the record</h2>
+      <p class="th-dek">
+        {members.length} dated entr{members.length === 1 ? 'y' : 'ies'} filed onto this thread,
+        newest first. Each carries its own primary source.
+      </p>
+      {timeline.map((group) => (
+        <section aria-label={group.label}>
+          <h3 class="th-month"><span class="amber" aria-hidden="true">##</span> {group.label}</h3>
+          <ul class="th-tl">
+            {group.items.map((m) => (
+              <li class="th-tl-row">
+                <span class="th-tl-date">{isoDate(m.date).slice(5)}</span>
+                <div class="th-tl-main">
+                  <a href={withBase(m.href)} class="th-tl-t">
+                    {m.company ? <b>{m.company} — </b> : <b>The week — </b>}{m.title}
+                  </a>
+                  <p class="th-tl-sum">{m.summary}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </section>
+  )}
+
+  {d.sections.length > 0 && (
+    <section class="th-guide">
+      <h2 class="th-h">Where this lands in the guide</h2>
+      <ul class="th-guide-list">
+        {d.sections.map((s) => (
+          <li><a href={withBase(`/guide/${s}`)}>{sectionTitles.get(s) ?? s}</a></li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <ArticleFoot
+    slot="foot"
+    updated={d.updated}
+    related={d.related}
+    sources={d.sources}
+    backHref={prev ? `/threads/${prev.id}` : '/threads'}
+    backLabel={prev ? prev.data.title : 'all threads'}
+    forwardHref={next ? `/threads/${next.id}` : '/issues'}
+    forwardLabel={next ? next.data.title : 'the weekly issue'}
+  />
+</ReadingLayout>
+
+<style>
+  .th-question {
+    font-size: 1.02rem;
+    line-height: 1.55;
+    font-style: italic;
+    margin: 0 0 1.6rem;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--accent);
+  }
+  .th-loops,
+  .th-record,
+  .th-guide {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .th-h {
+    font-size: 1.15rem;
+    margin: 0 0 0.3rem;
+  }
+  .th-dek {
+    font-size: 0.88rem;
+    opacity: 0.75;
+    margin: 0 0 1rem;
+  }
+  .th-loop-list,
+  .th-tl,
+  .th-guide-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .th-loop-row {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .th-loop-mark {
+    font-family: var(--mono, monospace);
+    flex: 0 0 0.9rem;
+    padding-top: 0.1rem;
+  }
+  .th-loop-q {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+  .th-loop-by {
+    margin: 0.25rem 0 0;
+    font-size: 0.8rem;
+  }
+  .th-overdue { color: var(--accent); }
+  .th-month {
+    font-family: var(--mono, monospace);
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    margin: 1.4rem 0 0.2rem;
+  }
+  .th-tl-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .th-tl-date {
+    font-family: var(--mono, monospace);
+    font-size: 0.78rem;
+    opacity: 0.6;
+    padding-top: 0.15rem;
+    flex: 0 0 2.6rem;
+  }
+  .th-tl-main { min-width: 0; }
+  .th-tl-t {
+    text-decoration: none;
+    line-height: 1.4;
+  }
+  .th-tl-t:hover { text-decoration: underline; }
+  .th-tl-sum {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0.3rem 0 0;
+    opacity: 0.85;
+  }
+  .th-guide-list li {
+    padding: 0.45rem 0;
+    border-top: 1px solid var(--rule);
+  }
+</style>

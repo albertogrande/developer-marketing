@@ -24,6 +24,7 @@ type Kind =
   | 'guide'
   | 'articles'
   | 'issues'
+  | 'threads'
   | 'deep-dives'
   | 'signals'
   | 'radar'
@@ -36,6 +37,7 @@ type AnyEntry =
   | CollectionEntry<'guide'>
   | CollectionEntry<'articles'>
   | CollectionEntry<'issues'>
+  | CollectionEntry<'threads'>
   | CollectionEntry<'deep-dives'>
   | CollectionEntry<'signals'>
   | CollectionEntry<'radar'>
@@ -60,7 +62,16 @@ const linkList = (items: { label: string; url: string }[]) =>
 // related[].href is a base-less site path or an external URL.
 const relatedUrl = (href: string) => (/^https?:\/\//.test(href) ? href : absUrl(href));
 
-export function mdDoc(kind: Kind, entry: AnyEntry): string {
+/**
+ * The self-contained markdown sibling for one entry.
+ *
+ * `extraSections` are pre-rendered markdown blocks spliced in ahead of
+ * `## Sources`. Only threads use it so far: a thread's evidence is its member
+ * signals and issues, which live in *their* files, so without the timeline
+ * spliced in the sibling would break this module's promise that an agent
+ * fetching nothing else still gets the whole entry.
+ */
+export function mdDoc(kind: Kind, entry: AnyEntry, extraSections: string[] = []): string {
   const d = entry.data as Record<string, any>;
   const canonical = GALLERY[kind] ? `${absUrl(`/${kind}`)}#${entry.id}` : absUrl(`/${kind}/${entry.id}`);
 
@@ -73,6 +84,13 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
     fm.byline = d.byline;
   }
   if (kind === 'issues') fm.week = d.week;
+  if (kind === 'threads') {
+    fm.status = d.status;
+    fm.momentum = d.momentum;
+    // A thread has no publish event, so `published` above stayed empty — this
+    // is the date that says how long the argument has been running.
+    fm.opened = isoDate(d.started);
+  }
   if (kind === 'radar') fm.kind = d.kind;
   if (kind === 'skills') {
     fm.skill = d.name;
@@ -105,6 +123,22 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
   }
   if (d.summary) parts.push(`> ${d.summary}`, '');
   if (d.dek) parts.push(d.dek, '');
+
+  // A thread's frontmatter carries the parts a reader holds it to — the open
+  // question and the standing commitments. Neither is in the body, so surface
+  // both or the sibling reads as undated opinion.
+  if (kind === 'threads') {
+    parts.push(
+      `**The question**: ${d.question}`,
+      '',
+      `- **Status**: ${d.status} · momentum ${d.momentum}`,
+      `- **Opened**: ${isoDate(d.started)} · last worked ${isoDate(d.updated)}`,
+      ...(d.sections?.length
+        ? [`- **Guide**: ${d.sections.map((s: string) => absUrl(`/guide/${s}`)).join(', ')}`]
+        : []),
+      ''
+    );
+  }
 
   // The structured core of the gallery collections lives in frontmatter
   // fields, not the body — synthesize it so the .md is the whole entry.
@@ -170,6 +204,19 @@ export function mdDoc(kind: Kind, entry: AnyEntry): string {
   if (body) parts.push(body, '');
 
   if (d.take) parts.push(`**The take**: ${d.take}`, '');
+
+  if (kind === 'threads' && d.openLoops?.length) {
+    parts.push(
+      '## Open loops',
+      '',
+      d.openLoops
+        .map((l: { question: string; by?: string }) => `- ${l.question}${l.by ? ` *(by ${l.by})*` : ''}`)
+        .join('\n'),
+      ''
+    );
+  }
+
+  for (const section of extraSections) parts.push(section, '');
 
   if (d.sources?.length) parts.push('## Sources', '', linkList(d.sources), '');
   if (d.related?.length) {

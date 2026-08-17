@@ -16,6 +16,7 @@ const { tag } = Astro.params;
 const { items } = Astro.props;
 
 const weekly = items.filter((i) => i.kind === 'issue');
+const threads = items.filter((i) => i.kind === 'thread');
 const articles = items.filter((i) => i.kind === 'article');
 const dives = items.filter((i) => i.kind === 'deep-dive');
 const practices = items.filter((i) => i.kind === 'claim');
@@ -29,6 +30,7 @@ const radar = items.filter((i) => i.kind === 'radar');
 const taggedUrl = (i: (typeof items)[number]) =>
   ({
     issue: absUrl(`/issues/${i.entry.id}`),
+    thread: absUrl(`/threads/${i.entry.id}`),
     article: absUrl(`/articles/${i.entry.id}`),
     'deep-dive': absUrl(`/deep-dives/${i.entry.id}`),
     claim: `${absUrl('/claims')}#${i.entry.id}`,
@@ -183,6 +185,27 @@ const taggedName = (i: (typeof items)[number]) =>
             <div class="fm-rowmain">
               <a href={withBase(`/signals#${entry.id}`)} class="fm-row-t">{entry.data.company}: {entry.data.title}</a>
               <p class="fm-row-dek">{entry.data.summary}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+  )}
+
+  {threads.length > 0 && (
+    <Fragment>
+      <div class="fm-sec">
+        <span class="amber">##</span><span class="fm-sec-l">threads</span>
+        <span class="fm-rule" aria-hidden="true"></span>
+        <span class="dim">{String(threads.length).padStart(2, '0')}</span>
+      </div>
+      <ul class="fm-list">
+        {threads.map(({ entry }) => (
+          <li class="fm-row">
+            <span class="fm-ln">{isoDate(entry.data.updated).slice(5)}</span>
+            <div class="fm-rowmain">
+              <a href={withBase(`/threads/${entry.id}`)} class="fm-row-t">{entry.data.title}</a>
+              <p class="fm-row-dek">{entry.data.question}</p>
             </div>
           </li>
         ))}

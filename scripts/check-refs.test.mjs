@@ -41,10 +41,46 @@ function fixture(files = {}) {
     'src/content/claims/a-claim.md',
     ['---', 'title: A claim', 'section: 01-positioning', '---', '', 'Body.', ''].join('\n')
   );
+  write('src/content/threads/a-thread.md', THREAD);
 
   for (const [rel, body] of Object.entries(files)) write(rel, body);
   return { root, write, cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
+
+// A valid thread, spread out so a test can override one line at a time.
+const THREAD = [
+  '---',
+  'title: A thread',
+  'question: Does the thing hold?',
+  'summary: Where it stands.',
+  'momentum: rising',
+  'started: 2026-07-01',
+  'updated: 2026-08-01',
+  'sections: [01-positioning]',
+  '---',
+  '',
+  'Body.',
+  '',
+].join('\n');
+
+// A signal filed onto `threadSlug`. Carries the source check-refs demands so
+// the only thing under test is the membership edge.
+const signalOnThread = (threadSlug) =>
+  [
+    '---',
+    'title: Acme ships',
+    'company: Acme',
+    'summary: Acme shipped a thing.',
+    'date: 2026-08-16',
+    'source:',
+    '  label: Acme',
+    '  url: https://example.com/acme',
+    `threads: [${threadSlug}]`,
+    '---',
+    '',
+    'Body.',
+    '',
+  ].join('\n');
 
 const run = (root) => checkRefs({ root });
 
@@ -57,6 +93,7 @@ test('a sound fixture tree reports no problems', () => {
     // also report zero problems.
     assert.equal(counts.guide, 1);
     assert.equal(counts.claims, 1);
+    assert.equal(counts.threads, 1);
     assert.ok(counts.staticRoutes >= 2, `expected routes from src/pages, got ${counts.staticRoutes}`);
   } finally {
     f.cleanup();
@@ -170,8 +207,118 @@ test('catches unparseable frontmatter rather than skipping the file', () => {
   }
 });
 
+test('catches a signal filed onto a thread that does not exist', () => {
+  const f = fixture({ 'src/content/signals/2026-08-16-acme.md': signalOnThread('no-such-thread') });
+  try {
+    const { problems } = run(f.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /threads "no-such-thread" is not a thread/);
+  } finally {
+    f.cleanup();
+  }
+});
+
+test('allows a signal filed onto a thread that does exist', () => {
+  const f = fixture({ 'src/content/signals/2026-08-16-acme.md': signalOnThread('a-thread') });
+  try {
+    assert.deepEqual(run(f.root).problems, []);
+  } finally {
+    f.cleanup();
+  }
+});
+
+test('catches a thread with no question — that would just be a tag', () => {
+  const f = fixture({
+    'src/content/threads/a-thread.md': THREAD.replace('question: Does the thing hold?\n', ''),
+  });
+  try {
+    const { problems } = run(f.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /missing question/);
+  } finally {
+    f.cleanup();
+  }
+});
+
+test('catches a thread with no updated stamp — the page would be undated', () => {
+  const f = fixture({
+    'src/content/threads/a-thread.md': THREAD.replace('updated: 2026-08-01\n', ''),
+  });
+  try {
+    const { problems } = run(f.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /missing updated/);
+  } finally {
+    f.cleanup();
+  }
+});
+
+test('catches a thread pointing at a guide section that does not exist', () => {
+  const f = fixture({
+    'src/content/threads/a-thread.md': THREAD.replace(
+      'sections: [01-positioning]',
+      'sections: [99-nope]'
+    ),
+  });
+  try {
+    const { problems } = run(f.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /sections "99-nope" is not a guide section/);
+  } finally {
+    f.cleanup();
+  }
+});
+
+test('catches an open loop that states nothing which could settle it', () => {
+  const f = fixture({
+    'src/content/threads/a-thread.md': THREAD.replace(
+      'sections: [01-positioning]',
+      ['sections: [01-positioning]', 'openLoops:', '  - by: end of August'].join('\n')
+    ),
+  });
+  try {
+    const { problems } = run(f.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /openLoops entry has no question/);
+  } finally {
+    f.cleanup();
+  }
+});
+
+// The regression test for PAGE_COLLECTIONS in lib/refs.mjs. Without 'threads'
+// there, the GOOD case below fails while /threads/<id>.md keeps resolving off
+// the generic ids branch — an asymmetry that reads as a content bug.
+test('resolves a /threads/<id> link but not a bogus one', () => {
+  const good = fixture({
+    'src/content/claims/a-claim.md': [
+      '---', 'title: A claim', 'section: 01-positioning', '---', '',
+      'See [the thread](/threads/a-thread) and [its markdown](/threads/a-thread.md).', '',
+    ].join('\n'),
+  });
+  try {
+    assert.deepEqual(run(good.root).problems, []);
+  } finally {
+    good.cleanup();
+  }
+
+  const bad = fixture({
+    'src/content/claims/a-claim.md': [
+      '---', 'title: A claim', 'section: 01-positioning', '---', '',
+      'See [nothing](/threads/nope).', '',
+    ].join('\n'),
+  });
+  try {
+    const { problems } = run(bad.root);
+    assert.equal(problems.length, 1, `got: ${problems.join('; ')}`);
+    assert.match(problems[0], /body link .* resolves to nothing/);
+  } finally {
+    bad.cleanup();
+  }
+});
+
 test('the real repo tree passes its own gate', () => {
   const { problems, counts } = checkRefs();
   assert.deepEqual(problems, [], `repo has broken refs: ${problems.join('; ')}`);
   assert.ok(counts.guide > 0 && counts.claims > 0 && counts.staticRoutes > 0);
+  assert.ok(counts.threads > 0, 'the repo should carry at least one thread');
 });

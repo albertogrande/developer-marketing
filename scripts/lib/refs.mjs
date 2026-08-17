@@ -13,7 +13,11 @@ const ANCHOR_GALLERIES = {
 };
 
 // Collections whose entries have standalone pages under /<collection>/<id>.
-const PAGE_COLLECTIONS = ['guide', 'issues', 'articles', 'deep-dives', 'radar'];
+// Kept in step with COLLECTIONS in ./routes.mjs (`page: true`) — this list is
+// what resolves a /<collection>/<id> href, and a collection missing here fails
+// confusingly: its /<id>.md sibling still resolves off `ids` below, so only the
+// page link breaks.
+const PAGE_COLLECTIONS = ['guide', 'issues', 'threads', 'articles', 'deep-dives', 'radar'];
 
 // Build a resolver over the site's id sets. `ids` maps collection name → Set
 // of entry ids; `tags` is the tag vocabulary; `staticRoutes` the src/pages
