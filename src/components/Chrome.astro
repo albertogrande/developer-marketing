@@ -31,11 +31,15 @@ const max = 'var(--wrap)';
 // literally what it is, a stream artifact that accumulates instead of
 // decaying. If this row ever gets too tight, `about` gives before `jobs` —
 // the masthead is reachable by `g a`, from the palette and from the footer.
+//
+// Labels are the bare collection names, matching the URLs they point at; the
+// `--flag` prefix is supplied by the template, so nothing here carries an
+// article.
 const nav = [
   { label: 'issues', url: '/issues' },
-  { label: 'the-signals', url: '/signals' },
+  { label: 'signals', url: '/signals' },
   { label: 'threads', url: '/threads' },
-  { label: 'the-guide', url: '/guide' },
+  { label: 'guide', url: '/guide' },
   { label: 'jobs', url: '/jobs' },
   { label: 'about', url: '/about' },
 ];
