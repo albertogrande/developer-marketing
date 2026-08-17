@@ -5,6 +5,7 @@ date: 2026-08-05
 kind: release
 summary: 'Postman released @postman/api-sdk: a typed TypeScript client for the full Postman API — workspaces, collections, environments, monitors, mocks — regenerated deterministically from the API''s own specification, so an API change files an automated pull request against the SDK repository rather than waiting on manual maintenance. It is built with Postman''s own SDK Generator, which customers can point at their own APIs for the same auto-updating clients.'
 tags: [dx, docs, dogfooding]
+threads: [proof-over-adjectives]
 source:
   label: 'Postman Blog — Introducing @postman/api-sdk: the official TypeScript SDK for the Postman API'
   url: https://blog.postman.com/introducing-postman-api-sdk-the-official-typescript-sdk-for-the-postman-api

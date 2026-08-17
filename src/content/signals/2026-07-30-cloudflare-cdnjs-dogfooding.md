@@ -5,6 +5,7 @@ date: 2026-07-30
 kind: campaign
 summary: 'Cloudflare published how it rebuilt cdnjs — 108,000 requests per second, 9 billion a day, a 98.6% cache hit rate — entirely on its own R2, Workers, Workflows, Queues and Durable Objects stack, replacing a fragmented GCP-Functions-and-VMs setup. The migration completed on 2026-06-23 and raised a public platform ceiling on the way: subrequests now go up to 10M on paid plans.'
 tags: [content, dogfooding, cloudflare, trust]
+threads: [proof-over-adjectives]
 source:
   label: "Cloudflare — Dogfooding at scale: migrating cdnjs to Cloudflare's Developer Platform"
   url: https://blog.cloudflare.com/cdnjs-dev-platform-migration/

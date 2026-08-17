@@ -5,6 +5,7 @@ date: 2026-08-06
 kind: launch
 summary: 'Agent Plugins 1.0.0 went public as an open, vendor-neutral packaging standard — a directory with a `plugin.json` manifest and fixed locations for Agent Skills and MCP servers — refined collaboratively by AWS, Anysphere, GitHub, Microsoft, OpenAI and Vercel, with a Technical Steering Committee drawn from the same set. ChatGPT, Codex, Cursor, GitHub Copilot, Kiro and VS Code support it at launch, which means a plugin author packages components once instead of repackaging the same skill for each client.'
 tags: [agents, mcp, launches, positioning]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Vercel — Introducing Agent Plugins'
   url: https://vercel.com/blog/introducing-agent-plugins

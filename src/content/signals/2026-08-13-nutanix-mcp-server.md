@@ -5,6 +5,7 @@ date: 2026-08-13
 kind: release
 summary: 'Nutanix shipped an open-source MCP server for Nutanix Cloud Platform, built on its Prism v4 API Gateway, that lets GitHub Copilot, Claude Code and Cursor turn plain-English requests into infrastructure operations under the platform''s existing role-based access controls and audit logging. First announced 2026-08-10, it is the latest enterprise-infrastructure vendor — after HashiCorp, Sinch and others — to ship agent-facing tooling as MCP consolidates into table stakes.'
 tags: [mcp, agents, dx]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Nutanix — Nutanix Puts Agentic AI into Action for Enterprises'
   url: https://ir.nutanix.com/news-releases/news-release-details/nutanix-puts-agentic-ai-action-enterprises

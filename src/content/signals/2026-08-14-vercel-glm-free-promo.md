@@ -5,6 +5,7 @@ date: 2026-08-14
 kind: campaign
 summary: 'Vercel is offering Z.ai''s GLM 5.2 coding model (1M-token context) free of charge to eve agents through August 27, served by Blackbox AI over its AI Gateway; new eve agents default to GLM 5.2, and existing ones need only a config change to switch. The offer excludes the faster glm-5.2-fast variant, and pricing reverts to standard AI Gateway metering after the promo ends.'
 tags: [pricing, agents, channels]
+threads: [how-ai-features-get-priced]
 source:
   label: 'Vercel Changelog — GLM 5.2 free for eve agents through August 27 via Blackbox on AI Gateway'
   url: https://vercel.com/changelog/glm-5-2-free-for-eve-agents-through-august-27-via-blackbox-on-ai-gateway

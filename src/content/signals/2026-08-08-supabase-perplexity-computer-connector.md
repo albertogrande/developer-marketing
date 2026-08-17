@@ -5,6 +5,7 @@ date: 2026-08-08
 kind: release
 summary: 'Supabase announced on 2026-08-07 that it is now a connector on Perplexity Computer, the agent that works across 400+ apps including GitHub, Vercel and Stripe. From a Perplexity chat, users can now query and write back to Postgres tables and invoke Edge Functions directly, keeping state across runs without custom glue code.'
 tags: [agents, ai-coding-agents, positioning]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Supabase Blog — Supabase is now a connector on Perplexity Computer'
   url: https://supabase.com/blog/supabase-is-now-a-connector-on-perplexity-computer
