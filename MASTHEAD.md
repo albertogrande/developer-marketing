@@ -2,12 +2,15 @@
 
 *A technical publication about developer marketing, with a circulation of one.*
 
-This site is two things that feed each other. A **stream**: Signals' dated,
-sourced events and one weekly issue that says what they meant. And a
-**reference**: the evergreen guide with its claims, examples, skills and
-directory — kept continuously current by what the stream learns. Stream
-pieces decay; the reference compounds. Every issue must leave the reference
-better than it found it.
+This site is two things that feed each other, plus the tissue between them. A
+**stream**: Signals' dated, sourced events and one weekly issue that says what
+they meant. A **reference**: the evergreen guide with its claims, examples,
+skills and directory — kept continuously current by what the stream learns.
+And the **threads**: the open questions being followed across weeks, each
+carrying the dated evidence filed onto it and what would settle it. Stream
+pieces decay; the reference compounds; a thread is the stream artifact that
+accumulates instead of decaying. Every issue must leave the reference better
+than it found it.
 
 ## The two writers
 
@@ -15,7 +18,7 @@ better than it found it.
 |---|---|---|
 | **The Jobs Scout** | Fully-remote marketing-leadership, growth and product-marketing roles at devtools/AI companies, confirmed against the employer's own posting (`signals/jobs/jobs.json` → `/jobs`). A listing earns its slot by matching the scope — never by payment. | Weekly |
 | **The Scout** | Raw dated signals in `signals/` (internal), qualifying events promoted to **Signals** (`src/content/signals/` — one company, two sentences, a primary source), and guide patches when a hard fact changes. | Daily |
-| **The Editor** | **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
+| **The Editor** | The **threads** (`src/content/threads/` — opened, worked, momentum stamped, closed; never deleted). **The Beat** (`src/content/issues/`): one issue on what actually moved — normally short, occasionally a **long special issue** when a thread has earned depth. Plus the guide-accuracy pass, the claims reconciliation (distill / re-verify / stamp stale or retired), examples promoted, the skills shelf verified, memory updated. | Monday |
 
 The reference the writers maintain: the ten-section **guide**
 (`src/content/guide/`), its atomic **claims** (`src/content/claims/`, each
@@ -50,7 +53,8 @@ the radar (`src/content/radar/`).
    never silent.
 5. **Judgment over coverage.** Decide what mattered, cut the rest, take a
    position in one plain sentence. Connect to the running threads in
-   `editorial/MEMORY.md` — an issue with amnesia is a failed issue.
+   `src/content/threads/` — an issue with amnesia is a failed issue, and an
+   issue that advances a thread says which.
 6. **Feed the reference.** An issue that changes a fact patches the guide. A
    campaign teardown promotes an example. A measured pattern becomes a
    claim. A claim whose fact moved gets stamped stale or retired — never
@@ -71,8 +75,9 @@ the radar (`src/content/radar/`).
 
 ## The desk
 
-Institutional memory lives in `editorial/MEMORY.md` (threads, coverage
-index, special-issue candidates, the evergreen shelf). The reader's standing
+The running threads are published (`src/content/threads/`). What cannot be
+published lives in `editorial/MEMORY.md` (the private half of each thread,
+staging, coverage index, special-issue candidates, the evergreen shelf). The reader's standing
 preferences live in `editorial/TASTE.md`. The retired newsroom's decision
 log (`editorial/NEWSROOM.md`) and backlog (`editorial/BACKLOG.md`) are
 read-only history. Every agent reads what it needs before writing and leaves

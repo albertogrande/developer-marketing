@@ -37,7 +37,11 @@ so — don't overwrite a published issue unless explicitly asked.
 
 ## Step 2 — Load memory and signals (before writing)
 
-1. `editorial/MEMORY.md` — running threads, special-issue candidates, the
+1. `src/content/threads/` — **the running threads, and the real record.**
+   Each carries its open question, the running argument, a momentum stamp and
+   its open loops. This is what an issue connects back to. Then
+   `editorial/MEMORY.md` — the private half (what must not publish), the
+   staging list of questions not yet threads, special-issue candidates, the
    guide coverage index. `editorial/COVERAGE.md` — everything ever published,
    generated from content frontmatter.
 2. `editorial/TASTE.md` — the reader's durable preferences. The issue must
@@ -296,6 +300,50 @@ shelves are abandoned mid-quarter.
   installable covers. If a signal this week fills one, that is a strong add; if a
   gap has closed or opened, say so in the issue.
 
+## Step 5.75 — Work the threads
+
+`src/content/threads/` is the published record of what this publication is
+following. It is a **running argument that gets rewritten**, not an
+append-only log — the discipline that keeps a thread page from decaying back
+into a private scratchpad. Per live thread:
+
+1. **Re-read the `openLoops`.** Any loop whose deadline has passed: resolve it
+   (say in the body what landed and what it settled), or say plainly that it
+   didn't and move the date **once**, with a reason. A deadline that slips
+   twice means the thread is dead — close it.
+2. **Set `momentum:` from evidence, not feeling.** `rising` = two or more new
+   members this week, or one that changes the answer. `steady` = new members,
+   but the question didn't move. `cooling` = nothing new in about two weeks.
+3. **Reconcile membership.** The scout tags daily; catch what it missed, file
+   this week's issue onto the threads it advanced, and *remove* mis-filed
+   items. Two threads per item is the ceiling — a third means the item is
+   on-topic, not evidence.
+4. **Rewrite the opening paragraphs if the answer moved.** If the thread now
+   says something different than it did in July, it should read that way from
+   the first line.
+5. **Bump `updated:` only on threads you actually changed.** Same rule as the
+   guide sections in Step 5 — otherwise every thread claims weekly freshness
+   with no diff behind it, and `check-freshness.mjs` stops meaning anything.
+
+**Opening a thread.** The bar: the question has recurred across ≥3 weeks of
+signals; **at least two dated entries already exist to file onto it** (tag
+them in the same pass — a thread with an empty timeline is an opinion); the
+guide covers it thinly; and the question is phrased so a fact could settle it.
+The slug is the question in kebab-case. **Five to eight live threads is a
+ceiling, not a target** — opening a ninth means closing one. A question with
+no dated evidence yet goes to MEMORY's staging list, not to `threads/`.
+
+**Closing a thread.** `resolved` when the question got its answer — and the
+output is then a claim plus a guide edit, with the body's opening rewritten as
+the standing answer. `dormant` after ~3 issues with no new member, or when an
+experiment the thread rested on was withdrawn (a withdrawal answers nothing).
+**Never delete the file** — same rule as retired claims: the URL, its sitemap
+entry and every inbound link have to keep resolving.
+
+**Threads and special issues.** A special issue is what you write when a
+thread *resolves*. Afterwards the thread body becomes the short standing
+answer that links it.
+
 ## Step 5.8 — Process reader feedback
 
 If `editorial/FEEDBACK-INBOX.md` exists (the workflow materialises it from
@@ -324,18 +372,24 @@ in local runs), work through it — this is the loop `TASTE.md` promises:
 
 ## Step 6 — Update memory
 
-In `editorial/MEMORY.md`:
-- **Thread maintenance pass** (keep 5–10 alive): triage any orphan story into a
-  thread or consciously drop it; tag each thread's momentum (`↑`/`→`/`↓`); log
-  `Tension:` when evidence cuts against a thread; retire threads with no new
-  evidence for ~3 issues (delete — git preserves them).
+Thread maintenance itself happens in Step 5.75, in `src/content/threads/` —
+that is the published record. `editorial/MEMORY.md` keeps only what must not
+publish, and stays short:
+- **The private half**: one line per live thread carrying the caveat, doubt or
+  instruction that has no business on a public page — a single-sourced arc not
+  to generalise yet, an open loop you suspect is unfalsifiable, a "cool this
+  rather than resolve it" note. If a line could publish, it belongs in the
+  thread body instead.
+- **The staging list**: questions that recur but have no dated evidence yet,
+  so they cannot clear the two-member bar for a thread. Promote when the
+  evidence lands; never open a thread on a question nothing can answer.
 - Update the **special-issue candidates** list (add/promote/retire — a
   candidate you wrote as this week's special comes off the list). Keep it
   stocked: if it is down to its last two entries, add one or two drawn from
   the guide sections `editorial/COVERAGE.md` shows as thinnest.
 - Do not hand-append coverage lines — `editorial/COVERAGE.md` is regenerated
   from content frontmatter by the gates.
-- Keep the whole file under the cap its header declares (~170 lines,
+- Keep the whole file under the cap its header declares (~140 lines,
   enforced by `scripts/check-editorial.mjs`); prune oldest detail first.
 
 Update `editorial/TASTE.md` only if the reader expressed a durable preference.
@@ -343,6 +397,7 @@ Update `editorial/TASTE.md` only if the reader expressed a durable preference.
 ## Step 7 — Save
 
 Write the issue, the guide edits, the claims work, the examples, the
-skills-shelf verifications, and the memory update. Do **not** commit or push —
+skills-shelf verifications, the thread updates, and the memory update. Do
+**not** commit or push —
 in CI the workflow publishes; in an interactive session, tell the user where
 the files are.

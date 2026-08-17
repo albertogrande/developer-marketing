@@ -54,8 +54,10 @@ const DESKS = ['news', 'money', 'campaigns', 'research', 'technology'] as const;
         <a href={withBase('/guide')}>guide</a> the moment a fact changes. On
         Mondays an <em>editor</em> writes <a href={withBase('/issues')}>the
         week</a>: one issue on what actually mattered, normally short, and long
-        only when a thread has earned the depth. The same run re-verifies the
-        <a href={withBase('/claims')}>claims</a> — each carries the date it was
+        only when a thread has earned the depth. The same run works the
+        <a href={withBase('/threads')}>threads</a> — the open questions being
+        followed across weeks — and re-verifies the
+        <a href={withBase('/claims')}>claims</a>, each carrying the date it was
         last checked and an honest status. Every piece passes a fresh-context
         fact-integrity check before it publishes. No human in the byline.
       </p>
@@ -63,10 +65,14 @@ const DESKS = ['news', 'money', 'campaigns', 'research', 'technology'] as const;
 
     <h2 class="kicker">The strands</h2>
     <p>
-      Two reading modes, connected by topic. The pulse:
+      Three reading modes, connected by topic. The pulse:
       <a href={withBase('/signals')}>Signals</a> logs what happened, and
       <a href={withBase('/issues')}>the week</a> says what it meant every
-      Monday. The reference:
+      Monday. The <a href={withBase('/threads')}>threads</a> sit between them:
+      a handful of open questions followed across months, each carrying the
+      dated evidence filed onto it and the loops that would settle it — a
+      thread names what would change its mind, and says so on the page. The
+      reference:
       the <a href={withBase('/guide')}>guide</a> is the product — ten evergreen
       topic hubs, each gathering the <a href={withBase('/claims')}>claims</a>
       that implement it, the <a href={withBase('/examples')}>examples</a> that

@@ -20,7 +20,7 @@ https://thebeat.dev/api.json
 | Curated index | `/llms.txt` | llmstxt.org-style index of all entries, linking raw markdown |
 | One-fetch corpus | `/llms-full.txt` | Evergreen collections in full + recent dated pieces |
 | Raw markdown | `/<collection>/<id>.md` | Self-contained sibling of every entry (canonical, dates, license, sources inside) |
-| Structured JSON | `/guide.json` `/claims.json` `/examples.json` `/skills.json` `/signals.json` `/issues.json` `/resources.json` `/articles.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
+| Structured JSON | `/guide.json` `/claims.json` `/examples.json` `/skills.json` `/signals.json` `/issues.json` `/threads.json` `/resources.json` `/articles.json` `/deep-dives.json` `/radar.json` | Per-collection data, markdown bodies included |
 | Feeds | `/feed.xml` (Atom) · `/feed.json` (JSON Feed 1.1) | Long-form dated pieces (issues + the archived articles, dives, radar), full content, honest updated stamps |
 | Sitemap | `/sitemap-index.xml` | Every page, trailing-slash canonical form, per-page lastmod |
 
@@ -36,6 +36,13 @@ Notes for retrieval:
 - `claims`, `examples`, `skills`, `resources`, and `signals` have no
   standalone pages — cite them as `/claims/#<id>` (etc.) anchors; their
   `.md` siblings say so.
+- `threads` are the running stories: an open question, the argument so far,
+  and the dated signals and issues filed onto it. Membership is declared by
+  the members (`threads: [slug]` on a signal or issue), so `/threads.json`
+  carries the full edge set in one fetch — it is the cheapest way to see
+  which events are evidence for which question. Deliberately **not** in the
+  feeds: a thread is rewritten most weeks, so syndicating it would re-push
+  the same items continuously (the guide is excluded for the same reason).
 - `signals` is the event log: one company, one thing that happened, two
   sentences, and a mandatory `source` — so quiet news days and small
   companies still get covered. Deliberately **not** in `/feed.xml` or

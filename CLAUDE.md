@@ -72,7 +72,7 @@ Serving from somewhere else is two variables, never a content migration:
 
 ## Three systems in one repo
 
-**1. The site** — Astro 5, static, ten content collections under `src/content/`,
+**1. The site** — Astro 5, static, eleven content collections under `src/content/`,
 schemas in `src/content.config.ts`. Every collection has a human page *and* a
 machine twin (`/<collection>.json`, `/<collection>/<id>.md`, feeds, `llms.txt`,
 `api.json`). The machine surface is house-rolled in `src/pages/*.ts` — extend
@@ -100,6 +100,22 @@ reference's atomic units, each carrying `status` (current/stale/retired) and
 `checked`. Claims are never deleted, only retired: their anchors must keep
 resolving. `articles/`, `deep-dives/` and `radar/` are closed archives —
 still rendered and machine-served, never extended.
+
+**`src/content/threads/`** is the middle tier between the two: the running
+stories, each an open `question`, the argument so far, a `momentum` stamp and
+`openLoops` saying what would settle it. Membership runs *inward* — signals
+and issues carry `threads: [slug]`, nothing on the thread names its members —
+so a timeline grows on the next build and the scout can file a signal daily
+without touching the thread. The editor owns opening, closing and stamping
+(Monday); the scout only files evidence. Like claims, threads are never
+deleted: `dormant` or `resolved`, the file stays so anchors resolve. They are
+deliberately **out of the feeds** for the guide's reason — continuously
+rewritten, so freshness rides on sitemap `lastmod`, `api.json` and `llms.txt`.
+Registering a collection touches **four** lists (`src/content.config.ts`,
+`COLLECTIONS` in `scripts/lib/routes.mjs`, `check-refs.mjs`, and
+`PAGE_COLLECTIONS` in `scripts/lib/refs.mjs`) plus the `mdMatch` alternation
+in `src/components/Head.astro` — miss that last one and the agent-surface
+gate fails *after* the build, on a missing `rel=alternate`.
 
 Underneath the curated capture sits the **event DB**: `scout:sweep` fetches
 the registered watchlist (`scripts/lib/scout-sources.mjs` — RSS/Atom feeds,
