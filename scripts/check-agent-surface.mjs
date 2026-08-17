@@ -14,7 +14,7 @@
 //   4. llms.txt lists every entry's .md URL
 //   5. feed.xml: entry count == dated collections, every entry carries
 //      full <content>, no unescaped ampersands
-//   6. api.json + feed.json + all eight <collection>.json parse; counts match
+//   6. api.json + feed.json + every <collection>.json parse; counts match
 //   7. sitemap: every <loc> slashed, no machine endpoints, lastmod everywhere
 //      (except /about/, which honestly has no date)
 //   8. the IndexNow key file is present and self-consistent

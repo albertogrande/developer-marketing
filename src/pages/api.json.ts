@@ -11,6 +11,7 @@ import {
   getResourcesSorted,
   getSkillsSorted,
   getSignalsSorted,
+  getThreadsSorted,
 } from '../lib/content';
 
 // /api.json — the machine front door: one fetch that enumerates every
@@ -21,11 +22,12 @@ import {
 const REPO = 'https://github.com/albertogrande/developer-marketing';
 
 export const GET: APIRoute = async () => {
-  const [guide, articles, issues, dives, signals, radar, claims, examples, skills, resources] =
+  const [guide, articles, issues, threads, dives, signals, radar, claims, examples, skills, resources] =
     await Promise.all([
       getGuideSorted(),
       getArticlesSorted(),
       getIssuesSorted(),
+      getThreadsSorted(),
       getDivesSorted(),
       getSignalsSorted(),
       getRadarSorted(),
@@ -82,6 +84,7 @@ export const GET: APIRoute = async () => {
         ...guide,
         ...articles,
         ...issues,
+        ...threads,
         ...dives,
         ...signals,
         ...radar,
@@ -112,6 +115,7 @@ export const GET: APIRoute = async () => {
       { url: absUrl('/llms-full.txt'), type: 'text/markdown', description: 'The evergreen corpus in full plus recent dated pieces, one fetch.' },
       { url: absUrl('/feed.xml'), type: 'application/atom+xml', description: 'Atom feed of dated pieces, full content included.' },
       { url: absUrl('/feed.json'), type: 'application/feed+json', description: 'JSON Feed 1.1 of dated pieces, content_html and content_text.' },
+      { url: absUrl('/threads.json'), type: 'application/json', description: 'The running threads with their full membership — the site’s link graph in one fetch.' },
       { url: absUrl('/sitemap-index.xml'), type: 'application/xml', description: 'Sitemap with honest per-page lastmod.' },
       { url: absUrl('/robots.txt'), type: 'text/plain', description: 'Crawl policy: everything public, AI crawlers welcome.' },
     ],
@@ -134,6 +138,11 @@ export const GET: APIRoute = async () => {
         pages: true,
         description:
           'ARCHIVE — long-form researched pieces (2026-07). No new entries; depth now ships as a long special issue.',
+      }),
+      threads: collection('threads', threads, {
+        pages: true,
+        description:
+          'The threads — the running stories: the questions this publication is following across weeks, each with a momentum reading, the dated signals and issues filed onto it, and open loops that say what would settle it.',
       }),
       signals: collection('signals', signals, {
         pages: false,

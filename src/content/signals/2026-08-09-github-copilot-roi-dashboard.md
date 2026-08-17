@@ -5,6 +5,7 @@ date: 2026-08-09
 kind: release
 summary: 'GitHub shipped a "Potential ROI" section on the Copilot impact dashboard on 2026-08-07, pairing Passive/Phase-1 adoption cohorts against agent-first Phase-2/3 cohorts on cost per developer per month, that cost as a share of payroll, and pull requests per developer per month. A salary selector recalculates the cost-derived figures live for the chosen compensation band.'
 tags: [github, metrics, ai-coding-agents]
+threads: [measuring-influence-not-attribution]
 source:
   label: 'GitHub Changelog — Copilot impact dashboard adds a return on investment section'
   url: https://github.blog/changelog/2026-08-07-copilot-impact-dashboard-adds-a-return-on-investment-section/

@@ -5,6 +5,7 @@ date: 2026-08-06
 kind: news
 summary: 'KnowledgeOwl published a method on 2026-08-05, surfaced in this sweep, for reading support tickets as a documentation audit: sort every ticket into a discoverability gap (the page exists, nobody found it), a clarity/completeness gap, an accuracy/edge-case gap, or a coverage gap (no page exists at all). The implementation is four tags applied at triage, a monthly or biweekly review with support and docs owners in the same room, and a before/after ticket-volume count measured 30–60 days post-publication.'
 tags: [docs, content, metrics]
+threads: [measuring-influence-not-attribution]
 source:
   label: 'KnowledgeOwl — Support queue is a documentation audit; here''s how to read it'
   url: https://www.knowledgeowl.com/blog/posts/support-queue-as-docs-audit

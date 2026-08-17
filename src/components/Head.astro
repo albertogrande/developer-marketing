@@ -47,10 +47,13 @@ const fontCss = [
 // page has a raw-markdown sibling (/<coll>/<id>.md), every collection index a
 // JSON endpoint (/<coll>.json). The agent-surface gate verifies the targets.
 const sitePath = stripBase(Astro.url.pathname);
-const mdMatch = sitePath.match(/^\/(guide|articles|issues|deep-dives|radar)\/([^/]+)\/?$/);
+// Keep the first alternation in step with COLLECTIONS (`page: true`) in
+// scripts/lib/routes.mjs: check-agent-surface requires every entry page to
+// announce its sibling, and that link exists only because this matched.
+const mdMatch = sitePath.match(/^\/(guide|articles|issues|threads|deep-dives|radar)\/([^/]+)\/?$/);
 const mdPath = mdMatch ? `/${mdMatch[1]}/${mdMatch[2]}.md` : undefined;
 const jsonMatch = sitePath.match(
-  /^\/(guide|articles|issues|deep-dives|radar|claims|examples|skills|resources|signals|jobs)\/?$/
+  /^\/(guide|articles|issues|threads|deep-dives|radar|claims|examples|skills|resources|signals|jobs)\/?$/
 );
 const jsonPath = jsonMatch ? `/${jsonMatch[1]}.json` : undefined;
 
@@ -61,6 +64,7 @@ const SECTION_LABELS: Record<string, string> = {
   guide: 'Guide',
   articles: 'Newsroom archive',
   issues: 'The Beat',
+  threads: 'Threads',
   'deep-dives': 'Deep Dives archive',
   radar: 'Radar archive',
   claims: 'Claims',

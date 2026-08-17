@@ -5,6 +5,7 @@ date: 2026-07-29
 kind: launch
 summary: 'Tines launched 3B on Show HN with the sharpest positioning of the week — "you told everyone to use AI, now give them a secure place to do it" — selling governed visibility over AI-built workflows, dashboards and automations rather than gating who is allowed to build. It picked up 27 points and 2 comments, modest traction for a category that has been filling with near-identical guardrail entrants all month.'
 tags: [positioning, agents, launches]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Show HN: Tines 3B – safe workflow automation for when everyone builds software'
   url: https://news.ycombinator.com/item?id=49084371

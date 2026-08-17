@@ -5,6 +5,7 @@ date: 2026-08-08
 kind: launch
 summary: 'Cloudflare launched Kitesurf on 2026-08-06, a stateless browser that runs entirely in V8 isolates on Workers and, in Cloudflare''s own tests, uses 3-4x less CPU and 5-7x less memory than Chromium for agent tasks like screenshots and HTML extraction (while running about 1.7-1.8x slower), while staying a drop-in replacement for existing Puppeteer, Playwright and MCP/CDP clients. It ships free in beta and trades away tabs, extensions, WebGL and real TLS fingerprinting — the things only a human user needs.'
 tags: [agents, ai-coding-agents, dx, positioning]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Cloudflare Blog — Introducing Kitesurf'
   url: https://blog.cloudflare.com/kitesurf/

@@ -27,9 +27,18 @@ WEEK_FILE="signals/$(date -u +%G-W%V).md"  # current ISO week (UTC)
 
 - Read the current `$WEEK_FILE` if it exists — **never duplicate** a signal
   already captured this week. Create it if missing (header below).
-- Skim `editorial/MEMORY.md`: the running threads, the special-issue candidates,
-  and the **guide coverage index** (which section owns which topic). This tells
-  you what's already known and where a new fact belongs.
+- Read the **titles and questions** in `src/content/threads/` — the running
+  threads, and the slug vocabulary you may file today's items onto. Eight
+  lines of reading; you need it before Step 3.
+- Skim `editorial/MEMORY.md`: the private thread notes, the staging list, the
+  special-issue candidates, and the **guide coverage index** (which section
+  owns which topic). This tells you what's already known and where a new fact
+  belongs.
+
+**You never edit a thread file.** Not the body, not `momentum`, not `updated`,
+not `openLoops`. Opening, closing and stamping threads is the editor's Monday
+judgment; your job is to file evidence onto them. If both writers stamp
+`updated:` the momentum reading stops meaning anything.
 
 New week file header:
 
@@ -345,6 +354,7 @@ date: <the date of THIS run — never the source's publication date>
 kind: news | release | funding | launch | campaign | discussion | podcast | signal
 summary: '<exactly two sentences — the item itself>'
 tags: [<reuse existing tags where they fit>]
+threads: [<slug>]  # optional; slugs from src/content/threads/ — see below
 source:
   label: <publisher — headline>
   url: <the primary source>
@@ -359,6 +369,27 @@ related:          # optional; base-less guide paths
 <Optional: one short paragraph on why it matters or what to watch. Skip it
 when the two sentences are the whole story — the body is not a quota.>
 ```
+
+### `threads:` — filing an item as evidence
+
+File an item onto a thread only when it is **evidence for or against that
+thread's question**, not merely on the same topic. "Mentions MCP" is not
+evidence for the agents-as-first-reader thread; "a second vendor publishes a
+dated directory-review timeline" is.
+
+- Slugs come from `src/content/threads/` filenames. **Never invent one** —
+  `check-refs.mjs` fails the build on a slug that names no thread, and a
+  typo'd slug is worse than none: the item silently drops out of the timeline
+  it was meant to join.
+- Two threads is the ceiling. A third means the item is on-topic, not
+  evidence.
+- **Most items belong to no thread.** Omit the field and move on; that is the
+  normal outcome, not a gap. Threads are a handful of live questions, not a
+  taxonomy of everything.
+- If today's item bears on a thread's **open loop** — it answers one, or it is
+  the deadline passing with nothing — note it in `signals/<WEEK_FILE>.md`
+  under the thread slug so the editor sees it Monday without re-reading the
+  week. Do not edit the thread yourself.
 
 `date` — and the `YYYY-MM-DD` in the filename — is **the day this run writes the
 item**, not the day the source published.

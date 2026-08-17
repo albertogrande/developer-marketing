@@ -11,6 +11,9 @@ import {
   getResourcesSorted,
   getSkillsSorted,
   getSignalsSorted,
+  getThreadsSorted,
+  getThreadGraph,
+  THREAD_MOMENTUM_LABELS,
   RESOURCE_CATEGORY_LABELS,
 } from '../lib/content';
 
@@ -32,6 +35,8 @@ export const GET: APIRoute = async () => {
 
   const guide = await getGuideSorted();
   const claims = await getClaimsSorted();
+  const threads = await getThreadsSorted();
+  const threadGraph = await getThreadGraph();
   const examples = await getExamplesSorted();
   const skills = await getSkillsSorted();
   const issues = await getIssuesSorted();
@@ -64,6 +69,49 @@ export const GET: APIRoute = async () => {
     out.push(`*Section ${String(g.data.order).padStart(2, '0')} · updated ${isoDate(g.data.updated)} · ${abs(`/guide/${g.id}`)}*`);
     out.push('');
     out.push((g.body ?? '').trim());
+  }
+
+  // Threads sit in the evergreen half, in full: a thread is a maintained
+  // surface that gets rewritten, not a dated drop, so it belongs beside the
+  // guide rather than in the recency-windowed strands below. Bounded by the
+  // editor's 5-8 live ceiling; past ~15 this should window like the rest.
+  if (threads.length) {
+    out.push('');
+    out.push('---');
+    out.push('');
+    out.push('# Threads');
+    out.push('');
+    out.push(
+      'The running stories — the open questions being followed across weeks. Each states what would settle it, and what is on the record so far.'
+    );
+    for (const t of threads) {
+      const members = threadGraph.membersByThread.get(t.id) ?? [];
+      out.push('');
+      out.push(`## ${t.data.title}`);
+      out.push(
+        `*${t.data.status} · momentum ${THREAD_MOMENTUM_LABELS[t.data.momentum]} · opened ${isoDate(t.data.started)} · last worked ${isoDate(t.data.updated)} · ${abs(`/threads/${t.id}`)}*`
+      );
+      out.push('');
+      out.push(`> ${t.data.question}`);
+      out.push('');
+      out.push((t.body ?? '').trim());
+      if (t.data.openLoops.length) {
+        out.push('');
+        out.push('**Open loops:**');
+        for (const l of t.data.openLoops) out.push(`- ${l.question}${l.by ? ` (by ${l.by})` : ''}`);
+      }
+      if (members.length) {
+        out.push('');
+        out.push(`**On the record (${members.length}):**`);
+        for (const m of members) {
+          out.push(`- ${isoDate(m.date)} — ${m.company ? `${m.company}: ` : ''}${m.title} (${abs(m.href)})`);
+        }
+      }
+      if (t.data.sections.length) {
+        out.push('');
+        out.push(`**Guide:** ${t.data.sections.map((s) => abs(`/guide/${s}`)).join(', ')}`);
+      }
+    }
   }
 
   out.push('');

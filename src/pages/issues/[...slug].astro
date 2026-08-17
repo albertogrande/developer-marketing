@@ -4,7 +4,7 @@ import ReadingLayout from '../../layouts/ReadingLayout.astro';
 import ArticleFoot from '../../components/ArticleFoot.astro';
 import TagList from '../../components/TagList.astro';
 import { absUrl, fmtWeekRange, withBase, isoDate } from '../../lib/site';
-import { entryByDateDesc, getSignalsByWeek, SIGNAL_KIND_LABELS } from '../../lib/content';
+import { entryByDateDesc, getSignalsByWeek, getThreadGraph, SIGNAL_KIND_LABELS } from '../../lib/content';
 import { articleNode } from '../../lib/jsonld';
 
 export async function getStaticPaths() {
@@ -41,6 +41,11 @@ const KIND_ORDER: (typeof briefsThisWeek)[number]['data']['kind'][] = [
 const linkGroups = KIND_ORDER
   .map((kind) => ({ kind, label: SIGNAL_KIND_LABELS[kind], items: briefsThisWeek.filter((b) => b.data.kind === kind) }))
   .filter((g) => g.items.length > 0);
+
+// The running threads this issue advanced — an issue is a week's worth of one
+// or two arguments, and this is where a reader picks the argument back up.
+const { threadsByMember } = await getThreadGraph();
+const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
 ---
 <ReadingLayout
   title={d.title}
@@ -67,6 +72,18 @@ const linkGroups = KIND_ORDER
     <span class="kind">the week</span>
     <TagList tags={d.tags} />
   </div>
+
+  {threads.length > 0 && (
+    <p class="wil-threads">
+      <span class="dim">advances</span>
+      {threads.map((t, i) => (
+        <Fragment>
+          {i > 0 && <span class="dim"> · </span>}
+          <a href={withBase(`/threads/${t.id}`)}>{t.data.title}</a>
+        </Fragment>
+      ))}
+    </p>
+  )}
 
   <Content />
 
@@ -112,6 +129,13 @@ const linkGroups = KIND_ORDER
 </ReadingLayout>
 
 <style>
+  .wil-threads {
+    font-size: 0.85rem;
+    margin: 0 0 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .wil-threads .dim { margin-right: 0.3rem; }
   .wil {
     margin-top: 2.5rem;
     padding-top: 1.25rem;

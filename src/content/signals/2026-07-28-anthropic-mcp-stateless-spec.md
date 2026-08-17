@@ -5,6 +5,7 @@ date: 2026-07-28
 kind: release
 summary: 'The new Model Context Protocol spec drops `initialize` and session IDs so any server instance can answer any request behind a plain load balancer, graduates Tasks and MCP Apps into a versioned extensions framework, and hardens auth with RFC 9207 issuer validation in place of Dynamic Client Registration. All four Tier-1 SDKs shipped support on publication day, with AWS, Cloudflare, Figma, Google Cloud, Microsoft and Netlify publicly committed.'
 tags: [mcp, agents, docs, ai]
+threads: [agents-as-the-first-reader]
 source:
   label: Model Context Protocol — The 2026-07-28 Specification
   url: https://blog.modelcontextprotocol.io/posts/2026-07-28/

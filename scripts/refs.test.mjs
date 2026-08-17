@@ -11,6 +11,7 @@ const resolves = makeResolver({
   ids: {
     guide: new Set(['02-docs-as-front-door']),
     issues: new Set(['2026-W28']),
+    threads: new Set(['how-ai-features-get-priced']),
     articles: new Set(['2026-07-20-story']),
     'deep-dives': new Set(['2026-07-06-dive']),
     signals: new Set(['2026-07-28-acme']),
@@ -34,6 +35,8 @@ test('static routes resolve, with and without trailing slash', () => {
 test('entry pages resolve against their collection ids', () => {
   assert.ok(resolves('/guide/02-docs-as-front-door'));
   assert.ok(resolves('/issues/2026-W28'));
+  assert.ok(resolves('/threads/how-ai-features-get-priced'));
+  assert.ok(!resolves('/threads/no-such-thread'));
   assert.ok(resolves('/articles/2026-07-20-story'));
   assert.ok(resolves('/deep-dives/2026-07-06-dive'));
   assert.ok(resolves('/radar/old-entry'));

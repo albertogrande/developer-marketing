@@ -28,6 +28,13 @@ const glob = (opts: Parameters<typeof globLoader>[0]) =>
 //              One file per ISO week: YYYY-Www.md. Normally short; when a
 //              thread has earned depth the editor writes a long special
 //              issue instead — there is no separate deep-dive tier anymore.
+//  threads/  — the running stories: the questions this publication is
+//              following across weeks, each with a momentum reading, the
+//              dated evidence filed onto it, and open loops that say what
+//              would settle it. The missing middle between a signal (one
+//              day) and an issue (one week). Membership is declared by the
+//              members — signals and issues carry `threads: [slug]` — so a
+//              thread's timeline grows without the thread file being touched.
 //  guide/    — the evergreen reference's composed pages. One file per
 //              section: NN-slug.md. Kept continuously current; claims,
 //              examples and skills attach to sections.
@@ -94,6 +101,85 @@ const issues = defineCollection({
       .array(z.object({ label: z.string(), href: z.string() }))
       .default([]),
     // Where to check the week's claims — reports, posts, threads.
+    sources: z
+      .array(z.object({ label: z.string(), url: z.string().url() }))
+      .default([]),
+    // The running threads this issue advanced. Slugs from threads/ — see the
+    // note on that collection for why this is a bare slug array and not a
+    // `related` entry.
+    threads: z.array(z.string()).default([]),
+  }),
+});
+
+// threads/ — the running stories, and the missing middle of the content model.
+// A signal says what happened on one day; an issue says what a week meant; a
+// thread says where a question has been going for months and what would settle
+// it. The newsroom always had these (editorial/MEMORY.md ran them privately,
+// with a momentum arrow and open loops) — this is that machinery made public.
+//
+// A thread is NOT a tag. A tag collects things that share a word; a thread
+// carries an argument, has a question it is trying to answer, and can be wrong.
+// That is why `question` is required and why threads are editor-authored, a
+// handful at a time, rather than derived from the tag vocabulary.
+//
+// Membership runs the other way: signals and issues declare `threads: [slug]`,
+// and the thread page inverts that into its timeline. So a thread never has to
+// be edited when new evidence lands — the scout attaches the signal and the
+// timeline grows on the next build.
+//
+// Threads are never deleted, for the same reason claims are never deleted: the
+// anchors must keep resolving. A thread that stops moving goes `dormant`; one
+// whose question got answered goes `resolved`. Both keep their page.
+const threads = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/threads' }),
+  schema: z.object({
+    // The thread's name, as the newsroom says it out loud, e.g.
+    // "AI assistants are a primary reader of your docs".
+    title: z.string(),
+    // The one sentence this thread is trying to answer. Load-bearing: it is
+    // what separates a thread from a tag, and it is the honest statement of
+    // what we do not yet know. Ends in a question mark or it isn't one.
+    question: z.string(),
+    // Where the thread stands right now, in two sentences. Card, JSON, llms.txt.
+    summary: z.string(),
+    // `open` = live, still accumulating evidence. `dormant` = no new evidence
+    // for ~3 issues; kept because the question may reopen. `resolved` = the
+    // question got a durable answer, which normally means a claim or a guide
+    // section now carries it — the body says which.
+    status: z.enum(['open', 'dormant', 'resolved']).default('open'),
+    // The momentum arrow MEMORY.md has always used (↑ / → / ↓), typed so the
+    // page and any filter read the same value. This is about the *evidence
+    // rate*, not about whether the thread is important.
+    //
+    // Deliberately no default: a default would ship "steady" for a thread
+    // nobody actually looked at, which is the exact lie the arrow exists to
+    // prevent. check-refs requires it too — and since that gate reads raw
+    // YAML, a zod default here would be invisible to it and the two would
+    // disagree about what "missing" means.
+    momentum: z.enum(['rising', 'steady', 'cooling']),
+    // The day the thread opened — the first dated evidence, not the day the
+    // file was written.
+    started: z.coerce.date(),
+    // The editor's last revision. Required: this is the thread's honest
+    // lastmod, and the whole collection would otherwise be undated (a thread
+    // has no single publish date by construction).
+    updated: z.coerce.date(),
+    // The guide sections this thread feeds. Same contract as claim.section —
+    // check-refs fails the build on an id that is not a real section.
+    sections: z.array(z.string()).default([]),
+    // What would move this thread, and by when. The public form of charter
+    // rule 4: staleness is visible, never silent. `by` is prose, not a date,
+    // because most loops ripen on an event ("the next SlashData wave") rather
+    // than on a calendar day.
+    openLoops: z
+      .array(z.object({ question: z.string(), by: z.string().optional() }))
+      .default([]),
+    tags: z.array(z.string()).default([]),
+    related: z
+      .array(z.object({ label: z.string(), href: z.string() }))
+      .default([]),
+    // The thread's own load-bearing links. Member signals carry their own
+    // sources; these are the ones the running argument rests on.
     sources: z
       .array(z.object({ label: z.string(), url: z.string().url() }))
       .default([]),
@@ -484,6 +570,18 @@ const signals = defineCollection({
     related: z
       .array(z.object({ label: z.string(), href: z.string() }))
       .default([]),
+    // The running thread(s) this item is evidence for. Slugs from threads/ —
+    // check-refs fails the build on one that names no thread, because a
+    // mistyped slug is a silent orphan: the item drops out of the timeline it
+    // was filed into and nothing renders differently.
+    //
+    // Not a `related` entry: `related` is a free-form "see also" display list,
+    // while this is a typed edge a gate can validate exactly and
+    // getThreadGraph() can invert in one flat pass. Same shape as the other
+    // typed cross-collection edges (claim.section, example.demonstrates).
+    //
+    // Most signals belong to no thread. That is the normal outcome, not a gap.
+    threads: z.array(z.string()).default([]),
   }),
 });
 
@@ -514,6 +612,7 @@ const radar = defineCollection({
 export const collections = {
   guide,
   issues,
+  threads,
   signals,
   claims,
   articles,

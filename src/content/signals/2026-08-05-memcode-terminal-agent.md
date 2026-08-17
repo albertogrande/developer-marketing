@@ -5,6 +5,7 @@ date: 2026-08-05
 kind: launch
 summary: 'Memcode launched on Show HN: a terminal coding agent in public beta, shipped as a single static binary with a one-line install, whose differentiator is persistent memory of a repository''s history, architecture and decisions across sessions — "every session starts already oriented instead of re-reading everything." Runs on Memcode credits or bring-your-own API keys.'
 tags: [agents, ai-coding-agents, positioning]
+threads: [how-ai-features-get-priced]
 source:
   label: 'Memcode — a terminal coding agent with memory'
   url: https://www.memcode.ai/

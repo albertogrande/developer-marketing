@@ -103,6 +103,11 @@ test('routesForContentFile: page collections invalidate entry, index, home', () 
     '/articles',
     '/',
   ]);
+  assert.deepEqual(routesForContentFile('src/content/threads/a-thread.md'), [
+    '/threads/a-thread',
+    '/threads',
+    '/',
+  ]);
   assert.deepEqual(routesForContentFile('src/content/claims/quickstart.md'), [
     '/claims',
     '/',
@@ -117,6 +122,9 @@ test('routeLastmod: real tree yields dated routes incl. home', () => {
   assert.ok(map.size > 0);
   assert.match(map.get('/') ?? '', /^\d{4}-\d{2}-\d{2}$/);
   assert.match(map.get('/guide') ?? '', /^\d{4}-\d{2}-\d{2}$/);
+  // Threads are the only collection whose page date comes from `updated`
+  // alone — a thread has no publish event — so pin that it lands.
+  assert.match(map.get('/threads') ?? '', /^\d{4}-\d{2}-\d{2}$/);
 });
 
 test('siteConfig: origin has no trailing slash; base is "" or /prefix', () => {

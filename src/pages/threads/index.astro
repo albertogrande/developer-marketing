@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import NewsletterCta from '../../components/NewsletterCta.astro';
+import { withBase, absUrl, fmtMed } from '../../lib/site';
+import {
+  getThreadsSorted,
+  getThreadGraph,
+  THREAD_MOMENTUM_GLYPHS,
+  THREAD_MOMENTUM_LABELS,
+} from '../../lib/content';
+import { collectionPageNode } from '../../lib/jsonld';
+
+const DESCRIPTION =
+  'The running stories — the questions this publication is following across weeks, each with the dated evidence filed onto it and the open loops that would settle it.';
+
+const threads = await getThreadsSorted();
+const { membersByThread } = await getThreadGraph();
+
+// Live threads lead; dormant and resolved ones stay published and sink. The
+// sort already ranks them — this only decides where the rule lands.
+const live = threads.filter((t) => t.data.status === 'open');
+const closed = threads.filter((t) => t.data.status !== 'open');
+
+// The nearest thing a reader can hold the thread to. Unresolved loops are in
+// authoring order, which is the editor's own priority order.
+const firstLoop = (t: (typeof threads)[number]) => t.data.openLoops[0];
+---
+<BaseLayout
+  title="Threads"
+  description={DESCRIPTION}
+  jsonLd={[
+    collectionPageNode({
+      name: 'Threads',
+      description: DESCRIPTION,
+      url: absUrl('/threads'),
+      items: threads.map((t) => ({ name: t.data.title, url: absUrl(`/threads/${t.id}`) })),
+    }),
+  ]}
+>
+  <div class="page-head">
+    <div class="kicker"><span class="prompt" aria-hidden="true">&gt;</span> threads</div>
+    <h1 class="page-title">Threads</h1>
+    <p class="dek">
+      A signal says what happened on one day. An issue says what a week meant. A thread
+      says where a question has been going for months — and what would settle it.
+    </p>
+  </div>
+
+  {threads.length > 0 ? (
+    <div data-pagefind-body>
+      <ul class="th-list">
+        {live.map((t) => (
+          <li class="th-row" id={t.id}>
+            <span class={`th-mom th-mom-${t.data.momentum}`} title={`Momentum: ${THREAD_MOMENTUM_LABELS[t.data.momentum]}`}>
+              <span aria-hidden="true">{THREAD_MOMENTUM_GLYPHS[t.data.momentum]}</span>
+              <span class="sr-only">Momentum: {THREAD_MOMENTUM_LABELS[t.data.momentum]}</span>
+            </span>
+            <div class="th-main">
+              <a href={withBase(`/threads/${t.id}`)} class="th-title">{t.data.title}</a>
+              <p class="th-q">{t.data.question}</p>
+              <p class="th-sum">{t.data.summary}</p>
+              {firstLoop(t) && (
+                <p class="th-loop">
+                  <span class="amber" aria-hidden="true">?</span> {firstLoop(t)!.question}
+                  {firstLoop(t)!.by && <span class="dim"> · by {firstLoop(t)!.by}</span>}
+                </p>
+              )}
+              <p class="th-meta dim">
+                {(membersByThread.get(t.id) ?? []).length} on the record ·
+                opened {fmtMed(t.data.started)} · last worked {fmtMed(t.data.updated)}
+              </p>
+              <TagList tags={t.data.tags} style="margin-top:8px" />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {closed.length > 0 && (
+        <section class="th-closed">
+          <h2 class="th-closed-h">Closed threads</h2>
+          <p class="dek">
+            Kept, not deleted — a resolved question and a question that stopped moving are
+            both part of the record, and their links have to keep working.
+          </p>
+          <ul class="th-list">
+            {closed.map((t) => (
+              <li class="th-row is-closed" id={t.id}>
+                <span class="th-mom" aria-hidden="true">{THREAD_MOMENTUM_GLYPHS[t.data.momentum]}</span>
+                <div class="th-main">
+                  <a href={withBase(`/threads/${t.id}`)} class="th-title">{t.data.title}</a>
+                  <span class="th-status">{t.data.status}</span>
+                  <p class="th-sum">{t.data.summary}</p>
+                  <p class="th-meta dim">last worked {fmtMed(t.data.updated)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  ) : (
+    <p class="dek">The first threads are being drawn up. Check back shortly.</p>
+  )}
+
+  <NewsletterCta
+    variant="inline"
+    source="/threads"
+    heading="Follow the threads"
+    blurb="Every Monday the editor works these threads and writes the week. Self-hosted list, no tracking, one-click unsubscribe."
+  />
+</BaseLayout>
+
+<style>
+  .th-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .th-row {
+    display: flex;
+    gap: 0.85rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .th-row.is-closed { opacity: 0.62; }
+  .th-mom {
+    font-family: var(--mono, monospace);
+    font-size: 1rem;
+    flex: 0 0 1.2rem;
+    padding-top: 0.1rem;
+    opacity: 0.7;
+  }
+  .th-mom-rising { color: var(--amber, #d08b1e); opacity: 1; }
+  .th-main { min-width: 0; }
+  .th-title {
+    font-weight: 600;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+  .th-title:hover { text-decoration: underline; }
+  .th-status {
+    font-size: 0.68rem;
+    font-family: var(--mono, monospace);
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  /* The question is the thread's thesis — it reads before the state of play. */
+  .th-q {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin: 0.35rem 0 0;
+    font-style: italic;
+  }
+  .th-sum {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0.35rem 0 0;
+    opacity: 0.85;
+  }
+  .th-loop {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0.5rem 0 0;
+    padding-left: 0.1rem;
+  }
+  .th-meta {
+    font-size: 0.78rem;
+    margin: 0.45rem 0 0;
+  }
+  .th-closed {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .th-closed-h {
+    font-size: 1.05rem;
+    margin: 0 0 0.3rem;
+  }
+</style>

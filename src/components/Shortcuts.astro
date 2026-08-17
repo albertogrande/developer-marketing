@@ -2,7 +2,9 @@
 // Global keyboard layer (inherited from The Wire). A ⌘K / Ctrl+K command
 // palette blending navigation, quick actions (theme, copy link, scroll) and
 // client-side search (Pagefind) with arrow-key selection. Key hints: `/` open,
-// `j/k` move, `↵` open, `g` then h/g/r/a to jump, `?` help, `esc` close.
+// `j/k` move, `↵` open, `g` then a section letter to jump (the map lives in
+// the keydown handler below — keep it, the help panel and `commands` in step),
+// `?` help, `esc` close.
 import { withBase } from '../lib/site';
 const base = withBase('/'); // e.g. "/claude-code-sota/"
 ---
@@ -37,6 +39,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       <li><span><kbd>g</kbd> <kbd>i</kbd></span> signals</li>
       <li><span><kbd>g</kbd> <kbd>j</kbd></span> jobs</li>
       <li><span><kbd>g</kbd> <kbd>w</kbd></span> the week</li>
+      <li><span><kbd>g</kbd> <kbd>t</kbd></span> threads</li>
       <li><span><kbd>g</kbd> <kbd>g</kbd></span> guide</li>
       <li><span><kbd>g</kbd> <kbd>c</kbd></span> claims</li>
       <li><span><kbd>g</kbd> <kbd>e</kbd></span> examples</li>
@@ -85,6 +88,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       { id: 'signals', ic: '◫', label: 'Go to Signals', hint: 'g i', keywords: 'signals events news briefs stream launches funding releases', run: function () { go('/signals'); } },
       { id: 'jobs', ic: '◫', label: 'Go to Jobs', hint: 'g j', keywords: 'jobs board hiring remote marketing growth product marketing head of', run: function () { go('/jobs'); } },
       { id: 'weekly', ic: '≋', label: 'Go to The Beat', hint: 'g w', keywords: 'weekly issue digest updates changelog news whats new', run: function () { go('/issues'); } },
+      { id: 'threads', ic: '≡', label: 'Go to threads', hint: 'g t', keywords: 'threads running stories arcs storyline momentum open loops what we are following trend research line', run: function () { go('/threads'); } },
       { id: 'claims', ic: '»', label: 'Go to claims', hint: 'g c', keywords: 'claims practices best when do why corpus reference status', run: function () { go('/claims'); } },
       { id: 'examples', ic: '❏', label: 'Go to examples', hint: 'g e', keywords: 'examples swipe file gallery teardown artifacts real', run: function () { go('/examples'); } },
       { id: 'skills', ic: '⌗', label: 'Go to skills', hint: 'g s', keywords: 'skills agent claude code install plugin tools shelf automate', run: function () { go('/skills'); } },
@@ -251,7 +255,7 @@ const base = withBase('/'); // e.g. "/claude-code-sota/"
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (gPending) {
         gPending = false; clearTimeout(gTimer);
-        var map = { h: '/', i: '/signals', w: '/issues', g: '/guide', c: '/claims', e: '/examples', s: '/skills', o: '/resources', m: '/newsletter', a: '/about', j: '/jobs' };
+        var map = { h: '/', i: '/signals', w: '/issues', t: '/threads', g: '/guide', c: '/claims', e: '/examples', s: '/skills', o: '/resources', m: '/newsletter', a: '/about', j: '/jobs' };
         if (map[e.key] !== undefined) { e.preventDefault(); go(map[e.key]); }
         return;
       }

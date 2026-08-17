@@ -17,6 +17,7 @@ Identity and charter: [MASTHEAD.md](MASTHEAD.md) · the retired newsroom desks
 - **Jobs**: the board at `/jobs` — fully-remote marketing-leadership, growth and product-marketing roles at devtools/AI companies, swept weekly, grouped by remote region. Never paid placement.
 - **Signals**: the event log at `/signals` — one company, one thing that happened, two sentences, a primary source.
 - **The week**: one weekly issue at `/issues` on what moved and why — normally short, occasionally a long special when a thread earned depth.
+- **Threads**: the running stories at `/threads` — the open questions being followed across weeks, each with the dated signals and issues filed onto it and the open loops that would settle it.
 - **The guide**: the evergreen reference, nine sections, kept continuously current.
 - **Claims**: the reference's atomic "when X → do Y (because Z)" units, each with a freshness status and a checked date.
 - **Examples**: a swipe file of real, sourced artifacts; the evidence behind the claims.
@@ -34,8 +35,8 @@ which itself descends from [The Wire](https://github.com/albertogrande/the-wire)
 Signals in, publication out. Two writers, each a [skill](.claude/skills/) an agent runs end to end.
 
 - **Scout** ([`daily-scout`](.claude/skills/daily-scout/)): daily, runs the deterministic watchlist sweep (`npm run scout:sweep`) — every new item from the registered feeds and community queries lands in the append-only event DB (`signals/db/<week>.ndjson`) — then triages it into `signals/<week>.md`, enriches notable events with entities/kinds, promotes qualifying events to Signals (`src/content/signals/`), and patches `src/content/guide/` on hard-fact changes. Ask questions over the DB with `npm run scout:query` or the `/intel` skill.
-- **Editor** ([`weekly-editor`](.claude/skills/weekly-editor/)): Mondays, writes the issue to `src/content/issues/` — deciding itself when a week earns a long special issue — does the guide-accuracy pass, reconciles the claims reference (`src/content/claims/`: distill, re-verify the stalest, stamp stale/retired), promotes examples, keeps the skills shelf verified, and processes reader feedback.
-- **Memory**: `editorial/MEMORY.md` tracks threads, special-issue candidates, and guide coverage (capped, gate-enforced); `editorial/COVERAGE.md` is the generated index of everything published; `editorial/TASTE.md` is the reader profile. All internal.
+- **Editor** ([`weekly-editor`](.claude/skills/weekly-editor/)): Mondays, works the threads in `src/content/threads/` (momentum, open loops, membership, opening and closing them), writes the issue to `src/content/issues/` — deciding itself when a week earns a long special issue — does the guide-accuracy pass, reconciles the claims reference (`src/content/claims/`: distill, re-verify the stalest, stamp stale/retired), promotes examples, keeps the skills shelf verified, and processes reader feedback.
+- **Memory**: the threads themselves are published in `src/content/threads/`; `editorial/MEMORY.md` keeps only the half that must not publish, plus staging, special-issue candidates and guide coverage (capped, gate-enforced); `editorial/COVERAGE.md` is the generated index of everything published; `editorial/TASTE.md` is the reader profile. All internal.
 
 Each writer is a [GitHub Actions workflow](.github/workflows/) that runs the skill via [claude-code-action](https://github.com/anthropics/claude-code-action). Every writer run gets a fresh-context fact-integrity pass, then deterministic gates before a rebase-safe commit.
 
@@ -79,6 +80,8 @@ src/
     guide/           # evergreen reference: NN-slug.md, frontmatter: title, order, summary, updated
     signals/         # the event log: YYYY-MM-DD-company-slug.md, frontmatter: title, company, date, kind, summary, source
     issues/          # the weekly issue: YYYY-Www.md, frontmatter: title, week, date, published, summary, tags, sources
+    threads/         # the running stories: {question, summary, status, momentum, started, updated, sections, openLoops}
+                     #   membership is declared by the members — signals/issues carry `threads: [slug]`
     claims/          # the reference's atoms: {when, do, why, section, since, verify, status, checked}; feed the agent endpoints
     examples/        # swipe file: one real artifact per file: {company, artifact, channel, demonstrates, source}
     skills/          # the shelf: one installable agent skill per file: {name, repo, job, install, caveat, section, verified}
@@ -89,10 +92,10 @@ src/
   content.config.ts  # collection schemas (zod)
   layouts/           # BaseLayout + ReadingLayout
   components/        # Chrome (nav), Head, Footer, Shortcuts (⌘K palette), TagList, ArticleFoot, NewsletterCta
-  pages/             # index, guide/, signals/, issues/, claims/, examples/, skills/, resources/,
+  pages/             # index, guide/, signals/, issues/, threads/, claims/, examples/, skills/, resources/,
                      #  articles/, deep-dives/, radar/ (archives), tags/, newsletter/, about
                      #  + machine endpoints: api.json, llms.txt, llms-full.txt, feed.xml, feed.json,
-                     #    ten <collection>.json files, and a [slug].md.ts raw-markdown sibling per collection
+                     #    eleven <collection>.json files, and a [slug].md.ts raw-markdown sibling per collection
   styles/main.scss   # design system, inherited from The Wire
   lib/               # site.ts (base path, URL form, dates) + content.ts (shared queries) + markdown.ts (md→html, .md siblings)
                      #  + jsonld.ts (schema.org builders) + newsletter.ts (capture config)
@@ -100,8 +103,8 @@ newsletter/          # the in-house newsletter: capture service, SMTP sender, ow
 api/                 # Vercel Functions binding the newsletter routes to URLs (static site stays static)
 site.config.mjs      # where the site is served from: SITE_ORIGIN + SITE_BASE, read by the build and the link gates
 signals/             # raw daily capture: <week>.md (curated) + db/<week>.ndjson (the event DB) + entities.json (internal)
-editorial/           # MEMORY.md (threads, candidates) + TASTE.md (reader) + NEWSROOM.md/BACKLOG.md (archived): internal
-MASTHEAD.md          # identity, the two writers, editorial charter
+editorial/           # MEMORY.md (private thread notes, staging, candidates) + TASTE.md (reader) + NEWSROOM.md/BACKLOG.md (archived): internal
+MASTHEAD.md          # identity, the writers, editorial charter
 AUTHORS.md           # ARCHIVE: the retired newsroom's five desks (article bylines still render)
 DOMAIN.md            # decision record for the publication's own domain
 docs/                # search-engines.md (console setup) + custom-domain.md (Vercel domain move) + apex-shim/ (superseded)

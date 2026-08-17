@@ -3,7 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { render } from 'astro:content';
 import { absUrl, isoDate, fmtMed } from '../../lib/site';
-import { getSignalsSorted, SIGNAL_KIND_LABELS } from '../../lib/content';
+import { getSignalsSorted, getThreadGraph, SIGNAL_KIND_LABELS } from '../../lib/content';
+import { withBase } from '../../lib/site';
 import { collectionPageNode } from '../../lib/jsonld';
 
 // The signals — short dated news snippets, newest first, grouped by day. Each is
@@ -14,6 +15,11 @@ import { collectionPageNode } from '../../lib/jsonld';
 // set at /signals.json.
 
 const briefs = await getSignalsSorted();
+
+// The reverse edge: which running threads this item is evidence for. Without
+// it the stream is 79 unconnected atoms and the threads have no entry point
+// from the page people actually read daily. One map lookup per card.
+const { threadsByMember } = await getThreadGraph();
 
 const cards = await Promise.all(
   briefs.map(async (b) => ({ b, Content: (await render(b)).Content }))
@@ -67,6 +73,17 @@ const DESCRIPTION =
               <h3 class="brief-h"><a href={`#${b.id}`}>{b.data.title}</a></h3>
               <p class="brief-sum">{b.data.summary}</p>
               <div class="brief-note"><Content /></div>
+              {(threadsByMember.get(`signals:${b.id}`) ?? []).length > 0 && (
+                <p class="brief-thread">
+                  <span class="dim">part of</span>
+                  {(threadsByMember.get(`signals:${b.id}`) ?? []).map((t, i) => (
+                    <Fragment>
+                      {i > 0 && <span class="dim"> · </span>}
+                      <a href={withBase(`/threads/${t.id}`)}>{t.data.title}</a>
+                    </Fragment>
+                  ))}
+                </p>
+              )}
               <div class="brief-meta">
                 <TagList tags={b.data.tags} />
                 <span class="brief-src">
@@ -161,4 +178,9 @@ const DESCRIPTION =
     font-size: 0.82rem;
   }
   .brief-src { margin-left: auto; }
+  .brief-thread {
+    font-size: 0.82rem;
+    margin: 0.6rem 0 0;
+  }
+  .brief-thread .dim { margin-right: 0.3rem; }
 </style>

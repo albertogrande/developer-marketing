@@ -5,6 +5,7 @@ date: 2026-08-10
 kind: release
 summary: 'User-Managed Access co-creator Eve Maler and Nick Gamb published U4A on 2026-08-06, an Apache-2.0 proof-of-concept that adapts UMA so a resource owner — not just an agent''s identity provider — grants per-operation, single-use access when an agent shows up asking for something. It targets the gap the MCP spec and the new Agent Plugins standard both leave open: who authorizes an individual agent action, not just which agent gets a token.'
 tags: [mcp, agents, security, positioning]
+threads: [agents-as-the-first-reader]
 source:
   label: 'Multiplier Partners — Let Them: A Developer''s Guide to UMA for Agents'
   url: https://multiplierpartners.ai/blog/2026-08-06-let-them-a-developers-guide-to-u4a
