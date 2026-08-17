@@ -135,6 +135,11 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
   .sk-sec-a:hover { text-decoration: underline; }
   .sk-grid {
     display: grid;
+    /* An implicit grid row is `auto`, which floors at the content's min-content
+       width — the longest install command was sizing the track to 464px inside
+       a 339px phone and scrolling the page sideways. minmax(0, 1fr) lets the
+       track shrink and the cards wrap their own overflow. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
     margin: 1rem 0 1.75rem;
   }

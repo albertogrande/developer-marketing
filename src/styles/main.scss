@@ -126,6 +126,18 @@ a:hover { text-decoration-color: var(--accent); color: var(--accent-2); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
+/* Inline code shows up in every markdown body on the site, not only the ones
+   wrapped in .article-body or .prose: the anchor indexes (/skills, /signals,
+   /examples, /resources, /claims) render markdown into containers of their
+   own. Those had no code rule, so a `docs-as-marketing` rendered in whatever
+   generic monospace the browser picked — the same thing to a reader as the
+   undeclared --mono, arrived at a different way. Name the face once, here,
+   and let long identifiers break instead of widening the page: an unbroken
+   `npx add-skill jonathimer/devmarketing-skills` pushed /skills to 465px
+   inside a 375px phone. Box styling stays per-container. */
+code, kbd, samp, pre { font-family: var(--font-mono); }
+code { overflow-wrap: break-word; }
+
 /* ---- shared bits --------------------------------------------------------- */
 .kicker {
   font-family: var(--font-mono);
@@ -520,7 +532,10 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .hub-item:last-child { border-bottom: 0; }
 .hub-item > a { color: var(--fg); text-decoration: none; font-weight: 700; }
 .hub-item > a:hover { color: var(--accent); }
-.hub-m { font-size: var(--fs-meta); color: var(--faint); margin-left: 8px; white-space: nowrap; }
+/* No nowrap: this carries a claim's `since`, which is free prose, not the
+   short date stamp it was written for. One 1,617px-wide span was giving every
+   guide section a horizontal scrollbar. */
+.hub-m { font-size: var(--fs-meta); color: var(--faint); margin-left: 8px; }
 .hub-sub { display: block; font-family: var(--font-serif); font-size: var(--fs-ui); line-height: var(--lh-normal); color: var(--muted); margin-top: 3px; }
 
 /* ---- article byline card ---- */
