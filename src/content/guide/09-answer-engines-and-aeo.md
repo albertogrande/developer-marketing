@@ -2,7 +2,7 @@
 title: Answer engines & AEO
 order: 9
 summary: What to do when the first impression is a model's paraphrase — the three layers of machine-mediated discovery, which of them pay today, and how to measure your presence without buying a dashboard.
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 A growing share of developers meet your product as a paraphrase. A coding assistant summarizes your docs inside the editor; an answer engine compares you against two competitors in a chat window; an agent reads your API reference to decide whether it can do the job. The discipline that has formed around this goes by several names — AEO (answer engine optimization), GEO (generative engine optimization) — and it arrives with a venture-funded tooling category and a large pile of ritual attached. Sorting the real work from the ritual is most of the job.
@@ -43,7 +43,7 @@ The free check gets most of the signal and costs twenty minutes a month:
 
 - Open three assistants and ask the **task-shaped** questions your buyers actually ask — "how do I add auth to a Next.js app", not "best auth provider". Record whether you appear, what's said about your pricing and limits, and whether it is *true*. Accuracy matters more than presence: a confident wrong answer about your free tier costs you more than absence does.
 - Add an AI-referral segment in analytics and a free-text "how did you hear about us" field. Vercel's 10% figure came from exactly that kind of first-party attribution, not from a platform.
-- Watch your own logs for retrieval bots. Which crawlers fetch which pages is a fact you own, and it tells you more than a rank tracker.
+- Watch your own logs for retrieval bots. Which crawlers fetch which pages is a fact you own, and it tells you more than a rank tracker. The population is unstable enough that this check has to recur: Meta's own indexer went from roughly 2% to 37.8% of observed AI-crawler requests in under a month (Promptwatch, August 2026) — the single heaviest AI crawler in those logs, arriving almost from nowhere — so a robots policy or allowlist tuned to last year's bot names quietly goes stale.
 - Buy tooling when the free check stops scaling — hundreds of pages, many surfaces, someone accountable for the number — not before.
 
 ## What earns citations, and what repels

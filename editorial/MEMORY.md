@@ -47,6 +47,14 @@ publish, plus the staging area.
 - `measuring-influence-not-attribution` — the survey/tooling gap may be
   organisational, not technical, which would make this unsettleable from
   public evidence. Reassess at the next survey wave.
+- **W34 must-do (2026-08-17)**: log the Cerebras free-tier landing verdict
+  (transition ran 08-17; clean = deprecation-named errors, stable catalog).
+  And if the two W32 clocks stayed silent through 08-31 — no incumbent
+  data-trade answer, no second MCP-directory account or SLA — W35 calls both
+  as promised in W33's Things to watch; don't let them slip unremarked.
+- The Debian GR result (closes 08-28) moves the new
+  `publish-an-agent-contribution-policy` claim — re-verify it in the first
+  issue after the result, not on the normal stale rotation.
 
 ### Staging — questions not yet threads
 
@@ -74,6 +82,11 @@ Most weeks none is ripe and the issue stays normal — never force a special.
   history, the cap as trust surface, where the meter breaks). Commission when
   the meter produces its first public bill-shock story — Copilot's
   promo-credit lapse (~Sept 2026) is the likely trigger. Watching.
+- **Who owns the rail** — the W31→W33 arc (directory queues → Vercel/GitHub
+  marketplaces → SpaceX buying Cursor's distribution → Meta's own index):
+  agent-era distribution as one story. Ripens when the first marketplace
+  conversion number or a published review SLA lands; would likely be the
+  special that resolves `agents-as-the-first-reader`. Watching.
 
 ## Evergreen shelf
 

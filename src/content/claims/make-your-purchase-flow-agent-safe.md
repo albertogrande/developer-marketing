@@ -8,7 +8,7 @@ tags: [docs, dx, distribution]
 since: GoDaddy Developer Platform launch, 2026-07-14 — the first mass-market incumbent shipping agent-first docs and an agent-safe transactional flow as one product surface
 verify: Open developer.godaddy.com and confirm the pattern still holds; then check whether an agent given your own OpenAPI spec could complete your golden path unaided, and whether a retried purchase call on your API can double-charge.
 status: current
-checked: 2026-07-20
+checked: 2026-08-17
 updated: 2026-07-20
 sources:
   - label: GoDaddy — Introducing the GoDaddy Developer Platform (2026-07-14)

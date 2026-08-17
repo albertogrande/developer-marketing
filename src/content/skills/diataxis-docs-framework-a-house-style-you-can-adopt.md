@@ -12,7 +12,7 @@ license: MIT
 caveat: Ships as reference material with no one-line installer — clone it and copy the folder into .claude/skills/. The rules synthesise published methodologies; they are not measured against your readers.
 section: 02-docs-as-front-door
 tags: [docs, content, writing]
-verified: 2026-07-26
+verified: 2026-08-17
 source:
   label: anivar/developer-docs-framework
   url: https://github.com/anivar/developer-docs-framework

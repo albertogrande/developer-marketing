@@ -12,7 +12,7 @@ license: MIT
 caveat: Structural checks cannot tell you whether the quickstart runs. Pair the score with a real time-to-first-call test on a clean machine.
 section: 02-docs-as-front-door
 tags: [docs, seo, aeo, metrics]
-verified: 2026-07-26
+verified: 2026-08-17
 source:
   label: 'dev-gtm-claude-skills: docs-auditor'
   url: https://github.com/Infrasity-Labs/dev-gtm-claude-skills

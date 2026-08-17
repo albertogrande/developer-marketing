@@ -16,7 +16,7 @@ license: MIT
 caveat: Manual clone-and-symlink per skill, and a marketing agent editing your app needs the same review as any other contributor.
 section: 09-answer-engines-and-aeo
 tags: [aeo, seo, distribution, tooling]
-verified: 2026-07-26
+verified: 2026-08-17
 source:
   label: onvoyage-ai/gtm-engineer-skills
   url: https://github.com/onvoyage-ai/gtm-engineer-skills

@@ -2,7 +2,7 @@
 title: DevRel & community
 order: 3
 summary: What developer relations is actually for, the advocacy–education–feedback split, how to build community that compounds, and why DevRel dies when it's measured like sales.
-updated: 2026-07-07
+updated: 2026-08-17
 ---
 
 Developer relations is the human layer of developer marketing: the people and programs that build a trusted relationship between your company and the developers you serve. Done well it compounds — every talk, tutorial, and answered question keeps working long after it ships. Done badly it's an expensive events calendar. The difference is whether it's built around genuine developer value or around short-term lead capture.
@@ -25,6 +25,10 @@ Community is not a Discord server you open and hope. It's a place where develope
 - **Answer fast, in public.** A visibly responsive team turns a support channel into a trust-building asset that new developers read like reviews.
 - **Recognize contributors.** Champions, ambassadors, and expert programs work when the recognition is real (access, reputation, revenue) rather than swag.
 - **Reduce the cost of contribution.** Good "good first issues", clear contribution guides, and templates turn goodwill into pull requests.
+
+## Your contributors are agents now
+
+A growing share of inbound contributions are AI-assisted or fully agent-written, and the projects handling it well govern rather than improvise. The working pattern, per GitHub's own maintainer guidance (August 2026, drawn from AutoGPT's experience): put instructions where agents actually look — an `AGENTS.md` beside the code, not a distant CONTRIBUTING page — enforce PR templates strictly with auto-close on non-compliance, make CI coverage thresholds required checks, and keep one deliberately human step (a CLA browser flow works) as a checkpoint. The norm is being set in public right now: Debian put its AI-contribution policy to a binding project-wide vote in August 2026 — eight options, from outright ban to disclosure-conditioned acceptance — and the Emacs project drafted an `AGENTS.md` that restricts agents rather than enabling them. A community without a written policy inherits whichever norm wins elsewhere; deciding per-PR is the one approach that scales worst.
 
 ## Don't measure DevRel like sales
 

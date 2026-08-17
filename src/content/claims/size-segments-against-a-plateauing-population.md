@@ -8,7 +8,7 @@ tags: [positioning, channels]
 since: 2026 SlashData wave — ~47M developers, growth decelerated to ~10% y/y
 verify: Check the current SlashData developer population report for the latest headline figure and growth rate; the direction has been durable, the numbers move each wave.
 status: current
-checked: 2026-07-17
+checked: 2026-08-17
 updated: 2026-07-17
 sources:
   - label: SlashData — developer population research
