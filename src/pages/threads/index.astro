@@ -125,13 +125,13 @@ const firstLoop = (t: (typeof threads)[number]) => t.data.openLoops[0];
   }
   .th-row.is-closed { opacity: 0.62; }
   .th-mom {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-size: 1rem;
     flex: 0 0 1.2rem;
     padding-top: 0.1rem;
     opacity: 0.7;
   }
-  .th-mom-rising { color: var(--amber, #d08b1e); opacity: 1; }
+  .th-mom-rising { color: var(--accent); opacity: 1; }
   .th-main { min-width: 0; }
   .th-title {
     font-weight: 600;
@@ -141,7 +141,7 @@ const firstLoop = (t: (typeof threads)[number]) => t.data.openLoops[0];
   .th-title:hover { text-decoration: underline; }
   .th-status {
     font-size: 0.68rem;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     padding: 0.05rem 0.35rem;
     margin-left: 0.4rem;
     border: 1px solid currentColor;

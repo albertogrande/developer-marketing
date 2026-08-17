@@ -152,20 +152,20 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
     margin-bottom: 0.5rem;
   }
   .sk-name {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-weight: 600;
     font-size: 0.86rem;
   }
   .sk-chip {
     font-size: 0.72rem;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     padding: 0.08rem 0.4rem;
     border: 1px solid var(--rule);
     border-radius: 4px;
     line-height: 1.5;
   }
   .sk-job {
-    color: var(--amber, #d08b1e);
+    color: var(--accent);
     border-color: currentColor;
   }
   .sk-by {
@@ -190,11 +190,11 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
   }
   .sk-body :global(p) { margin: 0.6rem 0 0; }
   .sk-label {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--amber, #d08b1e);
+    color: var(--accent);
     margin-right: 0.4rem;
   }
   .sk-install {
@@ -215,7 +215,7 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
     right: 0.35rem;
     bottom: 0.35rem;
     font: inherit;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-size: 0.72rem;
     padding: 0.1rem 0.45rem;
     color: inherit;
@@ -224,7 +224,7 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
     border-radius: 4px;
     cursor: pointer;
   }
-  .sk-copy:hover { color: var(--amber, #d08b1e); border-color: currentColor; }
+  .sk-copy:hover { color: var(--accent); border-color: currentColor; }
   .sk-caveat,
   .sk-disc {
     margin: 0.8rem 0 0;
@@ -242,13 +242,13 @@ const uncovered = guide.filter((g) => !skills.some((s) => s.data.section === g.i
     font-size: 0.82rem;
   }
   .sk-repo {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     text-decoration: none;
   }
   .sk-repo:hover { text-decoration: underline; }
   .sk-ver {
     margin-left: auto;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
   }
   .sk-gap {
     border: 1px dashed var(--rule);

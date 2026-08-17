@@ -151,7 +151,7 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
     margin: 0 0 1rem;
   }
   .wil-kind {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-size: 0.82rem;
     letter-spacing: 0.02em;
     margin: 1.4rem 0 0.2rem;
@@ -168,7 +168,7 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
     border-top: 1px solid var(--rule);
   }
   .wil-date {
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     font-size: 0.78rem;
     opacity: 0.6;
     padding-top: 0.15rem;
@@ -182,12 +182,12 @@ const threads = threadsByMember.get(`issues:${entry.id}`) ?? [];
   .wil-t:hover { text-decoration: underline; }
   .wil-chip {
     font-size: 0.68rem;
-    font-family: var(--mono, monospace);
+    font-family: var(--font-mono);
     padding: 0.05rem 0.35rem;
     margin-left: 0.4rem;
     border: 1px solid currentColor;
     border-radius: 4px;
-    color: var(--amber, #d08b1e);
+    color: var(--accent);
     white-space: nowrap;
   }
   .wil-sum {

@@ -37,6 +37,46 @@
 
   --wrap: 940px;
   --measure: 700px;
+
+  /* ---- type scale ----------------------------------------------------------
+     Every font-size on the site resolves to one of these; scripts/check-design-
+     tokens.mjs fails the build on a raw literal. rem against the browser
+     default (1rem = 16px) — `html` is deliberately never given a font-size, so
+     a reader who sets a larger default gets a larger site.
+
+     Enumerated steps, not a modular ratio: the mono furniture needs 1px
+     granularity at the small end (10/11/12/13px each do a distinct job) and a
+     ratio would collapse them. The reading body is 19px because that is what
+     the essay template has always been, so it is a named step rather than a
+     number a ratio happens to produce. */
+  --fs-micro:  0.625rem;   /* 10px — "new" badge, kind chips, box legends */
+  --fs-meta:   0.6875rem;  /* 11px — stamps, counts, table headers */
+  --fs-label:  0.75rem;    /* 12px — kickers, nav, footer, dates */
+  --fs-ui:     0.8125rem;  /* 13px — mono UI default, table cells */
+  --fs-dek:    0.875rem;   /* 14px — row summaries, secondary prose */
+  --fs-row:    1rem;       /* 16px — list-row titles */
+  --fs-lead:   1.125rem;   /* 18px — lead paragraph, h3 */
+  --fs-body:   1.1875rem;  /* 19px — long-form reading body */
+  --fs-h2:     1.5rem;     /* 24px — article h2 */
+  /* One clamp replaces five hand-tuned breakpoint declarations of the same
+     heading. 28px on a phone → 38px from ~720px up. */
+  --fs-h1:     clamp(1.75rem, 1.35rem + 1.75vw, 2.375rem);
+
+  /* ---- line height --------------------------------------------------------- */
+  --lh-tight:  1.15;   /* headings */
+  --lh-snug:   1.35;   /* row titles, dense UI */
+  --lh-normal: 1.5;    /* deks, UI prose */
+  --lh-prose:  1.65;   /* reading body */
+
+  /* ---- space — 4px base, the only ramp for padding/margin/gap -------------- */
+  --sp-1: 0.25rem;   --sp-2: 0.5rem;   --sp-3: 0.75rem;  --sp-4: 1rem;
+  --sp-5: 1.25rem;   --sp-6: 1.5rem;   --sp-8: 2rem;     --sp-10: 2.5rem;
+  --sp-12: 3rem;     --sp-16: 4rem;
+
+  /* ---- radius + elevation -------------------------------------------------- */
+  --r-sm: 3px;  --r-md: 4px;  --r-lg: 6px;  --r-pill: 999px;
+  --shadow-modal: 0 18px 50px rgb(0 0 0 / 25%);
+  --shadow-toast: 0 8px 24px rgb(0 0 0 / 25%);
 }
 
 @mixin dark-vars {
@@ -628,17 +668,23 @@ a:hover { text-decoration-color: var(--accent); color: var(--accent-2); }
 .fm-dek { font-size: 13.5px; line-height: 1.6; color: var(--muted); margin: 0 0 18px; }
 .fm-read { font-size: 12.5px; color: var(--fg); font-weight: 500; }
 .fm-box:hover .fm-read { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent); }
-.fm-sec { display: flex; align-items: center; gap: 10px; margin: 30px 0 2px; font-size: 12px; }
+/* The section header and row kit below are used BOTH inside `.fm` (the front
+   page) and standalone on /guide, /tags/<tag>, /newsletter, /claims, /skills
+   and /resources. They used to inherit their face from `.fm`, so the same
+   markup rendered mono on the front page and Charter serif everywhere else —
+   at sizes tuned for mono. Each atom now names its own family, so the kit
+   looks the same wherever it is mounted. Do not take font-family off these. */
+.fm-sec { display: flex; align-items: center; gap: 10px; margin: 30px 0 2px; font-family: var(--font-mono); font-size: var(--fs-label); }
 .fm-sec-l { font-weight: 700; letter-spacing: .06em; }
 .fm-rule { flex: 1; border-top: 1px dashed var(--rule-strong); }
-.fm-list { list-style: none; margin: 0; padding: 0; }
+.fm-list { list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); }
 .fm-row { display: grid; grid-template-columns: 2.4ch 1fr; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
-.fm-ln { color: var(--faint); font-size: 12px; padding-top: 2px; }
-.fm-row-t { display: block; font-weight: 700; font-size: 15.5px; line-height: 1.3; color: var(--fg); text-decoration: none; }
+.fm-ln { color: var(--faint); font-size: var(--fs-label); padding-top: 2px; }
+.fm-row-t { display: block; font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-row); line-height: var(--lh-snug); color: var(--fg); text-decoration: none; }
 .fm-row-t:hover { color: var(--accent); }
-.fm-row-dek { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 6px 0 8px; }
-.fm-row-m { display: flex; flex-wrap: wrap; gap: 7px; font-size: 11.5px; color: var(--muted); }
-.fm-keys { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--fg); font-size: 11.5px; }
+.fm-row-dek { font-family: var(--font-mono); font-size: var(--fs-dek); line-height: var(--lh-normal); color: var(--muted); margin: 6px 0 8px; }
+.fm-row-m { display: flex; flex-wrap: wrap; gap: 7px; font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--muted); }
+.fm-keys { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--fg); font-family: var(--font-mono); font-size: var(--fs-meta); }
 .fm-keys a { color: var(--muted); text-decoration: none; }
 .fm-keys a:hover { color: var(--accent); }
 .fm-keys b { color: var(--accent); font-weight: 700; }
