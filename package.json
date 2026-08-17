@@ -23,6 +23,7 @@
     "newsletter:export": "node newsletter/export.mjs",
     "newsletter:preview": "node newsletter/send.mjs --dry-run --out newsletter/data/preview.html",
     "astro": "astro",
+    "issues:epub": "node scripts/issues-to-epub.mjs",
     "jobs:merge": "node scripts/jobs-merge.mjs",
     "ledger:report": "node scripts/ledger-report.mjs"
   },

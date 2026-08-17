@@ -40,6 +40,14 @@ npm run podcast:transcripts -- --days 2     # publisher transcripts → .cache/
 npm run podcast:transcripts -- --list       # report only, download nothing
 ```
 
+Reading copies of issues for an e-reader — EPUB 3, written to gitignored
+`.cache/epub/`, never into content (the site stays the canonical form):
+
+```bash
+npm run issues:epub -- --latest 2           # newest two issues → .cache/epub/
+npm run issues:epub -- 2026-W31 --out /tmp  # named issues, chosen directory
+```
+
 The scout's event DB — deterministic capture of the whole watchlist, and the
 substrate the /intel skill queries:
 
