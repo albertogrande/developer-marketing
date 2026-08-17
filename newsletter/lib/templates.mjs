@@ -8,6 +8,11 @@
 
 import { renderHtml, renderText, resolveAgainst } from './markdown.mjs';
 
+// Source of truth for all of these is src/styles/main.scss :root — they are
+// duplicated here, not imported, because inline styles cannot read CSS custom
+// properties and Gmail strips the <style> block that would define them. Keep
+// them in step by hand; the light palette is the one email gets, since there
+// is no reliable dark-mode signal to switch on.
 const C = {
   bg: '#fbfaf8',
   panel: '#ffffff',
@@ -18,7 +23,9 @@ const C = {
   accent: '#b45309',
 };
 
-const SERIF = "Charter, 'Bitstream Charter', Cambria, Georgia, serif";
+// No webfont: mail clients do not reliably load one, so these are the system
+// fallbacks from --font-serif / --font-mono minus the self-hosted first entry.
+const SERIF = "Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif";
 const MONO = "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 /** Inline CSS handed to the markdown renderer, tag by tag. */

@@ -121,51 +121,51 @@ const firstLoop = (t: (typeof threads)[number]) => t.data.openLoops[0];
   }
   .th-row.is-closed { opacity: 0.62; }
   .th-mom {
-    font-family: var(--mono, monospace);
-    font-size: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-row);
     flex: 0 0 1.2rem;
     padding-top: 0.1rem;
     opacity: 0.7;
   }
-  .th-mom-rising { color: var(--amber, #d08b1e); opacity: 1; }
+  .th-mom-rising { color: var(--accent); opacity: 1; }
   .th-main { min-width: 0; }
   .th-title {
     font-weight: 600;
-    line-height: 1.35;
+    line-height: var(--lh-snug);
     text-decoration: none;
   }
   .th-title:hover { text-decoration: underline; }
   .th-status {
-    font-size: 0.68rem;
-    font-family: var(--mono, monospace);
+    font-size: var(--fs-meta);
+    font-family: var(--font-mono);
     padding: 0.05rem 0.35rem;
     margin-left: 0.4rem;
     border: 1px solid currentColor;
-    border-radius: 4px;
+    border-radius: var(--r-md);
     opacity: 0.8;
     white-space: nowrap;
   }
   /* The question is the thread's thesis — it reads before the state of play. */
   .th-q {
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-normal);
     margin: 0.35rem 0 0;
     font-style: italic;
   }
   .th-sum {
-    font-size: 0.88rem;
-    line-height: 1.55;
+    font-size: var(--fs-dek);
+    line-height: var(--lh-normal);
     margin: 0.35rem 0 0;
     opacity: 0.85;
   }
   .th-loop {
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: var(--fs-ui);
+    line-height: var(--lh-normal);
     margin: 0.5rem 0 0;
     padding-left: 0.1rem;
   }
   .th-meta {
-    font-size: 0.78rem;
+    font-size: var(--fs-label);
     margin: 0.45rem 0 0;
   }
   .th-closed {
@@ -174,7 +174,7 @@ const firstLoop = (t: (typeof threads)[number]) => t.data.openLoops[0];
     border-top: 1px solid var(--rule);
   }
   .th-closed-h {
-    font-size: 1.05rem;
+    font-size: var(--fs-row);
     margin: 0 0 0.3rem;
   }
 </style>

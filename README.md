@@ -231,3 +231,6 @@ switch: [docs/custom-domain.md](docs/custom-domain.md).
 ## License
 
 MIT. Content under `src/content/` is CC BY 4.0: quote it, link the page.
+The two self-hosted typefaces in `public/fonts/` (JetBrains Mono, Source
+Serif 4) are SIL OFL 1.1 — see `public/fonts/OFL.txt`, which travels with
+them as that license requires.
