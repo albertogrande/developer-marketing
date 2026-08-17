@@ -5,34 +5,23 @@ import {
   getGuideSorted,
   getIssuesSorted,
   getSignalsSorted,
-  getThreadsSorted,
-  getThreadGraph,
-  THREAD_MOMENTUM_GLYPHS,
-  THREAD_MOMENTUM_LABELS,
   SIGNAL_KIND_LABELS,
 } from '../lib/content';
 import { NEWSLETTER, NEWSLETTER_LIVE, SUBSCRIBE_URL } from '../lib/newsletter';
 
-// Front v3 — one column, four markdown-headed sections: ## The Beat (the
-// week's issue), ## Threads (what is being followed), ## Signals (the event
-// timeline), ## The Guide (the reference index), then the newsletter form.
+// Front v3 — one column, three markdown-headed sections: ## The Beat (the
+// week's issue), ## Signals (the event timeline), ## The Guide (the reference
+// index), then the newsletter form.
 // The previous front (v2) is backed up in design-backups/2026-08-06-front-v2/.
 //
-// Threads sits above Signals deliberately: the state of play frames
-// yesterday's events, and a reader who only scans the front page should learn
-// what questions are open before they read what happened.
-const [guide, issues, allWire, allThreads, threadGraph] = await Promise.all([
+// Threads used to sit above Signals here. The section is gone from the front;
+// the collection is untouched and still reached from the primary nav, `g t`
+// and the command palette.
+const [guide, issues, allWire] = await Promise.all([
   getGuideSorted(),
   getIssuesSorted(),
   getSignalsSorted(),
-  getThreadsSorted(),
-  getThreadGraph(),
 ]);
-
-// Live threads only — a dormant or resolved thread is part of the record but
-// not part of the state of play.
-const liveThreads = allThreads.filter((t) => t.data.status === 'open');
-const threadMembers = threadGraph.membersByThread;
 
 const lead = issues[0];
 
@@ -135,28 +124,6 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
         </article>
       )}
     </section>
-
-    {liveThreads.length > 0 && (
-      <section aria-labelledby="v3-threads-h">
-        <h2 class="v3-sec" id="v3-threads-h">
-          <span class="amber" aria-hidden="true">##</span>
-          <span class="v3-sec-l"><a href={withBase('/threads')}>Threads</a></span>
-          <span class="v3-rule" aria-hidden="true"></span>
-        </h2>
-        <ul class="v3-glist">
-          {liveThreads.map((t) => (
-            <li>
-              <span class="ln" title={`Momentum: ${THREAD_MOMENTUM_LABELS[t.data.momentum]}`}>
-                {THREAD_MOMENTUM_GLYPHS[t.data.momentum]}
-              </span>
-              <a href={withBase(`/threads/${t.id}`)}>{t.data.title}</a>
-              <span class="v3-upd">{(threadMembers.get(t.id) ?? []).length}</span>
-            </li>
-          ))}
-        </ul>
-        <a class="v3-more" href={withBase('/threads')}>follow the threads →</a>
-      </section>
-    )}
 
     {signalDays.length > 0 && (
       <section aria-labelledby="v3-signals-h">
@@ -334,21 +301,4 @@ const freshGuide = (updated: Date) => updated.getTime() >= weekAgo;
     })();
   </script>
 
-  <script is:inline>
-    (function () {
-      try {
-        var KEY = 'sota-seen';
-        var rows = [].slice.call(document.querySelectorAll('[data-date]'));
-        if (!rows.length) return;
-        var prev = localStorage.getItem(KEY);
-        var max = prev || '';
-        rows.forEach(function (el) {
-          var d = el.getAttribute('data-date');
-          if (d > max) max = d;
-          if (prev && d > prev) el.classList.add('is-new');
-        });
-        localStorage.setItem(KEY, max);
-      } catch (e) {}
-    })();
-  </script>
 </BaseLayout>
