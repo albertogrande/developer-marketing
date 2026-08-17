@@ -22,20 +22,20 @@ interface Props {
 // the `wide` prop is accepted for compatibility but no longer changes it.
 const max = 'var(--wrap)';
 
-// Six doors: the two stream forms, the threads that connect them, the
-// reference, the jobs board, the masthead. Everything else — claims,
-// examples, skills, resources, the archives — is reached through the guide,
-// the command palette, or footers.
+// Six doors: the two stream forms, the reference, the threads that connect
+// them, the jobs board, the masthead. Everything else — claims, examples,
+// skills, resources, the archives — is reached through the guide, the command
+// palette, or footers.
 //
-// Threads sits between the stream and the reference on purpose: that is
-// literally what it is, a stream artifact that accumulates instead of
-// decaying. If this row ever gets too tight, `about` gives before `jobs` —
-// the masthead is reachable by `g a`, from the palette and from the footer.
+// Labels are the bare collection names, matching their URLs; the `--flag`
+// prefix is supplied by the template, so nothing here carries an article.
+// If this row ever gets too tight, `about` gives before `jobs` — the masthead
+// is reachable by `g a`, from the palette and from the footer.
 const nav = [
   { label: 'issues', url: '/issues' },
-  { label: 'the-signals', url: '/signals' },
+  { label: 'signals', url: '/signals' },
+  { label: 'guide', url: '/guide' },
   { label: 'threads', url: '/threads' },
-  { label: 'the-guide', url: '/guide' },
   { label: 'jobs', url: '/jobs' },
   { label: 'about', url: '/about' },
 ];
