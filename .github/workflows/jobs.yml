@@ -85,6 +85,16 @@ jobs:
             (worldwide/eu/usa/other), and write signals/jobs/incoming.json.
             Checkpoint with a Write after every source. Do NOT touch
             signals/jobs/jobs.json, and do not commit or push.
+          # recover.yml's retry arrives as a workflow_dispatch from
+          # github-actions[bot], and claude-code-action refuses non-human
+          # actors unless they are listed here (default: allow no bots). On
+          # 2026-08-17 that rejected the first real recovery in 22 seconds --
+          # detection, rescue and escalation all worked, and the way back was
+          # a closed door. Matching lowercases and strips a trailing "[bot]",
+          # so this covers both spellings of the actor. Deliberately not "*":
+          # only GitHub's own Actions bot, which is the only thing that can
+          # dispatch these workflows.
+          allowed_bots: "github-actions"
           show_full_output: true
           # Sonnet: the sweep is mechanical find-extract-classify work.
           claude_args: >-

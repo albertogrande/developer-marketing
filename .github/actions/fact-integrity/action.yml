@@ -29,7 +29,19 @@ inputs:
   max_turns:
     description: "Turn cap for the verification pass."
     required: false
-    default: "60"
+    # 100, raised from 60 on 2026-08-17. Across the 12 logged Scout.verify
+    # runs to 08-16 this pass had a median of 11.5 turns and a max of 22 --
+    # nowhere near 60. Then 46a0874 moved the verifier from claude-opus-4-8
+    # to claude-opus-5 as part of extracting this composite, and the first
+    # run on the new model reported 77 turns and failed the whole desk.
+    #
+    # The model works the prompt far harder, which is the right instinct for
+    # a fact gate -- so the cap moves rather than the model. 100 clears the
+    # one observed 77 with the same headroom 110 gives the scout's worst
+    # observed 97. Re-check with `node scripts/ledger-report.mjs --days 14`
+    # once opus-5 has a week of runs: if the median settles near 12 again,
+    # 77 was an outlier and this can come back down.
+    default: "100"
   desk:
     description: "What the prompt calls the thing it is checking — 'writer' or 'editor'."
     required: false
@@ -47,6 +59,10 @@ runs:
       uses: anthropics/claude-code-action@v1
       with:
         claude_code_oauth_token: ${{ inputs.oauth_token }}
+        # The desks pass through recover.yml's bot-dispatched retry; without
+        # this the verifier is rejected before it starts. See the same input
+        # on each desk's writer step for the 2026-08-17 incident.
+        allowed_bots: "github-actions"
         prompt: >
           You are the fact-integrity gate for this repo's autonomous
           ${{ inputs.desk }}. The previous step edited content but nothing is

@@ -133,6 +133,16 @@ jobs:
             what you fetch into editorial/podcasts/, and drain up to three
             backlog episodes from `--pending` — never at the cost of today's
             sweep. Write files only — do not commit or push.
+          # recover.yml's retry arrives as a workflow_dispatch from
+          # github-actions[bot], and claude-code-action refuses non-human
+          # actors unless they are listed here (default: allow no bots). On
+          # 2026-08-17 that rejected the first real recovery in 22 seconds --
+          # detection, rescue and escalation all worked, and the way back was
+          # a closed door. Matching lowercases and strips a trailing "[bot]",
+          # so this covers both spellings of the actor. Deliberately not "*":
+          # only GitHub's own Actions bot, which is the only thing that can
+          # dispatch these workflows.
+          allowed_bots: "github-actions"
           show_full_output: true
           # Sonnet by choice: the sweep is short and mechanical; the long
           # unattended *writing* runs (weekly, deep dives) run on Fable.
@@ -197,13 +207,13 @@ jobs:
         if: steps.changes.outputs.n != '0'
         # A separate model in a fresh context checks the writer's claims — the
         # writer never grades its own homework. Opus rather than the writer's
-        # Sonnet so the check is genuinely cross-model. 60 turns because there
-        # are more signals to verify.
+        # Sonnet so the check is genuinely cross-model. The turn cap is the
+        # composite's default: one number, documented where it is set, so the
+        # two desks cannot drift apart on it the way they did on the prompt.
         uses: ./.github/actions/fact-integrity
         with:
           oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           model: claude-opus-5
-          max_turns: "60"
           desk: writer
 
       # A clean verify may change nothing — only require that it really ran.

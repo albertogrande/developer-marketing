@@ -117,6 +117,16 @@ jobs:
             never delete a claim file), promote qualifying examples, verify a
             slice of the skills shelf, and update editorial/MEMORY.md. Write
             files only — do not commit or push.
+          # recover.yml's retry arrives as a workflow_dispatch from
+          # github-actions[bot], and claude-code-action refuses non-human
+          # actors unless they are listed here (default: allow no bots). On
+          # 2026-08-17 that rejected the first real recovery in 22 seconds --
+          # detection, rescue and escalation all worked, and the way back was
+          # a closed door. Matching lowercases and strips a trailing "[bot]",
+          # so this covers both spellings of the actor. Deliberately not "*":
+          # only GitHub's own Actions bot, which is the only thing that can
+          # dispatch these workflows.
+          allowed_bots: "github-actions"
           show_full_output: true
           # Fable: this is a long, unattended writing run.
           #
@@ -169,7 +179,6 @@ jobs:
         with:
           oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           model: claude-sonnet-5
-          max_turns: "60"
           desk: editor
 
       # A clean verify may change nothing — only require that it really ran.
