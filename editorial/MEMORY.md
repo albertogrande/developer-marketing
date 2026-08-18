@@ -47,9 +47,14 @@ publish, plus the staging area.
 - `measuring-influence-not-attribution` — the survey/tooling gap may be
   organisational, not technical, which would make this unsettleable from
   public evidence. Reassess at the next survey wave.
-- **W34 must-do (2026-08-17)**: log the Cerebras free-tier landing verdict
-  (transition ran 08-17; clean = deprecation-named errors, stable catalog).
-  And if the two W32 clocks stayed silent through 08-31 — no incumbent
+- **Cerebras free-tier verdict, logged 2026-08-18**: inconclusive, not clean
+  vs. not messy. No incident on Cerebras' status page for 08-17/08-18 and no
+  HN/social account of the actual cutover (catalog unchanged: GPT-OSS-120B
+  and Gemma4-31B-Multimodal both still operational) — weak evidence of a
+  quiet landing, but nobody's confirmed the specific ask (a deprecation-named
+  error vs. a bare `404`). Re-check if a first-hand report surfaces; don't
+  treat silence past ~end of August as a verdict either way.
+  If the two W32 clocks stayed silent through 08-31 — no incumbent
   data-trade answer, no second MCP-directory account or SLA — W35 calls both
   as promised in W33's Things to watch; don't let them slip unremarked.
 - The Debian GR result (closes 08-28) moves the new

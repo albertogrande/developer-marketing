@@ -382,5 +382,27 @@
     "aliases": [],
     "name": "OpenRouter",
     "kind": "company"
+  },
+  "neon": {
+    "aliases": [
+      "neon.com",
+      "neon.tech"
+    ],
+    "name": "Neon",
+    "kind": "company"
+  },
+  "docker": {
+    "aliases": [
+      "docker.com"
+    ],
+    "name": "Docker",
+    "kind": "company"
+  },
+  "replit": {
+    "aliases": [
+      "replit.com"
+    ],
+    "name": "Replit",
+    "kind": "company"
   }
 }
