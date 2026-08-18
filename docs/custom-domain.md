@@ -37,35 +37,68 @@ A third, unrelated layer handles the 2026-08 content-model rename
 (`briefs`→`wire`, `weekly`→`issues`, `practices`→`claims`) — see
 `vercel.json` and the `redirects` block in `astro.config.mjs`.
 
-## Mail — NOT set up yet
+## Mail — decided, not yet wired
 
-**The newsletter cannot send as `thebeat.dev` today.** The mail identity in
-`newsletter/.env.example` (`FROM_EMAIL`, `REPLY_TO`, `LIST_ID`) describes the
-intended end state, not a working configuration. What is actually true right
-now, as of the move:
+**The newsletter cannot send as `thebeat.dev` today**, and neither can the
+pipeline alerts. The mail identity in `newsletter/.env.example` (`FROM_EMAIL`,
+`REPLY_TO`, `LIST_ID`) describes the intended end state. What is actually true,
+verified against live DNS on 2026-08-18:
 
 | Record | State |
 |---|---|
-| apex `MX` + `v=spf1 include:spf.efwd.registrar-servers.com ~all` | **present** — Namecheap's defaults, left untouched by the move |
+| apex `MX` + `v=spf1 include:spf.efwd.registrar-servers.com ~all` | **present** — Namecheap's forwarding defaults |
 | any email **forwarding rule** | **none defined** — so `hello@thebeat.dev` accepts nothing and `REPLY_TO` drops silently |
-| `send.thebeat.dev` SPF/DKIM/MX | **absent** — the domain is not verified with a relay |
+| `send.thebeat.dev` SPF/MX, `resend._domainkey.thebeat.dev` | **absent** — the domain is not verified with a relay |
 | `_dmarc.thebeat.dev` | **absent** |
 
-Two things block it, in this order:
+### The decision: thebeat.dev takes the Resend slot
 
-1. **A relay that will sign for the domain.** Resend's free plan holds one
-   domain and `orka.sh` already occupies it, so `thebeat.dev` needs a paid
-   plan or a different relay. `newsletter/lib/transport.mjs` takes any SMTP
-   provider, so this is not a Resend lock-in.
-2. **A mailbox that receives.** Until a forwarder exists, `REPLY_TO` goes
-   nowhere, and DMARC has no usable `rua`: a `rua` on another domain
-   (a Gmail address, say) requires that domain to publish an authorisation
-   record, which is not ours to add.
+Resend's free plan verifies **one** domain, and `orka.sh` has been holding it —
+`resend._domainkey.orka.sh` and `send.orka.sh` (SPF + `feedback-smtp.eu-west-1`
+MX) are live today. The choice was a paid plan or a freed slot; the slot wins,
+because this is the domain that publishes. `orka.sh` gives up Resend sending
+when it is removed — its inbound mail is unaffected, it runs on Namecheap
+Private Email (`mx1/mx2.privateemail.com`), which is a different service.
 
-When it is set up, keep the two uses on separate names — a domain may carry
-only **one** SPF record, so the relay belongs on a `send.` subdomain and the
-apex SPF stays with the forwarding. Verify with `npm run newsletter:doctor`,
-which checks SPF/DKIM/DMARC and sends nothing.
+Leave the `orka.sh` records in DNS rather than tidying them. They cost nothing,
+they are inert once the domain is gone from Resend, and they make going back a
+dashboard action instead of a DNS round-trip.
+
+### The runbook
+
+1. **Resend** — remove `orka.sh`, add `thebeat.dev`, region `eu-west-1` (where
+   `orka.sh` already sent from, so the reasoning about latency and data
+   residency does not change).
+2. **Namecheap → Advanced DNS** — add the three records Resend shows. Copy them
+   from the dashboard; the DKIM key is unique per domain. The shape, from what
+   `orka.sh` carries today:
+
+   | Type | Host | Value |
+   |---|---|---|
+   | `TXT` | `send` | `v=spf1 include:amazonses.com ~all` |
+   | `MX` | `send` | `feedback-smtp.eu-west-1.amazonses.com`, priority 10 |
+   | `TXT` | `resend._domainkey` | `p=MIGfMA0…` (from the dashboard) |
+
+   All three sit on names of their own. **The apex is untouched** — it carries
+   the forwarding SPF, a domain may publish only one SPF record, and the
+   forwarding is what makes `REPLY_TO` work.
+3. **Namecheap → Domain → Redirect Email** — forward `hello@thebeat.dev` and
+   `dmarc@thebeat.dev` to a real inbox. Free, and both are load-bearing: a
+   `REPLY_TO` that black-holes is worse than none, and DMARC's `rua` must be on
+   a domain that authorises it, which a same-domain address does by definition.
+4. **`_dmarc.thebeat.dev`** — a `TXT` reading
+   `v=DMARC1; p=none; rua=mailto:dmarc@thebeat.dev`. Monitor only; tighten to
+   `quarantine` once the reports look clean.
+5. **Verify** — `npm run newsletter:doctor -- --dkim-selector resend`. It checks
+   SPF, DKIM, DMARC and the relay's own view of the domain, and sends nothing.
+
+### What this unblocks, in order
+
+The **alerts** land first and need almost nothing: one repo variable
+`ALERT_FROM_EMAIL=alerts@thebeat.dev`, plus the secrets `RESEND_API_KEY` and
+`ALERT_EMAIL_TO`. No mailbox is involved — an alert is outbound-only, to a
+human's existing inbox. The **newsletter** needs the forwarder and DMARC as
+well, because it takes replies and is judged by inbox providers.
 
 ## If it moves again
 

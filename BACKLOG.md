@@ -51,13 +51,18 @@ Nothing gates this file. It is worth exactly what gets written into it.
   email leg has never sent anything — `send-alert.mjs` no-ops and says so in
   the log. The wiring is complete and correct (`secrets.ALERT_EMAIL_TO` →
   `alert_email_to` → the script); only the secret and a transport
-  (`RESEND_API_KEY` or `SMTP_HOST`, plus an `ALERT_FROM` on a verified domain)
+  (`RESEND_API_KEY` or `SMTP_HOST`, plus a from-address on a verified domain)
   are missing. Until then the sole notice of a failed desk is a GitHub issue
   on a repo nobody is watching closely, which on 2026-08-17 meant a 03:51 UTC
   failure was not seen by a human until 22:00.
-  **Needs Alberto** (nothing else is blocking): a Resend API key or SMTP
-  credentials, and a from-address on a domain the relay has verified, then
-  `gh secret set ALERT_EMAIL_TO` / `RESEND_API_KEY` / `ALERT_FROM`.
+  **Needs Alberto** (nothing else is blocking), and the path was decided
+  2026-08-18: `thebeat.dev` takes the one domain Resend's free plan verifies,
+  `orka.sh` gives it up — runbook in `docs/custom-domain.md`. Then two secrets,
+  `ALERT_EMAIL_TO` and `RESEND_API_KEY`, and one repo **variable**,
+  `ALERT_FROM_EMAIL=alerts@thebeat.dev` — the workflows read that one from
+  `vars`, not `secrets`. No mailbox or forwarder is needed for this: an alert
+  is outbound-only to an inbox that already exists. Verify with
+  `npm run newsletter:doctor -- --dkim-selector resend`, which sends nothing.
   Found 2026-08-17 (run 31991640446 log).
 
 - [routine: "Vigía del pipeline"] The daily watchdog correctly detected and

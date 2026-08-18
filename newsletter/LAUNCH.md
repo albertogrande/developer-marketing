@@ -33,12 +33,14 @@ DKIM-authenticated, and the site now has **thebeat.dev** (Namecheap). But
 **the mail side of it is not configured** — see the table in
 `docs/custom-domain.md`. Two things are still missing:
 
-1. **A relay that will sign for the domain.** Resend's free plan allows one
-   domain and `orka.sh` already uses it, so this needs a paid Resend plan, a
-   freed slot, or any other SMTP relay (`lib/transport.mjs` is
-   provider-agnostic). Then verify a **`send.thebeat.dev`** subdomain and put
-   its SPF, DKIM and MX under that name — never the apex, which already
-   carries one SPF record for the forwarding, and a domain may only have one.
+1. **A relay that will sign for the domain.** Decided 2026-08-18: `orka.sh`
+   gives up the one domain Resend's free plan verifies, and `thebeat.dev`
+   takes it — a freed slot rather than a paid plan, since this is the domain
+   that publishes. `lib/transport.mjs` is provider-agnostic, so the decision
+   is reversible and is not a Resend lock-in. Put SPF, DKIM and MX on
+   **`send.thebeat.dev`** and `resend._domainkey` — never the apex, which
+   already carries one SPF record for the forwarding, and a domain may only
+   have one.
 2. **A forwarder, so replies land.** `thebeat.dev` currently has *no* email
    forwarding rules, so `REPLY_TO=hello@thebeat.dev` silently drops. Add the
    forwarder in Namecheap (Domain → Redirect Email) before announcing the
@@ -46,8 +48,12 @@ DKIM-authenticated, and the site now has **thebeat.dev** (Namecheap). But
 
 Then add `_dmarc.thebeat.dev` as `p=none` (monitor only), with `rua` pointing
 at an address on **this** domain — a `rua` elsewhere needs that domain to
-publish an authorisation record. Tighten to `quarantine` once reports look
-clean.
+publish an authorisation record. Forward `dmarc@thebeat.dev` in the same pass
+as `hello@` and that requirement costs nothing. Tighten to `quarantine` once
+reports look clean.
+
+`docs/custom-domain.md` carries the record-by-record runbook and what each
+step unblocks; the pipeline alerts land first, needing no mailbox at all.
 
 `FROM_EMAIL=the-week@thebeat.dev` and `REPLY_TO=hello@thebeat.dev` are already
 set in `.env.example`, so they will work the moment the two steps above land.
