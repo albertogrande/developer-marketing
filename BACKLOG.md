@@ -38,6 +38,9 @@ Nothing gates this file. It is worth exactly what gets written into it.
   are missing. Until then the sole notice of a failed desk is a GitHub issue
   on a repo nobody is watching closely, which on 2026-08-17 meant a 03:51 UTC
   failure was not seen by a human until 22:00.
+  **Needs Alberto** (nothing else is blocking): a Resend API key or SMTP
+  credentials, and a from-address on a domain the relay has verified, then
+  `gh secret set ALERT_EMAIL_TO` / `RESEND_API_KEY` / `ALERT_FROM`.
   Found 2026-08-17 (run 31991640446 log).
 
 - [routine: "Vigía del pipeline"] The daily watchdog correctly detected and
@@ -48,6 +51,9 @@ Nothing gates this file. It is worth exactly what gets written into it.
   back to scraping public HTML. Its diagnosis sat in a chat panel for eight
   hours. Give the session repo write access if it should open PRs, or accept
   that it is a diagnostician and fix the alerting above instead.
+  **Needs Alberto**: a decision, best made after the alerting above works —
+  notify-failure already diagnosed this same failure eleven hours earlier, so
+  the routine may not be earning its slot once mail is arriving at 03:51 UTC.
   Found 2026-08-17.
 
 - [watchlist sources] Reddit (r/devrel, r/marketing, r/SaaS, r/ExperiencedDevs),
