@@ -46,7 +46,7 @@
      ratio would collapse them. The reading body is 19px because that is what
      the essay template has always been, so it is a named step rather than a
      number a ratio happens to produce. */
-  --fs-micro:  0.625rem;   /* 10px — "new" badge, kind chips, box legends */
+  --fs-micro:  0.625rem;   /* 10px — kind chips, box legends */
   --fs-meta:   0.6875rem;  /* 11px — stamps, counts, table headers */
   --fs-label:  0.75rem;    /* 12px — kickers, nav, footer, dates */
   --fs-ui:     0.8125rem;  /* 13px — mono UI default, table cells */
@@ -382,15 +382,6 @@ kbd { font-family: var(--font-mono); font-size: var(--fs-meta); background: var(
 }
 .skip-link:focus { top: 8px; color: #fff; }
 
-/* "new since last visit" badge on the front */
-.fm-row.is-new .fm-row-t::after,
-.fm-box.is-new .fm-h::after {
-  content: "new"; margin-left: 8px; vertical-align: middle;
-  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
-  color: var(--bg); background: var(--accent); padding: 1px 5px; border-radius: var(--r-sm);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .cur { animation: none; }
 }
@@ -544,7 +535,6 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .byline-desk { font-size: var(--fs-meta); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-2); margin-left: 9px; }
 .byline-line { font-family: var(--font-serif); font-size: var(--fs-dek); line-height: var(--lh-normal); color: var(--muted); margin: 6px 0 0; }
 
-
 /* ============================================================================
    FRONT v3 — ONE COLUMN, MARKDOWN-HEADED
    Three sections under ## headers — The Beat (the week's issue), The Wire
@@ -608,12 +598,6 @@ a.tag:hover { border-color: var(--accent); color: var(--accent-2); }
 .v3-ev-s { margin: 5px 0 0; font-size: var(--fs-label); line-height: var(--lh-normal); color: var(--muted); }
 .v3-more { display: inline-block; margin-top: 14px; font-size: var(--fs-label); color: var(--muted); text-decoration: none; }
 .v3-more:hover { color: var(--accent); }
-.v3-ev.is-new .v3-ev-t::after {
-  content: "new"; margin-left: 8px; vertical-align: middle;
-  font-size: var(--fs-micro); font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--bg); background: var(--accent); padding: 1px 5px; border-radius: var(--r-sm);
-}
-
 /* -- the guide index --------------------------------------------------------- */
 .v3-glist { list-style: none; margin: 0; padding: 0; }
 .v3-glist li { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: var(--fs-ui); }

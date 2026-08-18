@@ -3,25 +3,17 @@ import { withBase } from '../lib/site';
 ---
 <footer class="site-footer">
   <div class="footer-inner">
-    <span class="foot-item"
-      >A living field guide to the state of the art in developer marketing — kept
-      current by an autonomous <a href="https://claude.com/claude-code">Claude Code</a> agent.</span
-    >
-    {/* Four links, each doing work nothing else does: the masthead, the
-        receipts, the way to tell us we're wrong, and the machine entry point.
-        Dropped from here — `newsletter` (the front page ends in a sign-up
-        form and every issue foot carries one), `feed` (in the chrome's ⌘K,
-        the front footer, and <link rel=alternate> where readers actually
-        subscribe), and the bare `MIT`, which named the wrong licence anyway:
-        content is CC BY 4.0, only the code is MIT. The full terms live one
-        click away in about. */}
+    {/* One link: the machine entry point, which nothing else in the chrome
+        offers. `about`, `source` and `corrections` were dropped from here —
+        the masthead is in the primary nav, reachable by `g a` and from the
+        command palette, and it carries the repository and correction links
+        itself. Dropped earlier for their own reasons — `newsletter` (the
+        front page ends in a sign-up form and every issue foot carries one),
+        `feed` (in the chrome's ⌘K, the front footer, and <link rel=alternate>
+        where readers actually subscribe), and the bare `MIT`, which named the
+        wrong licence anyway: content is CC BY 4.0, only the code is MIT. The
+        full terms live one click away in about. */}
     <span class="foot-item foot-right">
-      <a href={withBase('/about')}>about</a>
-      <span class="sb-sep" aria-hidden="true">·</span>
-      <a href="https://github.com/albertogrande/developer-marketing">source</a>
-      <span class="sb-sep" aria-hidden="true">·</span>
-      <a href="https://github.com/albertogrande/developer-marketing/issues/new?template=correction.yml">corrections</a>
-      <span class="sb-sep" aria-hidden="true">·</span>
       <a href={withBase('/llms.txt')}>llms.txt</a>
     </span>
   </div>
