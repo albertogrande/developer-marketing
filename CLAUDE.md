@@ -49,6 +49,24 @@ npm run issues:epub -- 2026-W31 --out /tmp    # named issues, chosen directory
 npm run issues:epub -- 2026-W32 --format html # single self-contained HTML file
 ```
 
+Every issue also goes to an e-reader on publish day, driven by the Editor
+finishing rather than by a clock (`kindle.yml`, the same trigger discipline as
+`newsletter.yml`):
+
+```bash
+npm run kindle:send -- --week 2026-W32 --dry-run  # resolve + build, send nothing
+npm run kindle:send                               # the newest issue, for real
+```
+
+`scripts/send-to-kindle.mjs` borrows `newsletter/lib/transport.mjs` rather than
+growing a second mailer, and sends the HTML build as an attachment —
+`newsletter/lib/mime.mjs` wraps the message in multipart/mixed when
+`attachments` are passed. Recipients live in `KINDLE_ADDRESS` (a secret, never
+the repo; comma-separated for several devices) and an unset one is a successful
+no-op. Amazon only accepts documents from an address on the Kindle account's
+Approved Personal Document E-mail List, so `FROM_EMAIL` has to be added there by
+hand — no workflow can do it.
+
 `--format html` exists because EPUB does not always arrive. Amazon's
 Send-to-Kindle converter has rejected books from this generator with a bare
 `error E999` that epubcheck cannot reproduce — it validates them clean, and a

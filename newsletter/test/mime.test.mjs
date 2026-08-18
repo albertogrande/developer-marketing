@@ -131,3 +131,56 @@ test('a line of a single dot cannot end the DATA payload early', () => {
   assert.equal(dotStuff('.hidden\r\n'), '..hidden\r\n');
   assert.equal(dotStuff('nothing to do\r\n'), 'nothing to do\r\n');
 });
+
+test('an attachment wraps the message in multipart/mixed, base64 and all', () => {
+  const raw = buildMessage({
+    from: { name: 'The Beat', email: 'the-beat@thebeat.dev' },
+    to: 'reader@kindle.com',
+    subject: 'W32',
+    text: 'plain',
+    attachments: [
+      { filename: 'the-beat-2026-W32.html', contentType: 'text/html', content: Buffer.from('<h1>hi</h1>'.repeat(40)) },
+    ],
+  });
+
+  assert.match(raw, /^Content-Type: multipart\/mixed; boundary="(.+)"$/m);
+  const boundary = raw.match(/^Content-Type: multipart\/mixed; boundary="(.+)"$/m)[1];
+  assert.match(raw, /Content-Disposition: attachment; filename="the-beat-2026-W32\.html"/);
+  assert.match(raw, /Content-Transfer-Encoding: base64/);
+  // the content part still rides inside, so a client with no attachment
+  // support still shows the message
+  assert.match(raw, /Content-Type: text\/plain; charset=utf-8/);
+  assert.ok(raw.includes(`--${boundary}--`), 'closing boundary');
+
+  // RFC 2045 caps an encoded line at 76 characters
+  const b64 = raw.split(/\r\n\r\n/).pop().split(`--${boundary}`)[0].trim().split('\r\n');
+  assert.ok(b64.length > 1, 'base64 is wrapped across lines');
+  assert.ok(b64.every((l) => l.length <= 76), 'no base64 line exceeds 76 characters');
+  assert.equal(Buffer.from(b64.join(''), 'base64').toString('utf8'), '<h1>hi</h1>'.repeat(40));
+});
+
+test('a filename cannot inject a header or end the quoted string', () => {
+  const raw = buildMessage({
+    from: { name: 'The Beat', email: 'the-beat@thebeat.dev' },
+    to: 'reader@kindle.com',
+    subject: 'W32',
+    text: 'plain',
+    attachments: [{ filename: 'evil".html\r\nBcc: someone@example.com', content: Buffer.from('x') }],
+  });
+  // the injected text survives as part of the filename, but not as a header:
+  // no line begins with it, because the CRLF and the quote are gone
+  assert.doesNotMatch(raw, /^Bcc:/m);
+  assert.match(raw, /Content-Disposition: attachment; filename="evil\.htmlBcc: someone@example\.com"/);
+});
+
+test('without attachments the message is unchanged: alternative at the top level', () => {
+  const raw = buildMessage({
+    from: { name: 'The Beat', email: 'the-beat@thebeat.dev' },
+    to: 'reader@example.com',
+    subject: 'W32',
+    text: 'plain',
+    html: '<p>rich</p>',
+  });
+  assert.match(raw, /^Content-Type: multipart\/alternative; boundary=/m);
+  assert.doesNotMatch(raw, /multipart\/mixed/);
+});

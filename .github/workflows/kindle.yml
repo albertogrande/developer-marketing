@@ -1,0 +1,131 @@
+name: Kindle
+
+# Mails the week's issue to a personal e-reader, as an attached document.
+#
+# Same trigger discipline as newsletter.yml, and for the same reason: driven by
+# the Editor finishing rather than by a clock, because a fixed cron against a
+# scheduler queue measured at 71-216 minutes mailed LAST week's issue when the
+# Editor had not committed yet. The week is resolved explicitly here too, so a
+# missing issue is a loud failure instead of a quiet substitution.
+#
+# The document goes as HTML, not EPUB. Amazon's Send-to-Kindle converter
+# rejected an EPUB from scripts/issues-to-epub.mjs with a bare "error E999" —
+# three times, including under a different filename — while epubcheck validated
+# that same book clean against EPUB 3.3 and the neighbouring issue converted
+# fine. The HTML build of the rejected issue went through first try.
+#
+# Wiring is optional, like the newsletter's: with the secrets unset the job
+# says so and exits successfully, so a fork is never permanently red.
+#
+# Requires secret KINDLE_ADDRESS (the @kindle.com address, comma-separated for
+# several devices), FROM_EMAIL, and one mail transport — RESEND_API_KEY or
+# SMTP_HOST/SMTP_USER/SMTP_PASS.
+#
+# One manual step Amazon requires and no workflow can do: FROM_EMAIL must be on
+# the Kindle account's Approved Personal Document E-mail List, under Manage Your
+# Content and Devices → Preferences → Personal Document Settings. Until it is,
+# every send is either held for a verification click or dropped in silence.
+
+on:
+  # Primary path: the Editor has pushed this week's issue.
+  workflow_run:
+    workflows: ["Editor"]
+    types: [completed]
+    branches: [main]
+  schedule:
+    # Backstop only, for a missed workflow_run event. Monday 15:00 UTC is late
+    # enough that the Editor (07:35 + up to 216 min of queue delay) has long
+    # finished. Unlike the newsletter this is not idempotent — there is no
+    # per-week sent log — so a doubled send means a duplicate document in the
+    # library, which is a nuisance rather than a failure.
+    - cron: "0 15 * * 1"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "ISO week to send (blank = the week that just closed)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Build the document, send nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kindle
+  cancel-in-progress: false
+
+jobs:
+  send:
+    # Only off a SUCCESSFUL Editor run on main: a failed Editor means there is
+    # no issue to send.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+
+      # The document builder and the MIME encoder are both covered; a broken
+      # encoder must not reach a device.
+      - run: npm test
+
+      - name: Resolve the week to send
+        id: week
+        env:
+          WEEK_INPUT: ${{ inputs.week }}
+        run: |
+          set -euo pipefail
+          week="${WEEK_INPUT:-$(date -u -d 'last sunday' +%G-W%V)}"
+          if [ ! -f "src/content/issues/${week}.md" ]; then
+            echo "::error::No issue at src/content/issues/${week}.md — refusing to send. The Editor has not written this week yet, or the week resolved wrong. Nothing was mailed."
+            exit 1
+          fi
+          echo "Sending issue ${week}."
+          echo "id=$week" >> "$GITHUB_OUTPUT"
+
+      - name: Check the Kindle send is configured
+        id: config
+        env:
+          KINDLE_ADDRESS: ${{ secrets.KINDLE_ADDRESS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          if [ -z "$KINDLE_ADDRESS" ]; then
+            echo "no KINDLE_ADDRESS secret — skipping."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          elif [ -z "$SMTP_HOST" ] && [ -z "$RESEND_API_KEY" ]; then
+            echo "no mail transport (need RESEND_API_KEY or SMTP_HOST) — skipping."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send
+        if: steps.config.outputs.ready == 'yes'
+        env:
+          KINDLE_ADDRESS: ${{ secrets.KINDLE_ADDRESS }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://thebeat.dev' }}
+          MAIL_TRANSPORT: ${{ vars.MAIL_TRANSPORT }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'The Beat' }}
+          WEEK: ${{ steps.week.outputs.id }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args=(--week "$WEEK")
+          [ "${DRY_RUN:-false}" = "true" ] && args+=(--dry-run)
+          node scripts/send-to-kindle.mjs "${args[@]}"

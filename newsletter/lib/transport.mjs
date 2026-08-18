@@ -49,7 +49,7 @@ export const isTemporary = (err) => err?.permanent === false;
 function dryRunTransport(config, log) {
   return {
     name: 'dry-run',
-    async send({ to, subject, text, html, headers }) {
+    async send({ to, subject, text, html, headers, attachments }) {
       const raw = buildMessage({
         from: { name: config.fromName, email: config.fromEmail },
         to,
@@ -57,6 +57,7 @@ function dryRunTransport(config, log) {
         text,
         html,
         headers,
+        attachments,
       });
       const dir = join(config.dataDir, 'outbox');
       await mkdir(dir, { recursive: true });
@@ -90,7 +91,7 @@ function smtpTransport(config, log) {
 
   return {
     name: 'smtp',
-    async send({ to, subject, text, html, headers }) {
+    async send({ to, subject, text, html, headers, attachments }) {
       const raw = buildMessage({
         from: { name: config.fromName, email: config.fromEmail },
         to,
@@ -98,6 +99,7 @@ function smtpTransport(config, log) {
         text,
         html,
         headers,
+        attachments,
       });
 
       if (!client || sinceConnect >= maxPerConnection) {
@@ -143,7 +145,7 @@ function resendTransport(config, log, { fetchImpl = fetch } = {}) {
 
   return {
     name: 'resend',
-    async send({ to, subject, text, html, headers = {} }) {
+    async send({ to, subject, text, html, headers = {}, attachments = [] }) {
       // Resend rejects unknown/reserved header names; the List-* headers and
       // Precedence are the ones that matter for bulk mail and they pass through.
       const payload = {
@@ -154,6 +156,17 @@ function resendTransport(config, log, { fetchImpl = fetch } = {}) {
         ...(html ? { html } : {}),
         ...(config.replyTo ? { reply_to: config.replyTo } : {}),
         ...(Object.keys(headers).length ? { headers } : {}),
+        // Resend takes attachments as base64 fields and builds the MIME its
+        // way — the same trade-off the note at the top of this file describes.
+        ...(attachments.length
+          ? {
+              attachments: attachments.map((a) => ({
+                filename: a.filename,
+                content: Buffer.from(a.content).toString('base64'),
+                ...(a.contentType ? { content_type: a.contentType } : {}),
+              })),
+            }
+          : {}),
       };
 
       let res;

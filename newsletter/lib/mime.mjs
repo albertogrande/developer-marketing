@@ -1,5 +1,6 @@
 // Message construction: RFC 5322 headers, RFC 2047 header encoding, RFC 2045
-// quoted-printable bodies, multipart/alternative for text + HTML.
+// quoted-printable bodies, multipart/alternative for text + HTML, and
+// multipart/mixed wrapped around that when the message carries attachments.
 //
 // Written out rather than pulled in because the surface we need is small and
 // completely specified, and because a mail sender you cannot read line by line
@@ -122,6 +123,60 @@ export function quotedPrintable(input) {
   return lines.join(CRLF);
 }
 
+
+// The message's content as MIME part headers plus body — the same bytes
+// whether it stands alone as the whole message or sits inside a
+// multipart/mixed next to attachments.
+function contentPart(text, html) {
+  if (!html) {
+    return {
+      headers: ['Content-Type: text/plain; charset=utf-8', 'Content-Transfer-Encoding: quoted-printable'],
+      body: quotedPrintable(text) + CRLF,
+    };
+  }
+
+  const boundary = `--=_alt_${randomBytes(12).toString('hex')}`;
+  return {
+    headers: [`Content-Type: multipart/alternative; boundary="${boundary}"`],
+    body: [
+      'This is a message in MIME format. If you can read this, your mail client',
+      'does not understand multipart messages \u2014 the plain-text part follows.',
+      '',
+      `--${boundary}`,
+      'Content-Type: text/plain; charset=utf-8',
+      'Content-Transfer-Encoding: quoted-printable',
+      '',
+      quotedPrintable(text),
+      `--${boundary}`,
+      'Content-Type: text/html; charset=utf-8',
+      'Content-Transfer-Encoding: quoted-printable',
+      '',
+      quotedPrintable(html),
+      `--${boundary}--`,
+      '',
+    ].join(CRLF),
+  };
+}
+
+// A filename goes into two headers unquoted, so anything that could end a
+// quoted string or start a new header line comes out first.
+const safeFilename = (name) => String(name).replace(/[\r\n"\\]/g, '').trim() || 'attachment';
+
+// RFC 2045 caps an encoded line at 76 characters; base64 in one long line is
+// the most common way an otherwise valid attachment arrives corrupted.
+const base64Lines = (buf) => (Buffer.from(buf).toString('base64').match(/.{1,76}/g) ?? ['']).join(CRLF);
+
+function attachmentPart(att) {
+  const filename = safeFilename(att.filename);
+  return [
+    `Content-Type: ${att.contentType || 'application/octet-stream'}; name="${filename}"`,
+    'Content-Transfer-Encoding: base64',
+    `Content-Disposition: attachment; filename="${filename}"`,
+    '',
+    base64Lines(att.content),
+  ].join(CRLF);
+}
+
 /**
  * Build a complete RFC 5322 message.
  *
@@ -133,11 +188,12 @@ export function quotedPrintable(input) {
  *                                   this audience genuinely reads mail in mutt)
  * @param {string} [msg.html]
  * @param {Record<string,string>} [msg.headers]  extra headers, e.g. List-*
+ * @param {{filename: string, content: Buffer|Uint8Array|string, contentType?: string}[]} [msg.attachments]
  * @param {Date} [msg.date]
  * @param {string} [msg.messageId]
  * @returns {string} the raw message, CRLF line endings, no trailing dot
  */
-export function buildMessage({ from, to, subject, text, html, headers = {}, date = new Date(), messageId }) {
+export function buildMessage({ from, to, subject, text, html, headers = {}, attachments = [], date = new Date(), messageId }) {
   if (!text) throw new Error('mime.buildMessage: a text/plain alternative is required');
 
   const domain = String(from.email).split('@')[1] || 'localhost';
@@ -156,33 +212,28 @@ export function buildMessage({ from, to, subject, text, html, headers = {}, date
     head.push(foldHeader(name, String(value)));
   }
 
-  if (!html) {
-    head.push(foldHeader('Content-Type', 'text/plain; charset=utf-8'));
-    head.push(foldHeader('Content-Transfer-Encoding', 'quoted-printable'));
-    return head.join(CRLF) + CRLF + CRLF + quotedPrintable(text) + CRLF;
+  const part = contentPart(text, html);
+
+  if (!attachments.length) {
+    return head.concat(part.headers).join(CRLF) + CRLF + CRLF + part.body;
   }
 
-  const boundary = `--=_alt_${randomBytes(12).toString('hex')}`;
-  head.push(foldHeader('Content-Type', `multipart/alternative; boundary="${boundary}"`));
+  const mixed = `--=_mix_${randomBytes(12).toString('hex')}`;
+  head.push(foldHeader('Content-Type', `multipart/mixed; boundary="${mixed}"`));
 
   const body = [
+    'This is a message in MIME format with attachments.',
     '',
-    'This is a message in MIME format. If you can read this, your mail client',
-    'does not understand multipart messages — the plain-text part follows.',
+    `--${mixed}`,
+    ...part.headers,
     '',
-    `--${boundary}`,
-    'Content-Type: text/plain; charset=utf-8',
-    'Content-Transfer-Encoding: quoted-printable',
-    '',
-    quotedPrintable(text),
-    `--${boundary}`,
-    'Content-Type: text/html; charset=utf-8',
-    'Content-Transfer-Encoding: quoted-printable',
-    '',
-    quotedPrintable(html),
-    `--${boundary}--`,
+    // the standalone form ends with a CRLF; inside a multipart the CRLF before
+    // the next boundary is the boundary's own, so it must not be doubled
+    part.body.replace(/\r\n$/, ''),
+    ...attachments.flatMap((att) => [`--${mixed}`, attachmentPart(att)]),
+    `--${mixed}--`,
     '',
   ];
 
-  return head.join(CRLF) + CRLF + body.join(CRLF);
+  return head.join(CRLF) + CRLF + CRLF + body.join(CRLF);
 }
