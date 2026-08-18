@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { mdToXhtml, buildEpub } from './issues-to-epub.mjs';
+import { mdToXhtml, buildEpub, buildHtml } from './issues-to-epub.mjs';
 
 test('headings become the h2 outline, with stable anchors', () => {
   const { html, toc } = mdToXhtml('## The discount is a data trade\n\nBody.\n');
@@ -106,4 +106,36 @@ test('an issue with unreadable frontmatter fails loudly', () => {
   const file = join(dir, 'broken.md');
   writeFileSync(file, 'No frontmatter at all.\n');
   assert.throws(() => buildEpub(file, 'broken'), /unreadable frontmatter/);
+});
+
+test('buildHtml emits one self-contained file, not an EPUB spine document', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'epub-'));
+  const file = join(dir, '2026-W32.md');
+  writeFileSync(
+    file,
+    [
+      '---',
+      'title: A commodity, priced',
+      'week: 2026-W32',
+      'published: 2026-08-10',
+      'sources:',
+      '  - label: TechCrunch',
+      '    url: https://techcrunch.com/x',
+      '---',
+      '',
+      '## A heading',
+      '',
+      'A paragraph with a [link](/guide/01-positioning).',
+      '',
+    ].join('\n')
+  );
+
+  const html = buildHtml(file, '2026-W32').toString('utf8');
+  // no XML prolog and no external stylesheet: nothing to resolve, nothing to fetch
+  assert.doesNotMatch(html, /<\?xml/);
+  assert.doesNotMatch(html, /href="style\.css"/);
+  assert.match(html, /<style type="text\/css">[\s\S]*font-family/);
+  assert.match(html, /<h2 id="a-heading">A heading<\/h2>/);
+  assert.match(html, /href="https:\/\/thebeat\.dev\/guide\/01-positioning"/);
+  assert.match(html, /<h2 id="sources">Sources<\/h2>/);
 });

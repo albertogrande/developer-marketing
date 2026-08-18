@@ -10,6 +10,13 @@
 //
 //   node scripts/issues-to-epub.mjs --latest 2
 //   node scripts/issues-to-epub.mjs 2026-W31 2026-W32 --out /tmp/books
+//   node scripts/issues-to-epub.mjs 2026-W32 --format html
+//
+// Two output formats, because one of them does not always arrive. Amazon's
+// Send-to-Kindle EPUB converter has rejected books from here with a bare
+// "error E999" that epubcheck cannot reproduce \u2014 it validates them clean \u2014
+// while the same issue as a single HTML file converts and lands. EPUB stays the
+// default; --format html is the fallback when a book bounces.
 //
 // Markdown goes through `marked` — the same converter src/lib/markdown.ts uses
 // for the feeds and the .md siblings — so a book and a feed render an issue the
@@ -221,6 +228,28 @@ Content licensed CC BY 4.0.</p>
   return { doc, toc: [{ id: 'top', label: fm.title }, ...toc, ...(tail.length ? [{ id: 'sources', label: 'Sources' }] : [])] };
 }
 
+// A single self-contained HTML file — the same chapter, CSS inlined, no OCF
+// packaging. Send-to-Kindle converts .html through a different path than .epub,
+// which matters: Amazon's EPUB converter rejects books this generator produces
+// with a bare "error E999" even when epubcheck passes them clean, and the HTML
+// of the same issue goes through.
+export function buildHtml(file, id) {
+  const { fm, body, err } = frontmatterOf(file);
+  if (err || !fm?.title) throw new Error(`${file}: unreadable frontmatter${err ? ` \u2014 ${err}` : ''}`);
+
+  const { doc } = chapter(fm, id, body);
+  return Buffer.from(
+    doc
+      // an .html file is served as HTML, not parsed as XML
+      .replace('<?xml version="1.0" encoding="utf-8"?>\n', '')
+      .replace(
+        '<link rel="stylesheet" type="text/css" href="style.css"/>',
+        `<style type="text/css">\n${CSS}\n</style>`
+      ),
+    'utf8'
+  );
+}
+
 export function buildEpub(file, id) {
   const { fm, body, err } = frontmatterOf(file);
   if (err || !fm?.title) throw new Error(`${file}: unreadable frontmatter${err ? ` — ${err}` : ''}`);
@@ -299,14 +328,25 @@ ${Array.isArray(fm.tags) ? fm.tags.map((t) => `<dc:subject>${esc(String(t))}</dc
 // ---------------------------------------------------------------------------
 // CLI
 
+const FORMATS = {
+  epub: { ext: 'epub', build: buildEpub },
+  html: { ext: 'html', build: buildHtml },
+};
+
 function main(argv) {
   let outDir = '.cache/epub';
   let latest = 0;
+  let formats = ['epub'];
   const ids = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--out') outDir = argv[++i];
     else if (argv[i] === '--latest') latest = Number(argv[++i] || 1);
-    else if (argv[i].startsWith('--')) throw new Error(`unknown flag ${argv[i]}`);
+    else if (argv[i] === '--format') {
+      formats = String(argv[++i] ?? '').split(',').filter(Boolean);
+      const bad = formats.filter((f) => !FORMATS[f]);
+      if (!formats.length || bad.length)
+        throw new Error(`--format takes ${Object.keys(FORMATS).join(', ')} (comma-separated)`);
+    } else if (argv[i].startsWith('--')) throw new Error(`unknown flag ${argv[i]}`);
     else ids.push(argv[i].replace(/\.md$/, ''));
   }
 
@@ -321,10 +361,13 @@ function main(argv) {
 
   mkdirSync(outDir, { recursive: true });
   for (const id of wanted) {
-    const buf = buildEpub(join(ISSUES_DIR, `${id}.md`), id);
-    const out = join(outDir, `the-beat-${id}.epub`);
-    writeFileSync(out, buf);
-    console.log(`${out}  ${(buf.length / 1024).toFixed(1)} KB`);
+    for (const format of formats) {
+      const { ext, build } = FORMATS[format];
+      const buf = build(join(ISSUES_DIR, `${id}.md`), id);
+      const out = join(outDir, `the-beat-${id}.${ext}`);
+      writeFileSync(out, buf);
+      console.log(`${out}  ${(buf.length / 1024).toFixed(1)} KB`);
+    }
   }
 }
 

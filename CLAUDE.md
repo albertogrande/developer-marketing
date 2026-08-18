@@ -44,9 +44,17 @@ Reading copies of issues for an e-reader — EPUB 3, written to gitignored
 `.cache/epub/`, never into content (the site stays the canonical form):
 
 ```bash
-npm run issues:epub -- --latest 2           # newest two issues → .cache/epub/
-npm run issues:epub -- 2026-W31 --out /tmp  # named issues, chosen directory
+npm run issues:epub -- --latest 2             # newest two issues → .cache/epub/
+npm run issues:epub -- 2026-W31 --out /tmp    # named issues, chosen directory
+npm run issues:epub -- 2026-W32 --format html # single self-contained HTML file
 ```
+
+`--format html` exists because EPUB does not always arrive. Amazon's
+Send-to-Kindle converter has rejected books from this generator with a bare
+`error E999` that epubcheck cannot reproduce — it validates them clean, and a
+neighbouring issue built the same way converted fine — while the same issue as
+one HTML file goes through. EPUB stays the default; reach for HTML when a book
+bounces.
 
 The scout's event DB — deterministic capture of the whole watchlist, and the
 substrate the /intel skill queries:
