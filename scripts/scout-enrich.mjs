@@ -47,10 +47,36 @@ if (!PATCH && !ADD && !NEW_ENTITIES) {
   console.error('scout-enrich: pass --patch <file>, --add <file>, or --new-entities <file> (use - for stdin)');
   process.exit(2);
 }
+// stdin can only be consumed once, so two `-` flags in one run would leave the
+// second reading an empty string and reporting a JSON error nobody can act on.
+if ([PATCH, ADD, NEW_ENTITIES].filter((s) => s === '-').length > 1) {
+  console.error('scout-enrich: only one input can be stdin (-) in a run — write the others to files');
+  process.exit(2);
+}
+
+// stdin is a stream, not a file: `readFile(0)` rejects with ERR_INVALID_ARG_TYPE
+// because fs/promises takes a path or a FileHandle, never a raw descriptor. That
+// is what made every `-` mode unusable and had callers writing temp files first.
+const readStdin = async () => {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  for await (const chunk of process.stdin) raw += chunk;
+  return raw;
+};
 
 const readInput = async (spec) => {
-  const raw = spec === '-' ? await readFile(0, 'utf8') : await readFile(spec, 'utf8');
-  return JSON.parse(raw);
+  const where = spec === '-' ? 'stdin' : spec;
+  const raw = spec === '-' ? await readStdin() : await readFile(spec, 'utf8');
+  if (!raw.trim()) {
+    console.error(`scout-enrich: nothing written — ${where} is empty`);
+    process.exit(1);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error(`scout-enrich: nothing written — ${where} is not valid JSON (${err.message})`);
+    process.exit(1);
+  }
 };
 
 const ENTITIES_FILE = 'signals/entities.json';
