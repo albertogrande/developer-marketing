@@ -495,6 +495,16 @@ In `editorial/MEMORY.md`, only if today changed something:
   bump a **special-issue candidate**.
 Keep it terse; the weekly editor does the full maintenance pass.
 
+**Deferred fixes go in `BACKLOG.md`, not in the sourcing note.** If the sweep
+hit a defect in this repo's own tooling — a script that crashed and needed a
+workaround, a source job returning junk, a cap you had to work around — append
+one line to `BACKLOG.md` in the shape that file documents, with the path and
+today's date. Still mention it in the sourcing note if it shaped the run, but
+the note is the narrative and the backlog is the record: on 2026-08-16 two real
+defects were written into a sourcing note, correctly diagnosed, and never read
+again. Do not file anything vague there; the bar is a specific defect with a
+path attached.
+
 ## Step 6 — Report
 
 End with a short plain-text summary: how many signals you captured (filename),

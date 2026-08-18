@@ -138,7 +138,10 @@ fact-integrity bar.
 Editorial state is plain markdown, all internal: `signals/<ISO-week>.md` (raw
 capture), `editorial/MEMORY.md` (running threads, special-issue candidates),
 `editorial/TASTE.md` (the reader); `editorial/NEWSROOM.md` and
-`editorial/BACKLOG.md` are archived read-only. `MASTHEAD.md` is the charter;
+`editorial/BACKLOG.md` are archived read-only. Root `BACKLOG.md` is a
+different thing entirely: deferred *engineering* work, written by the writers
+and by humans, so a defect found mid-run stops being rediscovered.
+`MASTHEAD.md` is the charter;
 `AUTHORS.md` documents the retired desks whose bylines the article archive
 still renders. The writers run interactively too — `/daily-scout`,
 `/weekly-editor` — writing files without committing.

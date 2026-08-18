@@ -392,6 +392,14 @@ publish, and stays short:
 - Keep the whole file under the cap its header declares (~140 lines,
   enforced by `scripts/check-editorial.mjs`); prune oldest detail first.
 
+Then read `BACKLOG.md` — the deferred-fix record for this repo's own tooling.
+The weekly pass is the one run that sees a whole week at once, so it is the
+right place to notice that an item has gone stale, that two entries are the
+same defect, or that something listed there has quietly been fixed (move it to
+**Done** with its date and commit; never delete an entry). Add anything the
+week's runs turned up. Do not fix the code — that is a human's call, and the
+editor writes content.
+
 Update `editorial/TASTE.md` only if the reader expressed a durable preference.
 
 ## Step 7 — Save
