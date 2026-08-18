@@ -4,11 +4,13 @@ Things worth fixing that were deliberately left out of scope, so they stop
 being rediscovered. Internal, not rendered on the site.
 
 This exists because the notes were already being written and were still being
-lost. On 2026-08-16 the scout recorded two real defects — a stdin crash in
-`scout-enrich.mjs` and a crawl job returning index pages instead of posts —
-each as a clause inside a 400-word sourcing note in `signals/2026-W33.md`.
-Both were captured, dated, and correctly diagnosed. Neither was ever going to
-be read again. A deferred fix needs a destination, not a mention.
+lost. On 2026-08-16 the scout recorded two defects — a stdin crash in
+`scout-enrich.mjs` and a source it read as returning index pages instead of
+posts — each as a clause inside a 400-word sourcing note in
+`signals/2026-W33.md`. Both were captured, dated and specific. Neither was
+ever going to be read again. A deferred fix needs a destination, not a
+mention — and a destination is also where a diagnosis gets re-checked: one of
+those two, once someone finally did, turned out to be wrong (see Done).
 
 Not to be confused with `editorial/BACKLOG.md`, which is the archived
 article-idea pool from the retired daily tier. This file is about the code.
@@ -21,10 +23,10 @@ article-idea pool from the retired daily tier. This file is about the code.
 ```
 
 Add freely — scout, editor, or a human. The bar is a *specific* defect with a
-path attached, not a vague improvement: "the `leerob` crawl job returns tag
-index pages" belongs here, "sourcing could be better" does not. Move an item
-to **Done** with its fix date and commit when it lands; never delete one, so
-the record of what was known and when survives.
+path attached, not a vague improvement: "`scout-enrich --patch -` throws
+ERR_INVALID_ARG_TYPE" belongs here, "sourcing could be better" does not. Move
+an item to **Done** with its fix date and commit when it lands; never delete
+one, so the record of what was known and when survives.
 
 Nothing gates this file. It is worth exactly what gets written into it.
 
@@ -95,29 +97,40 @@ Nothing gates this file. It is worth exactly what gets written into it.
   with `node scripts/ledger-report.mjs --days 14` once there are more runs.
   Found 2026-08-17 (usage ledger).
 
-- [actions] `actions/checkout@v4`, `actions/cache@v4`, `actions/setup-node@v4`
-  and `actions/upload-artifact@v4` target Node 20 and are being force-run on
-  Node 24, with a deprecation warning on every job. Bump to `@v5` before the
-  forcing turns into a failure.
-  Found 2026-08-17 (annotations on every workflow run).
-
 - [editorial/MEMORY.md] At 130 lines against its declared ~140-line cap;
   `check-editorial.mjs` is already warning. Due a prune at the next weekly
   pass, before the graded warning becomes a hard stop.
   Found 2026-08-17 (`npm run check`).
 
-- [scripts/scout-enrich.mjs] The `--patch -`, `--new-entities -` and `--add -`
-  stdin modes throw `ERR_INVALID_ARG_TYPE` on Node 20.20.2 — `readFile(0,
-  'utf8')` is the culprit. Workaround: write the payload to a temp file and
-  pass its path. Every enrich call is paying the workaround tax.
-  Found 2026-08-16 (`signals/2026-W33.md`).
-
-- [scripts/lib/scout-sources.mjs] The `leerob` crawl job returns 24 items that
-  are all site tag/category index pages (`/rust`, `/agents`, `/bio`, …) rather
-  than posts, so it contributes nothing to triage while still costing a source
-  job every sweep. Needs a selector fix or removal.
-  Found 2026-08-14 (`signals/2026-W33.md`).
-
 ## Done
 
-_Nothing yet._
+- [scripts/scout-enrich.mjs] The three `-` (stdin) modes threw
+  `ERR_INVALID_ARG_TYPE`: `readFile(0, 'utf8')` cannot take a descriptor. Reads
+  the stream now, refuses two `-` flags in one run, and reports empty or
+  malformed input as the documented exit 1 instead of an unhandled rejection.
+  `scripts/scout-enrich.test.mjs` pins all four cases; they fail against the
+  old code.
+  Found 2026-08-16 (`signals/2026-W33.md`). Fixed 2026-08-18 (1565b16).
+
+- [actions] Every GitHub-owned action was on a node20 major and being
+  force-run on Node 24. checkout, setup-node, cache and upload-artifact are on
+  `@v5` — the runtime bump and nothing else; the later majors were read and
+  deliberately not taken (checkout v6 relocates the persisted credentials the
+  writers' push depends on). `deploy-pages@v4` was node20 in its own right and
+  `upload-pages-artifact@v3` nested a node20 upload, so both went to `@v5` too,
+  which is what actually silences deploy.yml.
+  Found 2026-08-17 (annotations on every workflow run). Fixed 2026-08-18
+  (759e6a8).
+
+- [scripts/lib/scout-sources.mjs] **Not a defect — the entry was wrong.** The
+  `leerob` job is a sitemap job, not a crawl, and the slugs it returns are
+  posts: `/rust` is "Rust Is Eating JavaScript", `/agents` is "Coding Agents &
+  Complexity Budgets", `/developer-marketing` is "On Developer Marketing".
+  leerob.com publishes at bare topic-shaped slugs, which is what made them read
+  as tag indexes. Re-checked 2026-08-18 by running the registered
+  include/exclude against the live sitemap: 68 locs in, 17 kept, every one a
+  post. The `/bio`-style non-posts named in the report were excluded by 7164df6
+  four days after it was written. Nothing to fix; the standing caveat is
+  unchanged — the sitemap restamps every `<loc>` with the build time, and only
+  cross-week dedupe keeps that from re-appending the back catalogue.
+  Found 2026-08-14 (`signals/2026-W33.md`). Closed 2026-08-18.
