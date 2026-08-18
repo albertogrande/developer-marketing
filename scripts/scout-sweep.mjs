@@ -66,7 +66,7 @@ if (has('--list')) {
   for (const s of CRAWLS) console.log(`crawl      ${s.id.padEnd(28)} ${s.kind.padEnd(12)} ${s.page}`);
   for (const s of COMMUNITY.subreddits) console.log(`reddit     r/${s.name} (${s.mode})`);
   console.log(`lobsters   newest.json, keyword-filtered`);
-  for (const q of COMMUNITY.bskyQueries) console.log(`bluesky    query: ${q}`);
+  for (const a of COMMUNITY.bskyAuthors) console.log(`bluesky    @${a.handle} (${a.mode})`);
   process.exit(0);
 }
 
@@ -207,13 +207,16 @@ for (const q of COMMUNITY.hnShowQueries) {
   );
 }
 
-// Reddit — refuses some datacenter networks (403); tolerated.
+// Reddit — the per-subreddit Atom feed. The JSON endpoints (www, old, and the
+// OAuth host alike) 403 every unauthenticated caller, which kept these four
+// jobs at zero events from the day they were registered; .rss is the surface
+// Reddit still serves without a token.
 for (const sub of COMMUNITY.subreddits) {
   jobs.push(() =>
     job(`reddit r/${sub.name}`, async () => {
-      const url = `https://www.reddit.com/r/${sub.name}/new.json?limit=50`;
+      const url = `https://www.reddit.com/r/${sub.name}/new/.rss?limit=50`;
       const keywords = sub.mode === 'filtered' ? COMMUNITY.keywords : [];
-      return redditToEvents(JSON.parse(await get(url, 'reddit')), { subreddit: sub.name, keywords }).filter(inWindow);
+      return redditToEvents(await get(url, 'reddit'), { subreddit: sub.name, keywords }).filter(inWindow);
     })
   );
 }
@@ -227,12 +230,15 @@ jobs.push(() =>
   })
 );
 
-// Bluesky public search — also 403s from some networks; tolerated.
-for (const q of COMMUNITY.bskyQueries) {
+// Bluesky — registered practitioners via the public getAuthorFeed. Post search
+// is behind bot protection and 403s without a token, so the channel follows
+// accounts instead of queries (see COMMUNITY.bskyAuthors for why each is here).
+for (const a of COMMUNITY.bskyAuthors) {
   jobs.push(() =>
-    job(`bsky "${q}"`, async () => {
-      const url = `https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=${encodeURIComponent(q)}&sort=latest&limit=50`;
-      return bskyToEvents(JSON.parse(await get(url, 'bsky')), { query: q }).filter(inWindow);
+    job(`bsky @${a.handle}`, async () => {
+      const url = `https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(a.handle)}&limit=50&filter=posts_no_replies`;
+      const keywords = a.mode === 'filtered' ? COMMUNITY.keywords : [];
+      return bskyToEvents(JSON.parse(await get(url, 'bsky')), { source: `bsky:${a.handle}`, keywords }).filter(inWindow);
     })
   );
 }
@@ -314,6 +320,18 @@ console.log(
 if (failures.length) {
   console.log(`\nunreachable (${failures.length}) — tolerated, fix or prune in scripts/lib/scout-sources.mjs:`);
   for (const f of failures) console.log(`  - ${f}`);
+
+  // Reddit blocks datacenter egress at the IP, not the endpoint: www and old,
+  // .json and .rss, every User-Agent and Accept combination answers 403 from a
+  // CI runner, and the same requests answer 200 through a proxy. Saying so here
+  // stops a permanent, understood block from reading like today's flake.
+  if (failures.some((f) => f.startsWith('reddit r/') && f.includes('403'))) {
+    console.log(
+      '\n  note: Reddit 403s all datacenter egress — this is an IP block, not a broken URL,\n' +
+        '        so it will fail every CI run until the sweep gets a proxy or Reddit API\n' +
+        '        credentials. It does reach when the sweep runs behind one. See BACKLOG.md.'
+    );
+  }
 }
 
 // Reached, returned nothing. Over a 2-day window most of the watchlist is

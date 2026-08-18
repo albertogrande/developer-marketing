@@ -127,19 +127,34 @@ test('hnToEvents links comment-only stories to their HN page', () => {
   assert.equal('points' in events[1], false, 'a hit without counters writes no key');
 });
 
-test('redditToEvents keyword-filters when asked and links the permalink', () => {
-  const json = {
-    data: {
-      children: [
-        { data: { title: 'Our devtool launch', selftext: '', permalink: '/r/SaaS/1', created_utc: 1754500000, author: 'a' } },
-        { data: { title: 'Unrelated gardening', selftext: '', permalink: '/r/SaaS/2', created_utc: 1754500000, author: 'b' } },
-      ],
-    },
-  };
-  const filtered = redditToEvents(json, { subreddit: 'SaaS', keywords: ['devtool'] });
+test('redditToEvents keyword-filters the Atom feed and keeps the permalink', () => {
+  // Reddit's JSON endpoints 403 unauthenticated, so the mapper reads .rss.
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">
+    <entry>
+      <author><name>/u/ana</name></author>
+      <title>Our devtool launch</title>
+      <link rel="alternate" href="https://www.reddit.com/r/SaaS/comments/1/our_devtool_launch/" />
+      <content type="html">&lt;p&gt;We shipped it.&lt;/p&gt;</content>
+      <updated>2026-08-05T10:00:00+00:00</updated>
+    </entry>
+    <entry>
+      <author><name>/u/bo</name></author>
+      <title>Unrelated gardening</title>
+      <link rel="alternate" href="https://www.reddit.com/r/SaaS/comments/2/unrelated_gardening/" />
+      <content type="html">&lt;p&gt;Tomatoes.&lt;/p&gt;</content>
+      <updated>2026-08-05T10:00:00+00:00</updated>
+    </entry>
+  </feed>`;
+  const filtered = redditToEvents(xml, { subreddit: 'SaaS', keywords: ['devtool'] });
   assert.equal(filtered.length, 1);
-  assert.equal(filtered[0].url, 'https://www.reddit.com/r/SaaS/1');
-  const all = redditToEvents(json, { subreddit: 'SaaS', keywords: [] });
+  assert.equal(filtered[0].url, 'https://www.reddit.com/r/SaaS/comments/1/our_devtool_launch');
+  assert.equal(filtered[0].channel, 'reddit');
+  assert.equal(filtered[0].author, 'ana', 'the /u/ prefix is stripped');
+  assert.equal(filtered[0].summary, 'We shipped it.');
+  // RSS carries no score or comment count, and an invented one would be worse
+  // than an absent one.
+  assert.equal('points' in filtered[0], false);
+  const all = redditToEvents(xml, { subreddit: 'SaaS', keywords: [] });
   assert.equal(all.length, 2, 'no keywords means take the whole subreddit');
 });
 
@@ -158,21 +173,46 @@ test('lobstersToEvents matches keywords against title and tags', () => {
   assert.equal(events[0].comments, 4);
 });
 
-test('bskyToEvents builds a stable https URL from the at:// uri', () => {
-  const events = bskyToEvents(
-    {
-      posts: [
-        {
+test('bskyToEvents reads an author feed, skips reposts, and keyword-filters', () => {
+  // searchPosts is behind bot protection, so the channel reads getAuthorFeed,
+  // whose posts arrive wrapped in feed entries.
+  const feed = {
+    feed: [
+      {
+        post: {
           uri: 'at://did:plc:abc/app.bsky.feed.post/xyz9',
           record: { text: 'DevRel is measurement now', createdAt: '2026-08-05T10:00:00Z' },
           author: { handle: 'ana.bsky.social' },
+          likeCount: 12,
+          replyCount: 3,
         },
-      ],
-    },
-    { query: 'devrel' }
-  );
-  assert.equal(events.length, 1);
+      },
+      {
+        post: {
+          uri: 'at://did:plc:abc/app.bsky.feed.post/off1',
+          record: { text: 'My sourdough finally rose', createdAt: '2026-08-05T11:00:00Z' },
+          author: { handle: 'ana.bsky.social' },
+        },
+      },
+      {
+        // A repost is someone else's post; the registered account did not write it.
+        reason: { $type: 'app.bsky.feed.defs#reasonRepost' },
+        post: {
+          uri: 'at://did:plc:zzz/app.bsky.feed.post/rp1',
+          record: { text: 'devrel thread worth reading', createdAt: '2026-08-05T12:00:00Z' },
+          author: { handle: 'someone.else' },
+        },
+      },
+    ],
+  };
+  const events = bskyToEvents(feed, { source: 'bsky:ana.bsky.social', keywords: ['devrel'] });
+  assert.equal(events.length, 1, 'the off-topic post and the repost are both dropped');
   assert.equal(events[0].url, 'https://bsky.app/profile/ana.bsky.social/post/xyz9');
+  assert.equal(events[0].source, 'bsky:ana.bsky.social');
+  assert.equal(events[0].points, 12);
+
+  const unfiltered = bskyToEvents(feed, { source: 'bsky:ana.bsky.social', keywords: [] });
+  assert.equal(unfiltered.length, 2, "mode 'all' keeps both authored posts, still no repost");
 });
 
 test('readDb replays last-write-wins by id and skips torn lines without throwing', () => {

@@ -419,6 +419,48 @@ the note should state plainly that the item was summarised from the episode
 page rather than from listening. The guest and their company belong in the
 summary.
 
+### Choosing `kind` — the campaign is not the launch
+
+`kind` is what a reader filters on, so it has to describe **which event is the
+news**, not which company is in the headline. The line that gets blurred daily
+is `launch`/`release` against `campaign`:
+
+- `release` — a version, a changelog entry, a feature reaching GA. The product
+  moved.
+- `launch` — a product or company arriving: a Show HN, a public beta, a new
+  SKU. The product exists now and did not before.
+- `campaign` — **the marketing artifact is the event.** A Launch Week, a
+  rebrand, a developer conference opening its catalog or its early-bird
+  window, a pricing promo with an end date, out-of-home or podcast ads
+  developers are talking about, a benchmark or comparison a vendor publishes
+  about its own category, a dogfooding write-up. What shipped may be
+  incidental; what a practitioner can copy is the *move*.
+- `news`, `funding`, `discussion` — an outside development, money, and an
+  argument the community is having, respectively.
+
+The tell that a launch post is really a campaign: strip the product out and
+ask whether anything is left worth reading. Netlify running one prompt through
+eleven models is a campaign — the artifact is a comparison built to sell
+OpenRouter support. Vercel giving a model away free until a stated date is a
+campaign — the promo, its end date and the default-model switch are the story.
+Cloudflare rebuilding cdnjs on its own stack is a campaign — the *write-up* is
+the marketing, and it says so in the numbers it chose to publish.
+
+When both readings genuinely fit, pick the one a practitioner would want to
+find later. A reader searching Signals for campaigns is looking for moves to
+steal, not for a list of everything that shipped that week.
+
+Two guardrails, because this is the tier most easily inflated:
+
+- **A campaign still has to clear Step 3's bar.** A vendor blog post that
+  merely restates the product page is not a campaign, it is a page. Something
+  has to have *happened* — the week started, the ads went up, the promo opened,
+  the catalog published, the price changed.
+- **This is not a quota.** Do not relabel launches to raise the campaign count;
+  publishing is criteria, not a target, and a mislabelled `kind` breaks the
+  filter for everyone downstream. The count is a symptom to read, never a
+  number to hit.
+
 **Several published signals a day is the normal outcome**, not a good one. The
 watchlist captures on the order of a hundred-plus events a day across news,
 launches, changelogs, Show HN, podcasts and vendor blogs; on that volume, a

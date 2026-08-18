@@ -181,7 +181,26 @@ export const COMMUNITY = {
     'developer', 'devrel', 'devtool', 'api', 'sdk', 'docs', 'documentation', 'open source', 'pricing', 'launch',
     'llms.txt', 'answer engine', 'ai search', 'ai overviews',
   ],
-  bskyQueries: ['"developer relations"', '"developer marketing"', 'devrel', '"answer engine optimization"', '"AI search"'],
+  // Registered practitioners, not a query: app.bsky.feed.searchPosts is behind
+  // bot protection and 403s without a token, while getAuthorFeed is public.
+  // Every handle here was checked for a post in the last 30 days — a silent
+  // account is a job that runs daily and returns nothing, which is the exact
+  // failure this list replaces. `mode: 'all'` is for accounts that only ever
+  // post about the practice; personal feeds are keyword-filtered because most
+  // of what a practitioner posts is not about their practice.
+  bskyAuthors: [
+    { handle: 'devrelpatterns.com', mode: 'all' },       // Developer Relations Activity Patterns
+    { handle: 'seldo.com', mode: 'filtered' },           // Laurie Voss — Head of DevRel, Arize; ex-Netlify, npm
+    { handle: 'bnb.im', mode: 'filtered' },              // tierney cyren — developer advocate
+    { handle: 'philna.sh', mode: 'filtered' },           // Phil Nash — DX engineer, Resend
+    { handle: 'rachelandrew.co.uk', mode: 'filtered' },  // Rachel Andrew — content lead, Chrome DevRel
+    { handle: 'tomayac.com', mode: 'filtered' },         // Thomas Steiner — DevRel engineer, Google
+    { handle: 'paul.kinlan.me', mode: 'filtered' },      // Paul Kinlan — lead, Chrome DevRel
+    { handle: 'wesley83.bsky.social', mode: 'filtered' },// Wesley Faulkner — DevRel practitioner
+    { handle: 'kjaymiller.com', mode: 'filtered' },      // Jay Miller — staff developer advocate, Aiven
+    { handle: 'blackgirlbytes.bsky.social', mode: 'filtered' }, // Rizel Scarlett — OSS DevRel, Block
+    { handle: 'lukestahl.bsky.social', mode: 'filtered' },      // Luke Stahl — product & developer marketing, Webflow
+  ],
 };
 
 // Valid enums — the enrich tool validates against these, and agents filter on
@@ -501,27 +520,38 @@ export function hnToEvents(json, { source = 'hackernews' } = {}) {
     );
 }
 
-export function redditToEvents(json, { subreddit, keywords = [] } = {}) {
-  const posts = (json?.data?.children ?? []).map((c) => c.data).filter((p) => p?.title);
+// Reddit's public JSON endpoints (www and old, /new.json and the OAuth host)
+// answer 403 to every unauthenticated caller, so the four subreddit jobs sat
+// dark from the day they were registered. The per-subreddit Atom feed is the
+// one public surface Reddit still serves without a token — same posts, same
+// order, minus the score and comment counters. Those counters are dropped
+// rather than guessed: normalizeEvent omits a counter it was not given, and an
+// invented number would be worse than an absent one.
+export function redditToEvents(xml, { subreddit, keywords = [] } = {}) {
+  const items = parseAnyFeed(xml).items;
   const wanted = keywords.length
-    ? posts.filter((p) => {
-        const hay = `${p.title} ${p.selftext ?? ''}`.toLowerCase();
+    ? items.filter((i) => {
+        const hay = `${i.title} ${snippet(i.summary ?? '') ?? ''}`.toLowerCase();
         return keywords.some((k) => hay.includes(k.toLowerCase()));
       })
-    : posts;
-  return wanted.map((p) =>
-    normalizeEvent({
-      ts: new Date(p.created_utc * 1000),
-      source: `r/${subreddit}`,
-      channel: 'reddit',
-      title: p.title,
-      url: `https://www.reddit.com${p.permalink}`,
-      summary: snippet(p.selftext ?? ''),
-      author: p.author,
-      points: p.score,
-      comments: p.num_comments,
-    })
-  );
+    : items;
+  return wanted
+    .filter((i) => i.date)
+    .map((i) =>
+      normalizeEvent({
+        ts: i.date,
+        source: `r/${subreddit}`,
+        channel: 'reddit',
+        title: i.title,
+        url: i.link,
+        // Reddit escapes the post body, so one snippet() pass strips the tags
+        // and the next decodes them back into visible markup. Re-running it on
+        // the decoded text is what actually leaves prose.
+        summary: snippet(i.summary ?? ''),
+        // Reddit writes the author as "/u/name"; the DB stores bare handles.
+        author: i.author?.replace(/^\/u\//, ''),
+      })
+    );
 }
 
 export function lobstersToEvents(json, { keywords = [] } = {}) {
@@ -549,16 +579,33 @@ export function lobstersToEvents(json, { keywords = [] } = {}) {
   );
 }
 
-export function bskyToEvents(json, { query } = {}) {
-  return (json?.posts ?? [])
+// app.bsky.feed.searchPosts sits behind Bluesky's bot protection and answers
+// 403 to every unauthenticated caller, which is why the five search jobs never
+// produced an event. getAuthorFeed is still public, so the channel is a
+// registered list of practitioners instead of a query — narrower reach, but
+// reach that actually works. Accepts both payload shapes: getAuthorFeed wraps
+// each post in a feed entry, searchPosts returned a flat `posts` array.
+export function bskyToEvents(json, { source, keywords = [] } = {}) {
+  const posts = Array.isArray(json?.feed)
+    // A repost carries someone else's post under `reason`; the account we
+    // registered did not write it, so it is not their signal.
+    ? json.feed.filter((f) => !f?.reason).map((f) => f?.post)
+    : (json?.posts ?? []);
+
+  return posts
     .filter((p) => p?.record?.text && p?.uri)
+    .filter((p) => {
+      if (!keywords.length) return true;
+      const hay = p.record.text.toLowerCase();
+      return keywords.some((k) => hay.includes(k.toLowerCase()));
+    })
     .map((p) => {
       // at://did:plc:xyz/app.bsky.feed.post/abc → a stable https URL.
       const [, did, , rkey] = p.uri.replace('at://', '').match(/^([^/]+)\/([^/]+)\/(.+)$/)?.slice(0) ?? [];
       const handle = p.author?.handle ?? did;
       return normalizeEvent({
         ts: p.record.createdAt ?? p.indexedAt,
-        source: `bsky:${query}`,
+        source: source ?? `bsky:${handle}`,
         channel: 'bluesky',
         title: snippet(p.record.text, 120) ?? p.record.text.slice(0, 120),
         url: `https://bsky.app/profile/${handle}/post/${rkey ?? ''}`,

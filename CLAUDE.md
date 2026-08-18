@@ -122,10 +122,15 @@ Underneath the curated capture sits the **event DB**: `scout:sweep` fetches
 the registered watchlist (`scripts/lib/scout-sources.mjs` — RSS/Atom feeds and
 changelogs, HN/Show-HN queries, Lobsters) and appends every in-window item to
 `signals/db/<ISO-week>.ndjson`, append-only and dedup-by-id, whether or not
-anything is written about it. Subreddit and Bluesky jobs are registered and run
-daily but **have never produced an event** — both endpoints 403 from CI — so
-treat those channels as dark until the fetch is fixed, and don't describe the
-watchlist as covering them. The scout enriches notable events (entities from
+anything is written about it. The **subreddit jobs are dark from CI**: Reddit
+blocks datacenter egress at the IP, so every endpoint and header combination
+403s there while the same requests succeed behind a proxy — don't describe the
+watchlist as covering Reddit until it gets a proxy or API credentials
+(BACKLOG.md has the detail). **Bluesky reaches**, as of 2026-08-18: post search
+is behind bot protection, so the channel follows a registered list of
+practitioners through the public `getAuthorFeed` instead of running queries.
+
+The scout enriches notable events (entities from
 `signals/entities.json`, an event kind, topics from the closed `TOPICS` list)
 through `scout:enrich` — never by editing NDJSON directly. `scout:query`
 filters the merged log and `scout:stats` takes distributions over it

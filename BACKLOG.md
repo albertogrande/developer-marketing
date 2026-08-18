@@ -30,6 +30,21 @@ Nothing gates this file. It is worth exactly what gets written into it.
 
 ## Open
 
+- [scripts/scout-sweep.mjs] The four Reddit jobs cannot reach Reddit from CI:
+  it blocks datacenter egress at the IP, not at the endpoint. Verified
+  2026-08-18 — `www` and `old`, `/new.json` and `/new/.rss`, every User-Agent
+  and Accept combination answer 403 direct, and the identical requests answer
+  200 through an HTTP proxy. The sweep now uses `/new/.rss` (the only surface
+  Reddit serves without a token, and it works wherever egress is not blocked,
+  so a local `/daily-scout` run does capture the subreddits) and prints a note
+  saying the CI block is permanent rather than transient. Two real fixes, both
+  needing a decision and a secret: give the sweep an egress proxy, or register
+  a Reddit API app and add OAuth client credentials. Until one lands, treat
+  r/devrel, r/marketing, r/SaaS and r/ExperiencedDevs as dark in CI and do not
+  describe the watchlist as covering them.
+  Found 2026-08-18 (investigating why Signals skews to launches over
+  developer-marketing discussion).
+
 - [alerting] `ALERT_EMAIL_TO` is not set on the repo, so `notify-failure`'s
   email leg has never sent anything — `send-alert.mjs` no-ops and says so in
   the log. The wiring is complete and correct (`secrets.ALERT_EMAIL_TO` →
