@@ -30,6 +30,26 @@ Nothing gates this file. It is worth exactly what gets written into it.
 
 ## Open
 
+- [alerting] `ALERT_EMAIL_TO` is not set on the repo, so `notify-failure`'s
+  email leg has never sent anything — `send-alert.mjs` no-ops and says so in
+  the log. The wiring is complete and correct (`secrets.ALERT_EMAIL_TO` →
+  `alert_email_to` → the script); only the secret and a transport
+  (`RESEND_API_KEY` or `SMTP_HOST`, plus an `ALERT_FROM` on a verified domain)
+  are missing. Until then the sole notice of a failed desk is a GitHub issue
+  on a repo nobody is watching closely, which on 2026-08-17 meant a 03:51 UTC
+  failure was not seen by a human until 22:00.
+  Found 2026-08-17 (run 31991640446 log).
+
+- [routine: "Vigía del pipeline"] The daily watchdog correctly detected and
+  diagnosed the 08-17 scout failure and prepared a fix branch, then could not
+  deliver any of it: no write access to this repo from that session (the push
+  was rejected, and `claude/fix-recover-bot-actor-block` never reached the
+  remote), Gmail `enabledInChat: false`, and no GitHub API auth — so it fell
+  back to scraping public HTML. Its diagnosis sat in a chat panel for eight
+  hours. Give the session repo write access if it should open PRs, or accept
+  that it is a diagnostician and fix the alerting above instead.
+  Found 2026-08-17.
+
 - [watchlist sources] Reddit (r/devrel, r/marketing, r/SaaS, r/ExperiencedDevs),
   Bluesky's three saved searches, the Latent Space RSS feed and
   search-engine-land RSS all return HTTP 403 at the fetch layer, and have for
