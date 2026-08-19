@@ -404,5 +404,24 @@
     ],
     "name": "Replit",
     "kind": "company"
+  },
+  "warp": {
+    "aliases": [
+      "warp.dev"
+    ],
+    "name": "Warp",
+    "kind": "company"
+  },
+  "snowflake": {
+    "aliases": [],
+    "name": "Snowflake",
+    "kind": "company"
+  },
+  "modular": {
+    "aliases": [
+      "mojo"
+    ],
+    "name": "Modular",
+    "kind": "company"
   }
 }

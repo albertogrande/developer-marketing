@@ -67,8 +67,11 @@ Below the bar: no dated evidence in the published record. Promote when it
 lands; never open a thread on a question nothing can answer.
 
 - **Developer population plateau → segment depth** — SlashData: ~47M devs,
-  ~10% y/y, decelerating, shifting to South Asia / Greater China. No wave
-  since April, so nothing dated to file. Re-check each wave. Guide: §01, §06.
+  ~10% y/y, decelerating, shifting to South Asia / Greater China. SlashData
+  published "The Rise of the Builder — Q3 2026" 2026-08-18
+  (slashdata.co/post/rise-of-the-builder-developer-trends-q3-2026); couldn't
+  extract figures past a fetch truncation on 08-19, unread — next run should
+  retry before filing anything from it. Guide: §01, §06.
 
 ## Special-issue candidates
 
