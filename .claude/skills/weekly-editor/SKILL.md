@@ -145,6 +145,15 @@ Worked, from this site's own archive:
   untaken: when the model underneath is fungible, what is a company actually
   selling, and how does it document and price *that*?
 
+Read W33 as the exception it is, not as evidence the weekly has a drift
+problem. All six issues published to 2026-08-19 were audited against this test
+on that date: W28, W29, W30, W31 and W32 pass, three of them emphatically —
+"a free tier is a contract" (W29), "how you end things is as much of a
+marketing surface as how you launch them" (W31), "when features converge the
+terms sheet becomes the positioning surface" (W32). One in six missed. The
+test exists to keep that rate where it is, so do not overcorrect into forcing
+a play onto a week that did not produce one.
+
 The news is the **occasion** for an issue, never its subject. A week whose
 biggest events are product launches is not a thin week — it is a week whose
 work is finding what those launches say about how devtool companies now reach
