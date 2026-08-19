@@ -105,6 +105,47 @@ Which running thread from MEMORY did this week advance or break? What does the
 reader need an *opinion* on, not just a summary of? Most signals won't make the
 issue — that's the job.
 
+**The angle test — apply it to the thesis before writing a word.** This issue
+is about the *practice of marketing to developers*: how devtool companies
+position, document, price, launch, distribute, measure and build community.
+It is not about where the devtools industry is heading. Both are interesting;
+only one of them is this publication.
+
+The test is a rewrite. Hand the thesis to a devtools investor or a devtools
+CTO. **If it loses nothing, it is the wrong thesis** — that is industry
+analysis, which a dozen outlets already write, not the read only a
+practitioner needs. Rework it until the loss is obvious.
+
+Worked, from this site's own archive:
+
+- **W28 passes.** "The agent reading your docs is starting to shop." The news
+  behind it was two launches nobody noticed, but the thesis is about what a
+  machine reader does to your docs, your pricing page and your benchmarks,
+  and it lands on three things to do on Monday. The CTO gets nothing from it.
+- **W33 fails.** "The rail is the product now." An acquisition, two agent
+  platforms and a metering datapoint, argued to "the durable asset is the
+  rail, not the model." True, well sourced, and worth exactly as much to an
+  investor as to a marketer. The marketing read was right there and went
+  untaken: when the model underneath is fungible, what is a company actually
+  selling, and how does it document and price *that*?
+
+The news is the **occasion** for an issue, never its subject. A week whose
+biggest events are product launches is not a thin week — it is a week whose
+work is finding what those launches say about how devtool companies now reach
+developers. Signals stays a full event log on purpose; the issue is where the
+practitioner read gets added, and it is the only place that happens.
+
+**Every section lands on a play.** *What changed → why it matters → what to
+do.* A section that stops at "why it matters" is half a section: the reader
+came for something testable this quarter. If a section genuinely has no play
+yet, say so in a sentence and say what would produce one — an honest open
+loop beats an invented recommendation.
+
+**Name the guide sections the issue advances** in `related`. Not decoration:
+if no section of the guide is touched by the week's thesis, that is strong
+evidence the angle drifted off the practice — check before writing, not
+after.
+
 **Two shapes, one slot — you pick:**
 
 - **The normal issue** (~600–1,200 words): the pulse. What moved, why it
