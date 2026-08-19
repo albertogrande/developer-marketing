@@ -37,7 +37,13 @@ const ENTITY = flag('--entity');
 const EVENT = flag('--event');
 const TOPIC = flag('--topic');
 const CHANNEL = flag('--channel');
-const SOURCE = flag('--source');
+// --source takes one id or a comma-separated list. The weekly editor's standing
+// practice sweep asks for a dozen practitioner feeds at once, and a query that
+// has to be run a dozen times is a query that stops being run.
+const SOURCES = (flag('--source') ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 const TEXT = flag('--text')?.toLowerCase();
 const JSON_OUT = has('--json');
 const COUNT = has('--count');
@@ -74,7 +80,7 @@ const wanted = events
   .filter((e) => !EVENT || e.event === EVENT)
   .filter((e) => !TOPIC || (e.topics ?? []).includes(TOPIC))
   .filter((e) => !CHANNEL || e.channel === CHANNEL)
-  .filter((e) => !SOURCE || e.source === SOURCE)
+  .filter((e) => !SOURCES.length || SOURCES.includes(e.source))
   .filter((e) => !TEXT || `${e.title} ${e.summary ?? ''}`.toLowerCase().includes(TEXT))
   .sort((a, b) => b.ts.localeCompare(a.ts));
 

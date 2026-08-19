@@ -73,6 +73,22 @@ so — don't overwrite a published issue unless explicitly asked.
    Anything real here belongs in the issue and in
    [Answer engines & AEO](/guide/09-answer-engines-and-aeo). A week with
    nothing is a normal week — say nothing rather than padding it.
+
+   Then the standing **practice sweep** — what the people who do this work
+   published this week, as against what vendors shipped:
+
+   ```bash
+   npm run scout:query -- --since <START> --until <END> --source \
+     heavybit,mkt1,april-dunford,tomasz-tunguz,product-marketing-alliance,productled,lennys-newsletter,elena-verna,developer-marketing-alliance,markepear,draft-dev,reforge-blog,growth-memo
+   ```
+
+   These sources publish argument rather than events, so almost none of it
+   ever reaches Signals — that is by design, and this query is the only place
+   it surfaces. It is the material the angle test below runs on: a week of
+   product launches is far easier to read against what practitioners are
+   currently arguing about. Standing warnings still apply — nothing here is a
+   fact until Step 3 verifies it, and a practitioner's experience is worth
+   citing with attribution and is never a data point.
 4. The week's published signals — `src/content/signals/` files dated in the window.
    Already published and sourced; the issue links them rather than re-telling
    them ("The week in links" renders them automatically on the issue page).
