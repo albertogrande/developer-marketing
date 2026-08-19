@@ -30,6 +30,20 @@ Nothing gates this file. It is worth exactly what gets written into it.
 
 ## Open
 
+- [src/pages/index.astro] The front page's clearest statement of what the site
+  is — "The state of the art in developer marketing" — sits in the `lead`
+  ternary's **else** branch, so it has rendered exactly never since W28
+  published. What a first-time visitor actually reads is: latest issue →
+  Signals (labelled launch/release) → the guide third. The site says
+  developer marketing in the masthead and shows a devtools news feed on the
+  page. Deferred deliberately on 2026-08-19: the reader chose to fix the
+  issue's angle first and re-look at the page once an issue written under the
+  new angle test is the lead, since the lead *is* the issue's own headline.
+  Re-open this if the W34/W35 issues land on-angle and the page still reads
+  as an industry feed.
+  Found 2026-08-19 (reader feedback: the issue and the site read as a weekly
+  devtools summary rather than developer marketing).
+
 - [scripts/scout-sweep.mjs] The four Reddit jobs cannot reach Reddit from CI:
   it blocks datacenter egress at the IP, not at the endpoint. Verified
   2026-08-18 — `www` and `old`, `/new.json` and `/new/.rss`, every User-Agent
@@ -44,6 +58,14 @@ Nothing gates this file. It is worth exactly what gets written into it.
   describe the watchlist as covering them.
   Found 2026-08-18 (investigating why Signals skews to launches over
   developer-marketing discussion).
+  **Update 2026-08-19: partially wrong — the block is not total.** The first
+  CI sweep after the `/new/.rss` move (run 32212489274, commit 222e312)
+  captured four Reddit events: r/SaaS ×3 and r/devrel ×1. r/ExperiencedDevs
+  and r/marketing answered 429 that run, which is rate limiting, not the 403
+  IP block. So `/new/.rss` does reach Reddit from CI at least intermittently;
+  the proxy/OAuth fixes are still the durable answer, but "dark in CI" is no
+  longer an accurate description of all four jobs. Re-measure across a few
+  sweeps before rewriting this entry — one run is not a pattern.
 
 - [alerting] `ALERT_EMAIL_TO` is not set on the repo, so `notify-failure`'s
   email leg has never sent anything — `send-alert.mjs` no-ops and says so in

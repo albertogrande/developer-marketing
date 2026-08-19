@@ -24,6 +24,14 @@ fluff. Wants the state of the art, kept honest.
 - **Sourced.** Every claim traceable to a public, linkable source — the report
   itself, the operator's own write-up, the original thread. Distinguish
   independent evidence from a vendor's marketing. Prefer numbers you can source.
+- **Interpretation is the issue's job, not the feed's.** Signals stays a
+  complete event log — generic devtool launches and releases included. The
+  reader wants it that way and does not want it narrowed to marketing-only
+  events; a filtered feed loses the raw material and the small-company tail
+  with it. What has to read as *developer marketing* is the **issue** and the
+  **site's framing**. Stated 2026-08-19, after the weekly had drifted into a
+  devtools-industry summary: the feed was fine, the vision on top of it was
+  not.
 - **Dated facts over timeless advice — especially for practices.** A bare
   model already knows the timeless judgment (don't gate dev content, lead with
   utility, respect the audience); the corpus's edge is what's *current* — a
@@ -45,18 +53,28 @@ fluff. Wants the state of the art, kept honest.
   move on.
 - Narrow, samey "what is DevRel" explainers with no practical payoff.
 - Vendor puff repeated as insight — a case study is data, a press release is not.
+- **An issue that reads as a devtools-industry weekly.** A thesis about where
+  the industry is heading — however sharp, however well sourced — is worth the
+  same to an investor or a CTO as to this reader, which means it was written
+  for nobody in particular. The week's news is the occasion; the practice of
+  marketing to developers is the subject. (See the angle test in the
+  `weekly-editor` skill, which works this through W28 and W33.)
 
 ## Format
 
-- **Signals** (daily, internal) — raw one-liners, capture over synthesis.
-- **Articles** (the newsroom, ≤1/day Tue–Sun) — dated desk pieces on the
-  news, money, campaigns, research, and technology of the devtools industry.
-  The ceiling is not a target: the reader prefers three sharp articles a week
-  over seven thin ones, and a skip logged with its reason over filler.
+- **Signals** (published daily) — the event log: one company, two sentences,
+  a mandatory primary source. Capture, not interpretation, and deliberately
+  complete.
 - **The guide** (evergreen) — the product; kept continuously current.
-- **The weekly** (one short essay a week) — decides what mattered; areas are
-  research lenses, never output sections. Not a per-item news list.
-- **Deep dives** — commissioned only when a thread earns it (see MEMORY.md),
-  or on demand by topic.
-- **Practices** (atomic, machine-readable) — when X → do Y (because Z), dated
-  and sourced; distilled by the weekly editor.
+- **Claims** (atomic, machine-readable) — the guide's load-bearing units, each
+  dated, sourced and stamped current / stale / retired. Never deleted, only
+  retired.
+- **Threads** — the running questions, each carrying the dated evidence filed
+  onto it and the open loops that would settle it.
+- **The Beat** (one issue a week) — decides what mattered *to a practitioner*;
+  normally short, occasionally a long special issue when a thread has earned
+  depth. Not a per-item news list.
+
+Closed archives — still rendered and machine-served, never extended: the
+newsroom's daily **articles**, the **deep dives** (absorbed into the special
+issue) and the **radar**.

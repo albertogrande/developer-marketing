@@ -73,6 +73,22 @@ so — don't overwrite a published issue unless explicitly asked.
    Anything real here belongs in the issue and in
    [Answer engines & AEO](/guide/09-answer-engines-and-aeo). A week with
    nothing is a normal week — say nothing rather than padding it.
+
+   Then the standing **practice sweep** — what the people who do this work
+   published this week, as against what vendors shipped:
+
+   ```bash
+   npm run scout:query -- --since <START> --until <END> --source \
+     heavybit,mkt1,april-dunford,tomasz-tunguz,product-marketing-alliance,productled,lennys-newsletter,elena-verna,developer-marketing-alliance,markepear,draft-dev,reforge-blog,growth-memo
+   ```
+
+   These sources publish argument rather than events, so almost none of it
+   ever reaches Signals — that is by design, and this query is the only place
+   it surfaces. It is the material the angle test below runs on: a week of
+   product launches is far easier to read against what practitioners are
+   currently arguing about. Standing warnings still apply — nothing here is a
+   fact until Step 3 verifies it, and a practitioner's experience is worth
+   citing with attribution and is never a data point.
 4. The week's published signals — `src/content/signals/` files dated in the window.
    Already published and sourced; the issue links them rather than re-telling
    them ("The week in links" renders them automatically on the issue page).
@@ -104,6 +120,56 @@ Decide the week's narrative. Which change matters most to how the reader works?
 Which running thread from MEMORY did this week advance or break? What does the
 reader need an *opinion* on, not just a summary of? Most signals won't make the
 issue — that's the job.
+
+**The angle test — apply it to the thesis before writing a word.** This issue
+is about the *practice of marketing to developers*: how devtool companies
+position, document, price, launch, distribute, measure and build community.
+It is not about where the devtools industry is heading. Both are interesting;
+only one of them is this publication.
+
+The test is a rewrite. Hand the thesis to a devtools investor or a devtools
+CTO. **If it loses nothing, it is the wrong thesis** — that is industry
+analysis, which a dozen outlets already write, not the read only a
+practitioner needs. Rework it until the loss is obvious.
+
+Worked, from this site's own archive:
+
+- **W28 passes.** "The agent reading your docs is starting to shop." The news
+  behind it was two launches nobody noticed, but the thesis is about what a
+  machine reader does to your docs, your pricing page and your benchmarks,
+  and it lands on three things to do on Monday. The CTO gets nothing from it.
+- **W33 fails.** "The rail is the product now." An acquisition, two agent
+  platforms and a metering datapoint, argued to "the durable asset is the
+  rail, not the model." True, well sourced, and worth exactly as much to an
+  investor as to a marketer. The marketing read was right there and went
+  untaken: when the model underneath is fungible, what is a company actually
+  selling, and how does it document and price *that*?
+
+Read W33 as the exception it is, not as evidence the weekly has a drift
+problem. All six issues published to 2026-08-19 were audited against this test
+on that date: W28, W29, W30, W31 and W32 pass, three of them emphatically —
+"a free tier is a contract" (W29), "how you end things is as much of a
+marketing surface as how you launch them" (W31), "when features converge the
+terms sheet becomes the positioning surface" (W32). One in six missed. The
+test exists to keep that rate where it is, so do not overcorrect into forcing
+a play onto a week that did not produce one.
+
+The news is the **occasion** for an issue, never its subject. A week whose
+biggest events are product launches is not a thin week — it is a week whose
+work is finding what those launches say about how devtool companies now reach
+developers. Signals stays a full event log on purpose; the issue is where the
+practitioner read gets added, and it is the only place that happens.
+
+**Every section lands on a play.** *What changed → why it matters → what to
+do.* A section that stops at "why it matters" is half a section: the reader
+came for something testable this quarter. If a section genuinely has no play
+yet, say so in a sentence and say what would produce one — an honest open
+loop beats an invented recommendation.
+
+**Name the guide sections the issue advances** in `related`. Not decoration:
+if no section of the guide is touched by the week's thesis, that is strong
+evidence the angle drifted off the practice — check before writing, not
+after.
 
 **Two shapes, one slot — you pick:**
 

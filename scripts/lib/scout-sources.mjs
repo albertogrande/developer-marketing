@@ -111,6 +111,46 @@ export const SOURCES = [
   { id: 'growth-memo', name: 'Growth Memo (Kevin Indig)', feed: 'https://www.growth-memo.com/feed', kind: 'practitioner', posture: 'independent' },
   { id: 'sparktoro', name: 'SparkToro (Rand Fishkin)', feed: 'https://sparktoro.com/blog/feed/', kind: 'research', posture: 'vendor' },
 
+  // The practice itself — go-to-market for developer-first companies. Added
+  // 2026-08-19 to correct a measured imbalance in what the *issue* has to
+  // argue from, not in what the feed publishes: the watchlist was ~30 vendor
+  // blogs against ~10 practitioner voices, and vendor blogs publish product
+  // news, so the editor's raw material was overwhelmingly "who shipped what."
+  // The weekly kept landing on devtools-industry theses because that is what
+  // it was fed.
+  //
+  // These feeds mostly publish argument rather than events, which means most
+  // of what they emit will never clear Step 3's promotion bar — and that is
+  // the design, not a defect. Signals stays a complete event log; this block
+  // exists so the editor has the practice to reason with when deciding what a
+  // week of launches *meant*. Judge these sources by whether issues get
+  // sharper, never by their promotion rate.
+  //
+  // All eight verified 2026-08-19 by fetching and parsing through parseAnyFeed,
+  // with the 90-day volume checked so a dormant feed is not registered as a
+  // daily no-op. Candidates that failed the same check and are deliberately
+  // absent: getdx.com and developerrelations.com (404, and no <link
+  // rel="alternate"> to autodiscover), a16z.com/feed and bvp.com/atlas (404;
+  // both WordPress, both serving oEmbed only), devrelweekly.com (525 again,
+  // unchanged since 2026-08-06), heavybit.com/library/rss.xml (404 — the live
+  // path is /library/feed), and aprildunford.com/blog?format=rss (200 but zero
+  // items; the Substack is where she actually publishes). Re-verify before
+  // adding any of them. The New Stack (thenewstack.io/feed) passed the same
+  // check — 26 items, publishing daily — and is left out on judgment: it is a
+  // devtools-industry news firehose, and more industry news is the opposite of
+  // what this block is for.
+  { id: 'heavybit', name: 'Heavybit Library', feed: 'https://www.heavybit.com/library/feed', kind: 'practitioner', posture: 'independent' },
+  { id: 'mkt1', name: 'MKT1 (Emily Kramer)', feed: 'https://mkt1.substack.com/feed', kind: 'practitioner', posture: 'independent' },
+  { id: 'april-dunford', name: 'April Dunford — Positioning', feed: 'https://aprildunford.substack.com/feed', kind: 'practitioner', posture: 'independent' },
+  { id: 'tomasz-tunguz', name: 'Tomasz Tunguz', feed: 'https://tomtunguz.com/index.xml', kind: 'practitioner', posture: 'independent' },
+  { id: 'product-marketing-alliance', name: 'Product Marketing Alliance', feed: 'https://www.productmarketingalliance.com/rss/', kind: 'practitioner', posture: 'independent' },
+  { id: 'productled', name: 'ProductLed', feed: 'https://productled.com/blog/rss.xml', kind: 'practitioner', posture: 'independent' },
+  // The developer's own side of the same market — what the audience being
+  // marketed to reads and says. Not marketing sources; the check on whether a
+  // positioning claim survives contact with the people it is aimed at.
+  { id: 'pragmatic-engineer', name: 'The Pragmatic Engineer', feed: 'https://newsletter.pragmaticengineer.com/feed', kind: 'newsletter', posture: 'independent' },
+  { id: 'stackoverflow-blog', name: 'Stack Overflow blog', feed: 'https://stackoverflow.blog/feed/', kind: 'operator', posture: 'vendor' },
+
   // Launch trackers.
   { id: 'producthunt-devtools', name: 'Product Hunt — developer tools', feed: 'https://www.producthunt.com/feed?category=developer-tools', kind: 'newsletter', posture: 'independent', channel: 'producthunt' },
 ];
