@@ -24,6 +24,7 @@
     "newsletter:preview": "node newsletter/send.mjs --dry-run --out newsletter/data/preview.html",
     "astro": "astro",
     "jobs:merge": "node scripts/jobs-merge.mjs",
+    "ebook:build": "node scripts/make-ebook.mjs",
     "ledger:report": "node scripts/ledger-report.mjs"
   },
   "dependencies": {

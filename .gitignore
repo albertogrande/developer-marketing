@@ -25,3 +25,10 @@ editorial/FEEDBACK-REPLIES.md
 
 # Jobs sweep scratch — the scraper's checkpoint file; merge consumes and deletes it.
 signals/jobs/incoming.json
+
+# Research working directory for one-off dossiers (scripts/make-ebook.mjs input).
+# Same reasoning as .cache/ above: these books reproduce third parties' posts in
+# full so they can be read offline, and this repo's CC BY 4.0 licence cannot be
+# applied to somebody else's words. The generator is committed; its input and
+# output are not.
+research/
