@@ -423,5 +423,15 @@
     ],
     "name": "Modular",
     "kind": "company"
+  },
+  "posthog": {
+    "aliases": [],
+    "name": "PostHog",
+    "kind": "company"
+  },
+  "uipath": {
+    "aliases": [],
+    "name": "UiPath",
+    "kind": "company"
   }
 }
