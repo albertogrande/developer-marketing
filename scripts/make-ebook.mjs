@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Build a book from a directory of markdown chapters.
 //
-//   npm run ebook:build -- research/railway
-//   npm run ebook:build -- research/railway --out /tmp
+//   npm run ebook:build -- <dir>
+//   npm run ebook:build -- <dir> --out /tmp
 //
 // The directory holds a `book.yml` manifest and one markdown file per chapter.
 // Output is `<slug>.epub` and `<slug>.html`, side by side: the EPUB for a
@@ -14,6 +14,9 @@
 //
 // The books this builds are not site content and are not committed — see the
 // `research/` note in .gitignore. Nothing here writes into src/.
+//
+// This file is also in albertogrande/railway, which is where the Railway
+// dossier now lives. It is generic: change one copy, change both.
 //
 // book.yml:
 //   title:       required
