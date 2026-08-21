@@ -48,8 +48,17 @@ if (!PATCH && !ADD && !NEW_ENTITIES) {
   process.exit(2);
 }
 
+// fs.promises.readFile refuses a bare fd (ERR_INVALID_ARG_TYPE on Node 20),
+// so stdin is drained as a stream instead.
+const readStdin = async () => {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  for await (const chunk of process.stdin) raw += chunk;
+  return raw;
+};
+
 const readInput = async (spec) => {
-  const raw = spec === '-' ? await readFile(0, 'utf8') : await readFile(spec, 'utf8');
+  const raw = spec === '-' ? await readStdin() : await readFile(spec, 'utf8');
   return JSON.parse(raw);
 };
 

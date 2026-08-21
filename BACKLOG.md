@@ -110,36 +110,53 @@ Nothing gates this file. It is worth exactly what gets written into it.
   a scheduled run fails, rather than assuming.
   Found 2026-08-17 (run 31992479909).
 
-- [.github/workflows/editor.yml] `Editor.writer` reached its 90-turn cap
-  (94 turns, 1 of 1 runs) and shipped only because `tolerate_max_turns` let a
-  truncated run through — the exact condition `writer-guard`'s own warning says
-  not to leave standing. Either raise the cap or cut the work per turn; check
-  with `node scripts/ledger-report.mjs --days 14` once there are more runs.
-  Found 2026-08-17 (usage ledger).
-
-- [actions] `actions/checkout@v4`, `actions/cache@v4`, `actions/setup-node@v4`
-  and `actions/upload-artifact@v4` target Node 20 and are being force-run on
-  Node 24, with a deprecation warning on every job. Bump to `@v5` before the
-  forcing turns into a failure.
-  Found 2026-08-17 (annotations on every workflow run).
-
-- [editorial/MEMORY.md] At 130 lines against its declared ~140-line cap;
-  `check-editorial.mjs` is already warning. Due a prune at the next weekly
-  pass, before the graded warning becomes a hard stop.
+- [editorial/MEMORY.md] At 138 lines (as of 2026-08-21) against its declared
+  ~140-line cap; `check-editorial.mjs` is already warning. Due a prune at the
+  next weekly pass, before the graded warning becomes a hard stop.
   Found 2026-08-17 (`npm run check`).
-
-- [scripts/scout-enrich.mjs] The `--patch -`, `--new-entities -` and `--add -`
-  stdin modes throw `ERR_INVALID_ARG_TYPE` on Node 20.20.2 — `readFile(0,
-  'utf8')` is the culprit. Workaround: write the payload to a temp file and
-  pass its path. Every enrich call is paying the workaround tax.
-  Found 2026-08-16 (`signals/2026-W33.md`).
-
-- [scripts/lib/scout-sources.mjs] The `leerob` crawl job returns 24 items that
-  are all site tag/category index pages (`/rust`, `/agents`, `/bio`, …) rather
-  than posts, so it contributes nothing to triage while still costing a source
-  job every sweep. Needs a selector fix or removal.
-  Found 2026-08-14 (`signals/2026-W33.md`).
 
 ## Done
 
-_Nothing yet._
+- [.github/workflows/{scout,editor}.yml] The commit-and-push `paths` lists
+  didn't include root `BACKLOG.md`, so anything a CI writer appended here was
+  written and then silently dropped at commit time — the 08-21 sweep's
+  podcast-notes entry never reached the remote, exactly the loss this file
+  exists to prevent. Both writers' paths now carry `BACKLOG.md`.
+  Found and fixed 2026-08-21 (general health check).
+
+- [editorial/podcasts/] Three 08-18 notes (Strapi/Coisne, PlanetScale/Dicken,
+  the TAB episode) were saved under hand-shortened filenames instead of their
+  transcript-cache stems; the 08-21 sweep rewrote them under the correct stems
+  but couldn't delete the mis-named duplicates (`rm` blocked in its sandbox).
+  This is the entry that sweep wrote and lost to the paths gap above.
+  Duplicates verified byte-identical and deleted.
+  Found 2026-08-21 (`signals/2026-W34.md`); fixed 2026-08-21.
+
+- [.github/workflows/editor.yml] `Editor.writer` reached its 90-turn cap
+  (94 turns, 1 of 1 runs) and shipped only because `tolerate_max_turns` let a
+  truncated run through — the exact condition `writer-guard`'s own warning says
+  not to leave standing. Cap raised to 120; re-check saturation with
+  `node scripts/ledger-report.mjs` once more runs land.
+  Found 2026-08-17 (usage ledger); fixed 2026-08-21.
+
+- [actions] `actions/checkout@v4`, `actions/cache@v4`, `actions/setup-node@v4`
+  and `actions/upload-artifact@v4` target Node 20 and are being force-run on
+  Node 24, with a deprecation warning on every job. All four bumped to `@v5`
+  (tags verified to exist upstream first).
+  Found 2026-08-17 (annotations on every workflow run); fixed 2026-08-21.
+
+- [scripts/scout-enrich.mjs] The `--patch -`, `--new-entities -` and `--add -`
+  stdin modes threw `ERR_INVALID_ARG_TYPE` — `readFile(0, 'utf8')` was the
+  culprit (the promises API refuses a bare fd). stdin is now drained as a
+  stream; the temp-file workaround is no longer needed.
+  Found 2026-08-16 (`signals/2026-W33.md`); fixed 2026-08-21.
+
+- [scripts/lib/scout-sources.mjs] The `leerob` crawl job was recorded as
+  returning only tag/category index pages. **Closed as a misdiagnosis**,
+  verified 2026-08-21: the top-level slugs are the posts — `/rust` is "Rust Is
+  Eating JavaScript", `/agents` is "Coding Agents & Complexity Budgets",
+  `/heroku` is "The Story of Heroku". The URLs merely look like tag pages. The
+  non-post slugs are already carried by the job's exclude list, and the
+  every-deploy `lastmod` restamp is absorbed by cross-week dedupe (see the
+  entry's own comment in scout-sources.mjs). No change made.
+  Found 2026-08-14 (`signals/2026-W33.md`); closed 2026-08-21.

@@ -48,8 +48,8 @@ jobs:
     # with no rescue and no guard, which is strictly worse than a turn cap.
     timeout-minutes: 75
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: npm
@@ -130,15 +130,17 @@ jobs:
           show_full_output: true
           # Fable: this is a long, unattended writing run.
           #
-          # 90 turns, not 60: this desk does the most per run of any — the
+          # 120 turns, not 90: this desk does the most per run of any — the
           # issue, the full guide-accuracy pass, claims reconciliation, the
           # skills shelf, the feedback inbox and memory — and 2026-08-03 hit
-          # the cap with the digest written but uncommitted. Its own accuracy
-          # pass is what `Bash(node scripts/check-*)` is for; that was a
-          # denial on 08-03, and denials cost turns.
+          # the old 60 cap with the digest written but uncommitted, then the
+          # first real run (2026-08-17) hit 94 against 90 and shipped only
+          # because tolerate_max_turns let the truncated run through. Its own
+          # accuracy pass is what `Bash(node scripts/check-*)` is for; that
+          # was a denial on 08-03, and denials cost turns.
           claude_args: >-
             --model claude-fable-5
-            --max-turns 90
+            --max-turns 120
             --allowedTools "WebSearch,WebFetch,Read,Write,Edit,Glob,Grep,Bash(date *),Bash(ls *),Bash(cat *),Bash(head *),Bash(tail *),Bash(wc *),Bash(grep *),Bash(sort *),Bash(git status *),Bash(git diff *),Bash(npm run check*),Bash(npm run scout:query*),Bash(npm run scout:stats*),Bash(node scripts/scout-query.mjs*),Bash(node scripts/scout-stats.mjs*),Bash(node scripts/check-*)"
 
       # claude-code-action reuses one execution-file path across invocations,
@@ -208,7 +210,9 @@ jobs:
       - name: Commit changes
         uses: ./.github/actions/commit-and-push
         with:
-          paths: signals/ editorial/ src/content/ usage/
+          # BACKLOG.md: the skill's weekly pass moves fixed items to Done, and
+          # that edit has to reach the remote (see the scout's same note).
+          paths: signals/ editorial/ src/content/ usage/ BACKLOG.md
           message: "Editor: issue ${{ steps.ledger.outputs.week }}"
 
       # After the corrections are committed, answer the issues that reported

@@ -71,7 +71,7 @@ jobs:
     # ~12 min, so this stays comfortable headroom rather than a live ceiling.
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # Runners are ephemeral, so without this the transcript cache is empty on
       # every run and each sweep re-downloads what the last one already had.
       # Transcripts are third-party copyrighted work: they live here and in
@@ -86,13 +86,13 @@ jobs:
       # restore-key prefix, and wrote a fresh entry every night — the comment
       # said "keyed by day" but the expression did not.
       - name: Cache podcast transcripts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/transcripts
           key: podcast-transcripts-${{ steps.cachekey.outputs.day }}
           restore-keys: |
             podcast-transcripts-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: npm
@@ -241,7 +241,10 @@ jobs:
       - name: Commit changes
         uses: ./.github/actions/commit-and-push
         with:
-          paths: signals/ editorial/ src/content/ usage/
+          # BACKLOG.md: the skill appends deferred defects there mid-run, and
+          # until 2026-08-21 this list didn't include it — the 08-21 sweep's
+          # entry was written and silently dropped at commit time.
+          paths: signals/ editorial/ src/content/ usage/ BACKLOG.md
           message: "Scout: signals ${{ steps.ledger.outputs.today }}"
 
       # A failed gate must cost a retry, not the written work.
