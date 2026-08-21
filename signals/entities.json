@@ -433,5 +433,15 @@
     "aliases": [],
     "name": "UiPath",
     "kind": "company"
+  },
+  "runlayer": {
+    "aliases": [],
+    "name": "Runlayer",
+    "kind": "company"
+  },
+  "rippling": {
+    "aliases": [],
+    "name": "Rippling",
+    "kind": "company"
   }
 }
