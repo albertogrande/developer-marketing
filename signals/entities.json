@@ -443,5 +443,13 @@
     "aliases": [],
     "name": "Rippling",
     "kind": "company"
+  },
+  "railway": {
+    "aliases": [
+      "railway.com",
+      "railway.app"
+    ],
+    "name": "Railway",
+    "kind": "company"
   }
 }

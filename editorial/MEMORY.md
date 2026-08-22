@@ -41,6 +41,10 @@ publish, plus the staging area.
 - `proof-over-adjectives` — the "does honesty ever cost anyone" loop is
   unfalsifiable as written: the failures never get published. Rephrase or
   retire it if nothing testable turns up by end of Q3.
+- **Docker's agent-trust pattern, logged 2026-08-22**: four dated posts in
+  six days (zero-CVE hardening, an agent-security framework, self-serve
+  publisher verification, Sandboxes in GitHub Actions) reading as one
+  thesis — watch for a competitor answering with its own named framework.
 - `how-ai-features-get-priced` — if Muse Code's contributor tier quietly
   disappears at GA, cool this to `dormant` rather than resolving it. A
   withdrawn experiment answers nothing.
