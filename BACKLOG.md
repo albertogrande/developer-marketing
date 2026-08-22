@@ -66,6 +66,11 @@ Nothing gates this file. It is worth exactly what gets written into it.
   the proxy/OAuth fixes are still the durable answer, but "dark in CI" is no
   longer an accurate description of all four jobs. Re-measure across a few
   sweeps before rewriting this entry — one run is not a pattern.
+  **Update 2026-08-22: the proxy path is wired.** `scripts/lib/proxy.mjs`
+  routes every sweep fetch through `SCOUT_PROXY_URL` when the secret exists,
+  and scout.yml passes it; setting that one secret is now the whole fix (the
+  OAuth app remains the alternative if a proxy is unwanted). See the
+  watchlist-sources entry below for the same-day verification.
 
 - [alerting] `ALERT_EMAIL_TO` is not set on the repo, so `notify-failure`'s
   email leg has never sent anything — `send-alert.mjs` no-ops and says so in
@@ -102,6 +107,23 @@ Nothing gates this file. It is worth exactly what gets written into it.
   swap the sources, or retire them from `scripts/lib/scout-sources.mjs` so the
   daily note stops carrying a block that nobody can act on.
   Found 2026-07-22 (recurring in every `signals/` sourcing note since).
+  **Update 2026-08-22: resized and one secret from fixed.** A full source
+  audit from a non-runner egress found every 403'd web source (Search Engine
+  Land, mkt1, april-dunford, latent.space) answers 200 there — same UA, same
+  URL — so the whole family is the Reddit IP block, not per-source breakage.
+  The sweep and the podcast fetcher now route through `SCOUT_PROXY_URL` when
+  the secret exists (`scripts/lib/proxy.mjs`, wired in scout.yml; no-op until
+  then). **Needs Alberto**: any HTTP(S) proxy URL as the `SCOUT_PROXY_URL`
+  repo secret — that one value unblocks Reddit and all four feeds at once.
+  Separately, the audit resized the "silent for 3+ weeks" list from
+  `scout:stats --health`: the eight practitioner sources registered 08-19
+  (tomasz-tunguz, product-marketing-alliance, productled, reforge, markepear,
+  draft-dev, april-dunford, mkt1) have only seen two CI sweeps, and the
+  08-16 operator/changelog block (astro, deno, fly, mongodb, microsoft,
+  railway ×2, sentry) parses clean with latest posts simply predating
+  registration — quiet, not broken. A 08-22 dry run captured tomasz-tunguz
+  and railway-changelog events on the first try. No source needs retiring on
+  this evidence.
 
 - [.github/workflows/recover.yml] The `allowed_bots` fix cannot be verified
   until the next *scheduled* writer failure. A manual `workflow_dispatch` runs

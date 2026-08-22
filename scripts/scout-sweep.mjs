@@ -41,6 +41,7 @@ import {
   dbFileFor,
 } from './lib/scout-sources.mjs';
 import { PODCASTS } from './lib/podcasts.mjs';
+import { useScoutProxy } from './lib/proxy.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -75,6 +76,11 @@ const SINCE = new Date(NOW.getTime() - DAYS * 86400e3);
 const TIMEOUT_MS = 10_000;
 const CONCURRENCY = 8;
 const UA = 'thebeat-scout/1.0 (+https://thebeat.dev)';
+
+// SCOUT_PROXY_URL set → every fetch below goes through it, which is what
+// unblocks the IP-blocked half of the watchlist from CI (see lib/proxy.mjs).
+const PROXIED = await useScoutProxy();
+if (PROXIED) console.log('scout-sweep: egress via SCOUT_PROXY_URL.');
 
 const failures = [];
 // label → in-window items this run. A source that fetches fine and returns
@@ -325,7 +331,10 @@ if (failures.length) {
   // .json and .rss, every User-Agent and Accept combination answers 403 from a
   // CI runner, and the same requests answer 200 through a proxy. Saying so here
   // stops a permanent, understood block from reading like today's flake.
-  if (failures.some((f) => f.startsWith('reddit r/') && f.includes('403'))) {
+  // Behind SCOUT_PROXY_URL the note would be wrong twice over — a 403 through
+  // the proxy is the proxy's IP burning, a different problem — so it is
+  // suppressed and the failure lines above stand on their own.
+  if (!PROXIED && failures.some((f) => f.startsWith('reddit r/') && f.includes('403'))) {
     console.log(
       '\n  note: Reddit 403s all datacenter egress — this is an IP block, not a broken URL,\n' +
         '        so it will fail every CI run until the sweep gets a proxy or Reddit API\n' +

@@ -113,6 +113,14 @@ jobs:
         # runs and a sweep's finished signals are thrown away — how
         # 08-02 lost five written files one turn from done. The guard decides.
         continue-on-error: true
+        env:
+          # Optional egress proxy for scout:sweep and podcast:transcripts.
+          # Reddit and several feeds (Search Engine Land, the Substacks,
+          # Latent Space) 403 the runner IPs while answering the identical
+          # request through a proxy — an IP block, not a broken URL. While the
+          # secret is unset this is an empty string and the tools no-op
+          # (scripts/lib/proxy.mjs), so the wiring ships ahead of the secret.
+          SCOUT_PROXY_URL: ${{ secrets.SCOUT_PROXY_URL }}
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

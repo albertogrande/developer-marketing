@@ -30,6 +30,11 @@ import {
   cacheName,
   noteName,
 } from './lib/podcasts.mjs';
+import { useScoutProxy } from './lib/proxy.mjs';
+
+// Same optional egress proxy as the sweep — Latent Space's feed is behind the
+// same IP block that 403s the watchlist from CI (see lib/proxy.mjs).
+await useScoutProxy();
 
 const CACHE_DIR = '.cache/transcripts';
 // Distilled episode notes — the site's own work product, committed. See
